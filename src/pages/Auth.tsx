@@ -28,16 +28,16 @@ const Auth = () => {
 
       if (error) {
         if (error.message.includes("Invalid login credentials")) {
-          toast.error("Неверный email или пароль");
+          toast.error("Invalid email or password");
         } else {
           toast.error(error.message);
         }
       } else {
-        toast.success("Добро пожаловать!");
+        toast.success("Welcome!");
         navigate("/dashboard");
       }
     } catch (error) {
-      toast.error("Произошла ошибка при входе");
+      toast.error("An error occurred during login");
     } finally {
       setIsLoading(false);
     }
@@ -61,15 +61,15 @@ const Auth = () => {
 
       if (error) {
         if (error.message.includes("already registered")) {
-          toast.error("Пользователь с таким email уже зарегистрирован");
+          toast.error("A user with this email is already registered");
         } else {
           toast.error(error.message);
         }
       } else {
-        toast.success("Проверьте вашу почту для подтверждения регистрации");
+        toast.success("Account created successfully!");
       }
     } catch (error) {
-      toast.error("Произошла ошибка при регистрации");
+      toast.error("An error occurred during registration");
     } finally {
       setIsLoading(false);
     }
@@ -102,7 +102,7 @@ const Auth = () => {
             </div>
             
             <p className="text-xl text-muted-foreground max-w-md">
-              Инновационные AI-решения для оптимизации нефтедобычи
+              Innovative AI solutions for oil production optimization
             </p>
 
             <div className="space-y-4 pt-8">
@@ -110,19 +110,19 @@ const Auth = () => {
                 <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
                   <BarChart3 className="h-5 w-5 text-primary" />
                 </div>
-                <span>Анализ 15,000+ скважин</span>
+                <span>Analysis of 15,000+ wells</span>
               </div>
               <div className="flex items-center gap-4 text-muted-foreground">
                 <div className="h-10 w-10 rounded-lg bg-accent/10 flex items-center justify-center">
                   <Cpu className="h-5 w-5 text-accent" />
                 </div>
-                <span>AI-ранжирование потенциала</span>
+                <span>AI potential ranking</span>
               </div>
               <div className="flex items-center gap-4 text-muted-foreground">
                 <div className="h-10 w-10 rounded-lg bg-success/10 flex items-center justify-center">
                   <Droplets className="h-5 w-5 text-success" />
                 </div>
-                <span>Увеличение добычи в 5-20x</span>
+                <span>5-20x production increase</span>
               </div>
             </div>
           </div>
@@ -141,16 +141,16 @@ const Auth = () => {
               <Droplets className="h-8 w-8 text-primary" />
               <span className="text-2xl font-bold">AI Smart Well</span>
             </div>
-            <CardTitle className="text-2xl">Платформа SGOM</CardTitle>
+            <CardTitle className="text-2xl">SGOM Platform</CardTitle>
             <CardDescription>
-              Войдите или создайте аккаунт для доступа к системе
+              Sign in or create an account to access the system
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="login" className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-6">
-                <TabsTrigger value="login">Вход</TabsTrigger>
-                <TabsTrigger value="register">Регистрация</TabsTrigger>
+                <TabsTrigger value="login">Sign In</TabsTrigger>
+                <TabsTrigger value="register">Sign Up</TabsTrigger>
               </TabsList>
               
               <TabsContent value="login">
@@ -168,7 +168,7 @@ const Auth = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="login-password">Пароль</Label>
+                    <Label htmlFor="login-password">Password</Label>
                     <Input
                       id="login-password"
                       type="password"
@@ -183,10 +183,10 @@ const Auth = () => {
                     {isLoading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Вход...
+                        Signing in...
                       </>
                     ) : (
-                      "Войти"
+                      "Sign In"
                     )}
                   </Button>
                 </form>
@@ -195,11 +195,11 @@ const Auth = () => {
               <TabsContent value="register">
                 <form onSubmit={handleSignup} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="register-name">Полное имя</Label>
+                    <Label htmlFor="register-name">Full Name</Label>
                     <Input
                       id="register-name"
                       type="text"
-                      placeholder="Иван Петров"
+                      placeholder="John Doe"
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       required
@@ -219,11 +219,11 @@ const Auth = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="register-password">Пароль</Label>
+                    <Label htmlFor="register-password">Password</Label>
                     <Input
                       id="register-password"
                       type="password"
-                      placeholder="Минимум 6 символов"
+                      placeholder="Minimum 6 characters"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
@@ -235,10 +235,10 @@ const Auth = () => {
                     {isLoading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Регистрация...
+                        Creating account...
                       </>
                     ) : (
-                      "Создать аккаунт"
+                      "Create Account"
                     )}
                   </Button>
                 </form>
