@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +17,7 @@ import { useNavigate } from "react-router-dom";
 
 const Simulation = () => {
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("input");
 
   const months = ["M1", "M2", "M3", "M4", "M5", "M6", "M9", "M12"];
   const productionData = [45, 52, 58, 62, 65, 68, 72, 78];
@@ -86,7 +88,7 @@ const Simulation = () => {
               <CardTitle>Simulation Parameters</CardTitle>
             </CardHeader>
             <CardContent>
-              <Tabs defaultValue="input" className="w-full">
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="grid w-full grid-cols-3">
                   <TabsTrigger value="input">Input Data</TabsTrigger>
                   <TabsTrigger value="scenarios">🔄 Scenarios</TabsTrigger>

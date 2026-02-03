@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 
 const GeologicalAnalysis = () => {
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("seismic");
 
   return (
     <div className="p-8">
@@ -92,7 +94,7 @@ const GeologicalAnalysis = () => {
               <CardTitle>AI Processing Modules</CardTitle>
             </CardHeader>
             <CardContent>
-              <Tabs defaultValue="seismic" className="w-full">
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="grid w-full grid-cols-3">
                   <TabsTrigger value="seismic">🎯 Seismic</TabsTrigger>
                   <TabsTrigger value="welllog">📊 Well Log</TabsTrigger>
