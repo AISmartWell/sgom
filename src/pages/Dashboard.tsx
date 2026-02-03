@@ -33,7 +33,7 @@ const Dashboard = () => {
   const modules = [
     {
       title: "Data Collection",
-      description: "Сбор и интеграция данных из баз скважин Oklahoma, Texas",
+      description: "Collect and integrate well data from Oklahoma & Texas databases",
       icon: Database,
       href: "/dashboard/data-collection",
       status: "ready" as const,
@@ -45,7 +45,7 @@ const Dashboard = () => {
     },
     {
       title: "Geological Analysis",
-      description: "AI-анализ сейсмики, каротажа, 3D геологическое моделирование",
+      description: "AI seismic analysis, well logs, 3D geological modeling",
       icon: Map,
       href: "/dashboard/geological-analysis",
       status: "ready" as const,
@@ -57,7 +57,7 @@ const Dashboard = () => {
     },
     {
       title: "AI Well Selection",
-      description: "Ранжирование скважин по потенциалу с ML-алгоритмами",
+      description: "ML-based well ranking by production potential",
       icon: Target,
       href: "/dashboard/well-selection",
       status: "in-progress" as const,
@@ -69,7 +69,7 @@ const Dashboard = () => {
     },
     {
       title: "Reservoir Simulation",
-      description: "Динамическое моделирование и прогноз добычи",
+      description: "Dynamic modeling and production forecasting",
       icon: BarChart3,
       href: "/dashboard/simulation",
       status: "ready" as const,
@@ -81,7 +81,7 @@ const Dashboard = () => {
     },
     {
       title: "Financial Forecast",
-      description: "ROI анализ, инвестиционные расчёты по проектам",
+      description: "ROI analysis, investment calculations by project",
       icon: DollarSign,
       href: "/dashboard/financial",
       status: "ready" as const,
@@ -93,7 +93,7 @@ const Dashboard = () => {
     },
     {
       title: "SPT Treatment",
-      description: "Технология гидрорезки (Patent US8863823)",
+      description: "Hydro-slotting technology (Patent US8863823)",
       icon: Wrench,
       href: "/dashboard/spt-treatment",
       status: "pending" as const,
@@ -110,17 +110,17 @@ const Dashboard = () => {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">
-          Добро пожаловать{userName ? `, ${userName}` : ""}! 👋
+          Welcome{userName ? `, ${userName}` : ""}! 👋
         </h1>
         <p className="text-muted-foreground">
-          Платформа SGOM — AI Smart Well & Maxxwell Production
+          SGOM Platform — AI Smart Well & Maxxwell Production
         </p>
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard
-          title="Всего скважин"
+          title="Total Wells"
           value="15,847"
           description="Oklahoma & Texas"
           icon={Droplets}
@@ -136,14 +136,14 @@ const Dashboard = () => {
           trend={{ value: 8, isPositive: true }}
         />
         <StatCard
-          title="Активных проектов"
+          title="Active Projects"
           value="23"
           description="In analysis"
           icon={Activity}
           variant="accent"
         />
         <StatCard
-          title="Средний ROI"
+          title="Average ROI"
           value="312%"
           description="7-8 months payback"
           icon={TrendingUp}
@@ -156,7 +156,7 @@ const Dashboard = () => {
       <div className="mb-6">
         <h2 className="text-xl font-semibold mb-4">SGOM Modules</h2>
         <p className="text-sm text-muted-foreground mb-6">
-          Полный цикл анализа и оптимизации нефтедобычи
+          Complete cycle of oil production analysis and optimization
         </p>
       </div>
 

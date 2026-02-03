@@ -89,7 +89,7 @@ const DataCollection = () => {
             <h1 className="text-3xl font-bold">Data Collection & Integration</h1>
           </div>
           <p className="text-muted-foreground">
-            Сбор и интеграция данных из множества источников
+            Collect and integrate data from multiple sources
           </p>
         </div>
         <div className="flex gap-3">

@@ -34,7 +34,7 @@ const Index = () => {
               <span className="text-2xl font-bold">AI Smart Well</span>
             </div>
             <Button onClick={() => navigate("/auth")}>
-              Войти в платформу
+              Enter Platform
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </nav>
@@ -52,11 +52,11 @@ const Index = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" onClick={() => navigate("/auth")} className="glow-primary">
-                Начать работу
+                Get Started
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
               <Button size="lg" variant="outline">
-                Узнать больше
+                Learn More
               </Button>
             </div>
           </div>
@@ -92,17 +92,17 @@ const Index = () => {
       <div className="max-w-7xl mx-auto px-6 py-20">
         <h2 className="text-3xl font-bold text-center mb-4">SGOM Platform Modules</h2>
         <p className="text-muted-foreground text-center mb-12 max-w-2xl mx-auto">
-          Полный цикл анализа и оптимизации нефтедобычи с использованием искусственного интеллекта
+          Complete cycle of oil production analysis and optimization powered by artificial intelligence
         </p>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[
-            { emoji: "📡", title: "Data Collection", desc: "Сбор данных из баз Oklahoma, Texas" },
-            { emoji: "🗺️", title: "Geological Analysis", desc: "AI-анализ сейсмики и каротажа" },
-            { emoji: "🎯", title: "AI Well Selection", desc: "ML-ранжирование по потенциалу" },
-            { emoji: "📊", title: "Reservoir Simulation", desc: "Динамическое моделирование" },
-            { emoji: "💰", title: "Financial Forecast", desc: "ROI и инвестиционный анализ" },
-            { emoji: "🔧", title: "SPT Treatment", desc: "Технология гидрорезки" },
+            { emoji: "📡", title: "Data Collection", desc: "Well data from Oklahoma & Texas databases" },
+            { emoji: "🗺️", title: "Geological Analysis", desc: "AI seismic & well log analysis" },
+            { emoji: "🎯", title: "AI Well Selection", desc: "ML-based potential ranking" },
+            { emoji: "📊", title: "Reservoir Simulation", desc: "Dynamic reservoir modeling" },
+            { emoji: "💰", title: "Financial Forecast", desc: "ROI & investment analysis" },
+            { emoji: "🔧", title: "SPT Treatment", desc: "Hydro-slotting technology" },
           ].map((feature, index) => (
             <div key={index} className="glass-card rounded-xl p-6 hover:border-primary/30 transition-colors">
               <span className="text-4xl mb-4 block">{feature.emoji}</span>
