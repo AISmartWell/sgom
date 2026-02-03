@@ -80,7 +80,7 @@ const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    toast.success("Вы вышли из системы");
+    toast.success("You have been logged out");
     navigate("/auth");
   };
 
@@ -162,7 +162,7 @@ const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
           onClick={handleLogout}
         >
           <LogOut className="h-5 w-5" />
-          {!collapsed && <span className="ml-3">Выйти</span>}
+          {!collapsed && <span className="ml-3">Log Out</span>}
         </Button>
       </div>
     </div>
