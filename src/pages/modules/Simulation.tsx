@@ -16,8 +16,10 @@ import {
   Eye,
   Pause,
   RotateCcw,
+  LineChart,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import ForecastVisualization from "@/components/simulation/ForecastVisualization";
 import ReservoirVisualization from "@/components/simulation/ReservoirVisualization";
 
 const Simulation = () => {
@@ -25,9 +27,6 @@ const Simulation = () => {
   const [activeTab, setActiveTab] = useState("visualization");
   const [isSimulating, setIsSimulating] = useState(false);
   const [progress, setProgress] = useState(0);
-
-  const months = ["M1", "M2", "M3", "M4", "M5", "M6", "M9", "M12"];
-  const productionData = [45, 52, 58, 62, 65, 68, 72, 78];
 
   const handleRunSimulation = () => {
     if (isSimulating) {
@@ -115,7 +114,7 @@ const Simulation = () => {
                     3D View
                   </TabsTrigger>
                   <TabsTrigger value="forecast" className="gap-2">
-                    <BarChart3 className="h-4 w-4" />
+                    <LineChart className="h-4 w-4" />
                     Forecast
                   </TabsTrigger>
                   <TabsTrigger value="parameters" className="gap-2">
@@ -140,27 +139,7 @@ const Simulation = () => {
                 </TabsContent>
                 
                 <TabsContent value="forecast" className="mt-0">
-                  <div className="h-[400px] flex flex-col">
-                    <div className="flex-1 flex items-end justify-between gap-2 px-4 py-8">
-                      {months.map((month, index) => (
-                        <div key={month} className="flex-1 flex flex-col items-center gap-2">
-                          <div 
-                            className="w-full bg-gradient-to-t from-primary to-cyan-400 rounded-t-lg transition-all duration-300 hover:opacity-80"
-                            style={{ height: `${(productionData[index] / 80) * 100}%` }}
-                          />
-                          <span className="text-xs text-muted-foreground">{month}</span>
-                          <span className="text-xs font-medium">{productionData[index]} BPD</span>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="flex items-center justify-center gap-8 pb-4">
-                      <div className="flex items-center gap-2">
-                        <TrendingUp className="h-4 w-4 text-success" />
-                        <span className="text-sm">+73% projected increase</span>
-                      </div>
-                      <Badge className="bg-primary/20 text-primary">12-month forecast</Badge>
-                    </div>
-                  </div>
+                  <ForecastVisualization />
                 </TabsContent>
                 
                 <TabsContent value="parameters" className="mt-0">
