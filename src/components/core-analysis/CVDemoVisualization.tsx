@@ -36,12 +36,12 @@ interface DetectedFeature {
 const SAMPLE_IMAGE = "https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=300&fit=crop";
 
 const STAGES: { key: AnalysisStage; label: string; duration: number }[] = [
-  { key: "preprocessing", label: "Предобработка изображения", duration: 1500 },
-  { key: "edge_detection", label: "Обнаружение границ", duration: 2000 },
-  { key: "feature_extraction", label: "Извлечение признаков", duration: 2500 },
-  { key: "segmentation", label: "Сегментация областей", duration: 2000 },
-  { key: "classification", label: "Классификация", duration: 1500 },
-  { key: "complete", label: "Анализ завершён", duration: 0 },
+  { key: "preprocessing", label: "Image Preprocessing", duration: 1500 },
+  { key: "edge_detection", label: "Edge Detection", duration: 2000 },
+  { key: "feature_extraction", label: "Feature Extraction", duration: 2500 },
+  { key: "segmentation", label: "Region Segmentation", duration: 2000 },
+  { key: "classification", label: "Classification", duration: 1500 },
+  { key: "complete", label: "Analysis Complete", duration: 0 },
 ];
 
 export const CVDemoVisualization = () => {
@@ -139,7 +139,7 @@ export const CVDemoVisualization = () => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Eye className="h-5 w-5" />
-          Демо: Как работает Computer Vision
+          Demo: How Computer Vision Works
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -211,7 +211,7 @@ export const CVDemoVisualization = () => {
             <div className="absolute inset-0 bg-background/30 backdrop-blur-[1px] flex items-center justify-center">
               <div className="bg-background/90 rounded-lg px-4 py-2 flex items-center gap-2">
                 <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                <span className="text-sm font-medium">Анализ...</span>
+                <span className="text-sm font-medium">Analyzing...</span>
               </div>
             </div>
           )}
@@ -220,7 +220,7 @@ export const CVDemoVisualization = () => {
         {/* Progress */}
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Прогресс анализа</span>
+            <span className="text-muted-foreground">Analysis Progress</span>
             <span className="font-medium">{Math.round(progress)}%</span>
           </div>
           <Progress value={progress} className="h-2" />
@@ -258,19 +258,19 @@ export const CVDemoVisualization = () => {
           <div className="flex flex-wrap gap-2">
             <Badge variant="outline" className="gap-1">
               <div className="w-2 h-2 rounded-full bg-primary" />
-              Поры: {features.filter(f => f.type === "pore").length}
+              Pores: {features.filter(f => f.type === "pore").length}
             </Badge>
             <Badge variant="outline" className="gap-1">
               <div className="w-2 h-2 rounded-full bg-destructive" />
-              Трещины: {features.filter(f => f.type === "fracture").length}
+              Fractures: {features.filter(f => f.type === "fracture").length}
             </Badge>
             <Badge variant="outline" className="gap-1">
               <div className="w-2 h-2 rounded-full bg-warning" />
-              Минералы: {features.filter(f => f.type === "mineral").length}
+              Minerals: {features.filter(f => f.type === "mineral").length}
             </Badge>
             <Badge variant="outline" className="gap-1">
               <div className="w-2 h-2 rounded-full bg-success" />
-              Зёрна: {features.filter(f => f.type === "grain").length}
+              Grains: {features.filter(f => f.type === "grain").length}
             </Badge>
           </div>
         )}
@@ -283,7 +283,7 @@ export const CVDemoVisualization = () => {
             className="flex-1"
           >
             <Play className="mr-2 h-4 w-4" />
-            Запустить демо
+            Run Demo
           </Button>
           <Button
             variant="outline"
@@ -296,13 +296,13 @@ export const CVDemoVisualization = () => {
 
         {/* Explanation */}
         <div className="text-xs text-muted-foreground space-y-1 p-3 bg-muted/50 rounded-lg">
-          <p><strong>Этапы анализа компьютерного зрения:</strong></p>
+          <p><strong>Computer Vision Analysis Stages:</strong></p>
           <ol className="list-decimal list-inside space-y-1">
-            <li><strong>Предобработка</strong> — нормализация яркости, удаление шума</li>
-            <li><strong>Обнаружение границ</strong> — алгоритмы Canny/Sobel для контуров</li>
-            <li><strong>Извлечение признаков</strong> — CNN извлекает текстуры и паттерны</li>
-            <li><strong>Сегментация</strong> — разделение на смысловые области</li>
-            <li><strong>Классификация</strong> — нейросеть определяет типы пород</li>
+            <li><strong>Preprocessing</strong> — brightness normalization, noise removal</li>
+            <li><strong>Edge Detection</strong> — Canny/Sobel algorithms for contours</li>
+            <li><strong>Feature Extraction</strong> — CNN extracts textures and patterns</li>
+            <li><strong>Segmentation</strong> — dividing into semantic regions</li>
+            <li><strong>Classification</strong> — neural network identifies rock types</li>
           </ol>
         </div>
       </CardContent>
