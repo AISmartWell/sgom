@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import {
   ArrowLeft,
@@ -15,10 +15,12 @@ import {
   Layers,
   Droplets,
   Mountain,
+  Eye,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import ReactMarkdown from "react-markdown";
+import { CVDemoVisualization } from "@/components/core-analysis/CVDemoVisualization";
 
 const CoreAnalysis = () => {
   const navigate = useNavigate();
@@ -141,8 +143,21 @@ const CoreAnalysis = () => {
         </Badge>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left Column - Upload */}
+      <Tabs defaultValue="analyze" className="space-y-6">
+        <TabsList className="grid w-full max-w-md grid-cols-2">
+          <TabsTrigger value="analyze" className="gap-2">
+            <Scan className="h-4 w-4" />
+            Анализ керна
+          </TabsTrigger>
+          <TabsTrigger value="demo" className="gap-2">
+            <Eye className="h-4 w-4" />
+            Демо CV
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="analyze">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Left Column - Upload */}
         <div className="space-y-6">
           <Card className="glass-card">
             <CardHeader>
@@ -303,7 +318,15 @@ const CoreAnalysis = () => {
             )}
           </CardContent>
         </Card>
-      </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="demo">
+          <div className="max-w-3xl mx-auto">
+            <CVDemoVisualization />
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
