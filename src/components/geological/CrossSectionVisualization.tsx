@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const CrossSectionVisualization = () => {
   const [activeWell, setActiveWell] = useState<number | null>(null);
@@ -153,62 +154,85 @@ const CrossSectionVisualization = () => {
         </div>
       </div>
 
-      {/* Selected well details - enlarged panel */}
+      {/* Selected well details - enlarged panel with scroll */}
       {activeWell && (
-        <div className="mt-4 p-6 bg-gradient-to-br from-primary/10 to-accent/10 rounded-xl border-2 border-primary/30 shadow-lg animate-in fade-in slide-in-from-top-2">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className={cn(
-                "w-4 h-4 rounded-full",
-                wells.find(w => w.id === activeWell)?.status === "producing" && "bg-success animate-pulse",
-                wells.find(w => w.id === activeWell)?.status === "injector" && "bg-blue-500",
-                wells.find(w => w.id === activeWell)?.status === "planned" && "bg-muted-foreground"
-              )} />
-              <h5 className="text-xl font-bold">{wells.find(w => w.id === activeWell)?.name}</h5>
-            </div>
-            <span className={cn(
-              "text-sm font-medium px-4 py-2 rounded-full",
-              wells.find(w => w.id === activeWell)?.status === "producing" && "bg-success/20 text-success border border-success/30",
-              wells.find(w => w.id === activeWell)?.status === "injector" && "bg-blue-500/20 text-blue-500 border border-blue-500/30",
-              wells.find(w => w.id === activeWell)?.status === "planned" && "bg-muted text-muted-foreground border border-muted-foreground/30"
-            )}>
-              {wells.find(w => w.id === activeWell)?.status?.toUpperCase()}
-            </span>
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="p-4 bg-background/50 rounded-lg border border-border/50">
-              <p className="text-muted-foreground text-sm mb-1">Total Depth</p>
-              <p className="text-2xl font-bold text-primary">{wells.find(w => w.id === activeWell)?.depth}m</p>
-            </div>
-            <div className="p-4 bg-background/50 rounded-lg border border-border/50">
-              <p className="text-muted-foreground text-sm mb-1">Top Reservoir</p>
-              <p className="text-2xl font-bold text-primary">2,850m</p>
-            </div>
-            <div className="p-4 bg-background/50 rounded-lg border border-border/50">
-              <p className="text-muted-foreground text-sm mb-1">Net Pay</p>
-              <p className="text-2xl font-bold text-success">45m</p>
-            </div>
-            <div className="p-4 bg-background/50 rounded-lg border border-border/50">
-              <p className="text-muted-foreground text-sm mb-1">Production</p>
-              <p className="text-2xl font-bold text-accent">450 bbl/d</p>
-            </div>
-          </div>
+        <div className="mt-4 bg-gradient-to-br from-primary/10 to-accent/10 rounded-xl border-2 border-primary/30 shadow-lg animate-in fade-in slide-in-from-top-2">
+          <ScrollArea className="h-[300px]">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className={cn(
+                    "w-5 h-5 rounded-full",
+                    wells.find(w => w.id === activeWell)?.status === "producing" && "bg-success animate-pulse",
+                    wells.find(w => w.id === activeWell)?.status === "injector" && "bg-blue-500",
+                    wells.find(w => w.id === activeWell)?.status === "planned" && "bg-muted-foreground"
+                  )} />
+                  <h5 className="text-2xl font-bold">{wells.find(w => w.id === activeWell)?.name}</h5>
+                </div>
+                <span className={cn(
+                  "text-sm font-medium px-4 py-2 rounded-full",
+                  wells.find(w => w.id === activeWell)?.status === "producing" && "bg-success/20 text-success border border-success/30",
+                  wells.find(w => w.id === activeWell)?.status === "injector" && "bg-blue-500/20 text-blue-500 border border-blue-500/30",
+                  wells.find(w => w.id === activeWell)?.status === "planned" && "bg-muted text-muted-foreground border border-muted-foreground/30"
+                )}>
+                  {wells.find(w => w.id === activeWell)?.status?.toUpperCase()}
+                </span>
+              </div>
+              
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div className="p-5 bg-background/50 rounded-lg border border-border/50">
+                  <p className="text-muted-foreground text-sm mb-2">Total Depth</p>
+                  <p className="text-3xl font-bold text-primary">{wells.find(w => w.id === activeWell)?.depth}m</p>
+                </div>
+                <div className="p-5 bg-background/50 rounded-lg border border-border/50">
+                  <p className="text-muted-foreground text-sm mb-2">Top Reservoir</p>
+                  <p className="text-3xl font-bold text-primary">2,850m</p>
+                </div>
+                <div className="p-5 bg-background/50 rounded-lg border border-border/50">
+                  <p className="text-muted-foreground text-sm mb-2">Net Pay</p>
+                  <p className="text-3xl font-bold text-success">45m</p>
+                </div>
+                <div className="p-5 bg-background/50 rounded-lg border border-border/50">
+                  <p className="text-muted-foreground text-sm mb-2">Production</p>
+                  <p className="text-3xl font-bold text-accent">450 bbl/d</p>
+                </div>
+              </div>
 
-          <div className="mt-4 grid grid-cols-3 gap-4 text-sm">
-            <div className="flex items-center gap-2">
-              <span className="text-muted-foreground">Perforations:</span>
-              <span className="font-medium">2,850 - 2,895m</span>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+                <div className="p-4 bg-background/30 rounded-lg border border-border/30">
+                  <p className="text-muted-foreground text-xs mb-1">Perforations</p>
+                  <p className="text-lg font-semibold">2,850 - 2,895m</p>
+                </div>
+                <div className="p-4 bg-background/30 rounded-lg border border-border/30">
+                  <p className="text-muted-foreground text-xs mb-1">Water Cut</p>
+                  <p className="text-lg font-semibold text-blue-400">12%</p>
+                </div>
+                <div className="p-4 bg-background/30 rounded-lg border border-border/30">
+                  <p className="text-muted-foreground text-xs mb-1">GOR</p>
+                  <p className="text-lg font-semibold">150 scf/bbl</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="p-4 bg-background/30 rounded-lg border border-border/30">
+                  <p className="text-muted-foreground text-xs mb-1">Formation</p>
+                  <p className="text-lg font-semibold">Sandstone A</p>
+                </div>
+                <div className="p-4 bg-background/30 rounded-lg border border-border/30">
+                  <p className="text-muted-foreground text-xs mb-1">Porosity</p>
+                  <p className="text-lg font-semibold text-primary">18.5%</p>
+                </div>
+                <div className="p-4 bg-background/30 rounded-lg border border-border/30">
+                  <p className="text-muted-foreground text-xs mb-1">Permeability</p>
+                  <p className="text-lg font-semibold">245 mD</p>
+                </div>
+                <div className="p-4 bg-background/30 rounded-lg border border-border/30">
+                  <p className="text-muted-foreground text-xs mb-1">Sw</p>
+                  <p className="text-lg font-semibold text-blue-400">22%</p>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-muted-foreground">Water Cut:</span>
-              <span className="font-medium text-blue-400">12%</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-muted-foreground">GOR:</span>
-              <span className="font-medium">150 scf/bbl</span>
-            </div>
-          </div>
+          </ScrollArea>
         </div>
       )}
     </div>
