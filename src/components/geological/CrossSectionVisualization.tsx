@@ -45,7 +45,7 @@ const CrossSectionVisualization = () => {
         </div>
       </div>
 
-      <div className="relative h-96 rounded-lg overflow-hidden border border-border/50">
+      <div className="relative h-[500px] rounded-lg overflow-hidden border border-border/50">
         {/* Geological layers */}
         {layers.map((layer) => (
           <div
