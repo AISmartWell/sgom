@@ -1,17 +1,12 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import {
-  Wrench,
-  ArrowLeft,
-  Play,
-  Gauge,
-  Droplets,
-  Timer,
-  Zap,
-} from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useSPTSimulation } from "@/hooks/useSPTSimulation";
+import WellVisualization from "@/components/spt/WellVisualization";
+import MetricsPanel from "@/components/spt/MetricsPanel";
+import SimulationControls from "@/components/spt/SimulationControls";
 
 const benefits = [
   { label: "Slot Depth", value: "Up to 5 ft (1.5m)" },
@@ -26,6 +21,7 @@ const benefits = [
 
 const SPTTreatment = () => {
   const navigate = useNavigate();
+  const simulation = useSPTSimulation(4000);
 
   return (
     <div className="p-8">
@@ -52,10 +48,6 @@ const SPTTreatment = () => {
             Slot Perforation Technology — Maxxwell Production
           </p>
         </div>
-        <Button>
-          <Play className="mr-2 h-4 w-4" />
-          Execute SPT Treatment
-        </Button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -67,71 +59,26 @@ const SPTTreatment = () => {
               <CardTitle>Slot Perforation Process</CardTitle>
               <CardDescription>Real-time treatment visualization</CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="relative h-80 rounded-lg bg-gradient-to-b from-amber-900/20 via-stone-800/30 to-slate-900/40 border border-border/50 overflow-hidden">
-                {/* Depth indicator */}
-                <div className="absolute left-4 top-0 bottom-0 flex flex-col justify-between py-4 text-xs text-muted-foreground">
-                  <span>0 ft</span>
-                  <span>1000 ft</span>
-                  <span>2000 ft</span>
-                  <span>3000 ft</span>
-                  <span>4000 ft</span>
-                </div>
-
-                {/* Well casing */}
-                <div className="absolute left-1/2 top-0 bottom-0 w-8 bg-slate-700/50 transform -translate-x-1/2 border-x border-slate-600/50">
-                  {/* Slot cut animation */}
-                  <div className="absolute top-[60%] left-0 right-0 h-12 bg-accent/30 border-y border-accent/50 animate-pulse">
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Zap className="h-6 w-6 text-accent animate-pulse" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Formation layers */}
-                <div className="absolute right-4 top-0 bottom-0 flex flex-col justify-around text-xs text-right">
-                  <span className="text-amber-400">Surface Formation</span>
-                  <span className="text-stone-400">Shale Layer</span>
-                  <span className="text-primary">Target Reservoir</span>
-                  <span className="text-slate-500">Basement Rock</span>
-                </div>
-
-                {/* Status overlay */}
-                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
-                  <Badge className="bg-success/20 text-success border-success/30 text-lg px-4 py-2">
-                    Ready
-                  </Badge>
-                </div>
-              </div>
-
-              {/* Control indicators */}
-              <div className="grid grid-cols-4 gap-4 mt-6">
-                <div className="text-center p-4 bg-muted/30 rounded-lg">
-                  <p className="text-sm text-muted-foreground mb-1">Depth</p>
-                  <p className="text-xl font-bold">0 ft</p>
-                </div>
-                <div className="text-center p-4 bg-muted/30 rounded-lg">
-                  <div className="flex items-center justify-center gap-1 mb-1">
-                    <Gauge className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">Pressure</span>
-                  </div>
-                  <p className="text-xl font-bold">0 PSI</p>
-                </div>
-                <div className="text-center p-4 bg-muted/30 rounded-lg">
-                  <div className="flex items-center justify-center gap-1 mb-1">
-                    <Droplets className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">Flow Rate</span>
-                  </div>
-                  <p className="text-xl font-bold">0 GPM</p>
-                </div>
-                <div className="text-center p-4 bg-muted/30 rounded-lg">
-                  <div className="flex items-center justify-center gap-1 mb-1">
-                    <Timer className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">Cut Speed</span>
-                  </div>
-                  <p className="text-xl font-bold">0 ft/hr</p>
-                </div>
-              </div>
+            <CardContent className="space-y-6">
+              <WellVisualization
+                progress={simulation.metrics.progress}
+                status={simulation.status}
+                depth={simulation.metrics.depth}
+                targetDepth={simulation.targetDepth}
+              />
+              
+              <MetricsPanel metrics={simulation.metrics} />
+              
+              <SimulationControls
+                status={simulation.status}
+                progress={simulation.metrics.progress}
+                slotsCut={simulation.metrics.slotsCut}
+                onStart={simulation.start}
+                onPause={simulation.pause}
+                onResume={simulation.resume}
+                onReset={simulation.reset}
+                onStop={simulation.stop}
+              />
             </CardContent>
           </Card>
 
