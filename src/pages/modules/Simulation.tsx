@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,15 +12,48 @@ import {
   Thermometer,
   Gauge,
   AlertTriangle,
+  Loader2,
+  Eye,
+  Pause,
+  RotateCcw,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import ReservoirVisualization from "@/components/simulation/ReservoirVisualization";
 
 const Simulation = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("input");
+  const [activeTab, setActiveTab] = useState("visualization");
+  const [isSimulating, setIsSimulating] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   const months = ["M1", "M2", "M3", "M4", "M5", "M6", "M9", "M12"];
   const productionData = [45, 52, 58, 62, 65, 68, 72, 78];
+
+  const handleRunSimulation = () => {
+    if (isSimulating) {
+      setIsSimulating(false);
+      return;
+    }
+    
+    setIsSimulating(true);
+    setProgress(0);
+    
+    const interval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          setIsSimulating(false);
+          return 100;
+        }
+        return prev + 2;
+      });
+    }, 200);
+  };
+
+  const handleReset = () => {
+    setIsSimulating(false);
+    setProgress(0);
+  };
 
   return (
     <div className="p-8">
@@ -41,138 +74,129 @@ const Simulation = () => {
             <h1 className="text-3xl font-bold">Reservoir Simulation</h1>
           </div>
           <p className="text-muted-foreground">
-            Dynamic modeling and production forecasting
+            Dynamic 3D modeling and production forecasting
           </p>
         </div>
-        <Button>
-          <Play className="mr-2 h-4 w-4" />
-          Run Simulation
-        </Button>
+        <div className="flex gap-3">
+          <Button variant="outline" onClick={handleReset} disabled={progress === 0}>
+            <RotateCcw className="mr-2 h-4 w-4" />
+            Reset
+          </Button>
+          <Button onClick={handleRunSimulation}>
+            {isSimulating ? (
+              <>
+                <Pause className="mr-2 h-4 w-4" />
+                Pause
+              </>
+            ) : (
+              <>
+                <Play className="mr-2 h-4 w-4" />
+                Run Simulation
+              </>
+            )}
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Production Forecast Chart */}
+          {/* Tabs for visualization and data */}
           <Card className="glass-card">
             <CardHeader>
-              <CardTitle>Production Forecast (12 Months)</CardTitle>
-              <CardDescription>Predicted oil production based on reservoir simulation</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-64 flex items-end justify-between gap-2 px-4">
-                {months.map((month, index) => (
-                  <div key={month} className="flex-1 flex flex-col items-center gap-2">
-                    <div 
-                      className="w-full bg-gradient-to-t from-primary to-cyan-400 rounded-t-lg transition-all duration-300 hover:opacity-80"
-                      style={{ height: `${(productionData[index] / 80) * 100}%` }}
-                    />
-                    <span className="text-xs text-muted-foreground">{month}</span>
-                    <span className="text-xs font-medium">{productionData[index]} BPD</span>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-6 flex items-center justify-center gap-8">
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4 text-success" />
-                  <span className="text-sm">+73% projected increase</span>
-                </div>
-                <Badge className="bg-primary/20 text-primary">12-month forecast</Badge>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Input Data & Scenarios */}
-          <Card className="glass-card">
-            <CardHeader>
-              <CardTitle>Simulation Parameters</CardTitle>
+              <CardTitle>Reservoir Model</CardTitle>
+              <CardDescription>Interactive 3D visualization of reservoir and wells</CardDescription>
             </CardHeader>
             <CardContent>
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="input">Input Data</TabsTrigger>
-                  <TabsTrigger value="scenarios">🔄 Scenarios</TabsTrigger>
-                  <TabsTrigger value="kpi">📈 KPIs</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-3 mb-4">
+                  <TabsTrigger value="visualization" className="gap-2">
+                    <Eye className="h-4 w-4" />
+                    3D View
+                  </TabsTrigger>
+                  <TabsTrigger value="forecast" className="gap-2">
+                    <BarChart3 className="h-4 w-4" />
+                    Forecast
+                  </TabsTrigger>
+                  <TabsTrigger value="parameters" className="gap-2">
+                    <Gauge className="h-4 w-4" />
+                    Parameters
+                  </TabsTrigger>
                 </TabsList>
                 
-                <TabsContent value="input" className="mt-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="p-4 bg-muted/30 rounded-lg">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Gauge className="h-4 w-4 text-primary" />
-                        <span className="font-medium">Initial Reservoir Conditions</span>
-                      </div>
-                      <p className="text-sm text-muted-foreground">Pressure, Temperature</p>
-                      <p className="text-lg font-bold mt-2">2,450 PSI / 185°F</p>
+                <TabsContent value="visualization" className="mt-0">
+                  <Suspense fallback={
+                    <div className="w-full h-[400px] rounded-lg bg-slate-900/50 flex items-center justify-center">
+                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
                     </div>
-                    <div className="p-4 bg-muted/30 rounded-lg">
-                      <div className="flex items-center gap-2 mb-2">
-                        <BarChart3 className="h-4 w-4 text-accent" />
-                        <span className="font-medium">Well Data</span>
-                      </div>
-                      <p className="text-sm text-muted-foreground">Locations, Completions</p>
-                      <p className="text-lg font-bold mt-2">12 wells configured</p>
+                  }>
+                    <div className="relative">
+                      <ReservoirVisualization isSimulating={isSimulating} />
+                      <p className="text-xs text-muted-foreground mt-2 text-center">
+                        Drag to rotate • Scroll to zoom • Right-click to pan
+                      </p>
                     </div>
-                    <div className="p-4 bg-muted/30 rounded-lg">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Thermometer className="h-4 w-4 text-warning" />
-                        <span className="font-medium">Fluid Properties (PVT)</span>
-                      </div>
-                      <p className="text-sm text-muted-foreground">Phase behavior</p>
-                      <p className="text-lg font-bold mt-2">API 38° / GOR 450</p>
+                  </Suspense>
+                </TabsContent>
+                
+                <TabsContent value="forecast" className="mt-0">
+                  <div className="h-[400px] flex flex-col">
+                    <div className="flex-1 flex items-end justify-between gap-2 px-4 py-8">
+                      {months.map((month, index) => (
+                        <div key={month} className="flex-1 flex flex-col items-center gap-2">
+                          <div 
+                            className="w-full bg-gradient-to-t from-primary to-cyan-400 rounded-t-lg transition-all duration-300 hover:opacity-80"
+                            style={{ height: `${(productionData[index] / 80) * 100}%` }}
+                          />
+                          <span className="text-xs text-muted-foreground">{month}</span>
+                          <span className="text-xs font-medium">{productionData[index]} BPD</span>
+                        </div>
+                      ))}
                     </div>
-                    <div className="p-4 bg-muted/30 rounded-lg">
-                      <div className="flex items-center gap-2 mb-2">
+                    <div className="flex items-center justify-center gap-8 pb-4">
+                      <div className="flex items-center gap-2">
                         <TrendingUp className="h-4 w-4 text-success" />
-                        <span className="font-medium">History Data</span>
+                        <span className="text-sm">+73% projected increase</span>
                       </div>
-                      <p className="text-sm text-muted-foreground">Production, Pressure</p>
-                      <p className="text-lg font-bold mt-2">15 years history</p>
+                      <Badge className="bg-primary/20 text-primary">12-month forecast</Badge>
                     </div>
                   </div>
                 </TabsContent>
                 
-                <TabsContent value="scenarios" className="mt-4">
-                  <div className="p-4 bg-muted/30 rounded-lg">
-                    <h4 className="font-semibold mb-3">Scenario Analysis</h4>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Perform sensitivity analyses by altering well placement, recovery techniques to assess impact on production.
-                    </p>
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between p-3 bg-background/50 rounded-lg">
-                        <span className="text-sm">Base Case</span>
-                        <Badge className="bg-success/20 text-success">Active</Badge>
+                <TabsContent value="parameters" className="mt-0">
+                  <div className="h-[400px] overflow-y-auto">
+                    <div className="grid grid-cols-2 gap-4 p-2">
+                      <div className="p-4 bg-muted/30 rounded-lg">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Gauge className="h-4 w-4 text-primary" />
+                          <span className="font-medium">Initial Reservoir Conditions</span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">Pressure, Temperature</p>
+                        <p className="text-lg font-bold mt-2">2,450 PSI / 185°F</p>
                       </div>
-                      <div className="flex items-center justify-between p-3 bg-background/50 rounded-lg">
-                        <span className="text-sm">Enhanced Recovery (+20%)</span>
-                        <Badge variant="outline">Pending</Badge>
+                      <div className="p-4 bg-muted/30 rounded-lg">
+                        <div className="flex items-center gap-2 mb-2">
+                          <BarChart3 className="h-4 w-4 text-accent" />
+                          <span className="font-medium">Well Data</span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">Locations, Completions</p>
+                        <p className="text-lg font-bold mt-2">12 wells configured</p>
                       </div>
-                      <div className="flex items-center justify-between p-3 bg-background/50 rounded-lg">
-                        <span className="text-sm">Conservative Estimate</span>
-                        <Badge variant="outline">Pending</Badge>
+                      <div className="p-4 bg-muted/30 rounded-lg">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Thermometer className="h-4 w-4 text-warning" />
+                          <span className="font-medium">Fluid Properties (PVT)</span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">Phase behavior</p>
+                        <p className="text-lg font-bold mt-2">API 38° / GOR 450</p>
                       </div>
-                    </div>
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="kpi" className="mt-4">
-                  <div className="p-4 bg-muted/30 rounded-lg">
-                    <h4 className="font-semibold mb-3">KPI Identification</h4>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Recovery factors, economic viability, optimal extraction strategy for each well.
-                    </p>
-                    <div className="grid grid-cols-3 gap-4">
-                      <div className="text-center p-4 bg-primary/10 rounded-lg">
-                        <p className="text-2xl font-bold text-primary">32%</p>
-                        <p className="text-xs text-muted-foreground">Recovery Factor</p>
-                      </div>
-                      <div className="text-center p-4 bg-success/10 rounded-lg">
-                        <p className="text-2xl font-bold text-success">5.2x</p>
-                        <p className="text-xs text-muted-foreground">Production Increase</p>
-                      </div>
-                      <div className="text-center p-4 bg-accent/10 rounded-lg">
-                        <p className="text-2xl font-bold text-accent">8mo</p>
-                        <p className="text-xs text-muted-foreground">Payback Period</p>
+                      <div className="p-4 bg-muted/30 rounded-lg">
+                        <div className="flex items-center gap-2 mb-2">
+                          <TrendingUp className="h-4 w-4 text-success" />
+                          <span className="font-medium">History Data</span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">Production, Pressure</p>
+                        <p className="text-lg font-bold mt-2">15 years history</p>
                       </div>
                     </div>
                   </div>
@@ -180,6 +204,22 @@ const Simulation = () => {
               </Tabs>
             </CardContent>
           </Card>
+
+          {/* Simulation Progress */}
+          {(isSimulating || progress > 0) && (
+            <Card className="glass-card animate-fade-in">
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm font-medium">Simulation Progress</span>
+                  <span className="text-sm text-muted-foreground">{progress}%</span>
+                </div>
+                <Progress value={progress} className="h-3" />
+                <p className="text-xs text-muted-foreground mt-2">
+                  {isSimulating ? "Running dynamic flow simulation..." : progress === 100 ? "Simulation complete!" : "Paused"}
+                </p>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Right Column */}
@@ -198,10 +238,10 @@ const Simulation = () => {
                 <p className="text-4xl font-bold text-success">5.2×</p>
                 <p className="text-sm text-muted-foreground">Production Increase</p>
               </div>
-              <Progress value={78} className="h-3" />
-              <p className="text-xs text-muted-foreground text-center">
-                Simulation 78% complete
-              </p>
+              <div className="text-center p-4 bg-accent/10 rounded-lg">
+                <p className="text-4xl font-bold text-accent">78</p>
+                <p className="text-sm text-muted-foreground">BPD Total Production</p>
+              </div>
             </CardContent>
           </Card>
 
@@ -225,6 +265,27 @@ const Simulation = () => {
               <div className="p-3 bg-muted/30 rounded-lg">
                 <p className="text-sm font-medium">High Stress Zones</p>
                 <p className="text-xs text-muted-foreground">Risks fractures - monitor closely</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Scenario Selection */}
+          <Card className="glass-card">
+            <CardHeader>
+              <CardTitle>Scenarios</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                <span className="text-sm">Base Case</span>
+                <Badge className="bg-success/20 text-success">Active</Badge>
+              </div>
+              <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                <span className="text-sm">Enhanced Recovery (+20%)</span>
+                <Badge variant="outline">Pending</Badge>
+              </div>
+              <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                <span className="text-sm">Conservative</span>
+                <Badge variant="outline">Pending</Badge>
               </div>
             </CardContent>
           </Card>
