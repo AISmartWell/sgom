@@ -4,6 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 const CrossSectionVisualization = () => {
   const [activeWell, setActiveWell] = useState<number | null>(null);
+  const [hoveredWell, setHoveredWell] = useState<number | null>(null);
 
   const wells = [
     { id: 1, x: 15, name: "Well A-1", status: "producing", depth: 3250 },
@@ -22,6 +23,8 @@ const CrossSectionVisualization = () => {
     { name: "Aquifer", top: 74, height: 12, color: "from-blue-900/40 to-blue-800/30", textColor: "text-blue-200" },
     { name: "Basement", top: 86, height: 14, color: "from-slate-800/60 to-slate-900/50", textColor: "text-slate-400" },
   ];
+
+  const selectedWell = activeWell ? wells.find((w) => w.id === activeWell) : undefined;
 
   return (
     <div className="space-y-4">
@@ -46,111 +49,135 @@ const CrossSectionVisualization = () => {
         </div>
       </div>
 
-      <div className="relative h-[500px] rounded-lg overflow-hidden border border-border/50">
-        {/* Geological layers */}
-        {layers.map((layer) => (
-          <div
-            key={layer.name}
-            className={cn(
-              "absolute left-0 right-0 bg-gradient-to-b transition-all duration-300",
-              layer.color,
-              layer.isReservoir && "border-y border-primary/30"
-            )}
-            style={{ top: `${layer.top}%`, height: `${layer.height}%` }}
-          >
-            <span className={cn("absolute left-3 top-1/2 -translate-y-1/2 text-xs font-medium", layer.textColor)}>
-              {layer.name}
-            </span>
-            {layer.isReservoir && (
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs bg-success/20 text-success px-2 py-0.5 rounded">
-                Target Zone
-              </span>
-            )}
-          </div>
-        ))}
+      <div className="relative h-[500px] rounded-lg border border-border/50">
+        {/* Label overlay (not clipped) */}
+        <div className="pointer-events-none absolute inset-x-0 top-3 z-30">
+          {wells.map((well) => {
+            const showLabel = hoveredWell === well.id || activeWell === well.id;
+            return (
+              <div
+                key={well.id}
+                className="absolute"
+                style={{ left: `${well.x}%`, transform: "translateX(-50%)" }}
+              >
+                <div
+                  className={cn(
+                    "rounded-md border border-border bg-background/95 px-2 py-1 text-xs shadow-lg transition-all",
+                    showLabel ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1"
+                  )}
+                >
+                  <p className="font-semibold leading-tight">{well.name}</p>
+                  <p className="text-muted-foreground leading-tight">TD: {well.depth}m</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
 
-        {/* Wells */}
-        {wells.map((well) => (
-          <div
-            key={well.id}
-            className="absolute top-0 bottom-0 cursor-pointer group"
-            style={{ left: `${well.x}%` }}
-            onClick={() => setActiveWell(activeWell === well.id ? null : well.id)}
-          >
-            {/* Well casing */}
+        {/* Clipped plot area (keeps rounded corners) */}
+        <div className="absolute inset-0 overflow-hidden rounded-lg">
+          {/* Geological layers */}
+          {layers.map((layer) => (
             <div
+              key={layer.name}
               className={cn(
-                "absolute w-1 transition-all duration-300",
-                well.status === "producing" && "bg-success/70 shadow-[0_0_10px_rgba(34,197,94,0.5)]",
-                well.status === "injector" && "bg-blue-500/70 shadow-[0_0_10px_rgba(59,130,246,0.5)]",
-                well.status === "planned" && "bg-muted-foreground/50 border border-dashed border-muted-foreground",
-                activeWell === well.id && "w-1.5"
+                "absolute left-0 right-0 bg-gradient-to-b transition-all duration-300",
+                layer.color,
+                layer.isReservoir && "border-y border-primary/30"
               )}
-              style={{ 
-                left: "50%", 
-                transform: "translateX(-50%)",
-                top: "0%",
-                height: "80%"
-              }}
-            />
-            
-            {/* Well head */}
-            <div
-              className={cn(
-                "absolute left-1/2 -translate-x-1/2 -translate-y-1 w-4 h-4 rounded-full transition-transform",
-                well.status === "producing" && "bg-success animate-pulse",
-                well.status === "injector" && "bg-blue-500",
-                well.status === "planned" && "bg-muted-foreground/50 border-2 border-dashed border-muted-foreground",
-                activeWell === well.id && "scale-125"
-              )}
-              style={{ top: "0%" }}
-            />
-
-            {/* Well label */}
-            <div
-              className={cn(
-                "absolute left-1/2 -translate-x-1/2 px-2 py-1 rounded text-xs font-medium whitespace-nowrap transition-all",
-                "bg-background/90 border border-border shadow-lg",
-                activeWell === well.id ? "opacity-100 -top-10" : "opacity-0 group-hover:opacity-100 -top-8"
-              )}
+              style={{ top: `${layer.top}%`, height: `${layer.height}%` }}
             >
-              <p className="font-semibold">{well.name}</p>
-              <p className="text-muted-foreground">TD: {well.depth}m</p>
+              <span
+                className={cn(
+                  "absolute left-3 top-1/2 -translate-y-1/2 text-xs font-medium",
+                  layer.textColor
+                )}
+              >
+                {layer.name}
+              </span>
+              {layer.isReservoir && (
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs bg-success/20 text-success px-2 py-0.5 rounded">
+                  Target Zone
+                </span>
+              )}
             </div>
+          ))}
 
-            {/* Perforation zone */}
-            {well.status !== "planned" && (
+          {/* Wells */}
+          {wells.map((well) => (
+            <div
+              key={well.id}
+              className="absolute top-0 bottom-0 cursor-pointer"
+              style={{ left: `${well.x}%` }}
+              onMouseEnter={() => setHoveredWell(well.id)}
+              onMouseLeave={() => setHoveredWell((prev) => (prev === well.id ? null : prev))}
+              onClick={() => setActiveWell(activeWell === well.id ? null : well.id)}
+            >
+              {/* Well casing */}
               <div
                 className={cn(
-                  "absolute left-1/2 -translate-x-1/2 w-3",
-                  well.status === "producing" ? "bg-success/50" : "bg-blue-500/50"
+                  "absolute w-1 transition-all duration-300",
+                  well.status === "producing" && "bg-success/70 shadow-[0_0_10px_rgba(34,197,94,0.5)]",
+                  well.status === "injector" && "bg-blue-500/70 shadow-[0_0_10px_rgba(59,130,246,0.5)]",
+                  well.status === "planned" &&
+                    "bg-muted-foreground/50 border border-dashed border-muted-foreground",
+                  activeWell === well.id && "w-1.5"
                 )}
-                style={{ 
-                  top: "45%",
-                  height: "20%",
-                  borderRadius: "2px"
+                style={{
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  top: "0%",
+                  height: "80%",
                 }}
-              >
-                {/* Perforation marks */}
-                {[0, 25, 50, 75, 100].map((pos) => (
-                  <div
-                    key={pos}
-                    className="absolute w-full h-0.5 bg-current opacity-50"
-                    style={{ top: `${pos}%` }}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
+              />
 
-        {/* Depth scale */}
-        <div className="absolute right-2 top-0 bottom-0 flex flex-col justify-between py-2 text-[10px] text-muted-foreground">
-          <span>0m</span>
-          <span>1000m</span>
-          <span>2000m</span>
-          <span>3000m</span>
-          <span>4000m</span>
+              {/* Well head */}
+              <div
+                className={cn(
+                  "absolute left-1/2 -translate-x-1/2 -translate-y-1 w-4 h-4 rounded-full transition-transform",
+                  well.status === "producing" && "bg-success animate-pulse",
+                  well.status === "injector" && "bg-blue-500",
+                  well.status === "planned" &&
+                    "bg-muted-foreground/50 border-2 border-dashed border-muted-foreground",
+                  activeWell === well.id && "scale-125"
+                )}
+                style={{ top: "0%" }}
+              />
+
+              {/* Perforation zone */}
+              {well.status !== "planned" && (
+                <div
+                  className={cn(
+                    "absolute left-1/2 -translate-x-1/2 w-3",
+                    well.status === "producing" ? "bg-success/50" : "bg-blue-500/50"
+                  )}
+                  style={{
+                    top: "45%",
+                    height: "20%",
+                    borderRadius: "2px",
+                  }}
+                >
+                  {/* Perforation marks */}
+                  {[0, 25, 50, 75, 100].map((pos) => (
+                    <div
+                      key={pos}
+                      className="absolute w-full h-0.5 bg-current opacity-50"
+                      style={{ top: `${pos}%` }}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+
+          {/* Depth scale */}
+          <div className="absolute right-2 top-0 bottom-0 flex flex-col justify-between py-2 text-[10px] text-muted-foreground">
+            <span>0m</span>
+            <span>1000m</span>
+            <span>2000m</span>
+            <span>3000m</span>
+            <span>4000m</span>
+          </div>
         </div>
       </div>
 
@@ -163,26 +190,26 @@ const CrossSectionVisualization = () => {
                 <div className="flex items-center gap-3">
                   <div className={cn(
                     "w-5 h-5 rounded-full",
-                    wells.find(w => w.id === activeWell)?.status === "producing" && "bg-success animate-pulse",
-                    wells.find(w => w.id === activeWell)?.status === "injector" && "bg-blue-500",
-                    wells.find(w => w.id === activeWell)?.status === "planned" && "bg-muted-foreground"
+                     selectedWell?.status === "producing" && "bg-success animate-pulse",
+                     selectedWell?.status === "injector" && "bg-blue-500",
+                     selectedWell?.status === "planned" && "bg-muted-foreground"
                   )} />
-                  <h5 className="text-2xl font-bold">{wells.find(w => w.id === activeWell)?.name}</h5>
+                  <h5 className="text-2xl font-bold">{selectedWell?.name}</h5>
                 </div>
                 <span className={cn(
                   "text-sm font-medium px-4 py-2 rounded-full",
-                  wells.find(w => w.id === activeWell)?.status === "producing" && "bg-success/20 text-success border border-success/30",
-                  wells.find(w => w.id === activeWell)?.status === "injector" && "bg-blue-500/20 text-blue-500 border border-blue-500/30",
-                  wells.find(w => w.id === activeWell)?.status === "planned" && "bg-muted text-muted-foreground border border-muted-foreground/30"
+                  selectedWell?.status === "producing" && "bg-success/20 text-success border border-success/30",
+                  selectedWell?.status === "injector" && "bg-blue-500/20 text-blue-500 border border-blue-500/30",
+                  selectedWell?.status === "planned" && "bg-muted text-muted-foreground border border-muted-foreground/30"
                 )}>
-                  {wells.find(w => w.id === activeWell)?.status?.toUpperCase()}
+                  {selectedWell?.status?.toUpperCase()}
                 </span>
               </div>
               
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                 <div className="p-5 bg-background/50 rounded-lg border border-border/50">
                   <p className="text-muted-foreground text-sm mb-2">Total Depth</p>
-                  <p className="text-3xl font-bold text-primary">{wells.find(w => w.id === activeWell)?.depth}m</p>
+                  <p className="text-3xl font-bold text-primary">{selectedWell?.depth}m</p>
                 </div>
                 <div className="p-5 bg-background/50 rounded-lg border border-border/50">
                   <p className="text-muted-foreground text-sm mb-2">Top Reservoir</p>
