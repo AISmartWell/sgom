@@ -147,7 +147,7 @@ const CoreAnalysis = () => {
         <TabsList className="grid w-full max-w-md grid-cols-2">
           <TabsTrigger value="analyze" className="gap-2">
             <Scan className="h-4 w-4" />
-            Анализ керна
+            Core Analysis
           </TabsTrigger>
           <TabsTrigger value="demo" className="gap-2">
             <Eye className="h-4 w-4" />
