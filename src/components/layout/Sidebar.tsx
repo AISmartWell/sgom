@@ -18,6 +18,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Microscope,
+  Radio,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -28,10 +29,16 @@ const menuItems = [
     href: "/dashboard",
   },
   {
+    title: "Real-Time Monitor",
+    icon: Radio,
+    href: "/dashboard/realtime",
+    badge: "📡",
+  },
+  {
     title: "Data Collection",
     icon: Database,
     href: "/dashboard/data-collection",
-    badge: "📡",
+    badge: "🗄️",
   },
   {
     title: "Geological Analysis",

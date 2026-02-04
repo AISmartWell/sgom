@@ -15,6 +15,7 @@ import Financial from "./pages/modules/Financial";
 import SPTTreatment from "./pages/modules/SPTTreatment";
 import Reports from "./pages/modules/Reports";
 import CoreAnalysis from "./pages/modules/CoreAnalysis";
+import RealtimeDashboard from "./pages/modules/RealtimeDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
             <Route path="spt-treatment" element={<SPTTreatment />} />
             <Route path="reports" element={<Reports />} />
             <Route path="core-analysis" element={<CoreAnalysis />} />
+            <Route path="realtime" element={<RealtimeDashboard />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
