@@ -45,7 +45,7 @@ const CrossSectionVisualization = () => {
         </div>
       </div>
 
-      <div className="relative h-72 rounded-lg overflow-hidden border border-border/50">
+      <div className="relative h-96 rounded-lg overflow-hidden border border-border/50">
         {/* Geological layers */}
         {layers.map((layer) => (
           <div
@@ -153,36 +153,60 @@ const CrossSectionVisualization = () => {
         </div>
       </div>
 
-      {/* Selected well details */}
+      {/* Selected well details - enlarged panel */}
       {activeWell && (
-        <div className="p-4 bg-muted/30 rounded-lg border border-border/50 animate-in fade-in slide-in-from-top-2">
-          <div className="flex items-center justify-between mb-3">
-            <h5 className="font-semibold">{wells.find(w => w.id === activeWell)?.name}</h5>
+        <div className="mt-4 p-6 bg-gradient-to-br from-primary/10 to-accent/10 rounded-xl border-2 border-primary/30 shadow-lg animate-in fade-in slide-in-from-top-2">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className={cn(
+                "w-4 h-4 rounded-full",
+                wells.find(w => w.id === activeWell)?.status === "producing" && "bg-success animate-pulse",
+                wells.find(w => w.id === activeWell)?.status === "injector" && "bg-blue-500",
+                wells.find(w => w.id === activeWell)?.status === "planned" && "bg-muted-foreground"
+              )} />
+              <h5 className="text-xl font-bold">{wells.find(w => w.id === activeWell)?.name}</h5>
+            </div>
             <span className={cn(
-              "text-xs px-2 py-1 rounded",
-              wells.find(w => w.id === activeWell)?.status === "producing" && "bg-success/20 text-success",
-              wells.find(w => w.id === activeWell)?.status === "injector" && "bg-blue-500/20 text-blue-500",
-              wells.find(w => w.id === activeWell)?.status === "planned" && "bg-muted text-muted-foreground"
+              "text-sm font-medium px-4 py-2 rounded-full",
+              wells.find(w => w.id === activeWell)?.status === "producing" && "bg-success/20 text-success border border-success/30",
+              wells.find(w => w.id === activeWell)?.status === "injector" && "bg-blue-500/20 text-blue-500 border border-blue-500/30",
+              wells.find(w => w.id === activeWell)?.status === "planned" && "bg-muted text-muted-foreground border border-muted-foreground/30"
             )}>
-              {wells.find(w => w.id === activeWell)?.status}
+              {wells.find(w => w.id === activeWell)?.status?.toUpperCase()}
             </span>
           </div>
-          <div className="grid grid-cols-4 gap-3 text-sm">
-            <div>
-              <p className="text-muted-foreground text-xs">Total Depth</p>
-              <p className="font-medium">{wells.find(w => w.id === activeWell)?.depth}m</p>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="p-4 bg-background/50 rounded-lg border border-border/50">
+              <p className="text-muted-foreground text-sm mb-1">Total Depth</p>
+              <p className="text-2xl font-bold text-primary">{wells.find(w => w.id === activeWell)?.depth}m</p>
             </div>
-            <div>
-              <p className="text-muted-foreground text-xs">Top Reservoir</p>
-              <p className="font-medium">2,850m</p>
+            <div className="p-4 bg-background/50 rounded-lg border border-border/50">
+              <p className="text-muted-foreground text-sm mb-1">Top Reservoir</p>
+              <p className="text-2xl font-bold text-primary">2,850m</p>
             </div>
-            <div>
-              <p className="text-muted-foreground text-xs">Net Pay</p>
-              <p className="font-medium">45m</p>
+            <div className="p-4 bg-background/50 rounded-lg border border-border/50">
+              <p className="text-muted-foreground text-sm mb-1">Net Pay</p>
+              <p className="text-2xl font-bold text-success">45m</p>
             </div>
-            <div>
-              <p className="text-muted-foreground text-xs">Production</p>
-              <p className="font-medium">450 bbl/d</p>
+            <div className="p-4 bg-background/50 rounded-lg border border-border/50">
+              <p className="text-muted-foreground text-sm mb-1">Production</p>
+              <p className="text-2xl font-bold text-accent">450 bbl/d</p>
+            </div>
+          </div>
+
+          <div className="mt-4 grid grid-cols-3 gap-4 text-sm">
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground">Perforations:</span>
+              <span className="font-medium">2,850 - 2,895m</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground">Water Cut:</span>
+              <span className="font-medium text-blue-400">12%</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground">GOR:</span>
+              <span className="font-medium">150 scf/bbl</span>
             </div>
           </div>
         </div>
