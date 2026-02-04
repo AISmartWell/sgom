@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { DataCollectionDemo } from "@/components/data-collection/DataCollectionDemo";
 import {
   Database,
   Map,
@@ -174,8 +175,10 @@ const DataCollection = () => {
               </div>
             </CardContent>
           </Card>
-        </div>
 
+          {/* Interactive Demo */}
+          <DataCollectionDemo />
+        </div>
         {/* Right Column */}
         <div className="space-y-6">
           {/* Data Types */}
