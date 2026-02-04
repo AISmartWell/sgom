@@ -17,6 +17,7 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
+  Microscope,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -37,6 +38,12 @@ const menuItems = [
     icon: Map,
     href: "/dashboard/geological-analysis",
     badge: "🗺️",
+  },
+  {
+    title: "Core Analysis",
+    icon: Microscope,
+    href: "/dashboard/core-analysis",
+    badge: "🔬",
   },
   {
     title: "AI Well Selection",
