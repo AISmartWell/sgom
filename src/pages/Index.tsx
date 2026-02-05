@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+ import { Badge } from "@/components/ui/badge";
 import { Droplets, ArrowRight, BarChart3, Target, Cpu } from "lucide-react";
 
 const Index = () => {
@@ -27,11 +28,19 @@ const Index = () => {
         <div className="relative z-10 max-w-7xl mx-auto px-6 py-20">
           {/* Nav */}
           <nav className="flex items-center justify-between mb-20">
-            <div className="flex items-center gap-3">
+             <div className="flex items-center gap-4">
               <div className="h-12 w-12 rounded-xl bg-primary/20 flex items-center justify-center glow-primary">
                 <Droplets className="h-7 w-7 text-primary" />
               </div>
               <span className="text-2xl font-bold">AI Smart Well</span>
+               <Badge 
+                 variant="outline" 
+                 className="cursor-pointer hover:bg-[#76B900]/10 border-[#76B900]/50 text-[#76B900] hidden sm:flex"
+                 onClick={() => navigate("/nvidia-inception")}
+               >
+                 <Cpu className="mr-1 h-3 w-3" />
+                 NVIDIA Inception
+               </Badge>
             </div>
             <Button onClick={() => navigate("/auth")}>
               Enter Platform
