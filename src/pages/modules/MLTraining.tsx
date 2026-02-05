@@ -91,7 +91,7 @@
            if (next >= epochs) {
              setIsTraining(false);
              setModelTrained(true);
-             toast.success("Обучение завершено! Модель готова к использованию.");
+              toast.success("Training complete! Model is ready to use.");
            }
            return next;
          });
@@ -103,7 +103,7 @@
    const handleFileUpload = () => {
      setTimeout(() => {
        setDataUploaded(true);
-       toast.success("Данные успешно загружены! 15,847 записей из OK & TX баз данных.");
+        toast.success("Data loaded successfully! 15,847 records from OK & TX databases.");
        setActiveTab("config");
      }, 1500);
    };
@@ -114,12 +114,12 @@
      setTrainingProgress(0);
      setTrainingData([]);
      setModelTrained(false);
-     toast.info("Обучение модели запущено...");
+      toast.info("Model training started...");
    };
  
    const stopTraining = () => {
      setIsTraining(false);
-     toast.warning("Обучение приостановлено");
+      toast.warning("Training paused");
    };
  
    const resetTraining = () => {
@@ -131,7 +131,7 @@
    };
  
    const exportModel = () => {
-     toast.success("Модель экспортирована в формате ONNX для GPU-инференса");
+      toast.success("Model exported in ONNX format for GPU inference");
    };
  
    const currentMetrics = trainingData.length > 0 ? trainingData[trainingData.length - 1] : null;
@@ -146,7 +146,7 @@
              ML Model Training
            </h1>
            <p className="text-muted-foreground mt-1">
-             Обучение нейросети для прогнозирования добычи нефти с нуля
+              Train neural networks for oil production forecasting from scratch
            </p>
          </div>
          <div className="flex items-center gap-2">
@@ -173,7 +173,7 @@
                    <AlertCircle className="h-5 w-5 text-muted-foreground" />
                  )}
                  <span className={dataUploaded ? "text-success" : "text-muted-foreground"}>
-                   1. Данные
+                    1. Data
                  </span>
                </div>
                <div className="h-px w-8 bg-border" />
@@ -184,7 +184,7 @@
                    <AlertCircle className="h-5 w-5 text-muted-foreground" />
                  )}
                  <span className={trainingProgress > 0 ? "text-success" : "text-muted-foreground"}>
-                   2. Конфигурация
+                    2. Configuration
                  </span>
                </div>
                <div className="h-px w-8 bg-border" />
@@ -195,7 +195,7 @@
                    <AlertCircle className="h-5 w-5 text-muted-foreground" />
                  )}
                  <span className={isTraining || modelTrained ? "text-success" : "text-muted-foreground"}>
-                   3. Обучение
+                    3. Training
                  </span>
                </div>
                <div className="h-px w-8 bg-border" />
@@ -206,13 +206,13 @@
                    <AlertCircle className="h-5 w-5 text-muted-foreground" />
                  )}
                  <span className={modelTrained ? "text-success" : "text-muted-foreground"}>
-                   4. Результаты
+                    4. Results
                  </span>
                </div>
              </div>
              {isTraining && (
                <div className="text-right">
-                 <p className="text-sm text-muted-foreground">Эпоха {currentEpoch} / {epochs}</p>
+                  <p className="text-sm text-muted-foreground">Epoch {currentEpoch} / {epochs}</p>
                  <p className="text-2xl font-bold text-primary">{trainingProgress.toFixed(1)}%</p>
                </div>
              )}
@@ -227,19 +227,19 @@
          <TabsList className="grid grid-cols-4 w-full max-w-2xl">
            <TabsTrigger value="data" className="flex items-center gap-2">
              <Database className="h-4 w-4" />
-             Данные
+              Data
            </TabsTrigger>
            <TabsTrigger value="config" disabled={!dataUploaded} className="flex items-center gap-2">
              <Cpu className="h-4 w-4" />
-             Конфигурация
+              Configuration
            </TabsTrigger>
            <TabsTrigger value="training" disabled={!dataUploaded} className="flex items-center gap-2">
              <Brain className="h-4 w-4" />
-             Обучение
+              Training
            </TabsTrigger>
            <TabsTrigger value="results" disabled={!modelTrained} className="flex items-center gap-2">
              <BarChart3 className="h-4 w-4" />
-             Результаты
+              Results
            </TabsTrigger>
          </TabsList>
  
@@ -250,10 +250,10 @@
                <CardHeader>
                  <CardTitle className="flex items-center gap-2">
                    <Upload className="h-5 w-5" />
-                   Загрузка данных
+                  Data Upload
                  </CardTitle>
                  <CardDescription>
-                   Загрузите исторические данные добычи для обучения модели
+                  Upload historical production data to train the model
                  </CardDescription>
                </CardHeader>
                <CardContent className="space-y-4">
@@ -262,9 +262,9 @@
                    onClick={handleFileUpload}
                  >
                    <Upload className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                   <p className="text-lg font-medium">Перетащите CSV/Excel файл сюда</p>
+                  <p className="text-lg font-medium">Drag & drop CSV/Excel file here</p>
                    <p className="text-sm text-muted-foreground mt-2">
-                     или нажмите для выбора файла
+                    or click to select a file
                    </p>
                    <div className="flex gap-2 justify-center mt-4">
                      <Badge variant="secondary">CSV</Badge>
@@ -274,7 +274,7 @@
                  </div>
  
                  <div className="text-center">
-                   <span className="text-muted-foreground">или</span>
+                  <span className="text-muted-foreground">or</span>
                  </div>
  
                  <Button 
@@ -283,16 +283,16 @@
                    onClick={handleFileUpload}
                  >
                    <Database className="h-4 w-4 mr-2" />
-                   Загрузить из базы данных OK & TX
+                  Load from OK & TX database
                  </Button>
                </CardContent>
              </Card>
  
              <Card>
                <CardHeader>
-                 <CardTitle>Статистика датасета</CardTitle>
+                <CardTitle>Dataset Statistics</CardTitle>
                  <CardDescription>
-                   {dataUploaded ? "Данные успешно загружены" : "Ожидание загрузки данных"}
+                  {dataUploaded ? "Data loaded successfully" : "Waiting for data upload"}
                  </CardDescription>
                </CardHeader>
                <CardContent>
@@ -301,11 +301,11 @@
                      <div className="grid grid-cols-2 gap-4">
                        <div className="p-4 bg-muted rounded-lg">
                          <p className="text-2xl font-bold text-primary">{datasetStats.totalSamples.toLocaleString()}</p>
-                         <p className="text-sm text-muted-foreground">Всего записей</p>
+                        <p className="text-sm text-muted-foreground">Total Records</p>
                        </div>
                        <div className="p-4 bg-muted rounded-lg">
                          <p className="text-2xl font-bold text-primary">{datasetStats.features}</p>
-                         <p className="text-sm text-muted-foreground">Признаков</p>
+                        <p className="text-sm text-muted-foreground">Features</p>
                        </div>
                      </div>
                      <div className="space-y-2">
@@ -324,13 +324,13 @@
                      </div>
                      <div className="pt-4 border-t">
                        <p className="text-sm text-muted-foreground">
-                         Временной диапазон: <span className="text-foreground font-medium">{datasetStats.timeRange}</span>
+                        Time Range: <span className="text-foreground font-medium">{datasetStats.timeRange}</span>
                        </p>
                      </div>
                    </div>
                  ) : (
                    <div className="flex items-center justify-center h-48 text-muted-foreground">
-                     <p>Загрузите данные для отображения статистики</p>
+                    <p>Upload data to view statistics</p>
                    </div>
                  )}
                </CardContent>
@@ -343,12 +343,12 @@
            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
              <Card>
                <CardHeader>
-                 <CardTitle>Архитектура модели</CardTitle>
-                 <CardDescription>Выберите тип нейронной сети</CardDescription>
+                <CardTitle>Model Architecture</CardTitle>
+                <CardDescription>Select neural network type</CardDescription>
                </CardHeader>
                <CardContent className="space-y-4">
                  <div className="space-y-2">
-                   <Label>Тип модели</Label>
+                  <Label>Model Type</Label>
                    <Select value={modelType} onValueChange={setModelType}>
                      <SelectTrigger>
                        <SelectValue />
@@ -363,7 +363,7 @@
                  </div>
  
                  <div className="space-y-2">
-                   <Label>Оптимизатор</Label>
+                  <Label>Optimizer</Label>
                    <Select value={optimizer} onValueChange={setOptimizer}>
                      <SelectTrigger>
                        <SelectValue />
@@ -378,12 +378,12 @@
                  </div>
  
                  <div className="p-4 bg-muted rounded-lg space-y-2">
-                   <h4 className="font-medium">Архитектура: {modelType.toUpperCase()}</h4>
+                  <h4 className="font-medium">Architecture: {modelType.toUpperCase()}</h4>
                    <p className="text-sm text-muted-foreground">
                      Input → LSTM(128) → Dropout(0.2) → LSTM(64) → Dense(32) → Output(1)
                    </p>
                    <p className="text-xs text-muted-foreground mt-2">
-                     Параметры: ~245,000 | Размер: ~1.2 MB
+                    Parameters: ~245,000 | Size: ~1.2 MB
                    </p>
                  </div>
                </CardContent>
@@ -391,13 +391,13 @@
  
              <Card>
                <CardHeader>
-                 <CardTitle>Гиперпараметры</CardTitle>
-                 <CardDescription>Настройте параметры обучения</CardDescription>
+                <CardTitle>Hyperparameters</CardTitle>
+                <CardDescription>Configure training parameters</CardDescription>
                </CardHeader>
                <CardContent className="space-y-6">
                  <div className="space-y-3">
                    <div className="flex justify-between">
-                     <Label>Количество эпох</Label>
+                    <Label>Number of Epochs</Label>
                      <span className="text-sm font-medium">{epochs}</span>
                    </div>
                    <Slider
@@ -446,7 +446,7 @@
                    }}
                  >
                    <Play className="h-4 w-4 mr-2" />
-                   Начать обучение
+                  Start Training
                  </Button>
                </CardContent>
              </Card>
@@ -459,17 +459,17 @@
              {!isTraining ? (
                <Button onClick={startTraining} disabled={modelTrained}>
                  <Play className="h-4 w-4 mr-2" />
-                 {currentEpoch > 0 ? "Продолжить" : "Запустить"}
+                {currentEpoch > 0 ? "Resume" : "Start"}
                </Button>
              ) : (
                <Button onClick={stopTraining} variant="outline">
                  <Pause className="h-4 w-4 mr-2" />
-                 Пауза
+                Pause
                </Button>
              )}
              <Button variant="outline" onClick={resetTraining}>
                <RotateCcw className="h-4 w-4 mr-2" />
-               Сбросить
+              Reset
              </Button>
            </div>
  
@@ -479,7 +479,7 @@
                <CardHeader>
                  <CardTitle className="flex items-center gap-2">
                    <LineChart className="h-5 w-5" />
-                   Кривая обучения
+                    Training Curve
                  </CardTitle>
                </CardHeader>
                <CardContent>
@@ -521,11 +521,11 @@
              {/* Live Metrics */}
              <Card>
                <CardHeader>
-                 <CardTitle>Метрики в реальном времени</CardTitle>
+                  <CardTitle>Real-time Metrics</CardTitle>
                </CardHeader>
                <CardContent className="space-y-4">
                  <div className="p-4 bg-muted rounded-lg">
-                   <p className="text-sm text-muted-foreground">Текущая эпоха</p>
+                    <p className="text-sm text-muted-foreground">Current Epoch</p>
                    <p className="text-3xl font-bold text-primary">{currentEpoch} / {epochs}</p>
                  </div>
  
@@ -549,7 +549,7 @@
                  {isTraining && (
                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
                      <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
-                     GPU активен · ~2.3 TFLOPS
+                      GPU Active · ~2.3 TFLOPS
                    </div>
                  )}
                </CardContent>
@@ -565,7 +565,7 @@
                <CardHeader>
                  <CardTitle className="flex items-center gap-2">
                    <TrendingUp className="h-5 w-5" />
-                   Производительность модели
+                    Model Performance
                  </CardTitle>
                </CardHeader>
                <CardContent>
@@ -589,7 +589,7 @@
                  </div>
  
                  <div className="space-y-3">
-                   <h4 className="font-medium">Важность признаков</h4>
+                    <h4 className="font-medium">Feature Importance</h4>
                    {featureImportance.map((item) => (
                      <div key={item.feature} className="space-y-1">
                        <div className="flex justify-between text-sm">
@@ -606,38 +606,38 @@
              {/* Export Options */}
              <Card>
                <CardHeader>
-                 <CardTitle>Экспорт модели</CardTitle>
-                 <CardDescription>Скачайте обученную модель</CardDescription>
+                  <CardTitle>Export Model</CardTitle>
+                  <CardDescription>Download the trained model</CardDescription>
                </CardHeader>
                <CardContent className="space-y-4">
                  <Button className="w-full" onClick={exportModel}>
                    <Download className="h-4 w-4 mr-2" />
-                   Экспорт в ONNX
+                    Export to ONNX
                  </Button>
                  <Button variant="outline" className="w-full" onClick={exportModel}>
                    <Download className="h-4 w-4 mr-2" />
-                   Экспорт в TensorFlow
+                    Export to TensorFlow
                  </Button>
                  <Button variant="outline" className="w-full" onClick={exportModel}>
                    <Download className="h-4 w-4 mr-2" />
-                   Экспорт в PyTorch
+                    Export to PyTorch
                  </Button>
  
                  <div className="pt-4 border-t space-y-2">
-                   <h4 className="font-medium text-sm">Информация о модели</h4>
+                    <h4 className="font-medium text-sm">Model Information</h4>
                    <div className="text-sm space-y-1 text-muted-foreground">
-                     <p>Тип: {modelType.toUpperCase()}</p>
-                     <p>Эпох: {epochs}</p>
-                     <p>Размер: ~1.2 MB</p>
-                     <p>Параметры: ~245,000</p>
-                     <p>Время обучения: ~15 мин</p>
+                      <p>Type: {modelType.toUpperCase()}</p>
+                      <p>Epochs: {epochs}</p>
+                      <p>Size: ~1.2 MB</p>
+                      <p>Parameters: ~245,000</p>
+                      <p>Training Time: ~15 min</p>
                    </div>
                  </div>
  
                  <div className="pt-4 border-t">
                    <Badge className="w-full justify-center" variant="outline">
                      <Zap className="h-3 w-3 mr-1 text-warning" />
-                     Готово к GPU-инференсу
+                      Ready for GPU Inference
                    </Badge>
                  </div>
                </CardContent>
