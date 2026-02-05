@@ -16,6 +16,7 @@ import SPTTreatment from "./pages/modules/SPTTreatment";
 import Reports from "./pages/modules/Reports";
 import CoreAnalysis from "./pages/modules/CoreAnalysis";
 import RealtimeDashboard from "./pages/modules/RealtimeDashboard";
+import EOROptimization from "./pages/modules/EOROptimization";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +41,7 @@ const App = () => (
             <Route path="reports" element={<Reports />} />
             <Route path="core-analysis" element={<CoreAnalysis />} />
             <Route path="realtime" element={<RealtimeDashboard />} />
+            <Route path="eor-optimization" element={<EOROptimization />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
