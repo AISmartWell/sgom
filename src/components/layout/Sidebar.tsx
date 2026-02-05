@@ -19,6 +19,7 @@ import {
   ChevronRight,
   Microscope,
   Radio,
+  Brain,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -81,6 +82,12 @@ const menuItems = [
     icon: FileText,
     href: "/dashboard/reports",
     badge: "✅",
+  },
+  {
+    title: "EOR Optimization",
+    icon: Brain,
+    href: "/dashboard/eor-optimization",
+    badge: "🧠",
   },
 ];
 
