@@ -17,6 +17,7 @@ import Reports from "./pages/modules/Reports";
 import CoreAnalysis from "./pages/modules/CoreAnalysis";
 import RealtimeDashboard from "./pages/modules/RealtimeDashboard";
 import EOROptimization from "./pages/modules/EOROptimization";
+  import MLTraining from "./pages/modules/MLTraining";
  import NvidiaInception from "./pages/NvidiaInception";
 import NotFound from "./pages/NotFound";
 
@@ -43,6 +44,7 @@ const App = () => (
             <Route path="core-analysis" element={<CoreAnalysis />} />
             <Route path="realtime" element={<RealtimeDashboard />} />
             <Route path="eor-optimization" element={<EOROptimization />} />
+             <Route path="ml-training" element={<MLTraining />} />
           </Route>
            <Route path="/nvidia-inception" element={<NvidiaInception />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

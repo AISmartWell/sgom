@@ -20,6 +20,7 @@ import {
   Microscope,
   Radio,
   Brain,
+   GraduationCap,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -89,6 +90,12 @@ const menuItems = [
     href: "/dashboard/eor-optimization",
     badge: "🧠",
   },
+   {
+     title: "ML Training",
+     icon: GraduationCap,
+     href: "/dashboard/ml-training",
+     badge: "🎓",
+   },
 ];
 
 interface SidebarProps {
