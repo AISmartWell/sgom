@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
- import { Badge } from "@/components/ui/badge";
 import { Droplets, ArrowRight, BarChart3, Target, Cpu } from "lucide-react";
+import nvidiaInceptionBadgeBw from "@/assets/nvidia-inception-badge-bw.png";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -33,14 +33,12 @@ const Index = () => {
                 <Droplets className="h-7 w-7 text-primary" />
               </div>
               <span className="text-2xl font-bold">AI Smart Well</span>
-               <Badge 
-                 variant="outline" 
-                 className="cursor-pointer hover:bg-[#76B900]/10 border-[#76B900]/50 text-[#76B900] hidden sm:flex"
-                 onClick={() => navigate("/nvidia-inception")}
-               >
-                 <Cpu className="mr-1 h-3 w-3" />
-                 NVIDIA Inception
-               </Badge>
+               <img 
+                  src={nvidiaInceptionBadgeBw} 
+                  alt="NVIDIA Inception Program" 
+                  className="h-10 cursor-pointer hover:opacity-80 transition-opacity hidden sm:block"
+                  onClick={() => navigate("/nvidia-inception")}
+                />
             </div>
             <Button onClick={() => navigate("/auth")}>
               Enter Platform
