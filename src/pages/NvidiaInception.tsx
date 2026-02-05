@@ -93,10 +93,10 @@
    ];
  
    const roadmap = [
-     { phase: "Q1 2025", title: "MVP Validation", items: ["Core Vision AI", "Well Ranking", "Basic EOR"], status: "completed" },
-     { phase: "Q2 2025", title: "NVIDIA Integration", items: ["DGX Cloud setup", "Custom model training", "TensorRT optimization"], status: "current" },
-     { phase: "Q3 2025", title: "Advanced AI", items: ["Seismic interpretation", "Real-time monitoring", "Predictive maintenance"], status: "planned" },
-     { phase: "Q4 2025", title: "Scale & Deploy", items: ["Multi-field deployment", "Edge inference", "Enterprise API"], status: "planned" },
+      { phase: "Q1 2026", title: "MVP Validation", items: ["Core Vision AI", "Well Ranking", "Basic EOR"], status: "completed" },
+      { phase: "Q2 2026", title: "NVIDIA Integration", items: ["DGX Cloud setup", "Custom model training", "TensorRT optimization"], status: "current" },
+      { phase: "Q3 2026", title: "Advanced AI", items: ["Seismic interpretation", "Real-time monitoring", "Predictive maintenance"], status: "planned" },
+      { phase: "Q4 2026", title: "Scale & Deploy", items: ["Multi-field deployment", "Edge inference", "Enterprise API"], status: "planned" },
    ];
  
    return (
