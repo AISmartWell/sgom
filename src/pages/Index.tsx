@@ -130,7 +130,7 @@ const Index = () => {
             <span className="font-medium">AI Smart Well</span>
           </div>
           <p className="text-sm text-muted-foreground">
-            © 2025 AI Smart Well & Maxxwell Production. All rights reserved.
+            © 2026 AI Smart Well & Maxxwell Production. All rights reserved.
           </p>
         </div>
       </footer>
