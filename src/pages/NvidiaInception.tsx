@@ -20,6 +20,7 @@
    Sparkles,
  } from "lucide-react";
  import { useNavigate } from "react-router-dom";
+import nvidiaInceptionBadge from "@/assets/nvidia-inception-badge.jpg";
  
  const NvidiaInception = () => {
    const navigate = useNavigate();
@@ -118,10 +119,11 @@
                  <p className="text-muted-foreground">Technical Architecture & AI Components</p>
                </div>
              </div>
-             <Badge className="bg-[#76B900] text-white hover:bg-[#76B900]/90">
-                <CheckCircle2 className="mr-1 h-3 w-3" />
-                NVIDIA Inception Member
-             </Badge>
+              <img 
+                src={nvidiaInceptionBadge} 
+                alt="NVIDIA Inception Program" 
+                className="h-10 object-contain"
+              />
            </div>
          </div>
        </div>
@@ -431,12 +433,13 @@
          <Card className="bg-gradient-to-r from-[#76B900]/10 via-primary/5 to-accent/10 border-[#76B900]/30">
            <CardContent className="py-8">
              <div className="text-center space-y-4">
-                <div className="flex items-center justify-center gap-2">
+                <div className="flex flex-col items-center justify-center gap-4">
+                  <img 
+                    src={nvidiaInceptionBadge} 
+                    alt="NVIDIA Inception Program" 
+                    className="h-16 object-contain"
+                  />
                   <h2 className="text-2xl font-bold">NVIDIA Inception Member</h2>
-                  <Badge className="bg-[#76B900] text-white">
-                    <CheckCircle2 className="mr-1 h-3 w-3" />
-                    Accepted
-                  </Badge>
                 </div>
                <p className="text-muted-foreground max-w-2xl mx-auto">
                   We are officially accepted into the NVIDIA Inception program! We now have access to DGX Cloud,
