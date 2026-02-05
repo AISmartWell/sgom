@@ -439,8 +439,8 @@
                   </Badge>
                 </div>
                <p className="text-muted-foreground max-w-2xl mx-auto">
-                  Мы официально приняты в программу NVIDIA Inception! Теперь у нас есть доступ к DGX Cloud,
-                  технической поддержке NVIDIA и ресурсам для масштабирования AI-инфраструктуры.
+                  We are officially accepted into the NVIDIA Inception program! We now have access to DGX Cloud,
+                  NVIDIA technical support, and resources to scale our AI infrastructure.
                </p>
                <div className="flex justify-center gap-4 pt-4">
                  <Button size="lg" variant="outline" onClick={() => navigate("/dashboard")}>
