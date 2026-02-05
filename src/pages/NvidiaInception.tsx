@@ -94,10 +94,10 @@ import nvidiaInceptionBadge from "@/assets/nvidia-inception-badge.jpg";
    ];
  
    const roadmap = [
-      { phase: "Q1 2026", title: "MVP Validation", items: ["Core Vision AI", "Well Ranking", "Basic EOR"], status: "completed" },
-      { phase: "Q2 2026", title: "NVIDIA Integration", items: ["DGX Cloud setup", "Custom model training", "TensorRT optimization"], status: "current" },
-      { phase: "Q3 2026", title: "Advanced AI", items: ["Seismic interpretation", "Real-time monitoring", "Predictive maintenance"], status: "planned" },
-      { phase: "Q4 2026", title: "Scale & Deploy", items: ["Multi-field deployment", "Edge inference", "Enterprise API"], status: "planned" },
+     { phase: "Q1 2026", title: "MVP Validation", items: ["Core Vision AI", "Well Ranking", "Basic EOR", "Inception Accepted"], status: "completed" },
+     { phase: "Q2 2026", title: "NVIDIA Integration", items: ["DGX Cloud setup", "Custom model training", "TensorRT optimization"], status: "completed" },
+     { phase: "Q3 2026", title: "Advanced AI", items: ["Seismic interpretation", "Real-time monitoring", "Predictive maintenance"], status: "current" },
+     { phase: "Q4 2026", title: "Scale & Deploy", items: ["Multi-field deployment", "Edge inference", "Enterprise API"], status: "planned" },
    ];
  
    return (
@@ -115,8 +115,8 @@ import nvidiaInceptionBadge from "@/assets/nvidia-inception-badge.jpg";
                  <Cpu className="h-6 w-6 text-white" />
                </div>
                <div>
-                 <h1 className="text-2xl font-bold">NVIDIA Inception Application</h1>
-                 <p className="text-muted-foreground">Technical Architecture & AI Components</p>
+                 <h1 className="text-2xl font-bold">NVIDIA Inception Program</h1>
+                 <p className="text-muted-foreground">Official Member — Technical Architecture & AI Components</p>
                </div>
              </div>
               <img 
@@ -134,14 +134,15 @@ import nvidiaInceptionBadge from "@/assets/nvidia-inception-badge.jpg";
            <CardHeader>
              <CardTitle className="flex items-center gap-2">
                <Brain className="h-5 w-5 text-[#76B900]" />
-               Executive Summary
+             Platform Overview
              </CardTitle>
            </CardHeader>
            <CardContent className="space-y-4">
              <p className="text-lg">
-               <strong>SGO.ai</strong> is an AI-powered platform for optimizing Enhanced Oil Recovery (EOR) 
-               using Slot Perforation Technology (SPT). We leverage computer vision and large language models 
-               to automate geological analysis and well selection, reducing decision time from weeks to minutes.
+             <strong>SGO.ai</strong> is an NVIDIA Inception member company developing an AI-powered platform 
+             for optimizing Enhanced Oil Recovery (EOR) using Slot Perforation Technology (SPT). We leverage 
+             computer vision and GPU-accelerated models to automate geological analysis and well selection, 
+             reducing decision time from weeks to minutes.
              </p>
              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-4">
                <div className="text-center p-4 rounded-lg bg-primary/10">
