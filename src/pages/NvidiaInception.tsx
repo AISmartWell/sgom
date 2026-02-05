@@ -119,8 +119,8 @@
                </div>
              </div>
              <Badge className="bg-[#76B900] text-white hover:bg-[#76B900]/90">
-               <Sparkles className="mr-1 h-3 w-3" />
-               AI-Powered O&G Platform
+                <CheckCircle2 className="mr-1 h-3 w-3" />
+                NVIDIA Inception Member
              </Badge>
            </div>
          </div>
@@ -431,16 +431,18 @@
          <Card className="bg-gradient-to-r from-[#76B900]/10 via-primary/5 to-accent/10 border-[#76B900]/30">
            <CardContent className="py-8">
              <div className="text-center space-y-4">
-               <h2 className="text-2xl font-bold">Ready for NVIDIA Inception</h2>
+                <div className="flex items-center justify-center gap-2">
+                  <h2 className="text-2xl font-bold">NVIDIA Inception Member</h2>
+                  <Badge className="bg-[#76B900] text-white">
+                    <CheckCircle2 className="mr-1 h-3 w-3" />
+                    Accepted
+                  </Badge>
+                </div>
                <p className="text-muted-foreground max-w-2xl mx-auto">
-                 Our platform demonstrates production-ready AI capabilities with clear GPU acceleration opportunities.
-                 With NVIDIA Inception support, we can scale from prototype to enterprise deployment.
+                  Мы официально приняты в программу NVIDIA Inception! Теперь у нас есть доступ к DGX Cloud,
+                  технической поддержке NVIDIA и ресурсам для масштабирования AI-инфраструктуры.
                </p>
                <div className="flex justify-center gap-4 pt-4">
-                 <Button size="lg" className="bg-[#76B900] hover:bg-[#76B900]/90">
-                   <Cpu className="mr-2 h-4 w-4" />
-                   Apply to Inception
-                 </Button>
                  <Button size="lg" variant="outline" onClick={() => navigate("/dashboard")}>
                    Explore Platform
                  </Button>
