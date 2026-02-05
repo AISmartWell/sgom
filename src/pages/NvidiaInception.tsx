@@ -21,6 +21,7 @@
  } from "lucide-react";
  import { useNavigate } from "react-router-dom";
 import nvidiaInceptionBadge from "@/assets/nvidia-inception-badge.jpg";
+import nvidiaLogoBw from "@/assets/nvidia-logo-bw.png";
  
  const NvidiaInception = () => {
    const navigate = useNavigate();
@@ -110,10 +111,12 @@ import nvidiaInceptionBadge from "@/assets/nvidia-inception-badge.jpg";
              Back to Platform
            </Button>
            <div className="flex items-center justify-between">
-             <div className="flex items-center gap-4">
-               <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-[#76B900] to-[#1A1A1A] flex items-center justify-center">
-                 <Cpu className="h-6 w-6 text-white" />
-               </div>
+              <div className="flex items-center gap-4">
+                <img 
+                  src={nvidiaLogoBw} 
+                  alt="NVIDIA" 
+                  className="h-12 w-12 rounded-xl object-contain"
+                />
                <div>
                  <h1 className="text-2xl font-bold">NVIDIA Inception Program</h1>
                  <p className="text-muted-foreground">Official Member — Technical Architecture & AI Components</p>
