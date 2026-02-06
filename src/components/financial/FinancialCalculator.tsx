@@ -63,14 +63,14 @@ const FinancialCalculator = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <DollarSign className="h-5 w-5 text-primary" />
-            Параметры расчёта
+            Calculation Parameters
           </CardTitle>
-          <CardDescription>Введите данные для расчёта ROI</CardDescription>
+          <CardDescription>Enter data to calculate ROI</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Oil Price */}
           <div className="space-y-2">
-            <Label htmlFor="oilPrice">Цена нефти (WTI), $/баррель</Label>
+            <Label htmlFor="oilPrice">Oil Price (WTI), $/barrel</Label>
             <Input
               id="oilPrice"
               type="number"
@@ -82,7 +82,7 @@ const FinancialCalculator = () => {
 
           {/* Land + Wells Cost */}
           <div className="space-y-2">
-            <Label htmlFor="landCost">Стоимость земли + скважин, $</Label>
+            <Label htmlFor="landCost">Land + Wells Cost, $</Label>
             <Input
               id="landCost"
               type="number"
@@ -94,7 +94,7 @@ const FinancialCalculator = () => {
 
           {/* Recovery Cost */}
           <div className="space-y-2">
-            <Label htmlFor="recoveryCost">Расходы на восстановление, $</Label>
+            <Label htmlFor="recoveryCost">Recovery Costs, $</Label>
             <Input
               id="recoveryCost"
               type="number"
@@ -107,7 +107,7 @@ const FinancialCalculator = () => {
           {/* Well Count */}
           <div className="space-y-3">
             <div className="flex justify-between">
-              <Label>Количество скважин</Label>
+              <Label>Well Count</Label>
               <span className="text-sm font-medium text-primary">{wellCount}</span>
             </div>
             <Slider
@@ -123,7 +123,7 @@ const FinancialCalculator = () => {
           {/* Production Increase */}
           <div className="space-y-3">
             <div className="flex justify-between">
-              <Label>Прирост добычи, баррелей/день</Label>
+              <Label>Production Increase, barrels/day</Label>
               <span className="text-sm font-medium text-primary">{productionIncrease}</span>
             </div>
             <Slider
@@ -139,7 +139,7 @@ const FinancialCalculator = () => {
           {/* Operating Cost */}
           <div className="space-y-3">
             <div className="flex justify-between">
-              <Label>Операционные расходы, %</Label>
+              <Label>Operating Costs, %</Label>
               <span className="text-sm font-medium text-primary">{operatingCostPercent}%</span>
             </div>
             <Slider
@@ -159,15 +159,15 @@ const FinancialCalculator = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <BarChart3 className="h-5 w-5 text-accent" />
-            Результаты расчёта
+            Calculation Results
           </CardTitle>
-          <CardDescription>Прогноз прибыли и окупаемости</CardDescription>
+          <CardDescription>Profit and payback forecast</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Investment Summary */}
           <div className="p-4 bg-primary/10 rounded-lg border border-primary/20">
             <div className="flex justify-between items-center">
-              <span className="text-muted-foreground">Общие инвестиции</span>
+              <span className="text-muted-foreground">Total Investment</span>
               <span className="text-2xl font-bold text-primary">
                 {formatCurrency(calculations.totalInvestment)}
               </span>
@@ -179,11 +179,11 @@ const FinancialCalculator = () => {
           {/* Key Metrics */}
           <div className="grid grid-cols-2 gap-4">
             <div className="p-3 bg-muted/30 rounded-lg">
-              <p className="text-xs text-muted-foreground mb-1">Добыча на скважину</p>
+              <p className="text-xs text-muted-foreground mb-1">Production per Well</p>
               <p className="text-lg font-bold">{calculations.perWellProduction.toFixed(1)} BPD</p>
             </div>
             <div className="p-3 bg-muted/30 rounded-lg">
-              <p className="text-xs text-muted-foreground mb-1">Дневная выручка</p>
+              <p className="text-xs text-muted-foreground mb-1">Daily Revenue</p>
               <p className="text-lg font-bold">{formatCurrency(calculations.dailyRevenue)}</p>
             </div>
           </div>
@@ -191,7 +191,7 @@ const FinancialCalculator = () => {
           {/* Annual Revenue */}
           <div className="p-4 bg-muted/30 rounded-lg">
             <div className="flex justify-between items-center mb-2">
-              <span className="text-muted-foreground">Годовая выручка</span>
+              <span className="text-muted-foreground">Annual Revenue</span>
               <span className="text-xl font-bold">{formatCurrency(calculations.annualRevenue)}</span>
             </div>
             <div className="h-2 bg-muted rounded-full overflow-hidden">
@@ -203,7 +203,7 @@ const FinancialCalculator = () => {
           <div className={`p-4 rounded-lg ${calculations.year1Profit >= 0 ? 'bg-success/10 border border-success/20' : 'bg-destructive/10 border border-destructive/20'}`}>
             <div className="flex justify-between items-center">
               <span className={calculations.year1Profit >= 0 ? 'text-success' : 'text-destructive'}>
-                Прибыль за 1-й год
+                Year 1 Profit
               </span>
               <span className={`text-xl font-bold ${calculations.year1Profit >= 0 ? 'text-success' : 'text-destructive'}`}>
                 {formatCurrency(calculations.year1Profit)}
@@ -214,7 +214,7 @@ const FinancialCalculator = () => {
           {/* Year 2 Profit */}
           <div className="p-4 bg-muted/30 rounded-lg">
             <div className="flex justify-between items-center">
-              <span className="text-muted-foreground">Прибыль за 2-й год</span>
+              <span className="text-muted-foreground">Year 2 Profit</span>
               <span className="text-xl font-bold">{formatCurrency(calculations.year2Profit)}</span>
             </div>
           </div>
@@ -222,7 +222,7 @@ const FinancialCalculator = () => {
           {/* Years 2-5 */}
           <div className="p-4 bg-accent/10 rounded-lg border border-accent/20">
             <div className="flex justify-between items-center">
-              <span className="text-accent">Прибыль за 2-5 годы</span>
+              <span className="text-accent">Years 2-5 Profit</span>
               <span className="text-xl font-bold text-accent">
                 {formatCurrency(calculations.years2to5Profit)}
               </span>
@@ -235,9 +235,9 @@ const FinancialCalculator = () => {
           <div className="grid grid-cols-2 gap-4">
             <div className="p-4 bg-success/20 rounded-lg border border-success/30 text-center">
               <Calendar className="h-6 w-6 text-success mx-auto mb-2" />
-              <p className="text-xs text-muted-foreground mb-1">Окупаемость</p>
+              <p className="text-xs text-muted-foreground mb-1">Payback Period</p>
               <Badge className="bg-success text-success-foreground text-lg px-3">
-                {calculations.paybackMonths} мес
+                {calculations.paybackMonths} mo
               </Badge>
             </div>
             <div className="p-4 bg-primary/20 rounded-lg border border-primary/30 text-center">
