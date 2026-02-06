@@ -21,6 +21,7 @@ const FinancialCalculator = () => {
   // Fetch current oil price on component mount
   useEffect(() => {
     const fetchOilPrice = async () => {
+      console.log("Fetching oil price...");
       setIsLoadingPrice(true);
       try {
         const response = await fetch(
@@ -34,12 +35,15 @@ const FinancialCalculator = () => {
           }
         );
         const data = await response.json();
+        console.log("Oil price response:", data);
         if (data.price) {
-          setOilPrice(data.price);
+          setOilPrice(prev => {
+            console.log(`Updating oil price from ${prev} to ${data.price}`);
+            return data.price;
+          });
         }
       } catch (error) {
         console.error("Failed to fetch oil price:", error);
-        // Keep default price on error
       } finally {
         setIsLoadingPrice(false);
       }
