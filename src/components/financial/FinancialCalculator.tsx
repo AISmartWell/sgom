@@ -1,20 +1,54 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { DollarSign, TrendingUp, Calendar, BarChart3 } from "lucide-react";
+import { DollarSign, TrendingUp, Calendar, BarChart3, RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const FinancialCalculator = () => {
   // Input state
   const [oilPrice, setOilPrice] = useState(77.36);
+  const [isLoadingPrice, setIsLoadingPrice] = useState(false);
   const [landCost, setLandCost] = useState(320000);
   const [recoveryCost, setRecoveryCost] = useState(800000);
   const [wellCount, setWellCount] = useState(4);
   const [productionIncrease, setProductionIncrease] = useState(120);
   const [operatingCostPercent, setOperatingCostPercent] = useState(30);
+
+  // Fetch current oil price on component mount
+  useEffect(() => {
+    const fetchOilPrice = async () => {
+      setIsLoadingPrice(true);
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-oil-price`,
+          {
+            headers: {
+              Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            },
+          }
+        );
+        const data = await response.json();
+        if (data.price) {
+          setOilPrice(data.price);
+        }
+      } catch (error) {
+        console.error("Failed to fetch oil price:", error);
+        // Keep default price on error
+      } finally {
+        setIsLoadingPrice(false);
+      }
+    };
+
+    fetchOilPrice();
+    
+    // Refresh price every 5 minutes
+    const interval = setInterval(fetchOilPrice, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Calculations
   const calculations = useMemo(() => {
@@ -70,14 +104,47 @@ const FinancialCalculator = () => {
         <CardContent className="space-y-6">
           {/* Oil Price */}
           <div className="space-y-2">
-            <Label htmlFor="oilPrice">Oil Price (WTI), $/barrel</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="oilPrice">Oil Price (WTI), $/barrel</Label>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={async () => {
+                  setIsLoadingPrice(true);
+                  try {
+                    const response = await fetch(
+                      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-oil-price`,
+                      {
+                        headers: {
+                          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+                        },
+                      }
+                    );
+                    const data = await response.json();
+                    if (data.price) {
+                      setOilPrice(data.price);
+                    }
+                  } catch (error) {
+                    console.error("Failed to refresh oil price:", error);
+                  } finally {
+                    setIsLoadingPrice(false);
+                  }
+                }}
+                className="h-6 w-6 p-0"
+                disabled={isLoadingPrice}
+              >
+                <RefreshCw className={`h-4 w-4 ${isLoadingPrice ? "animate-spin" : ""}`} />
+              </Button>
+            </div>
             <Input
               id="oilPrice"
               type="number"
               value={oilPrice}
               onChange={(e) => setOilPrice(Number(e.target.value))}
               className="bg-background/50"
+              disabled={isLoadingPrice}
             />
+            {isLoadingPrice && <p className="text-xs text-muted-foreground">Updating price...</p>}
           </div>
 
           {/* Land + Wells Cost */}
