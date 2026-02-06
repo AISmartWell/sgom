@@ -24,10 +24,12 @@ const FinancialCalculator = () => {
       setIsLoadingPrice(true);
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-oil-price`,
+          "https://rmfhcushsxkbgjnbawbs.supabase.co/functions/v1/get-oil-price",
           {
+            method: "GET",
             headers: {
-              Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+              "Content-Type": "application/json",
+              Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJtZmhjdXNoc3hrYmdqbmJhd2JzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAxNDE0NjgsImV4cCI6MjA4NTcxNzQ2OH0.9Zi8oCWaynPcsGFu8gddGhYWQD8yTMv8pm_lCBb9-yc`,
             },
           }
         );
@@ -113,10 +115,12 @@ const FinancialCalculator = () => {
                   setIsLoadingPrice(true);
                   try {
                     const response = await fetch(
-                      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-oil-price`,
+                      "https://rmfhcushsxkbgjnbawbs.supabase.co/functions/v1/get-oil-price",
                       {
+                        method: "GET",
                         headers: {
-                          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+                          "Content-Type": "application/json",
+                          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJtZmhjdXNoc3hrYmdqbmJhd2JzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAxNDE0NjgsImV4cCI6MjA4NTcxNzQ2OH0.9Zi8oCWaynPcsGFu8gddGhYWQD8yTMv8pm_lCBb9-yc`,
                         },
                       }
                     );
