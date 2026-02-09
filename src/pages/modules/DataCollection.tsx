@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { DataCollectionDemo } from "@/components/data-collection/DataCollectionDemo";
+import { RealDataPanel } from "@/components/data-collection/RealDataPanel";
 import {
   Database,
   Map,
@@ -175,6 +176,9 @@ const DataCollection = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Real Data from Oklahoma OCC */}
+          <RealDataPanel />
 
           {/* Interactive Demo */}
           <DataCollectionDemo />

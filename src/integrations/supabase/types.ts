@@ -14,7 +14,78 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      wells: {
+        Row: {
+          api_number: string | null
+          completion_date: string | null
+          county: string | null
+          created_at: string
+          formation: string | null
+          id: string
+          latitude: number | null
+          longitude: number | null
+          operator: string | null
+          production_gas: number | null
+          production_oil: number | null
+          raw_data: Json | null
+          source: string | null
+          spud_date: string | null
+          state: string
+          status: string | null
+          total_depth: number | null
+          updated_at: string
+          water_cut: number | null
+          well_name: string | null
+          well_type: string | null
+        }
+        Insert: {
+          api_number?: string | null
+          completion_date?: string | null
+          county?: string | null
+          created_at?: string
+          formation?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          operator?: string | null
+          production_gas?: number | null
+          production_oil?: number | null
+          raw_data?: Json | null
+          source?: string | null
+          spud_date?: string | null
+          state?: string
+          status?: string | null
+          total_depth?: number | null
+          updated_at?: string
+          water_cut?: number | null
+          well_name?: string | null
+          well_type?: string | null
+        }
+        Update: {
+          api_number?: string | null
+          completion_date?: string | null
+          county?: string | null
+          created_at?: string
+          formation?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          operator?: string | null
+          production_gas?: number | null
+          production_oil?: number | null
+          raw_data?: Json | null
+          source?: string | null
+          spud_date?: string | null
+          state?: string
+          status?: string | null
+          total_depth?: number | null
+          updated_at?: string
+          water_cut?: number | null
+          well_name?: string | null
+          well_type?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

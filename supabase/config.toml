@@ -2,3 +2,6 @@ project_id = "rmfhcushsxkbgjnbawbs"
 
 [functions.analyze-core]
 verify_jwt = false
+
+[functions.fetch-wells]
+verify_jwt = false
