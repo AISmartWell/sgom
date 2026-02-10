@@ -3,7 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
 import { supabase } from "@/integrations/supabase/client";
-import { MapPin, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { MapPin, Loader2, Download } from "lucide-react";
 import "leaflet/dist/leaflet.css";
 
 interface MapWell {
@@ -28,6 +29,48 @@ const getMarkerColor = (status: string | null): string => {
   if (s.includes("PLUGGED") || s.includes("ABANDONED")) return "#ef4444";
   return "#6b7280";
 };
+
+const generateKML = (wells: MapWell[]): string => {
+  const placemarks = wells.map((w) => {
+    const color = getMarkerColor(w.status);
+    // KML uses aaBBGGRR format
+    const hex = color.replace("#", "");
+    const kmlColor = `ff${hex.slice(4, 6)}${hex.slice(2, 4)}${hex.slice(0, 2)}`;
+    return `    <Placemark>
+      <name>${escapeXml(w.well_name || "Unknown")}</name>
+      <description><![CDATA[
+API: ${w.api_number || "N/A"}
+Operator: ${w.operator || "N/A"}
+Formation: ${w.formation || "N/A"}
+Status: ${w.status || "N/A"}
+County: ${w.county || "N/A"}
+Oil Production: ${w.production_oil != null ? w.production_oil.toLocaleString() + " bbl" : "N/A"}
+      ]]></description>
+      <Style>
+        <IconStyle>
+          <color>${kmlColor}</color>
+          <scale>0.8</scale>
+          <Icon><href>http://maps.google.com/mapfiles/kml/shapes/oil.png</href></Icon>
+        </IconStyle>
+      </Style>
+      <Point>
+        <coordinates>${w.longitude},${w.latitude},0</coordinates>
+      </Point>
+    </Placemark>`;
+  }).join("\n");
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Well Locations</name>
+    <description>Exported from SGOM Platform</description>
+${placemarks}
+  </Document>
+</kml>`;
+};
+
+const escapeXml = (s: string) =>
+  s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
 const WellMapLeaflet = () => {
   const [wells, setWells] = useState<MapWell[]>([]);
@@ -63,6 +106,26 @@ const WellMapLeaflet = () => {
           <Badge className="bg-success/20 text-success border-success/30 ml-2">
             {wells.length} wells
           </Badge>
+          {wells.length > 0 && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="ml-auto"
+              onClick={() => {
+                const kml = generateKML(wells);
+                const blob = new Blob([kml], { type: "application/vnd.google-earth.kml+xml" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "wells.kml";
+                a.click();
+                URL.revokeObjectURL(url);
+              }}
+            >
+              <Download className="h-4 w-4 mr-1" />
+              Export KML
+            </Button>
+          )}
         </CardTitle>
         <CardDescription>
           Interactive map showing wells with GPS coordinates from the database
