@@ -13,6 +13,7 @@ import {
   MapPin,
   Activity,
 } from "lucide-react";
+import { WellDetailDialog } from "./WellDetailDialog";
 
 interface WellRecord {
   id: string;
@@ -25,6 +26,13 @@ interface WellRecord {
   state: string;
   latitude: number | null;
   longitude: number | null;
+  formation: string | null;
+  total_depth: number | null;
+  production_oil: number | null;
+  production_gas: number | null;
+  water_cut: number | null;
+  spud_date: string | null;
+  completion_date: string | null;
 }
 
 interface DbStats {
@@ -44,6 +52,7 @@ export const RealDataPanel = () => {
   const [wells, setWells] = useState<WellRecord[]>([]);
   const [stats, setStats] = useState<DbStats | null>(null);
   const [selectedCounty, setSelectedCounty] = useState("ALL");
+  const [selectedWell, setSelectedWell] = useState<WellRecord | null>(null);
 
   const loadStats = async () => {
     setIsLoading(true);
@@ -83,7 +92,7 @@ export const RealDataPanel = () => {
   };
 
   const loadWells = async () => {
-    let query = supabase.from("wells").select("id, api_number, well_name, operator, well_type, status, county, state, latitude, longitude").order("api_number", { ascending: false }).limit(50);
+    let query = supabase.from("wells").select("id, api_number, well_name, operator, well_type, status, county, state, latitude, longitude, formation, total_depth, production_oil, production_gas, water_cut, spud_date, completion_date").order("api_number", { ascending: false }).limit(50);
     if (selectedCounty !== "ALL") {
       query = query.eq("county", selectedCounty);
     }
@@ -216,7 +225,7 @@ export const RealDataPanel = () => {
               <span>Coords</span>
             </div>
             {wells.map((well) => (
-              <div key={well.id} className="grid grid-cols-6 gap-2 text-xs px-2 py-1.5 rounded hover:bg-muted/30 transition-colors">
+              <div key={well.id} className="grid grid-cols-6 gap-2 text-xs px-2 py-1.5 rounded hover:bg-muted/30 transition-colors cursor-pointer" onClick={() => setSelectedWell(well)}>
                 <span className="font-mono">{well.api_number}</span>
                 <span className="truncate">{well.well_name}</span>
                 <span className="truncate">{well.operator}</span>
@@ -242,6 +251,12 @@ export const RealDataPanel = () => {
           </div>
         </ScrollArea>
       </CardContent>
+
+      <WellDetailDialog
+        well={selectedWell}
+        open={!!selectedWell}
+        onOpenChange={(open) => !open && setSelectedWell(null)}
+      />
     </Card>
   );
 };
