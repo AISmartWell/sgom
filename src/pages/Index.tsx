@@ -221,7 +221,7 @@ const Index = () => {
                <div className="bg-success/10 rounded-lg p-4 border border-success/20">
                   <p className="text-3xl font-bold text-success mb-1">50+ BOD</p>
                   <p className="text-xs text-muted-foreground">Daily Production (Barrels)</p>
-                  <p className="text-xs text-success font-semibold mt-2">↑ 900%+ Increase | 25+ Year Lifespan</p>
+                  <p className="text-xs text-success font-semibold mt-2">↑ 350%+ Increase | 25+ Year Lifespan</p>
                </div>
              </div>
 
