@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Droplets, ArrowRight, BarChart3, Target, Cpu } from "lucide-react";
+import { Droplets, ArrowRight, BarChart3, Target, Cpu, FileText } from "lucide-react";
 import nvidiaInceptionBadgeBw from "@/assets/nvidia-inception-badge-bw.png";
 
 const Index = () => {
@@ -40,10 +40,16 @@ const Index = () => {
                   onClick={() => navigate("/nvidia-inception")}
                 />
             </div>
-            <Button onClick={() => navigate("/auth")}>
-              Enter Platform
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
+            <div className="flex items-center gap-3">
+              <Button variant="outline" onClick={() => navigate("/docs")}>
+                <FileText className="mr-2 h-4 w-4" />
+                Docs
+              </Button>
+              <Button onClick={() => navigate("/auth")}>
+                Enter Platform
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
           </nav>
 
           {/* Hero Content */}
