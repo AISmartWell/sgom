@@ -179,7 +179,7 @@ const TechnicalSpec = () => {
               { icon: "🗺️", name: "Geological Analysis", route: "/dashboard/geological-analysis",
                 desc: "3D geological model visualization (Three.js). Seismic sections, well logs, cross-sections. AI-generated geological reports." },
               { icon: "🔬", name: "Core Analysis (Computer Vision)", route: "/dashboard/core-analysis",
-                desc: "Core sample image upload. AI analysis via Gemini: lithology determination, porosity, mineral composition. Result visualization." },
+                desc: "Core sample image upload. AI analysis via Gemini: lithology determination, porosity, mineral composition. Interactive CV Demo: multi-stage pipeline visualization (preprocessing, edge detection, feature extraction, segmentation, classification) with real core sample images, dynamic overlays, and final analysis report (rock type, porosity %, permeability mD, mineral composition)." },
               { icon: "🎯", name: "Well Selection & Ranking", route: "/dashboard/well-selection",
                 desc: "ML-based well ranking by multiple criteria. Filter by county, type, operator. Table with scores and recommendations." },
               { icon: "⚡", name: "Reservoir Simulation", route: "/dashboard/simulation",
