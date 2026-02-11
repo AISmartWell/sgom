@@ -123,55 +123,72 @@ const Index = () => {
       </div>
 
       {/* Why AI Smart Well Section */}
-      <div className="max-w-7xl mx-auto px-6 py-20 border-t border-border">
-        <h2 className="text-3xl font-bold text-center mb-12">Why AI Smart Well?</h2>
+      <div className="relative max-w-7xl mx-auto px-6 py-24 border-t border-border overflow-hidden">
+        {/* Background glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-primary/5 rounded-full blur-3xl pointer-events-none" />
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          <div className="flex gap-4">
-            <div className="flex-shrink-0">
-              <div className="h-10 w-10 rounded-lg bg-primary/20 flex items-center justify-center">
-                <TrendingUp className="h-6 w-6 text-primary" />
+        <div className="relative z-10">
+          <p className="text-primary font-semibold text-sm tracking-widest uppercase text-center mb-3">Our Advantage</p>
+          <h2 className="text-4xl font-bold text-center mb-4">Why AI Smart Well?</h2>
+          <p className="text-muted-foreground text-center mb-16 max-w-2xl mx-auto">
+            We combine patented downhole technology with cutting-edge AI to unlock production potential that traditional methods miss.
+          </p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+            <div className="glass-card rounded-xl p-6 hover:border-primary/30 transition-all group">
+              <div className="flex items-start gap-5">
+                <div className="flex-shrink-0 h-14 w-14 rounded-xl bg-primary/20 flex items-center justify-center group-hover:bg-primary/30 transition-colors glow-primary">
+                  <TrendingUp className="h-7 w-7 text-primary" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold mb-2">Maximize Production</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    AI algorithms identify highest-potential well locations and optimal treatment parameters, turning marginal wells into profitable assets.
+                  </p>
+                </div>
               </div>
             </div>
-            <div>
-              <h3 className="font-semibold mb-2">Maximize Production</h3>
-              <p className="text-sm text-muted-foreground">AI-driven well optimization identifies the highest-potential locations and treatments</p>
-            </div>
-          </div>
 
-          <div className="flex gap-4">
-            <div className="flex-shrink-0">
-              <div className="h-10 w-10 rounded-lg bg-accent/20 flex items-center justify-center">
-                <Zap className="h-6 w-6 text-accent" />
+            <div className="glass-card rounded-xl p-6 hover:border-accent/30 transition-all group">
+              <div className="flex items-start gap-5">
+                <div className="flex-shrink-0 h-14 w-14 rounded-xl bg-accent/20 flex items-center justify-center group-hover:bg-accent/30 transition-colors">
+                  <Zap className="h-7 w-7 text-accent" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold mb-2">Reduce Costs & Risk</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Data-driven decisions eliminate guesswork. Predict ROI before investing, reducing dry hole risk and operational expenses significantly.
+                  </p>
+                </div>
               </div>
             </div>
-            <div>
-              <h3 className="font-semibold mb-2">Reduce Costs</h3>
-              <p className="text-sm text-muted-foreground">Data-driven decisions eliminate guesswork and expensive trial-and-error approaches</p>
-            </div>
-          </div>
 
-          <div className="flex gap-4">
-            <div className="flex-shrink-0">
-              <div className="h-10 w-10 rounded-lg bg-success/20 flex items-center justify-center">
-                <Shield className="h-6 w-6 text-success" />
+            <div className="glass-card rounded-xl p-6 hover:border-success/30 transition-all group">
+              <div className="flex items-start gap-5">
+                <div className="flex-shrink-0 h-14 w-14 rounded-xl bg-success/20 flex items-center justify-center group-hover:bg-success/30 transition-colors">
+                  <Shield className="h-7 w-7 text-success" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold mb-2">Patented SPT Technology</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    US Patent 8,863,823 — Slot Perforating Technology with decades of verified field results. Proven to revive declining and marginal wells.
+                  </p>
+                </div>
               </div>
             </div>
-            <div>
-              <h3 className="font-semibold mb-2">Proven Technology</h3>
-              <p className="text-sm text-muted-foreground">SPT (Slotted Perforating Technology) patent with decades of verified results</p>
-            </div>
-          </div>
 
-          <div className="flex gap-4">
-            <div className="flex-shrink-0">
-              <div className="h-10 w-10 rounded-lg bg-primary/20 flex items-center justify-center">
-                <Lightbulb className="h-6 w-6 text-primary" />
+            <div className="glass-card rounded-xl p-6 hover:border-primary/30 transition-all group">
+              <div className="flex items-start gap-5">
+                <div className="flex-shrink-0 h-14 w-14 rounded-xl bg-primary/20 flex items-center justify-center group-hover:bg-primary/30 transition-colors glow-primary">
+                  <Lightbulb className="h-7 w-7 text-primary" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold mb-2">NVIDIA-Powered AI</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    As an NVIDIA Inception member, we leverage GPU-accelerated ML for seismic analysis, core imaging, and real-time production forecasting.
+                  </p>
+                </div>
               </div>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-2">Smart Insights</h3>
-              <p className="text-sm text-muted-foreground">ML algorithms analyze seismic data, well logs, and production metrics in real-time</p>
             </div>
           </div>
         </div>
