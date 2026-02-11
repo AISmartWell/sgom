@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Droplets, ArrowRight, BarChart3, Target, Cpu, FileText } from "lucide-react";
+import { Droplets, ArrowRight, BarChart3, Target, Cpu, FileText, Zap, TrendingUp, Shield, Lightbulb } from "lucide-react";
 import nvidiaInceptionBadgeBw from "@/assets/nvidia-inception-badge-bw.png";
 
 const Index = () => {
@@ -119,6 +119,105 @@ const Index = () => {
               <p className="text-sm text-muted-foreground">{feature.desc}</p>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Why AI Smart Well Section */}
+      <div className="max-w-7xl mx-auto px-6 py-20 border-t border-border">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <h2 className="text-4xl font-bold mb-6">Why AI Smart Well?</h2>
+            <p className="text-lg text-muted-foreground mb-8">
+              Unlike generic analytics platforms, AI Smart Well combines proprietary technology with AI intelligence to unlock extraordinary value from existing wells.
+            </p>
+            
+            <div className="space-y-4">
+              <div className="flex gap-4">
+                <div className="flex-shrink-0">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20">
+                    <Zap className="h-6 w-6 text-primary" />
+                  </div>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-1">SPT Patent Technology</h3>
+                  <p className="text-sm text-muted-foreground">Proprietary hydro-slotting technology (US Patent 8863823) achieves 5-20× production increase with 25-year durability</p>
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="flex-shrink-0">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-success/20">
+                    <TrendingUp className="h-6 w-6 text-success" />
+                  </div>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-1">Well Reactivation Focus</h3>
+                  <p className="text-sm text-muted-foreground">Revitalize marginal and mature wells instead of expensive new drilling. 7-8 month ROI payback period</p>
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="flex-shrink-0">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/20">
+                    <Lightbulb className="h-6 w-6 text-accent" />
+                  </div>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-1">AI-Powered Insights</h3>
+                  <p className="text-sm text-muted-foreground">Integrated geology, computer vision, and ML ranking—one platform for the complete production cycle</p>
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="flex-shrink-0">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20">
+                    <Shield className="h-6 w-6 text-primary" />
+                  </div>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-1">NVIDIA Inception</h3>
+                  <p className="text-sm text-muted-foreground">Part of NVIDIA's startup acceleration program, ensuring cutting-edge AI infrastructure and support</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="glass-card rounded-xl p-8">
+            <div className="text-center mb-8">
+              <h3 className="text-2xl font-bold mb-2">Real Impact</h3>
+              <p className="text-sm text-muted-foreground">SPT Technology Applied to Marginal Well</p>
+            </div>
+
+            <div className="space-y-6">
+              <div>
+                <p className="text-sm text-muted-foreground mb-2">Before SPT Treatment</p>
+                <div className="bg-destructive/10 rounded-lg p-4 border border-destructive/20">
+                  <p className="text-3xl font-bold text-destructive mb-1">12 BOD</p>
+                  <p className="text-xs text-muted-foreground">Daily Production (Barrels)</p>
+                  <p className="text-xs text-muted-foreground mt-2">Status: Marginal, Declining</p>
+                </div>
+              </div>
+
+              <div className="flex justify-center">
+                <div className="h-8 w-1 bg-gradient-to-b from-destructive to-success rounded-full" />
+              </div>
+
+              <div>
+                <p className="text-sm text-muted-foreground mb-2">After SPT Treatment</p>
+                <div className="bg-success/10 rounded-lg p-4 border border-success/20">
+                  <p className="text-3xl font-bold text-success mb-1">85 BOD</p>
+                  <p className="text-xs text-muted-foreground">Daily Production (Barrels)</p>
+                  <p className="text-xs text-success font-semibold mt-2">↑ 608% Increase | 25+ Year Lifespan</p>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-border">
+                <p className="text-xs text-muted-foreground text-center">
+                  Real-world results from operators in Oklahoma Basin
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
