@@ -41,10 +41,6 @@ const Index = () => {
                 />
             </div>
             <div className="flex items-center gap-3">
-              <Button variant="outline" onClick={() => navigate("/docs")}>
-                <FileText className="mr-2 h-4 w-4" />
-                Docs
-              </Button>
               <Button onClick={() => navigate("/auth")}>
                 Enter Platform
                 <ArrowRight className="ml-2 h-4 w-4" />
