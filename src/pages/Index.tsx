@@ -171,7 +171,7 @@ const Index = () => {
                 <div>
                   <h3 className="text-lg font-bold mb-2">Patented SPT Technology</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    US Patent 8,863,823 — Slot Perforating Technology with decades of verified field results. Proven to revive declining and marginal wells.
+                    US Patent 8,863,823 — Slot Perforating Technology by Maxxwell Production with decades of verified field results. Proven to revive declining and marginal wells.
                   </p>
                 </div>
               </div>
