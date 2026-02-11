@@ -19,6 +19,7 @@ import RealtimeDashboard from "./pages/modules/RealtimeDashboard";
 import EOROptimization from "./pages/modules/EOROptimization";
   import MLTraining from "./pages/modules/MLTraining";
  import NvidiaInception from "./pages/NvidiaInception";
+import TechnicalSpec from "./pages/TechnicalSpec";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -47,6 +48,7 @@ const App = () => (
              <Route path="ml-training" element={<MLTraining />} />
           </Route>
            <Route path="/nvidia-inception" element={<NvidiaInception />} />
+           <Route path="/docs" element={<TechnicalSpec />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
