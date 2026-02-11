@@ -194,45 +194,6 @@ const Index = () => {
         </div>
       </div>
 
-       {/* Real Impact Section */}
-       <div className="max-w-7xl mx-auto px-6 py-20 border-t border-border">
-         <div className="glass-card rounded-xl p-8 max-w-2xl mx-auto">
-           <div className="text-center mb-8">
-             <h3 className="text-2xl font-bold mb-2">Real Impact</h3>
-             <p className="text-sm text-muted-foreground">SPT Technology Applied to Marginal Well</p>
-           </div>
-
-           <div className="space-y-6">
-             <div>
-               <p className="text-sm text-muted-foreground mb-2">Before SPT Treatment</p>
-               <div className="bg-destructive/10 rounded-lg p-4 border border-destructive/20">
-                 <p className="text-3xl font-bold text-destructive mb-1">5 BOD</p>
-                 <p className="text-xs text-muted-foreground">Daily Production (Barrels)</p>
-                 <p className="text-xs text-muted-foreground mt-2">Status: Marginal, Declining</p>
-               </div>
-             </div>
-
-             <div className="flex justify-center">
-               <div className="h-8 w-1 bg-gradient-to-b from-destructive to-success rounded-full" />
-             </div>
-
-             <div>
-               <p className="text-sm text-muted-foreground mb-2">After SPT Treatment</p>
-               <div className="bg-success/10 rounded-lg p-4 border border-success/20">
-                  <p className="text-3xl font-bold text-success mb-1">50+ BOD</p>
-                  <p className="text-xs text-muted-foreground">Daily Production (Barrels)</p>
-                  <p className="text-xs text-success font-semibold mt-2">↑ 350%+ Increase | 25+ Year Lifespan</p>
-               </div>
-             </div>
-
-             <div className="pt-4 border-t border-border">
-               <p className="text-xs text-muted-foreground text-center">
-                 Real-world results from operators in Oklahoma Basin
-               </p>
-             </div>
-           </div>
-         </div>
-       </div>
 
       {/* Footer */}
       <footer className="border-t border-border py-8">
