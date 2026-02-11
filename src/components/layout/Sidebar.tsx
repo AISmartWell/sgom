@@ -96,6 +96,12 @@ const menuItems = [
      href: "/dashboard/ml-training",
      badge: "🎓",
    },
+   {
+     title: "Documentation",
+     icon: FileText,
+     href: "/docs",
+     badge: "📄",
+   },
 ];
 
 interface SidebarProps {
