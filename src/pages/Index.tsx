@@ -119,6 +119,61 @@ const Index = () => {
               <p className="text-sm text-muted-foreground">{feature.desc}</p>
             </div>
           ))}
+       </div>
+      </div>
+
+      {/* Why AI Smart Well Section */}
+      <div className="max-w-7xl mx-auto px-6 py-20 border-t border-border">
+        <h2 className="text-3xl font-bold text-center mb-12">Why AI Smart Well?</h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          <div className="flex gap-4">
+            <div className="flex-shrink-0">
+              <div className="h-10 w-10 rounded-lg bg-primary/20 flex items-center justify-center">
+                <TrendingUp className="h-6 w-6 text-primary" />
+              </div>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-2">Maximize Production</h3>
+              <p className="text-sm text-muted-foreground">AI-driven well optimization identifies the highest-potential locations and treatments</p>
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            <div className="flex-shrink-0">
+              <div className="h-10 w-10 rounded-lg bg-accent/20 flex items-center justify-center">
+                <Zap className="h-6 w-6 text-accent" />
+              </div>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-2">Reduce Costs</h3>
+              <p className="text-sm text-muted-foreground">Data-driven decisions eliminate guesswork and expensive trial-and-error approaches</p>
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            <div className="flex-shrink-0">
+              <div className="h-10 w-10 rounded-lg bg-success/20 flex items-center justify-center">
+                <Shield className="h-6 w-6 text-success" />
+              </div>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-2">Proven Technology</h3>
+              <p className="text-sm text-muted-foreground">SPT (Slotted Perforating Technology) patent with decades of verified results</p>
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            <div className="flex-shrink-0">
+              <div className="h-10 w-10 rounded-lg bg-primary/20 flex items-center justify-center">
+                <Lightbulb className="h-6 w-6 text-primary" />
+              </div>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-2">Smart Insights</h3>
+              <p className="text-sm text-muted-foreground">ML algorithms analyze seismic data, well logs, and production metrics in real-time</p>
+            </div>
+          </div>
         </div>
       </div>
 
