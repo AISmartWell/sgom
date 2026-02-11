@@ -66,8 +66,8 @@ export const CVDemoVisualization = () => {
       newFeatures.push({
         id: `feature-${i}`,
         type: types[Math.floor(Math.random() * types.length)],
-        x: 15 + Math.random() * 70,
-        y: 15 + Math.random() * 70,
+        x: 30 + Math.random() * 40,
+        y: 30 + Math.random() * 40,
         size: 10 + Math.random() * 22,
         confidence: 0.72 + Math.random() * 0.28,
       });
