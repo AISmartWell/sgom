@@ -33,71 +33,71 @@ const TechnicalSpec = () => {
           <div>
             <h1 className="text-3xl font-bold flex items-center gap-3">
               <FileText className="h-8 w-8 text-primary" />
-              Техническое задание
+              Technical Specification
             </h1>
-            <p className="text-muted-foreground mt-1">AI Smartwell SGOM Platform — спецификация для разработчика</p>
+            <p className="text-muted-foreground mt-1">AI Smartwell SGOM Platform — Developer Specification</p>
           </div>
-          <Badge className="ml-auto text-xs" variant="outline">v1.0 — Февраль 2026</Badge>
+          <Badge className="ml-auto text-xs" variant="outline">v1.0 — February 2026</Badge>
         </div>
 
         <Separator />
 
-        {/* 1. Общее описание */}
-        <Section icon={Globe} title="1. Общее описание проекта">
-          <p><strong>Название:</strong> AI Smartwell SGOM (Smart Geological & Operations Management)</p>
-          <p><strong>Назначение:</strong> SaaS-платформа для нефтегазовой отрасли. Анализ скважин, оптимизация добычи, геологическое моделирование и финансовое планирование с применением искусственного интеллекта.</p>
-          <p><strong>Целевая аудитория:</strong> операторы нефтяных и газовых месторождений, сервисные компании, инженеры-нефтяники, геологи, инвесторы.</p>
-          <p><strong>Сайт:</strong> <a href="https://www.aismartwell.com" className="text-primary hover:underline" target="_blank" rel="noreferrer">www.aismartwell.com</a></p>
+        {/* 1. Project Overview */}
+        <Section icon={Globe} title="1. Project Overview">
+          <p><strong>Name:</strong> AI Smartwell SGOM (Smart Geological & Operations Management)</p>
+          <p><strong>Purpose:</strong> SaaS platform for the oil & gas industry. Well analysis, production optimization, geological modeling, and financial planning using artificial intelligence.</p>
+          <p><strong>Target Audience:</strong> Oil & gas field operators, service companies, petroleum engineers, geologists, investors.</p>
+          <p><strong>Website:</strong> <a href="https://www.aismartwell.com" className="text-primary hover:underline" target="_blank" rel="noreferrer">www.aismartwell.com</a></p>
         </Section>
 
-        {/* 2. Технологический стек */}
-        <Section icon={Layers} title="2. Технологический стек">
+        {/* 2. Technology Stack */}
+        <Section icon={Layers} title="2. Technology Stack">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <h4 className="font-semibold text-foreground mb-2">Frontend</h4>
               <ul className="list-disc pl-5 space-y-1">
                 <li>React 18 + TypeScript</li>
-                <li>Vite (сборка)</li>
+                <li>Vite (build tool)</li>
                 <li>Tailwind CSS + shadcn/ui</li>
                 <li>React Router v6</li>
-                <li>Recharts (графики)</li>
-                <li>React Three Fiber / Three.js (3D-визуализации)</li>
-                <li>Leaflet + react-leaflet 4.x (карты)</li>
-                <li>Framer Motion (анимации)</li>
-                <li>TanStack Query (кэширование запросов)</li>
+                <li>Recharts (charting)</li>
+                <li>React Three Fiber / Three.js (3D visualizations)</li>
+                <li>Leaflet + react-leaflet 4.x (maps)</li>
+                <li>Framer Motion (animations)</li>
+                <li>TanStack Query (request caching)</li>
               </ul>
             </div>
             <div>
               <h4 className="font-semibold text-foreground mb-2">Backend (Lovable Cloud / Supabase)</h4>
               <ul className="list-disc pl-5 space-y-1">
-                <li>PostgreSQL — база данных</li>
+                <li>PostgreSQL — database</li>
                 <li>Row Level Security (RLS)</li>
-                <li>Supabase Auth — аутентификация (email)</li>
-                <li>Edge Functions (Deno) — серверная логика</li>
-                <li>Supabase Storage — хранение файлов</li>
-                <li>Realtime — подписки на изменения БД</li>
+                <li>Supabase Auth — authentication (email)</li>
+                <li>Edge Functions (Deno) — server logic</li>
+                <li>Supabase Storage — file storage</li>
+                <li>Realtime — database change subscriptions</li>
               </ul>
             </div>
             <div>
               <h4 className="font-semibold text-foreground mb-2">AI / ML</h4>
               <ul className="list-disc pl-5 space-y-1">
-                <li>Google Gemini (через Lovable AI) — анализ керна, генерация отчётов</li>
-                <li>Computer Vision — классификация горных пород по фото</li>
-                <li>Ранжирование скважин — ML-скоринг</li>
+                <li>Google Gemini (via Lovable AI) — core analysis, report generation</li>
+                <li>Computer Vision — rock classification from images</li>
+                <li>Well ranking — ML scoring</li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold text-foreground mb-2">Внешние API</h4>
+              <h4 className="font-semibold text-foreground mb-2">External APIs</h4>
               <ul className="list-disc pl-5 space-y-1">
-                <li>Oklahoma Corporation Commission (OCC) ArcGIS REST API — данные по скважинам</li>
-                <li>Google Earth (KML-экспорт)</li>
+                <li>Oklahoma Corporation Commission (OCC) ArcGIS REST API — well data</li>
+                <li>Google Earth (KML export)</li>
               </ul>
             </div>
           </div>
         </Section>
 
-        {/* 3. Архитектура */}
-        <Section icon={Cpu} title="3. Архитектура системы">
+        {/* 3. System Architecture */}
+        <Section icon={Cpu} title="3. System Architecture">
           <pre className="bg-muted/30 rounded-lg p-4 text-xs overflow-x-auto font-mono whitespace-pre">
 {`┌─────────────────────────────────────────────────────────┐
 │                    FRONTEND (React SPA)                  │
@@ -123,41 +123,41 @@ const TechnicalSpec = () => {
           </pre>
         </Section>
 
-        {/* 4. База данных */}
-        <Section icon={Database} title="4. Структура базы данных">
-          <h4 className="font-semibold text-foreground mb-2">Таблица: <code className="text-primary">public.wells</code></h4>
+        {/* 4. Database */}
+        <Section icon={Database} title="4. Database Structure">
+          <h4 className="font-semibold text-foreground mb-2">Table: <code className="text-primary">public.wells</code></h4>
           <div className="overflow-x-auto">
             <table className="w-full text-xs border border-border/50 rounded">
               <thead className="bg-muted/30">
                 <tr>
-                  <th className="text-left p-2 border-b border-border/50">Поле</th>
-                  <th className="text-left p-2 border-b border-border/50">Тип</th>
-                  <th className="text-left p-2 border-b border-border/50">Описание</th>
+                  <th className="text-left p-2 border-b border-border/50">Field</th>
+                  <th className="text-left p-2 border-b border-border/50">Type</th>
+                  <th className="text-left p-2 border-b border-border/50">Description</th>
                 </tr>
               </thead>
               <tbody>
                 {[
-                  ["id", "UUID (PK)", "Уникальный идентификатор"],
-                  ["api_number", "TEXT (UNIQUE)", "API-номер скважины"],
-                  ["well_name", "TEXT", "Название скважины"],
-                  ["operator", "TEXT", "Оператор / компания"],
-                  ["well_type", "TEXT", "Тип (OIL, GAS, INJECTION и т.д.)"],
-                  ["status", "TEXT", "Статус (ACTIVE, PLUGGED, SHUT-IN)"],
-                  ["state", "TEXT (NOT NULL)", "Штат (по умолчанию OK)"],
-                  ["county", "TEXT", "Округ"],
-                  ["latitude", "FLOAT", "Широта (GPS)"],
-                  ["longitude", "FLOAT", "Долгота (GPS)"],
-                  ["total_depth", "FLOAT", "Общая глубина (TD), ft"],
-                  ["formation", "TEXT", "Геологический пласт"],
-                  ["production_oil", "FLOAT", "Добыча нефти, bbl"],
-                  ["production_gas", "FLOAT", "Добыча газа, mcf"],
-                  ["water_cut", "FLOAT", "Обводнённость, %"],
-                  ["spud_date", "DATE", "Дата начала бурения"],
-                  ["completion_date", "DATE", "Дата завершения"],
-                  ["source", "TEXT", "Источник данных (OCC)"],
-                  ["raw_data", "JSONB", "Сырые данные из API"],
-                  ["created_at", "TIMESTAMPTZ", "Дата создания записи"],
-                  ["updated_at", "TIMESTAMPTZ", "Дата последнего обновления"],
+                  ["id", "UUID (PK)", "Unique identifier"],
+                  ["api_number", "TEXT (UNIQUE)", "Well API number"],
+                  ["well_name", "TEXT", "Well name"],
+                  ["operator", "TEXT", "Operator / company"],
+                  ["well_type", "TEXT", "Type (OIL, GAS, INJECTION, etc.)"],
+                  ["status", "TEXT", "Status (ACTIVE, PLUGGED, SHUT-IN)"],
+                  ["state", "TEXT (NOT NULL)", "State (default OK)"],
+                  ["county", "TEXT", "County"],
+                  ["latitude", "FLOAT", "Latitude (GPS)"],
+                  ["longitude", "FLOAT", "Longitude (GPS)"],
+                  ["total_depth", "FLOAT", "Total depth (TD), ft"],
+                  ["formation", "TEXT", "Geological formation"],
+                  ["production_oil", "FLOAT", "Oil production, bbl"],
+                  ["production_gas", "FLOAT", "Gas production, mcf"],
+                  ["water_cut", "FLOAT", "Water cut, %"],
+                  ["spud_date", "DATE", "Drilling start date"],
+                  ["completion_date", "DATE", "Completion date"],
+                  ["source", "TEXT", "Data source (OCC)"],
+                  ["raw_data", "JSONB", "Raw API data"],
+                  ["created_at", "TIMESTAMPTZ", "Record creation date"],
+                  ["updated_at", "TIMESTAMPTZ", "Last update date"],
                 ].map(([field, type, desc]) => (
                   <tr key={field} className="border-b border-border/30 hover:bg-muted/10">
                     <td className="p-2 font-mono text-primary">{field}</td>
@@ -170,32 +170,32 @@ const TechnicalSpec = () => {
           </div>
         </Section>
 
-        {/* 5. Модули */}
-        <Section icon={Layers} title="5. Функциональные модули">
+        {/* 5. Modules */}
+        <Section icon={Layers} title="5. Functional Modules">
           <div className="space-y-4">
             {[
               { icon: "📡", name: "Data Collection & Integration", route: "/dashboard/data-collection",
-                desc: "Сбор данных из OCC ArcGIS API (Оклахома). Отображение на интерактивной карте (Leaflet). Экспорт в KML для Google Earth. Детальный просмотр скважин. Edge Function: fetch-wells." },
+                desc: "Collect well data from OCC ArcGIS API (Oklahoma). Display on interactive map (Leaflet). Export to KML for Google Earth. Detailed well viewing. Edge Function: fetch-wells." },
               { icon: "🗺️", name: "Geological Analysis", route: "/dashboard/geological-analysis",
-                desc: "3D-визуализация геологических моделей (Three.js). Сейсмические разрезы, каротажные диаграммы, кросс-секции. ИИ-генерация геологических отчётов." },
+                desc: "3D geological model visualization (Three.js). Seismic sections, well logs, cross-sections. AI-generated geological reports." },
               { icon: "🔬", name: "Core Analysis (Computer Vision)", route: "/dashboard/core-analysis",
-                desc: "Загрузка фото образцов керна. ИИ-анализ через Gemini: определение литологии, пористости, минерального состава. Визуализация результатов." },
+                desc: "Core sample image upload. AI analysis via Gemini: lithology determination, porosity, mineral composition. Result visualization." },
               { icon: "🎯", name: "Well Selection & Ranking", route: "/dashboard/well-selection",
-                desc: "ML-ранжирование скважин по множественным критериям. Фильтрация по округу, типу, оператору. Таблица с оценками и рекомендациями." },
+                desc: "ML-based well ranking by multiple criteria. Filter by county, type, operator. Table with scores and recommendations." },
               { icon: "⚡", name: "Reservoir Simulation", route: "/dashboard/simulation",
-                desc: "Симуляция поведения пласта. Прогнозирование добычи. Визуализация давления и насыщенности." },
+                desc: "Reservoir behavior simulation. Production forecasting. Pressure and saturation visualization." },
               { icon: "💰", name: "Financial Calculator", route: "/dashboard/financial",
-                desc: "Расчёт ROI для Maxxwell Production. Калькулятор NPV, IRR. Анализ затрат на обработку скважин." },
+                desc: "ROI calculation for Maxxwell Production. NPV, IRR calculator. Well treatment cost analysis." },
               { icon: "🔧", name: "SPT Treatment", route: "/dashboard/spt-treatment",
-                desc: "Интерактивная демонстрация технологии Siphon Pump Treatment (патент US8863823). Визуализация процесса обработки. Метрики эффективности." },
+                desc: "Interactive Siphon Pump Treatment technology demo (Patent US8863823). Treatment process visualization. Effectiveness metrics." },
               { icon: "🧪", name: "EOR Optimization", route: "/dashboard/eor-optimization",
-                desc: "Оптимизация методов повышения нефтеотдачи (Enhanced Oil Recovery). Моделирование химических и термальных воздействий." },
+                desc: "Enhanced Oil Recovery method optimization. Simulation of chemical and thermal impacts." },
               { icon: "📊", name: "Real-Time Dashboard", route: "/dashboard/realtime",
-                desc: "Мониторинг скважин в реальном времени. Симуляция WebSocket. Алерты по критическим показателям." },
+                desc: "Real-time well monitoring. WebSocket simulation. Critical indicator alerts." },
               { icon: "🧠", name: "ML Training", route: "/dashboard/ml-training",
-                desc: "Обучение моделей машинного обучения на данных скважин. Настройка параметров и визуализация процесса." },
+                desc: "Machine learning model training on well data. Parameter tuning and process visualization." },
               { icon: "📄", name: "Reports", route: "/dashboard/reports",
-                desc: "Генерация отчётов по анализу. Экспорт данных." },
+                desc: "Analysis report generation. Data export." },
             ].map((mod) => (
               <div key={mod.route} className="p-3 rounded-lg bg-muted/20 border border-border/30">
                 <p className="font-semibold text-foreground">{mod.icon} {mod.name}</p>
@@ -207,13 +207,13 @@ const TechnicalSpec = () => {
         </Section>
 
         {/* 6. Edge Functions */}
-        <Section icon={Cpu} title="6. Edge Functions (серверные функции)">
+        <Section icon={Cpu} title="6. Edge Functions (Server Functions)">
           <div className="space-y-3">
             {[
-              { name: "fetch-wells", desc: "Получение данных скважин из OCC ArcGIS REST API. Фильтрация по округу/типу. Upsert в таблицу wells.", input: "{ county?, wellType?, limit?, offset? }", output: "{ success, fetched, stored, skipped, sample }" },
-              { name: "analyze-core", desc: "Анализ изображений керна через AI (Gemini). Определение литологии, пористости, текстуры.", input: "{ imageBase64 }", output: "{ analysis: { lithology, porosity, ... } }" },
-              { name: "rank-wells", desc: "ML-ранжирование скважин. Расчёт скоринга по множественным параметрам.", input: "{ wells[], criteria }", output: "{ ranked: [{ id, score, ... }] }" },
-              { name: "get-oil-price", desc: "Получение актуальной цены нефти для финансовых расчётов.", input: "{}", output: "{ price, currency, date }" },
+              { name: "fetch-wells", desc: "Fetch well data from OCC ArcGIS REST API. Filter by county/type. Upsert to wells table.", input: "{ county?, wellType?, limit?, offset? }", output: "{ success, fetched, stored, skipped, sample }" },
+              { name: "analyze-core", desc: "Analyze core images via AI (Gemini). Determine lithology, porosity, texture.", input: "{ imageBase64 }", output: "{ analysis: { lithology, porosity, ... } }" },
+              { name: "rank-wells", desc: "ML-based well ranking. Calculate scores by multiple parameters.", input: "{ wells[], criteria }", output: "{ ranked: [{ id, score, ... }] }" },
+              { name: "get-oil-price", desc: "Fetch current oil price for financial calculations.", input: "{}", output: "{ price, currency, date }" },
             ].map((fn) => (
               <div key={fn.name} className="p-3 rounded-lg bg-muted/20 border border-border/30">
                 <p className="font-semibold text-foreground font-mono text-sm">{fn.name}</p>
@@ -227,45 +227,45 @@ const TechnicalSpec = () => {
           </div>
         </Section>
 
-        {/* 7. Аутентификация */}
-        <Section icon={Shield} title="7. Аутентификация и безопасность">
+        {/* 7. Authentication */}
+        <Section icon={Shield} title="7. Authentication & Security">
           <ul className="list-disc pl-5 space-y-1">
-            <li>Email/password аутентификация через Supabase Auth</li>
-            <li>Автоматическое подтверждение email (для ускорения тестирования)</li>
-            <li>Row Level Security (RLS) на таблицах БД</li>
-            <li>Session persistence через localStorage</li>
-            <li>Маршрут: <code className="text-primary">/auth</code></li>
+            <li>Email/password authentication via Supabase Auth</li>
+            <li>Auto email confirmation (for testing speed)</li>
+            <li>Row Level Security (RLS) on database tables</li>
+            <li>Session persistence via localStorage</li>
+            <li>Route: <code className="text-primary">/auth</code></li>
           </ul>
         </Section>
 
-        {/* 8. Внешние интеграции */}
-        <Section icon={Globe} title="8. Внешние интеграции">
+        {/* 8. External Integrations */}
+        <Section icon={Globe} title="8. External Integrations">
           <div className="space-y-3">
             <div>
               <h4 className="font-semibold text-foreground">Oklahoma Corporation Commission (OCC)</h4>
               <p>ArcGIS REST API — <code className="text-primary text-xs break-all">https://gis.occ.ok.gov/server/rest/services/Hosted/RBDMS_WELLS/FeatureServer/220/query</code></p>
-              <p>Данные: координаты, API-номера, операторы, статусы, пласты, глубины, даты.</p>
+              <p>Data: coordinates, API numbers, operators, statuses, formations, depths, dates.</p>
             </div>
             <div>
               <h4 className="font-semibold text-foreground">Google Earth (KML)</h4>
-              <p>Экспорт скважин в формат KML. Иконки нефтяных вышек с цветовой кодировкой по статусу.</p>
+              <p>Export wells to KML format. Oil rig icons with status-based color coding.</p>
             </div>
             <div>
               <h4 className="font-semibold text-foreground">NVIDIA Inception Program</h4>
-              <p>Платформа является участником программы NVIDIA Inception. Страница: <code className="text-primary">/nvidia-inception</code></p>
+              <p>Platform is a participant in the NVIDIA Inception program. Page: <code className="text-primary">/nvidia-inception</code></p>
             </div>
           </div>
         </Section>
 
-        {/* 9. Файловая структура */}
-        <Section icon={FileText} title="9. Ключевые директории">
+        {/* 9. File Structure */}
+        <Section icon={FileText} title="9. Key Directories">
           <pre className="bg-muted/30 rounded-lg p-4 text-xs font-mono whitespace-pre overflow-x-auto">
 {`src/
-├── pages/                  # Страницы приложения
-│   ├── Index.tsx            # Лендинг
-│   ├── Auth.tsx             # Авторизация
-│   ├── Dashboard.tsx        # Главный дашборд
-│   └── modules/             # Модули платформы
+├── pages/                  # Application pages
+│   ├── Index.tsx            # Landing page
+│   ├── Auth.tsx             # Authentication
+│   ├── Dashboard.tsx        # Main dashboard
+│   └── modules/             # Platform modules
 │       ├── DataCollection.tsx
 │       ├── GeologicalAnalysis.tsx
 │       ├── CoreAnalysis.tsx
@@ -277,39 +277,39 @@ const TechnicalSpec = () => {
 │       ├── RealtimeDashboard.tsx
 │       ├── MLTraining.tsx
 │       └── Reports.tsx
-├── components/              # UI-компоненты
+├── components/              # UI components
 │   ├── ui/                  # shadcn/ui
 │   ├── layout/              # DashboardLayout, Sidebar
 │   ├── data-collection/     # WellMapLeaflet, RealDataPanel
-│   ├── geological/          # 3D модели, сейсмика
-│   ├── core-analysis/       # CV демо
-│   ├── well-selection/      # Фильтры, таблица, карта
-│   ├── simulation/          # Визуализации пласта
-│   ├── financial/           # Калькулятор
-│   └── spt/                 # SPT визуализация
-├── hooks/                   # Кастомные хуки
-├── integrations/supabase/   # Клиент и типы (автогенерация)
-└── assets/                  # Изображения
+│   ├── geological/          # 3D models, seismic
+│   ├── core-analysis/       # CV demo
+│   ├── well-selection/      # Filters, table, map
+│   ├── simulation/          # Reservoir visualizations
+│   ├── financial/           # Calculator
+│   └── spt/                 # SPT visualization
+├── hooks/                   # Custom hooks
+├── integrations/supabase/   # Client and types (auto-generated)
+└── assets/                  # Images
 
 supabase/
 ├── functions/               # Edge Functions
-│   ├── fetch-wells/         # Импорт данных OCC
-│   ├── analyze-core/        # CV анализ керна
-│   ├── rank-wells/          # ML ранжирование
-│   └── get-oil-price/       # Цена нефти
-└── config.toml              # Конфигурация`}
+│   ├── fetch-wells/         # OCC data import
+│   ├── analyze-core/        # CV core analysis
+│   ├── rank-wells/          # ML ranking
+│   └── get-oil-price/       # Oil price
+└── config.toml              # Configuration`}
           </pre>
         </Section>
 
-        {/* 10. Запуск */}
-        <Section icon={Wrench} title="10. Запуск и развёртывание">
+        {/* 10. Deployment */}
+        <Section icon={Wrench} title="10. Deployment & Running">
           <div className="space-y-2">
-            <p><strong>Dev-сервер:</strong> <code className="text-primary">npm run dev</code> (Vite, порт 8080)</p>
-            <p><strong>Сборка:</strong> <code className="text-primary">npm run build</code></p>
-            <p><strong>Деплой:</strong> Lovable Cloud — автоматический деплой frontend через Publish. Edge Functions деплоятся автоматически.</p>
-            <p><strong>Переменные окружения (.env):</strong></p>
+            <p><strong>Dev Server:</strong> <code className="text-primary">npm run dev</code> (Vite, port 8080)</p>
+            <p><strong>Build:</strong> <code className="text-primary">npm run build</code></p>
+            <p><strong>Deploy:</strong> Lovable Cloud — automatic frontend deployment via Publish. Edge Functions deploy automatically.</p>
+            <p><strong>Environment Variables (.env):</strong></p>
             <ul className="list-disc pl-5 space-y-1 text-xs">
-              <li><code>VITE_SUPABASE_URL</code> — URL проекта</li>
+              <li><code>VITE_SUPABASE_URL</code> — Project URL</li>
               <li><code>VITE_SUPABASE_PUBLISHABLE_KEY</code> — Anon Key</li>
             </ul>
           </div>
