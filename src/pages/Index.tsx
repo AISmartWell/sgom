@@ -206,7 +206,7 @@ const Index = () => {
              <div>
                <p className="text-sm text-muted-foreground mb-2">Before SPT Treatment</p>
                <div className="bg-destructive/10 rounded-lg p-4 border border-destructive/20">
-                 <p className="text-3xl font-bold text-destructive mb-1">12 BOD</p>
+                 <p className="text-3xl font-bold text-destructive mb-1">5 BOD</p>
                  <p className="text-xs text-muted-foreground">Daily Production (Barrels)</p>
                  <p className="text-xs text-muted-foreground mt-2">Status: Marginal, Declining</p>
                </div>
