@@ -188,8 +188,10 @@ const TechnicalSpec = () => {
                 desc: "Reservoir behavior simulation. Production forecasting. Pressure and saturation visualization." },
               { icon: "💰", name: "Financial Calculator", route: "/dashboard/financial",
                 desc: "ROI calculation for Maxxwell Production. NPV, IRR calculator. Well treatment cost analysis." },
-              { icon: "🔧", name: "SPT Treatment", route: "/dashboard/spt-treatment",
-                desc: "Interactive Siphon Pump Treatment technology demo (Patent US8863823). Treatment process visualization. Effectiveness metrics." },
+               { icon: "📈", name: "Cumulative Analysis", route: "/dashboard/cumulative-analysis",
+                 desc: "Mathematical-graphical reserve calculation and remaining reserves estimation. 5-stage pipeline: Load Data → Calculate Cumulative Volumes → Estimate Initial Reserves (IOIP) → Compute Remaining Reserves → Generate Report. Visualizes decline curves and tracks recovery factors (RF) per well." },
+               { icon: "🔧", name: "SPT Treatment", route: "/dashboard/spt-treatment",
+                 desc: "Interactive Siphon Pump Treatment technology demo (Patent US8863823). Treatment process visualization. Effectiveness metrics." },
               { icon: "🧪", name: "EOR Optimization", route: "/dashboard/eor-optimization",
                 desc: "Enhanced Oil Recovery method optimization. Simulation of chemical and thermal impacts." },
               { icon: "📊", name: "Real-Time Dashboard", route: "/dashboard/realtime",
@@ -274,6 +276,7 @@ const TechnicalSpec = () => {
 │   └── modules/             # Platform modules
 │       ├── DataCollection.tsx
 │       ├── DataClassification.tsx
+│       ├── CumulativeAnalysis.tsx
 │       ├── GeologicalAnalysis.tsx
 │       ├── CoreAnalysis.tsx
 │       ├── WellSelection.tsx
