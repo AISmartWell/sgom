@@ -24,6 +24,7 @@ import {
   Activity,
   Radar,
   FolderSearch,
+  TrendingDown,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -111,12 +112,18 @@ const menuItems = [
       href: "/dashboard/field-scanning",
       badge: "🛰️",
     },
-    {
-      title: "Data Classification",
-      icon: FolderSearch,
-      href: "/dashboard/data-classification",
-      badge: "📂",
-    },
+     {
+       title: "Data Classification",
+       icon: FolderSearch,
+       href: "/dashboard/data-classification",
+       badge: "📂",
+     },
+     {
+       title: "Cumulative Analysis",
+       icon: TrendingDown,
+       href: "/dashboard/cumulative-analysis",
+       badge: "📈",
+     },
    {
      title: "Documentation",
      icon: FileText,

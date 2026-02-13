@@ -21,6 +21,7 @@ import EOROptimization from "./pages/modules/EOROptimization";
 import GeophysicalExpertise from "./pages/modules/GeophysicalExpertise";
 import FieldScanning from "./pages/modules/FieldScanning";
 import DataClassification from "./pages/modules/DataClassification";
+import CumulativeAnalysis from "./pages/modules/CumulativeAnalysis";
 import NvidiaInception from "./pages/NvidiaInception";
 import TechnicalSpec from "./pages/TechnicalSpec";
 import NotFound from "./pages/NotFound";
@@ -52,6 +53,7 @@ const App = () => (
              <Route path="geophysical" element={<GeophysicalExpertise />} />
              <Route path="field-scanning" element={<FieldScanning />} />
              <Route path="data-classification" element={<DataClassification />} />
+             <Route path="cumulative-analysis" element={<CumulativeAnalysis />} />
           </Route>
            <Route path="/nvidia-inception" element={<NvidiaInception />} />
            <Route path="/docs" element={<TechnicalSpec />} />
