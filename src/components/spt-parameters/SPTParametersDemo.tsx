@@ -7,6 +7,7 @@ import { Slider } from "@/components/ui/slider";
 import { Progress } from "@/components/ui/progress";
 import { Settings, FileText, Wrench, Layers, Ruler, Play, CheckCircle2, ChevronRight } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar as RechartsRadar, Legend } from "recharts";
+import SlotVisualization from "./SlotVisualization";
 
 const mockWells = [
   { id: "W-101", name: "Maxwell #1", depth: 4200, casingOD: 5.5, casingID: 4.95, tubing: 2.875, perforationZone: "3800-4100", formation: "Hunton Limestone", pressure: 1850, temperature: 165 },
@@ -258,7 +259,24 @@ const SPTParametersDemo = () => {
 
         {/* Slot Design */}
         <TabsContent value="design" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <Card className="border-border/30 lg:col-span-2">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm">Slot Pattern on Casing</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <SlotVisualization
+                  casingOD={selectedWell.casingOD}
+                  casingID={selectedWell.casingID}
+                  slotLength={slotLength[0]}
+                  slotWidth={slotWidth[0]}
+                  slotsPerRow={slotsPerRow[0]}
+                  rowSpacing={rowSpacing[0]}
+                  perforationZone={selectedWell.perforationZone}
+                />
+              </CardContent>
+            </Card>
+
             <Card className="border-border/30">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm">Slot Geometry Parameters</CardTitle>
@@ -294,24 +312,24 @@ const SPTParametersDemo = () => {
                 </div>
               </CardContent>
             </Card>
-
-            <Card className="border-border/30">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm">Design Optimization Radar</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={250}>
-                  <RadarChart data={radarData}>
-                    <PolarGrid stroke="hsl(var(--border))" />
-                    <PolarAngleAxis dataKey="param" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }} />
-                    <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 9 }} />
-                    <RechartsRadar name="Current Design" dataKey="value" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.3} />
-                    <Legend wrapperStyle={{ fontSize: 11 }} />
-                  </RadarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
           </div>
+
+          <Card className="border-border/30">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Design Optimization Radar</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={250}>
+                <RadarChart data={radarData}>
+                  <PolarGrid stroke="hsl(var(--border))" />
+                  <PolarAngleAxis dataKey="param" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }} />
+                  <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 9 }} />
+                  <RechartsRadar name="Current Design" dataKey="value" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.3} />
+                  <Legend wrapperStyle={{ fontSize: 11 }} />
+                </RadarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* Report */}
