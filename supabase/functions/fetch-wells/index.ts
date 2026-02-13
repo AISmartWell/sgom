@@ -17,7 +17,14 @@ serve(async (req) => {
   }
 
   try {
-    const { county, wellType, limit = 100, offset = 0 } = await req.json();
+    const { county, wellType, limit = 100, offset = 0, company_id } = await req.json();
+
+    if (!company_id) {
+      return new Response(
+        JSON.stringify({ error: "company_id is required" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     // Build WHERE clause
     const whereClauses: string[] = ["1=1"];
@@ -102,6 +109,7 @@ serve(async (req) => {
         completion_date: a.compl_date ? new Date(a.compl_date as number).toISOString().split("T")[0] : null,
         source: "OCC",
         raw_data: a,
+        company_id,
       };
     });
 
