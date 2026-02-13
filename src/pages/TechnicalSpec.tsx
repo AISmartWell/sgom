@@ -170,6 +170,33 @@ const TechnicalSpec = () => {
           </div>
         </Section>
 
+        {/* 4.1 Multi-Tenant Architecture */}
+        <Section icon={Shield} title="4.1 Multi-Tenant Data Isolation (RBDMS)">
+          <h4 className="font-semibold text-foreground mb-2">Architecture Overview</h4>
+          <p>The platform implements enterprise-grade multi-tenant data isolation to ensure secure separation between independent operator companies. Each organization's well data, analysis results, and configurations remain completely isolated at the database level.</p>
+          
+          <h4 className="font-semibold text-foreground mb-2 mt-4">Core Tables</h4>
+          <ul className="list-disc pl-5 space-y-1 mb-4">
+            <li><code className="text-primary">public.companies</code> — Operator organization records (name, timestamps)</li>
+            <li><code className="text-primary">public.user_companies</code> — Junction table mapping users to companies (enforces multi-tenant membership)</li>
+            <li><code className="text-primary">public.wells</code> — Well records with mandatory <code className="text-primary">company_id</code> foreign key</li>
+          </ul>
+
+          <h4 className="font-semibold text-foreground mb-2">Row-Level Security (RLS) Policies</h4>
+          <p className="mb-3">All tables enforce RLS policies using the multi-tenant model <code className="text-primary">(company_id IN (SELECT user_companies.company_id FROM user_companies WHERE user_id = auth.uid()))</code>:</p>
+          <ul className="list-disc pl-5 space-y-1 mb-4">
+            <li><strong>wells:</strong> SELECT, INSERT, UPDATE, DELETE — users can only access wells belonging to their assigned companies</li>
+            <li><strong>companies:</strong> SELECT — users can view only companies they are members of</li>
+            <li><strong>user_companies:</strong> SELECT — users can view only their own membership records</li>
+          </ul>
+
+          <h4 className="font-semibold text-foreground mb-2">Data Integration</h4>
+          <p>Edge Function <code className="text-primary">fetch-wells</code> requires <code className="text-primary">company_id</code> in request body. Well records imported from OCC API are automatically tagged with the requesting company's ID, ensuring upstream data integrity.</p>
+
+          <h4 className="font-semibold text-foreground mb-2">Default Company Initialization</h4>
+          <p>On first authentication, users are assigned to a "Default Company" (ID: <code className="text-primary">00000000-0000-0000-0000-000000000001</code>). This allows immediate access to shared evaluation data while maintaining isolation from other operators.</p>
+        </Section>
+
         {/* 5. Modules */}
         <Section icon={Layers} title="5. Functional Modules">
           <div className="space-y-4">
