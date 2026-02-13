@@ -27,6 +27,7 @@ import {
   TrendingDown,
   TrendingUp,
   Settings,
+  Building2,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -144,6 +145,12 @@ const menuItems = [
        href: "/dashboard/cumulative-analysis",
        badge: "📈",
      },
+   {
+     title: "Multi-Tenant",
+     icon: Building2,
+     href: "/dashboard/multi-tenant",
+     badge: "🏢",
+   },
    {
      title: "Documentation",
      icon: FileText,
