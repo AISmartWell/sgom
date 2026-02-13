@@ -23,6 +23,7 @@ import {
   GraduationCap,
   Activity,
   Radar,
+  FolderSearch,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -104,12 +105,18 @@ const menuItems = [
      href: "/dashboard/geophysical",
      badge: "📊",
    },
-   {
-     title: "Field Scanning",
-     icon: Radar,
-     href: "/dashboard/field-scanning",
-     badge: "🛰️",
-   },
+    {
+      title: "Field Scanning",
+      icon: Radar,
+      href: "/dashboard/field-scanning",
+      badge: "🛰️",
+    },
+    {
+      title: "Data Classification",
+      icon: FolderSearch,
+      href: "/dashboard/data-classification",
+      badge: "📂",
+    },
    {
      title: "Documentation",
      icon: FileText,
