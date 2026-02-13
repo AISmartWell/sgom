@@ -90,6 +90,12 @@ const menuItems = [
     badge: "🚀",
   },
   {
+    title: "Economic Analysis",
+    icon: DollarSign,
+    href: "/dashboard/economic-analysis",
+    badge: "💵",
+  },
+  {
     title: "Reports",
     icon: FileText,
     href: "/dashboard/reports",
