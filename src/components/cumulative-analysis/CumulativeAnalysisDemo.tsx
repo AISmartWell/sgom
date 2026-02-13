@@ -297,6 +297,7 @@ export const CumulativeAnalysisDemo = () => {
           <TabsTrigger value="reserves">Reserve Estimates</TabsTrigger>
           <TabsTrigger value="curve">Decline Curve</TabsTrigger>
           <TabsTrigger value="summary">Summary</TabsTrigger>
+          <TabsTrigger value="formulas">Formulas</TabsTrigger>
         </TabsList>
 
         {/* Pipeline Log */}
@@ -508,6 +509,107 @@ export const CumulativeAnalysisDemo = () => {
                   </div>
                 </div>
               )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Formulas & Calculations */}
+        <TabsContent value="formulas">
+          <Card>
+            <CardContent className="pt-4">
+              <div className="space-y-8">
+                {/* IOIP Formula */}
+                <div className="border border-primary/20 rounded-lg p-4 bg-muted/30">
+                  <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                    <Flame className="h-4 w-4 text-orange-500" />
+                    Initial Oil In Place (IOIP)
+                  </h4>
+                  <div className="space-y-3">
+                    <div className="bg-background rounded p-3 font-mono text-sm">
+                      <p className="text-muted-foreground mb-2">Volumetric Method:</p>
+                      <p className="text-primary font-semibold">IOIP = A × h × φ × S<sub>o</sub> / B<sub>o</sub></p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div><span className="text-muted-foreground">A</span> = Area (acres)</div>
+                      <div><span className="text-muted-foreground">h</span> = Thickness (ft)</div>
+                      <div><span className="text-muted-foreground">φ</span> = Porosity (%)</div>
+                      <div><span className="text-muted-foreground">S<sub>o</sub></span> = Oil Saturation (%)</div>
+                      <div><span className="text-muted-foreground">B<sub>o</sub></span> = Volume Factor (RB/STB)</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Remaining Reserves */}
+                <div className="border border-blue-500/20 rounded-lg p-4 bg-muted/30">
+                  <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                    <Droplets className="h-4 w-4 text-blue-500" />
+                    Remaining Reserves & Recovery Factor
+                  </h4>
+                  <div className="space-y-3">
+                    <div className="bg-background rounded p-3 font-mono text-sm space-y-2">
+                      <div>
+                        <p className="text-muted-foreground mb-1">Remaining Reserves:</p>
+                        <p className="text-primary font-semibold">N<sub>r</sub> = IOIP − N<sub>p</sub></p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground mb-1">Recovery Factor:</p>
+                        <p className="text-primary font-semibold">RF (%) = (N<sub>p</sub> / IOIP) × 100</p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div><span className="text-muted-foreground">N<sub>r</sub></span> = Remaining oil (bbl)</div>
+                      <div><span className="text-muted-foreground">N<sub>p</sub></span> = Cumulative produced (bbl)</div>
+                      <div><span className="text-muted-foreground">RF</span> = Recovery percentage of IOIP</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Decline Rate */}
+                <div className="border border-destructive/20 rounded-lg p-4 bg-muted/30">
+                  <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                    <TrendingDown className="h-4 w-4 text-destructive" />
+                    Exponential Decline Rate
+                  </h4>
+                  <div className="space-y-3">
+                    <div className="bg-background rounded p-3 font-mono text-sm space-y-2">
+                      <div>
+                        <p className="text-muted-foreground mb-1">Production Rate:</p>
+                        <p className="text-primary font-semibold">q(t) = q<sub>0</sub> × e<sup>−D×t</sup></p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground mb-1">Annual Decline (%):</p>
+                        <p className="text-primary font-semibold">d (%) = (1 − e<sup>−D</sup>) × 100</p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div><span className="text-muted-foreground">q(t)</span> = Rate at time t</div>
+                      <div><span className="text-muted-foreground">q<sub>0</sub></span> = Initial rate (bbl/d)</div>
+                      <div><span className="text-muted-foreground">D</span> = Nominal decline (1/year)</div>
+                      <div><span className="text-muted-foreground">t</span> = Time (years)</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Example Calculation */}
+                <div className="border border-primary/30 rounded-lg p-4 bg-primary/5">
+                  <h4 className="text-sm font-semibold mb-3">Example Calculation</h4>
+                  <div className="space-y-2 text-sm">
+                    {wells.length > 0 && (
+                      <>
+                        <p><span className="font-medium">{wells[0]?.name}:</span></p>
+                        <p className="text-xs text-muted-foreground ml-3">IOIP = {formatNum(wells[0]?.initialOil || 0)} bbl</p>
+                        <p className="text-xs text-muted-foreground ml-3">N<sub>p</sub> = {formatNum(wells[0]?.producedOil || 0)} bbl</p>
+                        <p className="text-xs text-muted-foreground ml-3">N<sub>r</sub> = {formatNum(wells[0]?.remainingOil || 0)} bbl</p>
+                        <p className="text-xs text-muted-foreground ml-3">RF = {wells[0]?.recoveryFactor.toFixed(1)}% (of IOIP)</p>
+                        <p className="text-xs text-muted-foreground ml-3">Decline = {wells[0]?.declineRate.toFixed(1)}%/year</p>
+                      </>
+                    )}
+                    {wells.length === 0 && (
+                      <p className="text-xs text-muted-foreground">Run the pipeline to see live calculation examples</p>
+                    )}
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
