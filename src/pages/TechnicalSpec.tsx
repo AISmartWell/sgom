@@ -189,7 +189,7 @@ const TechnicalSpec = () => {
               { icon: "💰", name: "Financial Calculator", route: "/dashboard/financial",
                 desc: "ROI calculation for Maxxwell Production. NPV, IRR calculator. Well treatment cost analysis." },
                { icon: "📈", name: "Cumulative Analysis", route: "/dashboard/cumulative-analysis",
-                 desc: "Mathematical-graphical reserve calculation and remaining reserves estimation. 5-stage pipeline: Load Data → Calculate Cumulative Volumes → Estimate Initial Reserves (IOIP) → Compute Remaining Reserves → Generate Report. Visualizes decline curves and tracks recovery factors (RF) per well." },
+                  desc: "Mathematical-graphical reserve calculation using decline curve analysis (DCA). 5-stage pipeline: Load Data → Calculate Cumulative Volumes → Estimate Initial Reserves (IOIP) → Compute Remaining Reserves → Generate Report. Key formulas: IOIP = A × h × φ × S_o / B_o (volumetric method); N_r = IOIP − N_p (remaining reserves); RF = (N_p / IOIP) × 100 (recovery factor); q(t) = q_0 × e^(−D×t) (exponential decline). Visualizes decline curves, recovery factors (RF) per well, and cumulative production trends over 60-month forecast period." },
                { icon: "🔧", name: "SPT Treatment", route: "/dashboard/spt-treatment",
                  desc: "Interactive Siphon Pump Treatment technology demo (Patent US8863823). Treatment process visualization. Effectiveness metrics." },
               { icon: "🧪", name: "EOR Optimization", route: "/dashboard/eor-optimization",
