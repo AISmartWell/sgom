@@ -19,7 +19,8 @@ import RealtimeDashboard from "./pages/modules/RealtimeDashboard";
 import EOROptimization from "./pages/modules/EOROptimization";
   import MLTraining from "./pages/modules/MLTraining";
 import GeophysicalExpertise from "./pages/modules/GeophysicalExpertise";
- import NvidiaInception from "./pages/NvidiaInception";
+import FieldScanning from "./pages/modules/FieldScanning";
+import NvidiaInception from "./pages/NvidiaInception";
 import TechnicalSpec from "./pages/TechnicalSpec";
 import NotFound from "./pages/NotFound";
 
@@ -48,6 +49,7 @@ const App = () => (
             <Route path="eor-optimization" element={<EOROptimization />} />
              <Route path="ml-training" element={<MLTraining />} />
              <Route path="geophysical" element={<GeophysicalExpertise />} />
+             <Route path="field-scanning" element={<FieldScanning />} />
           </Route>
            <Route path="/nvidia-inception" element={<NvidiaInception />} />
            <Route path="/docs" element={<TechnicalSpec />} />
