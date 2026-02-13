@@ -17,8 +17,8 @@ const mockWells = [
 const stages = [
   { id: 1, name: "Well Data Input", icon: FileText, desc: "Load well & casing specifications" },
   { id: 2, name: "Cutting Program", icon: Wrench, desc: "Generate slot-perforation cutting plan" },
-  { id: 3, name: "Equipment Specs", icon: Settings, desc: "Select tools & equipment parameters" },
-  { id: 4, name: "Slot Design", icon: Layers, desc: "Optimize perforation pattern & geometry" },
+  { id: 3, name: "SPT Tool & Equipment", icon: Settings, desc: "SPT tool components & surface equipment" },
+  { id: 4, name: "Slot Design", icon: Layers, desc: "Optimize slot geometry & drainage area" },
   { id: 5, name: "Final Report", icon: Ruler, desc: "Generate service program document" },
 ];
 
@@ -66,13 +66,27 @@ const SPTParametersDemo = () => {
     { param: "Efficiency", value: Math.min(100, (slotLength[0] * slotWidth[0]) / 20), fullMark: 100 },
   ];
 
-  const equipmentSpecs = [
-    { name: "Hydra-Jet Cutting Tool", spec: `OD: ${selectedWell.casingID > 5 ? "3.375" : "2.125"}″`, status: "Available" },
-    { name: "High-Pressure Pump", spec: "15,000 psi / 4 BPM", status: "Available" },
-    { name: "Abrasive Sand", spec: "100 mesh, 200 lb/slot", status: "In Stock" },
-    { name: "Coiled Tubing Unit", spec: `${selectedWell.tubing}″ CT`, status: "Scheduled" },
-    { name: "BHA Assembly", spec: "Nozzle + Centralizer", status: "Ready" },
-    { name: "Pressure Recorder", spec: "Memory gauge, 20k psi", status: "Calibrated" },
+  // SPT Tool components (Patent US 8863823) — from maxxwellproduction.com
+  const sptToolComponents = [
+    { name: "Hydraulic Unit", spec: "Sealed system, pressure-driven rectilinear motion", status: "Ready", category: "SPT Tool" },
+    { name: "Return Unit", spec: "Perforator return + anti-rotation mechanism", status: "Ready", category: "SPT Tool" },
+    { name: "Perforator with Nozzles", spec: `For ${selectedWell.casingID > 5 ? "5.5″" : "4.5″"} casing ID`, status: "Ready", category: "SPT Tool" },
+    { name: "Nozzles", spec: "Tungsten carbide / corundum / diamond grit", status: "Available", category: "SPT Tool" },
+    { name: "Compensator", spec: "Short slot cutting (vertical wells)", status: "Available", category: "SPT Tool" },
+    { name: "Adapter", spec: `Connection to ${selectedWell.tubing}″ tubing`, status: "Ready", category: "SPT Tool" },
+  ];
+
+  // Surface equipment for SPT process — from maxxwellproduction.com/technique
+  const surfaceEquipment = [
+    { name: "Rig with Crew (Workover)", spec: "Workover rig for SPT operations", status: "Scheduled", category: "Surface" },
+    { name: "Wellhead with BOP", spec: "Blowout preventer assembly", status: "Ready", category: "Surface" },
+    { name: "Tubing", spec: `${selectedWell.tubing}″ tubing string`, status: "Available", category: "Surface" },
+    { name: "Water Tank", spec: "Formation water supply", status: "Available", category: "Surface" },
+    { name: "Cutting Tank with Vibrator", spec: "Abrasive return separation", status: "Available", category: "Surface" },
+    { name: "Blender (Mixer)", spec: "Water-abrasive mixing unit", status: "Available", category: "Surface" },
+    { name: "Manifold Unit", spec: "High/low pressure line distribution", status: "Ready", category: "Surface" },
+    { name: "Frack-Van (Monitoring)", spec: "SPT process monitoring center", status: "Ready", category: "Surface" },
+    { name: "Abrasive Filler", spec: "Sand abrasive material", status: "In Stock", category: "Surface" },
   ];
 
   return (
@@ -84,7 +98,7 @@ const SPTParametersDemo = () => {
             <Settings className="h-6 w-6 text-primary" />
             Stage 7: SPT Parameters
           </h2>
-          <p className="text-muted-foreground mt-1">Cutting program generation & slot-perforation design optimization</p>
+          <p className="text-muted-foreground mt-1">Cutting program generation & slot design — continuous deep slots up to 5 ft depth, up to 25 sq ft/linear ft drainage area (Patent US 8863823)</p>
         </div>
         <Badge variant="outline" className="text-xs">Interactive Demo</Badge>
       </div>
@@ -196,21 +210,43 @@ const SPTParametersDemo = () => {
           </div>
         </TabsContent>
 
-        {/* Equipment */}
-        <TabsContent value="equipment">
+        {/* SPT Tool & Equipment */}
+        <TabsContent value="equipment" className="space-y-4">
           <Card className="border-border/30">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm">Required Equipment & Specifications</CardTitle>
+              <CardTitle className="text-sm">SPT Underground Tool — Patent US 8863823</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-xs text-muted-foreground mb-3">
+                Maxxwell Production SPT tool cuts continuous deep longitudinal slots along the wellbore using water-abrasive jets. Slot depth up to 5 ft (3.3 ft confirmed by Halliburton test, 2014). Drainage area up to 25 sq ft per linear ft.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {sptToolComponents.map((eq) => (
+                  <div key={eq.name} className="flex items-center justify-between p-3 rounded-lg bg-muted/20 border border-primary/20">
+                    <div>
+                      <p className="text-sm font-medium">{eq.name}</p>
+                      <p className="text-xs text-muted-foreground font-mono">{eq.spec}</p>
+                    </div>
+                    <Badge variant="default" className="text-[10px]">{eq.status}</Badge>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-border/30">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Surface Equipment for SPT Process</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {equipmentSpecs.map((eq) => (
+                {surfaceEquipment.map((eq) => (
                   <div key={eq.name} className="flex items-center justify-between p-3 rounded-lg bg-muted/20 border border-border/30">
                     <div>
                       <p className="text-sm font-medium">{eq.name}</p>
                       <p className="text-xs text-muted-foreground font-mono">{eq.spec}</p>
                     </div>
-                    <Badge variant={eq.status === "Available" || eq.status === "Ready" || eq.status === "Calibrated" ? "default" : eq.status === "In Stock" ? "secondary" : "outline"} className="text-[10px]">
+                    <Badge variant={eq.status === "Available" || eq.status === "Ready" ? "default" : eq.status === "In Stock" ? "secondary" : "outline"} className="text-[10px]">
                       {eq.status}
                     </Badge>
                   </div>
@@ -310,17 +346,35 @@ const SPTParametersDemo = () => {
    Total open area: ${openArea.toFixed(2)} sq ft
 
 4. ESTIMATED PERFORMANCE
+   Max slot depth:  up to 5.0 ft (1.5 m)
+   Drainage area:   up to 25 sq ft / linear ft
    Flow capacity:   ${flowCapacity.toFixed(0)} bbl/day
    Coverage ratio:  ${((totalSlots * slotLength[0]) / (parseFloat(selectedWell.perforationZone.split("-")[1]) - parseFloat(selectedWell.perforationZone.split("-")[0])) / 25.4 * 100).toFixed(1)}%
 
-5. EQUIPMENT REQUIRED
-${equipmentSpecs.map(e => `   • ${e.name}: ${e.spec}`).join("\n")}
+5. SPT TOOL (Patent US 8863823)
+${sptToolComponents.map(e => `   • ${e.name}: ${e.spec}`).join("\n")}
 
-6. CUTTING DISTRIBUTION
+6. SURFACE EQUIPMENT
+${surfaceEquipment.map(e => `   • ${e.name}: ${e.spec}`).join("\n")}
+
+7. CUTTING DISTRIBUTION
 ${cuttingData.map(z => `   ${z.zone} zone (${z.depth} ft): ${z.slots} slots`).join("\n")}
+
+8. SPT PROCESS STAGES
+   • Lowering SPT tool to predetermined depth
+   • Logging — correlation
+   • Correction of first cutting interval
+   • Surface equipment test
+   • Cutting first interval
+   • Direct flushing
+   • Lifting SPT tool for next interval
+   • Repeat until last cutting interval
+   • Final direct flushing
+   • Lifting SPT tool to surface
 
 ═══════════════════════════════════════════════════
   Generated by AI Smartwell SGOM — SPT Parameters
+  Data source: maxxwellproduction.com
 ═══════════════════════════════════════════════════`}
               </div>
             </CardContent>
