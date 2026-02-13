@@ -20,6 +20,7 @@ import EOROptimization from "./pages/modules/EOROptimization";
   import MLTraining from "./pages/modules/MLTraining";
 import GeophysicalExpertise from "./pages/modules/GeophysicalExpertise";
 import FieldScanning from "./pages/modules/FieldScanning";
+import DataClassification from "./pages/modules/DataClassification";
 import NvidiaInception from "./pages/NvidiaInception";
 import TechnicalSpec from "./pages/TechnicalSpec";
 import NotFound from "./pages/NotFound";
@@ -50,6 +51,7 @@ const App = () => (
              <Route path="ml-training" element={<MLTraining />} />
              <Route path="geophysical" element={<GeophysicalExpertise />} />
              <Route path="field-scanning" element={<FieldScanning />} />
+             <Route path="data-classification" element={<DataClassification />} />
           </Route>
            <Route path="/nvidia-inception" element={<NvidiaInception />} />
            <Route path="/docs" element={<TechnicalSpec />} />
