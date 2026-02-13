@@ -194,6 +194,8 @@ const TechnicalSpec = () => {
                 desc: "Real-time well monitoring. WebSocket simulation. Critical indicator alerts." },
               { icon: "🧠", name: "ML Training", route: "/dashboard/ml-training",
                 desc: "Machine learning model training on well data. Parameter tuning and process visualization." },
+              { icon: "📊", name: "Geophysical Expertise", route: "/dashboard/geophysical",
+                desc: "AI-powered well log interpretation and formation evaluation. 5-stage analysis pipeline: data loading, curve analysis (GR, Resistivity, Porosity, Sw), zone detection, missed pay identification, and LLM-based report generation. Automatically detects productive zones, missed thin-bed intervals, and water-bearing formations. Generates perforation recommendations and reserve estimates." },
               { icon: "📄", name: "Reports", route: "/dashboard/reports",
                 desc: "Analysis report generation. Data export." },
             ].map((mod) => (
@@ -276,6 +278,7 @@ const TechnicalSpec = () => {
 │       ├── EOROptimization.tsx
 │       ├── RealtimeDashboard.tsx
 │       ├── MLTraining.tsx
+│       ├── GeophysicalExpertise.tsx
 │       └── Reports.tsx
 ├── components/              # UI components
 │   ├── ui/                  # shadcn/ui
@@ -283,6 +286,7 @@ const TechnicalSpec = () => {
 │   ├── data-collection/     # WellMapLeaflet, RealDataPanel
 │   ├── geological/          # 3D models, seismic
 │   ├── core-analysis/       # CV demo
+│   ├── geophysical/         # Well log analysis demo
 │   ├── well-selection/      # Filters, table, map
 │   ├── simulation/          # Reservoir visualizations
 │   ├── financial/           # Calculator
