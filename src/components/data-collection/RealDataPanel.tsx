@@ -53,6 +53,15 @@ export const RealDataPanel = () => {
   const [stats, setStats] = useState<DbStats | null>(null);
   const [selectedCounty, setSelectedCounty] = useState("ALL");
   const [selectedWell, setSelectedWell] = useState<WellRecord | null>(null);
+  const [companyId, setCompanyId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadCompany = async () => {
+      const { data } = await supabase.from("user_companies").select("company_id").limit(1).maybeSingle();
+      if (data) setCompanyId(data.company_id);
+    };
+    loadCompany();
+  }, []);
 
   const loadStats = async () => {
     setIsLoading(true);
@@ -105,7 +114,7 @@ export const RealDataPanel = () => {
     try {
       const county = selectedCounty === "ALL" ? undefined : selectedCounty;
       const { data, error } = await supabase.functions.invoke("fetch-wells", {
-        body: { county, limit: 200 },
+        body: { county, limit: 200, company_id: companyId },
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);

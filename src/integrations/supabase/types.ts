@@ -14,9 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      companies: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_companies: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_companies_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       wells: {
         Row: {
           api_number: string | null
+          company_id: string
           completion_date: string | null
           county: string | null
           created_at: string
@@ -40,6 +91,7 @@ export type Database = {
         }
         Insert: {
           api_number?: string | null
+          company_id: string
           completion_date?: string | null
           county?: string | null
           created_at?: string
@@ -63,6 +115,7 @@ export type Database = {
         }
         Update: {
           api_number?: string | null
+          company_id?: string
           completion_date?: string | null
           county?: string | null
           created_at?: string
@@ -84,7 +137,15 @@ export type Database = {
           well_name?: string | null
           well_type?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "wells_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
