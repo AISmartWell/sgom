@@ -176,7 +176,7 @@ const TechnicalSpec = () => {
             {[
                { icon: "📡", name: "Data Collection & Integration", route: "/dashboard/data-collection",
                  desc: "Collect well data from OCC ArcGIS API (Oklahoma). Display on interactive map (Leaflet). Export to KML for Google Earth. Detailed well viewing. Edge Function: fetch-wells." },
-               { icon: "📂", name: "Data Classification", route: "/dashboard/data-classification",
+               { icon: "📂", name: "Data Classification (Stage 2)", route: "/dashboard/data-classification",
                  desc: "Stage 2 pipeline: Download, parse, and classify well data into structured categories. Processes monthly production history, initial production rates, casing/tubing pressure data, accident reports, and productive interval transitions. Real-time pipeline visualization with quality metrics per category." },
                { icon: "🗺️", name: "Geological Analysis", route: "/dashboard/geological-analysis",
                 desc: "3D geological model visualization (Three.js). Seismic sections, well logs, cross-sections. AI-generated geological reports." },
@@ -188,7 +188,7 @@ const TechnicalSpec = () => {
                 desc: "Reservoir behavior simulation. Production forecasting. Pressure and saturation visualization." },
               { icon: "💰", name: "Financial Calculator", route: "/dashboard/financial",
                 desc: "ROI calculation for Maxxwell Production. NPV, IRR calculator. Well treatment cost analysis." },
-               { icon: "📈", name: "Cumulative Analysis", route: "/dashboard/cumulative-analysis",
+               { icon: "📈", name: "Cumulative Analysis (Stage 3)", route: "/dashboard/cumulative-analysis",
                   desc: "Mathematical-graphical reserve calculation using decline curve analysis (DCA). 5-stage pipeline: Load Data → Calculate Cumulative Volumes → Estimate Initial Reserves (IOIP) → Compute Remaining Reserves → Generate Report. Key formulas: IOIP = A × h × φ × S_o / B_o (volumetric method); N_r = IOIP − N_p (remaining reserves); RF = (N_p / IOIP) × 100 (recovery factor); q(t) = q_0 × e^(−D×t) (exponential decline). Visualizes decline curves, recovery factors (RF) per well, and cumulative production trends over 60-month forecast period." },
                { icon: "🔧", name: "SPT Treatment", route: "/dashboard/spt-treatment",
                   desc: "Interactive Siphon Pump Treatment technology demo (Patent US8863823). Treatment process visualization. Effectiveness metrics." },
