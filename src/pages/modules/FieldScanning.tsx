@@ -22,7 +22,12 @@ const FieldScanning = () => {
           </Button>
           <div className="flex items-center gap-3 mb-2">
             <span className="text-3xl">🛰️</span>
-            <h1 className="text-3xl font-bold">Field Scanning</h1>
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-3xl font-bold">Field Scanning</h1>
+                <Badge className="text-xs">Stage 1</Badge>
+              </div>
+            </div>
           </div>
           <p className="text-muted-foreground">
             Automated weekly scanning of oil & gas fields with well detection and cleanup
