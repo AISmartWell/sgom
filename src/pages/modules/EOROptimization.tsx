@@ -40,94 +40,101 @@
    Area,
  } from "recharts";
  
- // Workflow stages
- const WORKFLOW_STAGES = [
-   {
-     id: 1,
-     title: "Data Collection",
-     description: "Automated weekly scan of oil & gas fields",
-     icon: Database,
-     details: [
-       "Interactive map scanning of predefined field squares",
-       "Scheduled collection (configurable, default: weekly)",
-       "Identification of low-productive operating wells",
-       "Automatic removal of closed wells from database",
-     ],
-   },
-   {
-     id: 2,
-     title: "Data Classification",
-     description: "Download and categorize well information",
-     icon: Filter,
-     details: [
-       "Monthly production history (oil, gas, water)",
-       "Initial production rates",
-       "Casing and tubing pressure data",
-       "Accident reports and test results",
-       "Productive interval transitions",
-     ],
-   },
-   {
-     id: 3,
-     title: "Cumulative Analysis",
-     description: "Mathematical-graphical reserve calculation",
-     icon: TrendingUp,
-     details: [
-       "Initial well reserves estimation",
-       "Produced volume calculation",
-       "Remaining oil, gas, water reserves",
-       "Decline curve analysis",
-     ],
-   },
-   {
-     id: 4,
-     title: "SPT Projection",
-     description: "Calculate redevelopment potential",
-     icon: Calculator,
-     details: [
-       "Expected inflow: 25-35 bbl/day average",
-       "Useful reserve estimation",
-       "Development timeline (15+ years = promising)",
-       "Water cut filtering (exclude excessive watering)",
-     ],
-   },
-   {
-     id: 5,
-     title: "Economic Analysis",
-     description: "ROI and profitability calculations",
-     icon: DollarSign,
-     details: [
-       "Payback period calculation",
-       "Annual gross profit projection",
-       "Net profit estimation",
-       "Full operational period returns",
-     ],
-   },
-   {
-     id: 6,
-     title: "Geophysical Review",
-     description: "Expert analysis of well logs",
-     icon: FileText,
-     details: [
-       "Well log study by geophysicists",
-       "Identification of best productive layers",
-       "Missed interval detection",
-       "Formation evaluation report",
-     ],
-   },
-   {
-     id: 7,
-     title: "SPT Parameters",
-     description: "Generate cutting program for recompletion",
-     icon: Settings,
-     details: [
-       "Technological parameters calculation",
-       "Cutting program for all services",
-       "Equipment specifications",
-       "Slot-perforation design optimization",
-     ],
-   },
- ];
+  // Workflow stages
+  const WORKFLOW_STAGES = [
+    {
+      id: 1,
+      title: "Field Scanning",
+      description: "Automated weekly scan of oil & gas fields",
+      icon: Database,
+      route: "/dashboard/field-scanning",
+      details: [
+        "Interactive map scanning of predefined field squares",
+        "Scheduled collection (configurable, default: weekly)",
+        "Identification of low-productive operating wells",
+        "Automatic removal of closed wells from database",
+      ],
+    },
+    {
+      id: 2,
+      title: "Data Classification",
+      description: "Download and categorize well information",
+      icon: Filter,
+      route: "/dashboard/data-classification",
+      details: [
+        "Monthly production history (oil, gas, water)",
+        "Initial production rates",
+        "Casing and tubing pressure data",
+        "Accident reports and test results",
+        "Productive interval transitions",
+      ],
+    },
+    {
+      id: 3,
+      title: "Cumulative Analysis",
+      description: "Mathematical-graphical reserve calculation",
+      icon: TrendingUp,
+      route: "/dashboard/cumulative-analysis",
+      details: [
+        "Initial well reserves estimation",
+        "Produced volume calculation",
+        "Remaining oil, gas, water reserves",
+        "Decline curve analysis",
+      ],
+    },
+    {
+      id: 4,
+      title: "SPT Projection",
+      description: "Calculate redevelopment potential",
+      icon: Calculator,
+      route: "/dashboard/spt-projection",
+      details: [
+        "Expected inflow: 25-35 bbl/day average",
+        "Useful reserve estimation",
+        "Development timeline (15+ years = promising)",
+        "Water cut filtering (exclude excessive watering)",
+      ],
+    },
+    {
+      id: 5,
+      title: "Economic Analysis",
+      description: "ROI and profitability calculations",
+      icon: DollarSign,
+      route: "/dashboard/economic-analysis",
+      details: [
+        "Payback period calculation",
+        "Annual gross profit projection",
+        "Net profit estimation",
+        "Full operational period returns",
+      ],
+    },
+    {
+      id: 6,
+      title: "Geophysical Review",
+      description: "Expert analysis of well logs",
+      icon: FileText,
+      route: "/dashboard/geophysical",
+      details: [
+        "Well log study by geophysicists",
+        "Identification of best productive layers",
+        "Missed interval detection",
+        "Formation evaluation report",
+      ],
+    },
+    {
+      id: 7,
+      title: "SPT Parameters",
+      description: "Generate cutting program for recompletion",
+      icon: Settings,
+      route: "/dashboard/spt-parameters",
+      details: [
+        "Technological parameters calculation",
+        "Cutting program for all services",
+        "Equipment specifications",
+        "Slot-perforation design optimization",
+      ],
+    },
+  ];
  
  // Demo well data for the database
  const DEMO_WELLS = [
@@ -435,19 +442,30 @@
                    <CardContent>
                      <p className="text-sm text-muted-foreground mb-3">{stage.description}</p>
                      <ul className="space-y-1.5">
-                       {stage.details.map((detail, i) => (
-                         <li key={i} className="flex items-start gap-2 text-xs">
-                           <ArrowRight className="h-3 w-3 mt-0.5 text-primary flex-shrink-0" />
-                           <span>{detail}</span>
-                         </li>
-                       ))}
-                     </ul>
-                   </CardContent>
-                 </Card>
-               );
-             })}
-           </div>
-         </TabsContent>
+                        {stage.details.map((detail, i) => (
+                          <li key={i} className="flex items-start gap-2 text-xs">
+                            <ArrowRight className="h-3 w-3 mt-0.5 text-primary flex-shrink-0" />
+                            <span>{detail}</span>
+                          </li>
+                        ))}
+                      </ul>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="mt-3 w-full text-xs text-primary hover:text-primary"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(stage.route);
+                        }}
+                      >
+                        Open Stage {stage.id} →
+                      </Button>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </TabsContent>
  
          {/* Well Database */}
          <TabsContent value="database">
