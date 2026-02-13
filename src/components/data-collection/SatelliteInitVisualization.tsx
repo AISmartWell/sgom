@@ -1,63 +1,189 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Satellite, Grid3X3, CheckCircle2 } from "lucide-react";
-import satelliteImage from "@/assets/satellite-field-view.jpg";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 
 interface SatelliteInitVisualizationProps {
   stage: "idle" | "initializing" | "scanning" | "analyzing" | "filtering" | "cleanup" | "complete";
 }
 
+// Field coordinates (Oklahoma/Texas basins)
+const FIELD_CENTER: [number, number] = [35.2, -98.5];
+const FIELD_BOUNDS: [[number, number], [number, number]] = [
+  [33.5, -103.0],
+  [36.5, -95.5],
+];
+
+// Grid squares matching FIELD_NAMES in FieldScanDemo
+const GRID_CELLS = [
+  { label: "A1", name: "Anadarko NW" }, { label: "A2", name: "Anadarko NE" },
+  { label: "A3", name: "Anadarko C" }, { label: "A4", name: "Woodford W" },
+  { label: "A5", name: "Woodford E" }, { label: "A6", name: "Woodford SE" },
+  { label: "B1", name: "SCOOP W" }, { label: "B2", name: "SCOOP C" },
+  { label: "B3", name: "SCOOP E" }, { label: "B4", name: "STACK W" },
+  { label: "B5", name: "STACK C" }, { label: "B6", name: "STACK E" },
+  { label: "C1", name: "Permian NW" }, { label: "C2", name: "Permian N" },
+  { label: "C3", name: "Permian NE" }, { label: "C4", name: "Permian C" },
+  { label: "C5", name: "Permian SW" }, { label: "C6", name: "Permian SE" },
+  { label: "D1", name: "Delaware W" }, { label: "D2", name: "Delaware C" },
+  { label: "D3", name: "Delaware E" }, { label: "D4", name: "Midland W" },
+  { label: "D5", name: "Midland C" }, { label: "D6", name: "Midland E" },
+];
+
 export const SatelliteInitVisualization = ({ stage }: SatelliteInitVisualizationProps) => {
   const [satelliteLoaded, setSatelliteLoaded] = useState(false);
   const [gridOverlay, setGridOverlay] = useState(false);
-  const [scanLines, setScanLines] = useState(0);
+  const [scanProgress, setScanProgress] = useState(0);
+  const mapRef = useRef<L.Map | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const gridLayerRef = useRef<L.LayerGroup | null>(null);
 
   const isActive = stage !== "idle";
   const pastInit = ["scanning", "analyzing", "filtering", "cleanup", "complete"].includes(stage);
 
+  // Initialize map
   useEffect(() => {
+    if (!isActive || !containerRef.current || mapRef.current) return;
+
+    const map = L.map(containerRef.current, {
+      center: FIELD_CENTER,
+      zoom: 6,
+      zoomControl: false,
+      attributionControl: false,
+      dragging: false,
+      scrollWheelZoom: false,
+      doubleClickZoom: false,
+      touchZoom: false,
+    });
+
+    // ESRI World Imagery — free satellite tiles
+    L.tileLayer(
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+      { maxZoom: 18 }
+    ).addTo(map);
+
+    mapRef.current = map;
+
+    // Detect when tiles load
+    map.whenReady(() => {
+      setTimeout(() => setSatelliteLoaded(true), 800);
+    });
+
+    return () => {
+      map.remove();
+      mapRef.current = null;
+    };
+  }, [isActive]);
+
+  // Scan line animation
+  useEffect(() => {
+    if (stage !== "initializing") return;
+    setScanProgress(0);
+    const interval = setInterval(() => {
+      setScanProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          return 100;
+        }
+        return prev + 3;
+      });
+    }, 40);
+    return () => clearInterval(interval);
+  }, [stage]);
+
+  // GIS grid overlay
+  useEffect(() => {
+    if (!satelliteLoaded || !mapRef.current) return;
+
     if (stage === "initializing") {
+      const timer = setTimeout(() => {
+        addGridOverlay();
+        setGridOverlay(true);
+      }, 500);
+      return () => clearTimeout(timer);
+    } else if (pastInit && !gridOverlay) {
+      addGridOverlay();
+      setGridOverlay(true);
+    }
+  }, [satelliteLoaded, stage, pastInit]);
+
+  // Reset on idle
+  useEffect(() => {
+    if (stage === "idle") {
       setSatelliteLoaded(false);
       setGridOverlay(false);
-      setScanLines(0);
-
-      // Simulate satellite image loading with scan lines
-      const scanInterval = setInterval(() => {
-        setScanLines((prev) => {
-          if (prev >= 100) {
-            clearInterval(scanInterval);
-            setSatelliteLoaded(true);
-            return 100;
-          }
-          return prev + 4;
-        });
-      }, 40);
-
-      return () => clearInterval(scanInterval);
-    } else if (pastInit) {
-      setSatelliteLoaded(true);
-      setGridOverlay(true);
-      setScanLines(100);
+      setScanProgress(0);
+      if (gridLayerRef.current && mapRef.current) {
+        mapRef.current.removeLayer(gridLayerRef.current);
+        gridLayerRef.current = null;
+      }
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
     }
-  }, [stage, pastInit]);
+  }, [stage]);
 
-  // Show GIS grid after satellite loads
-  useEffect(() => {
-    if (satelliteLoaded && stage === "initializing") {
-      const timer = setTimeout(() => setGridOverlay(true), 400);
-      return () => clearTimeout(timer);
+  const addGridOverlay = () => {
+    if (!mapRef.current || gridLayerRef.current) return;
+
+    const group = L.layerGroup();
+    const [south, west] = FIELD_BOUNDS[0];
+    const [north, east] = FIELD_BOUNDS[1];
+    const rows = 4;
+    const cols = 6;
+    const latStep = (north - south) / rows;
+    const lngStep = (east - west) / cols;
+
+    // Draw grid lines
+    for (let r = 0; r <= rows; r++) {
+      const lat = south + r * latStep;
+      L.polyline([[lat, west], [lat, east]], {
+        color: "hsl(199, 89%, 48%)",
+        weight: 1,
+        opacity: 0.6,
+        dashArray: "4 4",
+      }).addTo(group);
     }
-  }, [satelliteLoaded, stage]);
+    for (let c = 0; c <= cols; c++) {
+      const lng = west + c * lngStep;
+      L.polyline([[south, lng], [north, lng]], {
+        color: "hsl(199, 89%, 48%)",
+        weight: 1,
+        opacity: 0.6,
+        dashArray: "4 4",
+      }).addTo(group);
+    }
+
+    // Add cell labels
+    GRID_CELLS.forEach((cell, idx) => {
+      const row = Math.floor(idx / cols);
+      const col = idx % cols;
+      const lat = north - row * latStep - latStep * 0.15;
+      const lng = west + col * lngStep + lngStep * 0.08;
+
+      const icon = L.divIcon({
+        className: "",
+        html: `<div style="color:hsl(199,89%,48%);font-size:9px;font-family:monospace;text-shadow:0 0 4px rgba(0,0,0,0.9)">${cell.label}</div>`,
+        iconSize: [20, 14],
+      });
+      L.marker([lat, lng], { icon, interactive: false }).addTo(group);
+    });
+
+    group.addTo(mapRef.current);
+    gridLayerRef.current = group;
+  };
 
   if (!isActive) return null;
 
   return (
     <div className="relative rounded-lg overflow-hidden border border-border bg-black">
       {/* Status bar */}
-      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-3 py-1.5 bg-black/70 backdrop-blur-sm border-b border-border/50">
+      <div className="absolute top-0 left-0 right-0 z-[1000] flex items-center justify-between px-3 py-1.5 bg-black/70 backdrop-blur-sm border-b border-border/50">
         <div className="flex items-center gap-2 text-[10px]">
           <Satellite className={`h-3 w-3 ${satelliteLoaded ? "text-success" : "text-primary animate-pulse"}`} />
           <span className={satelliteLoaded ? "text-success" : "text-primary"}>
-            {satelliteLoaded ? "Satellite imagery loaded" : "Loading satellite data..."}
+            {satelliteLoaded ? "ESRI World Imagery loaded" : "Loading satellite imagery..."}
           </span>
         </div>
         <div className="flex items-center gap-2 text-[10px]">
@@ -69,89 +195,24 @@ export const SatelliteInitVisualization = ({ stage }: SatelliteInitVisualization
         </div>
       </div>
 
-      {/* Satellite image container */}
-      <div className="relative h-48 overflow-hidden">
-        {/* Satellite image with reveal effect */}
-        <img
-          src={satelliteImage}
-          alt="Satellite field view"
-          className="absolute inset-0 w-full h-full object-cover"
-          style={{
-            clipPath: `inset(0 0 ${100 - scanLines}% 0)`,
-            transition: "clip-path 0.05s linear",
-          }}
-        />
-
-        {/* Dark base before image loads */}
-        <div
-          className="absolute inset-0 bg-slate-950"
-          style={{
-            clipPath: `inset(${scanLines}% 0 0 0)`,
-          }}
-        />
+      {/* Map container */}
+      <div className="relative h-52">
+        <div ref={containerRef} className="absolute inset-0 z-0" />
 
         {/* Scan line effect */}
-        {!satelliteLoaded && (
+        {stage === "initializing" && scanProgress < 100 && (
           <div
-            className="absolute left-0 right-0 h-[2px] bg-primary/80 shadow-[0_0_10px_2px_hsl(var(--primary)/0.5)] z-10"
-            style={{ top: `${scanLines}%`, transition: "top 0.05s linear" }}
+            className="absolute left-0 right-0 h-[2px] bg-primary/80 shadow-[0_0_10px_2px_hsl(var(--primary)/0.5)] z-[999]"
+            style={{ top: `${scanProgress}%`, transition: "top 0.05s linear" }}
           />
         )}
+      </div>
 
-        {/* GIS Grid overlay */}
-        {gridOverlay && (
-          <div
-            className="absolute inset-0 z-10 transition-opacity duration-700"
-            style={{ opacity: gridOverlay ? 1 : 0 }}
-          >
-            {/* Vertical lines */}
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div
-                key={`v${i}`}
-                className="absolute top-0 bottom-0 w-px bg-primary/40"
-                style={{
-                  left: `${(i / 6) * 100}%`,
-                  animationDelay: `${i * 80}ms`,
-                }}
-              />
-            ))}
-            {/* Horizontal lines */}
-            {[1, 2, 3].map((i) => (
-              <div
-                key={`h${i}`}
-                className="absolute left-0 right-0 h-px bg-primary/40"
-                style={{
-                  top: `${(i / 4) * 100}%`,
-                  animationDelay: `${i * 80}ms`,
-                }}
-              />
-            ))}
-            {/* Grid cell labels */}
-            {[...Array(24)].map((_, idx) => {
-              const row = Math.floor(idx / 6);
-              const col = idx % 6;
-              return (
-                <div
-                  key={idx}
-                  className="absolute text-[7px] text-primary/60 font-mono"
-                  style={{
-                    left: `${(col / 6) * 100 + 1}%`,
-                    top: `${(row / 4) * 100 + 2}%`,
-                  }}
-                >
-                  {String.fromCharCode(65 + row)}{col + 1}
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {/* Coordinates overlay */}
-        <div className="absolute bottom-0 left-0 right-0 z-20 flex justify-between px-2 py-1 bg-black/60 text-[8px] font-mono text-muted-foreground">
-          <span>34.5°N 97.8°W</span>
-          <span>NAD83 / UTM Zone 14N</span>
-          <span>Res: 0.5m/px</span>
-        </div>
+      {/* Coordinates bar */}
+      <div className="relative z-[1000] flex justify-between px-2 py-1 bg-black/80 text-[8px] font-mono text-muted-foreground border-t border-border/50">
+        <span>33.5°N–36.5°N / 95.5°W–103.0°W</span>
+        <span>ESRI World Imagery • NAD83</span>
+        <span>Source: ArcGIS Online</span>
       </div>
     </div>
   );
