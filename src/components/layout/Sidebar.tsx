@@ -20,8 +20,9 @@ import {
   Microscope,
   Radio,
   Brain,
-   GraduationCap,
-   Activity,
+  GraduationCap,
+  Activity,
+  Radar,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -102,6 +103,12 @@ const menuItems = [
      icon: Activity,
      href: "/dashboard/geophysical",
      badge: "📊",
+   },
+   {
+     title: "Field Scanning",
+     icon: Radar,
+     href: "/dashboard/field-scanning",
+     badge: "🛰️",
    },
    {
      title: "Documentation",
