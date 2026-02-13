@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { DataCollectionDemo } from "@/components/data-collection/DataCollectionDemo";
+import { FieldScanDemo } from "@/components/data-collection/FieldScanDemo";
 import { RealDataPanel } from "@/components/data-collection/RealDataPanel";
 import WellMapLeaflet from "@/components/data-collection/WellMapLeaflet";
 import {
@@ -183,6 +184,9 @@ const DataCollection = () => {
           <WellMapLeaflet />
 
           <RealDataPanel />
+
+          {/* Field Scan Demo */}
+          <FieldScanDemo />
 
           {/* Interactive Demo */}
           <DataCollectionDemo />
