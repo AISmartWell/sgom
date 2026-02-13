@@ -21,6 +21,7 @@ import {
   Radio,
   Brain,
    GraduationCap,
+   Activity,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -95,6 +96,12 @@ const menuItems = [
      icon: GraduationCap,
      href: "/dashboard/ml-training",
      badge: "🎓",
+   },
+   {
+     title: "Geophysical Expertise",
+     icon: Activity,
+     href: "/dashboard/geophysical",
+     badge: "📊",
    },
    {
      title: "Documentation",
