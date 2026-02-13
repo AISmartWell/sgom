@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { SatelliteInitVisualization } from "./SatelliteInitVisualization";
 
 type ScanStage =
   | "idle"
@@ -318,6 +319,9 @@ export const FieldScanDemo = () => {
             </SelectContent>
           </Select>
         </div>
+
+        {/* Satellite Init Visualization */}
+        <SatelliteInitVisualization stage={stage} />
 
         {/* Field Grid Map */}
         <div className="relative bg-slate-900/50 rounded-lg p-4 border border-border">
