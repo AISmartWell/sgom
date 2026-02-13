@@ -194,6 +194,8 @@ const TechnicalSpec = () => {
                   desc: "Interactive Siphon Pump Treatment technology demo (Patent US8863823). Treatment process visualization. Effectiveness metrics." },
                { icon: "🚀", name: "SPT Projection (Stage 4)", route: "/dashboard/spt-projection",
                   desc: "Redevelopment potential analysis and well screening for SPT treatment. Multi-stage filtering pipeline: Water Cut Filter (exclude ≥60%) → Inflow Estimation (25–35 bbl/day target) → Reserve Analysis (>500k bbl threshold) → Timeline Evaluation (≥15yr promising). Visualizations: filtering funnel, inflow projection charts, timeline vs. reserves scatter plot. Outputs list of treatment-ready candidates with estimated SPT inflow and ROI recovery (7–8 months). Key formulas: Projected Inflow = (Current Production × 2.0–2.5) + Treatment Effect (5–10 bbl/day)." },
+               { icon: "💵", name: "Economic Analysis (Stage 5)", route: "/dashboard/economic-analysis",
+                  desc: "Full economic evaluation of SPT treatment candidates. Interactive scenario modeling with adjustable oil price, treatment cost, and OPEX parameters. Calculates per-well and portfolio-level metrics: ROI (5-year), payback period, annual gross/net profit, full operational period returns. Includes cumulative net profit projection (60-month chart with break-even visualization). Key formula: Net Profit = (Added Production × Oil Price − OPEX/bbl) × 365 × Timeline − Treatment Cost." },
                { icon: "🧪", name: "EOR Optimization", route: "/dashboard/eor-optimization",
                 desc: "Enhanced Oil Recovery method optimization. Simulation of chemical and thermal impacts." },
               { icon: "📊", name: "Real-Time Dashboard", route: "/dashboard/realtime",
