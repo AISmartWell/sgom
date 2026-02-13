@@ -25,6 +25,7 @@ import {
   Radar,
   FolderSearch,
   TrendingDown,
+  TrendingUp,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -81,6 +82,12 @@ const menuItems = [
     icon: Wrench,
     href: "/dashboard/spt-treatment",
     badge: "🔧",
+  },
+  {
+    title: "SPT Projection",
+    icon: TrendingUp,
+    href: "/dashboard/spt-projection",
+    badge: "🚀",
   },
   {
     title: "Reports",
