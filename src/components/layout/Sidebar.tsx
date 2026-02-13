@@ -26,6 +26,7 @@ import {
   FolderSearch,
   TrendingDown,
   TrendingUp,
+  Settings,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -94,6 +95,12 @@ const menuItems = [
     icon: DollarSign,
     href: "/dashboard/economic-analysis",
     badge: "💵",
+  },
+  {
+    title: "SPT Parameters",
+    icon: Settings,
+    href: "/dashboard/spt-parameters",
+    badge: "⚙️",
   },
   {
     title: "Reports",
