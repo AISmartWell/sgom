@@ -174,9 +174,11 @@ const TechnicalSpec = () => {
         <Section icon={Layers} title="5. Functional Modules">
           <div className="space-y-4">
             {[
-              { icon: "📡", name: "Data Collection & Integration", route: "/dashboard/data-collection",
-                desc: "Collect well data from OCC ArcGIS API (Oklahoma). Display on interactive map (Leaflet). Export to KML for Google Earth. Detailed well viewing. Edge Function: fetch-wells." },
-              { icon: "🗺️", name: "Geological Analysis", route: "/dashboard/geological-analysis",
+               { icon: "📡", name: "Data Collection & Integration", route: "/dashboard/data-collection",
+                 desc: "Collect well data from OCC ArcGIS API (Oklahoma). Display on interactive map (Leaflet). Export to KML for Google Earth. Detailed well viewing. Edge Function: fetch-wells." },
+               { icon: "📂", name: "Data Classification", route: "/dashboard/data-classification",
+                 desc: "Stage 2 pipeline: Download, parse, and classify well data into structured categories. Processes monthly production history, initial production rates, casing/tubing pressure data, accident reports, and productive interval transitions. Real-time pipeline visualization with quality metrics per category." },
+               { icon: "🗺️", name: "Geological Analysis", route: "/dashboard/geological-analysis",
                 desc: "3D geological model visualization (Three.js). Seismic sections, well logs, cross-sections. AI-generated geological reports." },
               { icon: "🔬", name: "Core Analysis (Computer Vision)", route: "/dashboard/core-analysis",
                 desc: "Core sample image upload. AI analysis via Gemini: lithology determination, porosity, mineral composition. Interactive CV Demo: multi-stage pipeline visualization (preprocessing, edge detection, feature extraction, segmentation, classification) with real core sample images, dynamic overlays, and final analysis report (rock type, porosity %, permeability mD, mineral composition)." },
@@ -271,6 +273,7 @@ const TechnicalSpec = () => {
 │   ├── Dashboard.tsx        # Main dashboard
 │   └── modules/             # Platform modules
 │       ├── DataCollection.tsx
+│       ├── DataClassification.tsx
 │       ├── GeologicalAnalysis.tsx
 │       ├── CoreAnalysis.tsx
 │       ├── WellSelection.tsx
