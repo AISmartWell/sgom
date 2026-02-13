@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, FileText, Database, Globe, Cpu, Shield, Layers, BarChart3, MapPin, Beaker, Activity, DollarSign, Wrench, Brain, Eye } from "lucide-react";
+import { ArrowLeft, FileText, Database, Globe, Cpu, Shield, Layers, BarChart3, MapPin, Beaker, Activity, DollarSign, Wrench, Brain, Eye, Radar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Section = ({ icon: Icon, title, children }: { icon: React.ElementType; title: string; children: React.ReactNode }) => (
@@ -196,6 +196,8 @@ const TechnicalSpec = () => {
                 desc: "Machine learning model training on well data. Parameter tuning and process visualization." },
               { icon: "📊", name: "Geophysical Expertise", route: "/dashboard/geophysical",
                 desc: "AI-powered well log interpretation and formation evaluation. 5-stage analysis pipeline: data loading, curve analysis (GR, Resistivity, Porosity, Sw), zone detection, missed pay identification, and LLM-based report generation. Automatically detects productive zones, missed thin-bed intervals, and water-bearing formations. Generates perforation recommendations and reserve estimates." },
+              { icon: "🛰️", name: "Field Scanning", route: "/dashboard/field-scanning",
+                desc: "Automated field surveillance with configurable schedule (daily/weekly/monthly). Loads real satellite imagery (ESRI World Imagery) with GIS grid overlay. Scans 24 predefined field squares across Permian and Anadarko basins, detecting all wells via coordinates. Flags low-productive wells (< 10 bbl/day, water cut > 60%) and automatically purges closed/plugged wells from the active database. 5-stage pipeline: Initialize → Scan Fields → Analyze Wells → Flag Low-Prod → Remove Closed." },
               { icon: "📄", name: "Reports", route: "/dashboard/reports",
                 desc: "Analysis report generation. Data export." },
             ].map((mod) => (
@@ -279,6 +281,7 @@ const TechnicalSpec = () => {
 │       ├── RealtimeDashboard.tsx
 │       ├── MLTraining.tsx
 │       ├── GeophysicalExpertise.tsx
+│       ├── FieldScanning.tsx
 │       └── Reports.tsx
 ├── components/              # UI components
 │   ├── ui/                  # shadcn/ui
