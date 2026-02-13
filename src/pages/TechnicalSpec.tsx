@@ -206,8 +206,8 @@ const TechnicalSpec = () => {
                 desc: "Machine learning model training on well data. Parameter tuning and process visualization." },
               { icon: "📊", name: "Geophysical Expertise", route: "/dashboard/geophysical",
                 desc: "AI-powered well log interpretation and formation evaluation. 5-stage analysis pipeline: data loading, curve analysis (GR, Resistivity, Porosity, Sw), zone detection, missed pay identification, and LLM-based report generation. Automatically detects productive zones, missed thin-bed intervals, and water-bearing formations. Generates perforation recommendations and reserve estimates." },
-              { icon: "🛰️", name: "Field Scanning", route: "/dashboard/field-scanning",
-                desc: "Automated field surveillance with configurable schedule (daily/weekly/monthly). Loads real satellite imagery (ESRI World Imagery) with GIS grid overlay. Scans 24 predefined field squares across Permian and Anadarko basins, detecting all wells via coordinates. Flags low-productive wells (< 10 bbl/day, water cut > 60%) and automatically purges closed/plugged wells from the active database. 5-stage pipeline: Initialize → Scan Fields → Analyze Wells → Flag Low-Prod → Remove Closed." },
+               { icon: "🛰️", name: "Field Scanning (Stage 1)", route: "/dashboard/field-scanning",
+                 desc: "Automated field surveillance Stage 1 with configurable schedule (daily/weekly/monthly). Loads real satellite imagery (ESRI World Imagery) with GIS grid overlay. Scans 24 predefined field squares across Permian and Anadarko basins, detecting all wells via coordinates. Flags low-productive wells (< 10 bbl/day, water cut > 60%) and automatically purges closed/plugged wells from the active database. 5-stage pipeline: Initialize → Scan Fields → Analyze Wells → Flag Low-Prod → Remove Closed." },
               { icon: "📄", name: "Reports", route: "/dashboard/reports",
                 desc: "Analysis report generation. Data export." },
             ].map((mod) => (
