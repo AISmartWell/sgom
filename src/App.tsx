@@ -26,6 +26,7 @@ import FieldScanning from "./pages/modules/FieldScanning";
 import DataClassification from "./pages/modules/DataClassification";
 import CumulativeAnalysis from "./pages/modules/CumulativeAnalysis";
 import MultiTenantDemo from "./pages/modules/MultiTenantDemo";
+import TelemetryArchitecture from "./pages/modules/TelemetryArchitecture";
 import NvidiaInception from "./pages/NvidiaInception";
 import TechnicalSpec from "./pages/TechnicalSpec";
 import NotFound from "./pages/NotFound";
@@ -55,6 +56,7 @@ const App = () => (
             <Route path="reports" element={<Reports />} />
             <Route path="core-analysis" element={<CoreAnalysis />} />
             <Route path="realtime" element={<RealtimeDashboard />} />
+            <Route path="telemetry-architecture" element={<TelemetryArchitecture />} />
             <Route path="eor-optimization" element={<EOROptimization />} />
              <Route path="ml-training" element={<MLTraining />} />
              <Route path="geophysical" element={<GeophysicalExpertise />} />

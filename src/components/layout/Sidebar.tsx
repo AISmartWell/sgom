@@ -44,6 +44,12 @@ const menuItems = [
     badge: "📡",
   },
   {
+    title: "Telemetry Architecture",
+    icon: Activity,
+    href: "/dashboard/telemetry-architecture",
+    badge: "🔗",
+  },
+  {
     title: "Data Collection",
     icon: Database,
     href: "/dashboard/data-collection",
