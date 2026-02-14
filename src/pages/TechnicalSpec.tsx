@@ -231,6 +231,8 @@ const TechnicalSpec = () => {
                  desc: "Intelligent program for optimizing Enhanced Oil Recovery through automated geological analysis and SPT well selection. 7-stage automated workflow with interactive pipeline visualization: Stage 1 (Field Scanning) → Stage 2 (Data Classification) → Stage 3 (Cumulative Analysis) → Stage 4 (SPT Projection) → Stage 5 (Economic Analysis) → Stage 6 (Geophysical Review) → Stage 7 (SPT Parameters). Each stage card links to its dedicated module via 'Open Stage' navigation. Includes prospect wells database with status tracking (promising/analyzing/rejected), cumulative production analysis with SPT-projected curves, and economic model with ROI/payback calculations. Business logic: expected SPT inflow 25–35 bbl/day; wells with 15+ year potential marked promising; excessive water cut wells automatically filtered out." },
               { icon: "📊", name: "Real-Time Dashboard", route: "/dashboard/realtime",
                 desc: "Real-time well monitoring. WebSocket simulation. Critical indicator alerts." },
+               { icon: "🔗", name: "Telemetry Architecture", route: "/dashboard/telemetry-architecture",
+                 desc: "End-to-end data pipeline visualization from wellhead sensors to client dashboard. 6-stage flow: Restored Well (Maxwell Production) → Wellhead Sensors (pressure, flow, temperature) → RTU/Controller (data buffering, 1–15 min intervals) → Data Transport (HTTP/REST, MQTT, SCADA Adapter) → Telemetry Ingestion API (Edge Function: validate, normalize, store) → RLS Policy Engine (company_id filtering via auth.uid() → user_companies) → Real-Time Dashboard (live monitoring with critical/warning alerts). Supported sensor parameters: Pressure (0–10,000 psi), Flow Rate (0–5,000 bbl/day), Temperature (50–400 °F), Water Cut (0–100%). IoT gateway auto-scales with traffic volume." },
               { icon: "🧠", name: "ML Training", route: "/dashboard/ml-training",
                 desc: "Machine learning model training on well data. Parameter tuning and process visualization." },
               { icon: "📊", name: "Geophysical Expertise (Stage 6)", route: "/dashboard/geophysical",
@@ -320,6 +322,7 @@ const TechnicalSpec = () => {
 │       ├── SPTTreatment.tsx
 │       ├── EOROptimization.tsx
 │       ├── RealtimeDashboard.tsx
+│       ├── TelemetryArchitecture.tsx
 │       ├── MLTraining.tsx
 │       ├── GeophysicalExpertise.tsx
 │       ├── FieldScanning.tsx
