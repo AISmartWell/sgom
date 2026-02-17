@@ -1,4 +1,6 @@
 import { useState, useRef, useCallback } from "react";
+import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -6,6 +8,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Printer,
+  Download,
   Maximize,
   Droplets,
   AlertTriangle,
@@ -35,6 +38,7 @@ const TOTAL_SLIDES = 18;
 const InvestorDeck = () => {
   const navigate = useNavigate();
   const [current, setCurrent] = useState(0);
+  const [exporting, setExporting] = useState(false);
   const deckRef = useRef<HTMLDivElement>(null);
 
   const next = () => setCurrent((p) => Math.min(p + 1, TOTAL_SLIDES - 1));
@@ -48,7 +52,38 @@ const InvestorDeck = () => {
     []
   );
 
-  const handlePrint = () => window.print();
+  const handleExportPDF = async () => {
+    if (exporting) return;
+    setExporting(true);
+    const savedSlide = current;
+    try {
+      const pdf = new jsPDF({ orientation: "landscape", unit: "px", format: [1920, 1080] });
+      const slideContainer = deckRef.current?.querySelector(".slide-render-area") as HTMLElement | null;
+      if (!slideContainer) return;
+
+      for (let i = 0; i < TOTAL_SLIDES; i++) {
+        setCurrent(i);
+        // Wait for render
+        await new Promise((r) => setTimeout(r, 300));
+        const canvas = await html2canvas(slideContainer, {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          backgroundColor: null,
+        });
+        const imgData = canvas.toDataURL("image/png");
+        if (i > 0) pdf.addPage([1920, 1080], "landscape");
+        pdf.addImage(imgData, "PNG", 0, 0, 1920, 1080);
+      }
+
+      pdf.save("SGO-AI-Investor-Deck.pdf");
+    } catch (err) {
+      console.error("PDF export failed:", err);
+    } finally {
+      setCurrent(savedSlide);
+      setExporting(false);
+    }
+  };
   const handleFullscreen = () => deckRef.current?.requestFullscreen?.();
 
   const slideClass =
@@ -704,9 +739,9 @@ const InvestorDeck = () => {
           {current + 1} / {TOTAL_SLIDES}
         </span>
         <div className="flex gap-2">
-          <Button variant="ghost" size="sm" onClick={handlePrint} title="Export PDF">
-            <Printer className="h-4 w-4 mr-1" />
-            <span className="hidden sm:inline">Export PDF</span>
+          <Button variant="ghost" size="sm" onClick={handleExportPDF} disabled={exporting} title="Export PDF">
+            <Download className="h-4 w-4 mr-1" />
+            <span className="hidden sm:inline">{exporting ? "Exporting..." : "Export PDF"}</span>
           </Button>
           <Button variant="ghost" size="sm" onClick={handleFullscreen} title="Fullscreen">
             <Maximize className="h-4 w-4" />
@@ -716,7 +751,7 @@ const InvestorDeck = () => {
 
       {/* Slide container */}
       <div className="pt-12 print:pt-0">
-        <div className="relative w-full max-w-5xl mx-auto aspect-[16/9] overflow-hidden rounded-xl border border-border print:border-none print:max-w-none print:rounded-none">
+        <div className="slide-render-area relative w-full max-w-5xl mx-auto aspect-[16/9] overflow-hidden rounded-xl border border-border print:border-none print:max-w-none print:rounded-none">
           {slides[current]}
         </div>
 
