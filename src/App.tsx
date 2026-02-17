@@ -30,6 +30,7 @@ import TelemetryArchitecture from "./pages/modules/TelemetryArchitecture";
 import NvidiaInception from "./pages/NvidiaInception";
 import InvestorDeck from "./pages/InvestorDeck";
 import TechnicalSpec from "./pages/TechnicalSpec";
+import BudgetOverview from "./pages/BudgetOverview";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -69,6 +70,7 @@ const App = () => (
            <Route path="/nvidia-inception" element={<NvidiaInception />} />
            <Route path="/investor-deck" element={<InvestorDeck />} />
            <Route path="/docs" element={<TechnicalSpec />} />
+           <Route path="/budget" element={<BudgetOverview />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
