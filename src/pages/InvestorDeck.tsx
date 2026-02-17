@@ -704,8 +704,9 @@ const InvestorDeck = () => {
           {current + 1} / {TOTAL_SLIDES}
         </span>
         <div className="flex gap-2">
-          <Button variant="ghost" size="sm" onClick={handlePrint} title="Print / Save as PDF">
-            <Printer className="h-4 w-4" />
+          <Button variant="ghost" size="sm" onClick={handlePrint} title="Export PDF">
+            <Printer className="h-4 w-4 mr-1" />
+            <span className="hidden sm:inline">Export PDF</span>
           </Button>
           <Button variant="ghost" size="sm" onClick={handleFullscreen} title="Fullscreen">
             <Maximize className="h-4 w-4" />
