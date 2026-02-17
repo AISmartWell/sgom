@@ -83,8 +83,7 @@ const budgetCategories = [
 ];
 
 const credits = [
-  { program: "NVIDIA Inception Program", savings: 25000, status: "Active Member", details: "GPU credits, DGX Cloud access, technical support", color: "bg-success/20 text-success" },
-  { program: "AWS Activate (Startup Credits)", savings: 100000, status: "To Apply", details: "Up to $100K cloud credits for startups", color: "bg-primary/20 text-primary" },
+  { program: "NVIDIA Inception + AWS Activate", savings: 100000, status: "Active Member", details: "Up to $100K cloud credits via AWS partner program, DGX Cloud access, preferred pricing", color: "bg-success/20 text-success" },
   { program: "Microsoft for Startups", savings: 25000, status: "To Apply", details: "Azure credits, GitHub Enterprise, technical support", color: "bg-primary/20 text-primary" },
   { program: "DOE SBIR Phase I Grant", savings: 275000, status: "Application Prep", details: "Up to $275K for Phase I R&D", color: "bg-accent/20 text-accent" },
   { program: "Google for Startups Cloud", savings: 50000, status: "To Apply", details: "GCP credits program", color: "bg-primary/20 text-primary" },
@@ -184,8 +183,8 @@ const BudgetOverview = () => {
                 <div className="p-2 rounded-lg bg-muted"><Award className="h-5 w-5 text-muted-foreground" /></div>
                 <p className="text-sm text-muted-foreground">Potential Credits</p>
               </div>
-              <p className="text-2xl font-bold">{fmt(490000)}</p>
-              <p className="text-xs text-muted-foreground mt-1">Net outlay: ~$21,600</p>
+              <p className="text-2xl font-bold">{fmt(565000)}</p>
+              <p className="text-xs text-muted-foreground mt-1">Net outlay: ~$0 (credits exceed budget)</p>
             </CardContent>
           </Card>
         </div>
@@ -362,7 +361,7 @@ const BudgetOverview = () => {
               <CardContent className="pt-6 space-y-4">
                 <div className="flex justify-between items-center">
                   <p className="text-muted-foreground">Total Potential Savings</p>
-                  <p className="text-xl font-bold">{fmt(490000)}</p>
+                  <p className="text-xl font-bold">{fmt(565000)}</p>
                 </div>
                 <div className="flex justify-between items-center">
                   <p className="text-muted-foreground">Adjusted MVP Budget</p>
@@ -370,12 +369,12 @@ const BudgetOverview = () => {
                 </div>
                 <div className="flex justify-between items-center">
                   <p className="text-muted-foreground">Conservative savings (30%)</p>
-                  <p className="text-xl font-bold text-success">−{fmt(147000)}</p>
+                  <p className="text-xl font-bold text-success">−{fmt(169500)}</p>
                 </div>
                 <hr className="border-border" />
                 <div className="flex justify-between items-center">
                   <p className="font-semibold text-lg">Net Estimated Cash Outlay</p>
-                  <p className="text-2xl font-bold text-primary">{fmt(21600)}</p>
+                  <p className="text-2xl font-bold text-primary">{fmt(0)}</p>
                 </div>
               </CardContent>
             </Card>
