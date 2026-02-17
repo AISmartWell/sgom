@@ -158,11 +158,17 @@ const menuItems = [
      badge: "🏢",
    },
    {
-     title: "Documentation",
-     icon: FileText,
-     href: "/docs",
-     badge: "📄",
-   },
+      title: "Budget Overview",
+      icon: DollarSign,
+      href: "/budget",
+      badge: "💲",
+    },
+   {
+      title: "Documentation",
+      icon: FileText,
+      href: "/docs",
+      badge: "📄",
+    },
 ];
 
 interface SidebarProps {
