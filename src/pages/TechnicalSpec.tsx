@@ -302,8 +302,41 @@ const TechnicalSpec = () => {
           </div>
         </Section>
 
-        {/* 9. File Structure */}
-        <Section icon={FileText} title="9. Key Directories">
+        {/* 9. Budget Overview */}
+        <Section icon={DollarSign} title="9. MVP Budget Overview">
+          <p>A detailed budget breakdown for the SGOM MVP is maintained as an interactive page with four tabs: cost breakdown by category, 6-month development timeline, startup credits & grants, and team structure.</p>
+          <div className="mt-3 p-4 rounded-lg bg-muted/20 border border-border/30 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-foreground font-semibold">Adjusted MVP Budget</span>
+              <span className="text-primary font-bold text-lg">$133,000</span>
+            </div>
+            <div className="flex items-center justify-between text-xs">
+              <span>Original estimate</span>
+              <span className="line-through opacity-60">$168,600</span>
+            </div>
+            <div className="flex items-center justify-between text-xs">
+              <span>Prototype savings (Frontend + Backend)</span>
+              <span className="text-success">−$35,600 (21%)</span>
+            </div>
+            <div className="flex items-center justify-between text-xs">
+              <span>Potential credits (NVIDIA, AWS, DOE SBIR, etc.)</span>
+              <span>$490,000</span>
+            </div>
+            <div className="flex items-center justify-between text-xs">
+              <span>Net estimated cash outlay</span>
+              <span className="text-primary font-semibold">~$21,600</span>
+            </div>
+          </div>
+          <div className="mt-4">
+            <Button variant="outline" size="sm" onClick={() => navigate("/budget")} className="gap-2">
+              <DollarSign className="h-4 w-4" />
+              Open Full Budget Overview
+            </Button>
+          </div>
+        </Section>
+
+        {/* 10. File Structure */}
+        <Section icon={FileText} title="10. Key Directories">
           <pre className="bg-muted/30 rounded-lg p-4 text-xs font-mono whitespace-pre overflow-x-auto">
 {`src/
 ├── pages/                  # Application pages
@@ -352,8 +385,8 @@ supabase/
           </pre>
         </Section>
 
-        {/* 10. Deployment */}
-        <Section icon={Wrench} title="10. Deployment & Running">
+        {/* 11. Deployment */}
+        <Section icon={Wrench} title="11. Deployment & Running">
           <div className="space-y-2">
             <p><strong>Dev Server:</strong> <code className="text-primary">npm run dev</code> (Vite, port 8080)</p>
             <p><strong>Build:</strong> <code className="text-primary">npm run build</code></p>
