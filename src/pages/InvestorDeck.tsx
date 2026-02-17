@@ -658,36 +658,38 @@ const InvestorDeck = () => {
         <Users className="h-8 w-8 text-primary" />
         <h2 className="text-3xl md:text-4xl font-bold">Team</h2>
       </div>
-      <div className="grid md:grid-cols-3 gap-6">
-        <div className="p-6 rounded-xl bg-card border border-border">
-          <div className="h-16 w-16 rounded-full bg-primary/20 flex items-center justify-center mb-4 text-2xl font-bold text-primary">
+      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="p-5 rounded-xl bg-card border border-border">
+          <div className="h-14 w-14 rounded-full bg-primary/20 flex items-center justify-center mb-3 text-xl font-bold text-primary">
             ER
           </div>
-          <h3 className="text-lg font-semibold">Edward Rubinstein</h3>
-          <p className="text-sm text-primary mb-2">Co-Founder / CEO</p>
-          <p className="text-sm text-muted-foreground">
-            Business strategy.
-          </p>
+          <h3 className="text-base font-semibold">Edward Rubinstein</h3>
+          <p className="text-xs text-primary mb-1">Co-Founder / CEO</p>
+          <p className="text-xs text-muted-foreground">Business strategy.</p>
         </div>
-        <div className="p-6 rounded-xl bg-card border border-border">
-          <div className="h-16 w-16 rounded-full bg-success/20 flex items-center justify-center mb-4 text-2xl font-bold text-success">
+        <div className="p-5 rounded-xl bg-card border border-border">
+          <div className="h-14 w-14 rounded-full bg-accent/20 flex items-center justify-center mb-3 text-xl font-bold text-accent">
+            AN
+          </div>
+          <h3 className="text-base font-semibold">Anatoli Nikouline</h3>
+          <p className="text-xs text-accent mb-1">CEO & SPT Engineer · Maxxwell Production</p>
+          <p className="text-xs text-muted-foreground">Patented SPT technology inventor. Decades of field experience in well restoration across US & Canada.</p>
+        </div>
+        <div className="p-5 rounded-xl bg-card border border-border">
+          <div className="h-14 w-14 rounded-full bg-success/20 flex items-center justify-center mb-3 text-xl font-bold text-success">
             AA
           </div>
-          <h3 className="text-lg font-semibold">Alexander Alishoev</h3>
-          <p className="text-sm text-success mb-2">Lead Developer</p>
-          <p className="text-sm text-muted-foreground">
-            Full-stack development, AI/ML integration, platform architecture.
-          </p>
+          <h3 className="text-base font-semibold">Alexander Alishoev</h3>
+          <p className="text-xs text-success mb-1">Lead Developer</p>
+          <p className="text-xs text-muted-foreground">Full-stack development, AI/ML integration, platform architecture.</p>
         </div>
-        <div className="p-6 rounded-xl bg-card border border-border">
-          <div className="h-16 w-16 rounded-full bg-accent/20 flex items-center justify-center mb-4 text-2xl font-bold text-accent">
+        <div className="p-5 rounded-xl bg-card border border-border">
+          <div className="h-14 w-14 rounded-full bg-primary/20 flex items-center justify-center mb-3 text-xl font-bold text-primary">
             MP
           </div>
-          <h3 className="text-lg font-semibold">Maxxwell Production</h3>
-          <p className="text-sm text-accent mb-2">Technology Partner · SPT Service Company</p>
-          <p className="text-sm text-muted-foreground">
-            Professional SPT service company since 2012. Own patented tool (US 8,863,823, US 8,240,369). Worked with Chevron, Baker Hughes, Halliburton, Schlumberger across US & Canada. SPE members.
-          </p>
+          <h3 className="text-base font-semibold">Maxxwell Production</h3>
+          <p className="text-xs text-primary mb-1">Technology Partner</p>
+          <p className="text-xs text-muted-foreground">SPT service company since 2012. Patents US 8,863,823 & US 8,240,369. Chevron, Halliburton, Schlumberger.</p>
         </div>
       </div>
       <div className="mt-6 flex gap-4">
