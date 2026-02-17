@@ -684,9 +684,9 @@ const InvestorDeck = () => {
             MP
           </div>
           <h3 className="text-lg font-semibold">Maxxwell Production</h3>
-          <p className="text-sm text-accent mb-2">Technology Partner</p>
+          <p className="text-sm text-accent mb-2">Technology Partner · SPT Service Company</p>
           <p className="text-sm text-muted-foreground">
-            Holders of US Patent 8,863,823 (SPT). Decades of proven field results in well restoration.
+            Professional SPT service company since 2012. Own patented tool (US 8,863,823, US 8,240,369). Worked with Chevron, Baker Hughes, Halliburton, Schlumberger across US & Canada. SPE members.
           </p>
         </div>
       </div>
