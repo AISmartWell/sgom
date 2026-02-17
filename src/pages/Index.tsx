@@ -101,7 +101,7 @@ const Index = () => {
             />
           </div>
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" onClick={() => navigate("/investor-deck")} className="hidden sm:inline-flex text-muted-foreground hover:text-foreground">
+            <Button variant="ghost" size="sm" onClick={() => navigate("/investor-deck")} className="text-muted-foreground hover:text-foreground">
               <FileText className="mr-2 h-4 w-4" />
               Investor Deck
             </Button>
