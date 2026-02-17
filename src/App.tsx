@@ -28,6 +28,7 @@ import CumulativeAnalysis from "./pages/modules/CumulativeAnalysis";
 import MultiTenantDemo from "./pages/modules/MultiTenantDemo";
 import TelemetryArchitecture from "./pages/modules/TelemetryArchitecture";
 import NvidiaInception from "./pages/NvidiaInception";
+import InvestorDeck from "./pages/InvestorDeck";
 import TechnicalSpec from "./pages/TechnicalSpec";
 import NotFound from "./pages/NotFound";
 
@@ -66,6 +67,7 @@ const App = () => (
              <Route path="multi-tenant" element={<MultiTenantDemo />} />
           </Route>
            <Route path="/nvidia-inception" element={<NvidiaInception />} />
+           <Route path="/investor-deck" element={<InvestorDeck />} />
            <Route path="/docs" element={<TechnicalSpec />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
