@@ -385,6 +385,12 @@ const BudgetOverview = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Team Structure & Cost Estimates</CardTitle>
+                <CardDescription className="flex items-start gap-2 mt-2 p-3 rounded-lg bg-primary/5 border border-primary/20">
+                  <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                  <span>
+                    <strong>Note:</strong> Team costs are already included in the {fmt(adjustedTotal)} adjusted MVP budget above. This breakdown shows the same budget allocated by role rather than by task category. It is not an additional expense.
+                  </span>
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <Table>
