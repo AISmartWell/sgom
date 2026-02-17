@@ -305,13 +305,26 @@ const TechnicalSpec = () => {
         {/* 9. Budget Overview */}
         <Section icon={DollarSign} title="9. MVP Budget Overview">
           <p>A detailed budget breakdown for the SGOM MVP is maintained as an interactive page with four tabs: cost breakdown by category, 6-month development timeline, startup credits & grants, and team structure. <strong>Note:</strong> Team costs ($216K at market rates) are already included in the adjusted MVP budget — they represent the same budget allocated by role rather than by task category, not an additional expense.</p>
+          
+          <h4 className="font-semibold text-foreground mb-2 mt-4">Estimation Methodology</h4>
+          <p>Each budget line item is estimated using three market-rate tiers: <strong>Low</strong> (junior specialists, offshore rates, minimal scope), <strong>Base</strong> (realistic market average — used as working budget), and <strong>High</strong> (top-tier specialists, complex requirements, US market rates). This range-based approach demonstrates that the budget is grounded in market data and provides investors with a confidence corridor for cost projections.</p>
+
+          <h4 className="font-semibold text-foreground mb-2 mt-4">Adjusted Budget — External Work Breakdown</h4>
+          <p>The adjusted budget ($133K) reflects savings from the functional prototype. The remaining amounts cover <strong>external work</strong> that cannot be performed within the prototype:</p>
+          <ul className="list-disc pl-5 space-y-1 text-xs mb-3">
+            <li><strong>Backend ($8K):</strong> External DevOps — production deployment, server monitoring, CI/CD pipeline setup</li>
+            <li><strong>Frontend ($4K):</strong> External UX designer — user testing, responsive adaptation, visual polish for production</li>
+            <li><strong>Testing ($7.4K):</strong> External QA & field work — pilot well validation with Maxxwell SPT, ML model accuracy benchmarks</li>
+            <li><strong>Management ($19.6K):</strong> External — project coordination, IP/patent legal work, reduced contingency buffer</li>
+          </ul>
+
           <div className="mt-3 p-4 rounded-lg bg-muted/20 border border-border/30 space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-foreground font-semibold">Adjusted MVP Budget</span>
               <span className="text-primary font-bold text-lg">$133,000</span>
             </div>
             <div className="flex items-center justify-between text-xs">
-              <span>Original estimate</span>
+              <span>Original estimate (Base tier)</span>
               <span className="line-through opacity-60">$168,600</span>
             </div>
             <div className="flex items-center justify-between text-xs">
