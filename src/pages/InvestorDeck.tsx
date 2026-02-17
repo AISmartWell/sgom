@@ -631,7 +631,7 @@ const InvestorDeck = () => {
           <h3 className="text-lg font-semibold">Edward Rubinstein</h3>
           <p className="text-sm text-primary mb-2">Co-Founder / CEO</p>
           <p className="text-sm text-muted-foreground">
-            AI Smart Well, Inc. — Nevada C-Corporation. Technical vision & business strategy.
+            Business strategy.
           </p>
         </div>
         <div className="p-6 rounded-xl bg-card border border-border">
