@@ -319,12 +319,12 @@ const TechnicalSpec = () => {
               <span className="text-success">−$35,600 (21%)</span>
             </div>
             <div className="flex items-center justify-between text-xs">
-              <span>Potential credits (NVIDIA, AWS, DOE SBIR, etc.)</span>
-              <span>$490,000</span>
+              <span>Potential credits (NVIDIA Inception + AWS, DOE SBIR, etc.)</span>
+              <span>$565,000</span>
             </div>
             <div className="flex items-center justify-between text-xs">
               <span>Net estimated cash outlay</span>
-              <span className="text-primary font-semibold">~$21,600</span>
+              <span className="text-primary font-semibold">~$0 (credits exceed budget)</span>
             </div>
           </div>
           <div className="mt-4">
