@@ -28,6 +28,7 @@ import {
   TrendingUp,
   Settings,
   Building2,
+  Presentation,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -157,6 +158,12 @@ const menuItems = [
      href: "/dashboard/multi-tenant",
      badge: "🏢",
    },
+   {
+      title: "Investor Deck",
+      icon: Presentation,
+      href: "/investor-deck",
+      badge: "📊",
+    },
    {
       title: "Budget Overview",
       icon: DollarSign,
