@@ -304,7 +304,7 @@ const TechnicalSpec = () => {
 
         {/* 9. Budget Overview */}
         <Section icon={DollarSign} title="9. MVP Budget Overview">
-          <p>A detailed budget breakdown for the SGOM MVP is maintained as an interactive page with four tabs: cost breakdown by category, 6-month development timeline, startup credits & grants, and team structure.</p>
+          <p>A detailed budget breakdown for the SGOM MVP is maintained as an interactive page with four tabs: cost breakdown by category, 6-month development timeline, startup credits & grants, and team structure. <strong>Note:</strong> Team costs ($216K at market rates) are already included in the adjusted MVP budget — they represent the same budget allocated by role rather than by task category, not an additional expense.</p>
           <div className="mt-3 p-4 rounded-lg bg-muted/20 border border-border/30 space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-foreground font-semibold">Adjusted MVP Budget</span>
