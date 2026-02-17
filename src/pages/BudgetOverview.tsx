@@ -45,7 +45,7 @@ const budgetCategories = [
       { name: "CI/CD & DevOps", low: 2000, base: 3000, high: 5000, notes: "Deployment pipelines, monitoring" },
     ],
     subtotal: { low: 14000, base: 21000, high: 33000 },
-    adjusted: { base: 8000, savings: 13000, reason: "API, auth, DB, and cloud already deployed via Lovable Cloud", remaining: "Production scaling, monitoring, CI/CD hardening" },
+    adjusted: { base: 8000, savings: 13000, reason: "API, auth, DB, and cloud already deployed via Lovable Cloud", remaining: "External DevOps: production deployment, server monitoring, CI/CD pipeline setup" },
   },
   {
     category: "4. Frontend / User Interface",
@@ -57,7 +57,7 @@ const budgetCategories = [
       { name: "UX/UI design", low: 2000, base: 4000, high: 6000, notes: "Professional look for investor demos" },
     ],
     subtotal: { low: 12000, base: 20000, high: 30000 },
-    adjusted: { base: 4000, savings: 16000, reason: "20+ modules, visualizations, and PDF export already built", remaining: "UX polish, real-user adaptation, responsive fine-tuning" },
+    adjusted: { base: 4000, savings: 16000, reason: "20+ modules, visualizations, and PDF export already built", remaining: "External UX designer: user testing, responsive adaptation, visual polish for production" },
   },
   {
     category: "5. Testing & Validation",
@@ -68,7 +68,7 @@ const budgetCategories = [
       { name: "QA & bug fixing", low: 2000, base: 3000, high: 5000, notes: "End-to-end testing" },
     ],
     subtotal: { low: 7000, base: 11000, high: 19000 },
-    adjusted: { base: 7400, savings: 3600, reason: "Existing test infrastructure and QA pipelines", remaining: "Field validation with pilot wells, ML model accuracy benchmarks" },
+    adjusted: { base: 7400, savings: 3600, reason: "Existing test infrastructure and QA pipelines", remaining: "External QA & field work: pilot well validation with Maxxwell SPT, ML model accuracy benchmarks" },
   },
   {
     category: "6. Project Management & Overhead",
@@ -79,7 +79,7 @@ const budgetCategories = [
       { name: "Contingency reserve (10%)", low: 9400, base: 14600, high: 22500, notes: "Buffer for unforeseen expenses" },
     ],
     subtotal: { low: 14400, base: 22600, high: 35500 },
-    adjusted: { base: 19600, savings: 3000, reason: "Reduced contingency due to proven architecture", remaining: "Project coordination, IP/patent protection, reduced contingency" },
+    adjusted: { base: 19600, savings: 3000, reason: "Reduced contingency due to proven architecture", remaining: "External: project coordination, IP/patent legal work, reduced contingency buffer" },
   },
 ];
 
