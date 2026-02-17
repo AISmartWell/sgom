@@ -249,7 +249,7 @@ const Index = () => {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button size="lg" onClick={() => navigate("/auth")} className="glow-primary text-base px-8 py-6">
-                  Start Free Analysis
+                  Start Analysis
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
                 <Button size="lg" variant="outline" onClick={() => navigate("/investor-deck")} className="text-base px-8 py-6 border-border/60">
