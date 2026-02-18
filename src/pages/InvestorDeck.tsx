@@ -117,7 +117,6 @@ const InvestorDeck = () => {
       </div>
       <div className="flex items-center gap-4">
         <img src={nvidiaInceptionBadgeBw} alt="NVIDIA Inception" className="h-8 opacity-70" />
-        <Badge variant="outline" className="text-sm px-4 py-1">Prepared for Diversified Energy</Badge>
       </div>
       <p className="text-xs text-muted-foreground mt-4">Confidential · Investment Opportunity · 2026</p>
     </div>,
