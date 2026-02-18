@@ -432,28 +432,10 @@ const InvestorDeck = () => {
           </ol>
         </div>
       </div>
-      <div className="overflow-hidden rounded-xl border border-border">
-        <table className="w-full text-sm">
-          <thead><tr className="bg-muted/50">
-            <th className="text-left p-2 font-medium"></th>
-            <th className="text-center p-2 font-medium text-muted-foreground">Without IoT</th>
-            <th className="text-center p-2 font-bold text-primary">With IoT</th>
-          </tr></thead>
-          <tbody>
-            {[
-              ["Revenue Type", "One-time fee", "Fee + monthly SaaS"],
-              ["Client LTV", "$50K–150K", "$200K–500K+"],
-              ["Data Advantage", "Static snapshot", "Continuous learning"],
-              ["Scalability", "Linear (team)", "Exponential (platform)"],
-            ].map(([k, v1, v2]) => (
-              <tr key={k} className="border-t border-border">
-                <td className="p-2 font-medium">{k}</td>
-                <td className="p-2 text-center text-muted-foreground">{v1}</td>
-                <td className="p-2 text-center font-semibold text-primary">{v2}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="p-4 rounded-xl bg-muted/30 border border-border">
+        <p className="text-sm text-muted-foreground">
+          <strong className="text-foreground">Result:</strong> IoT transforms SGOM from a one-time consulting tool into a <strong className="text-primary">continuous revenue platform</strong> — increasing Client LTV from $50K–150K to $200K–500K+ through monthly SaaS subscriptions and self-learning AI optimization.
+        </p>
       </div>
     </div>,
 
