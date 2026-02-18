@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Radio, Cpu, Cloud, Shield, MonitorDot, ArrowDown, Wifi } from "lucide-react";
+import { Radio, Cpu, Cloud, Shield, MonitorDot, ArrowDown, Wifi, DollarSign, Package, Wrench, BarChart3 } from "lucide-react";
 
 const steps = [
   {
@@ -70,6 +70,79 @@ const sensorTypes = [
   { name: "Flow Rate", unit: "bbl/day", range: "0 – 5,000", icon: "🛢️" },
   { name: "Temperature", unit: "°F", range: "50 – 400", icon: "🌡️" },
   { name: "Water Cut", unit: "%", range: "0 – 100", icon: "💧" },
+];
+
+const pricingTiers = [
+  {
+    name: "Starter Kit",
+    wells: "1–5 wells",
+    icon: Package,
+    color: "text-primary",
+    bgColor: "bg-primary/10",
+    borderColor: "border-primary/30",
+    hardware: "$2,500",
+    hardwareDesc: "per well (one-time)",
+    subscription: "$500/mo",
+    subscriptionDesc: "Platform + monitoring",
+    includes: [
+      "4 sensors per well (P, T, Flow, Water Cut)",
+      "1 RTU/Controller per well",
+      "Cellular IoT gateway",
+      "Real-time dashboard access",
+      "Automatic alerts (Critical & Warning)",
+    ],
+  },
+  {
+    name: "Professional",
+    wells: "6–25 wells",
+    icon: Wrench,
+    color: "text-emerald-400",
+    bgColor: "bg-emerald-500/10",
+    borderColor: "border-emerald-500/30",
+    hardware: "$2,000",
+    hardwareDesc: "per well (volume discount)",
+    subscription: "$350/mo per well",
+    subscriptionDesc: "Full analytics + AI alerts",
+    includes: [
+      "Everything in Starter Kit",
+      "Predictive maintenance alerts",
+      "AI anomaly detection",
+      "Custom alert thresholds",
+      "Monthly performance reports",
+      "API access for SCADA integration",
+    ],
+  },
+  {
+    name: "Enterprise",
+    wells: "25+ wells",
+    icon: BarChart3,
+    color: "text-warning",
+    bgColor: "bg-warning/10",
+    borderColor: "border-warning/30",
+    hardware: "Custom",
+    hardwareDesc: "bulk pricing negotiated",
+    subscription: "Custom",
+    subscriptionDesc: "Dedicated infrastructure",
+    includes: [
+      "Everything in Professional",
+      "Dedicated account manager",
+      "On-site installation support",
+      "Custom sensor configurations",
+      "White-label dashboard option",
+      "SLA with 99.9% uptime guarantee",
+      "Direct SCADA/DCS integration",
+    ],
+  },
+];
+
+const costBreakdown = [
+  { item: "Pressure sensor (0–10K psi)", cost: "$350–$600" },
+  { item: "Flow meter (turbine/ultrasonic)", cost: "$800–$1,500" },
+  { item: "Temperature probe (RTD)", cost: "$150–$300" },
+  { item: "Water cut analyzer", cost: "$400–$700" },
+  { item: "RTU / Controller", cost: "$500–$900" },
+  { item: "Cellular IoT gateway + antenna", cost: "$200–$400" },
+  { item: "Installation & commissioning", cost: "$500–$1,000" },
 ];
 
 const TelemetryArchitecture = () => {
@@ -159,6 +232,93 @@ const TelemetryArchitecture = () => {
                 </div>
               </div>
             ))}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* ===== PRICING SECTION ===== */}
+      <div className="max-w-5xl mx-auto pt-8">
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center gap-2 mb-3">
+            <DollarSign className="h-6 w-6 text-primary" />
+            <h2 className="text-2xl font-bold text-foreground">IoT Pricing</h2>
+          </div>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Hardware + SaaS model: one-time equipment cost per well plus monthly platform subscription for monitoring, analytics, and AI-powered alerts.
+          </p>
+        </div>
+
+        {/* Pricing tiers */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+          {pricingTiers.map((tier) => (
+            <Card key={tier.name} className={`glass-card ${tier.borderColor} border relative overflow-hidden`}>
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className={`${tier.bgColor} p-2.5 rounded-lg`}>
+                    <tier.icon className={`h-5 w-5 ${tier.color}`} />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg">{tier.name}</CardTitle>
+                    <p className="text-xs text-muted-foreground">{tier.wells}</p>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex items-baseline justify-between p-3 rounded-lg bg-muted/30">
+                    <span className="text-xs text-muted-foreground uppercase tracking-wider">Hardware</span>
+                    <div className="text-right">
+                      <p className={`text-lg font-bold ${tier.color}`}>{tier.hardware}</p>
+                      <p className="text-xs text-muted-foreground">{tier.hardwareDesc}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-baseline justify-between p-3 rounded-lg bg-muted/30">
+                    <span className="text-xs text-muted-foreground uppercase tracking-wider">Platform</span>
+                    <div className="text-right">
+                      <p className={`text-lg font-bold ${tier.color}`}>{tier.subscription}</p>
+                      <p className="text-xs text-muted-foreground">{tier.subscriptionDesc}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-border/30">
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Includes:</p>
+                  <ul className="space-y-1.5">
+                    {tier.includes.map((item, i) => (
+                      <li key={i} className="text-xs text-muted-foreground flex items-start gap-2">
+                        <span className="text-primary mt-0.5">✓</span>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Hardware cost breakdown */}
+        <Card className="glass-card border-border/50 max-w-2xl mx-auto">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Cpu className="h-5 w-5 text-primary" />
+              Hardware Cost Breakdown (per well)
+            </CardTitle>
+            <p className="text-xs text-muted-foreground">Typical component costs for a single well installation</p>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {costBreakdown.map((item) => (
+                <div key={item.item} className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+                  <span className="text-sm text-foreground">{item.item}</span>
+                  <span className="text-sm font-mono text-primary font-medium">{item.cost}</span>
+                </div>
+              ))}
+              <div className="flex items-center justify-between p-3 rounded-lg bg-primary/10 border border-primary/20 mt-3">
+                <span className="text-sm font-semibold text-foreground">Total per well</span>
+                <span className="text-sm font-mono text-primary font-bold">$2,900 – $5,400</span>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
