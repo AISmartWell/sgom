@@ -153,11 +153,17 @@ const menuItems = [
        badge: "📈",
      },
    {
-     title: "Multi-Tenant",
-     icon: Building2,
-     href: "/dashboard/multi-tenant",
-     badge: "🏢",
-   },
+      title: "Multi-Tenant",
+      icon: Building2,
+      href: "/dashboard/multi-tenant",
+      badge: "🏢",
+    },
+    {
+      title: "SaaS Business Model",
+      icon: Presentation,
+      href: "/dashboard/saas-business-model",
+      badge: "💼",
+    },
    {
       title: "Investor Deck",
       icon: Presentation,
