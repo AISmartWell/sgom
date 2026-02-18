@@ -137,7 +137,7 @@ const Index = () => {
                 Get Started
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Button size="lg" variant="outline" className="text-base px-8 py-6 border-border/60 hover:border-primary/40 hover:bg-primary/5">
+              <Button size="lg" variant="outline" onClick={() => navigate("/dashboard/simulation")} className="text-base px-8 py-6 border-border/60 hover:border-primary/40 hover:bg-primary/5">
                 Learn More
               </Button>
             </div>
