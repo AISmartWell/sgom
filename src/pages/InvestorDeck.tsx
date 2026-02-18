@@ -438,7 +438,7 @@ const InvestorDeck = () => {
         </p>
       </div>
       <Button variant="outline" size="sm" className="mt-4 self-start" onClick={next}>
-        Подробнее → IoT Pricing
+        Details → IoT Pricing
       </Button>
     </div>,
 
