@@ -437,6 +437,9 @@ const InvestorDeck = () => {
           <strong className="text-foreground">Result:</strong> IoT transforms SGOM from a one-time consulting tool into a <strong className="text-primary">continuous revenue platform</strong> — increasing Client LTV from $50K–150K to $200K–500K+ through monthly SaaS subscriptions and self-learning AI optimization.
         </p>
       </div>
+      <Button variant="outline" size="sm" className="mt-4 self-start" onClick={next}>
+        Подробнее → IoT Pricing
+      </Button>
     </div>,
 
     // ===== SLIDE 11 — IoT Pricing =====
