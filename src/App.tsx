@@ -27,6 +27,7 @@ import DataClassification from "./pages/modules/DataClassification";
 import CumulativeAnalysis from "./pages/modules/CumulativeAnalysis";
 import MultiTenantDemo from "./pages/modules/MultiTenantDemo";
 import TelemetryArchitecture from "./pages/modules/TelemetryArchitecture";
+import SaaSBusinessModel from "./pages/modules/SaaSBusinessModel";
 import NvidiaInception from "./pages/NvidiaInception";
 import InvestorDeck from "./pages/InvestorDeck";
 import TechnicalSpec from "./pages/TechnicalSpec";
@@ -66,6 +67,7 @@ const App = () => (
              <Route path="data-classification" element={<DataClassification />} />
              <Route path="cumulative-analysis" element={<CumulativeAnalysis />} />
              <Route path="multi-tenant" element={<MultiTenantDemo />} />
+             <Route path="saas-business-model" element={<SaaSBusinessModel />} />
           </Route>
            <Route path="/nvidia-inception" element={<NvidiaInception />} />
            <Route path="/investor-deck" element={<InvestorDeck />} />
