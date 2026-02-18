@@ -397,7 +397,10 @@ const InvestorDeck = () => {
         ))}
       </div>
       <div className="mt-4 text-center">
-        <Badge variant="outline" className="text-sm">Live demo: sgom.lovable.app</Badge>
+        <button onClick={() => navigate('/budget')} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 transition-colors text-sm font-medium">
+          <DollarSign className="h-4 w-4" />
+          MVP Budget Breakdown →
+        </button>
       </div>
     </div>,
 
