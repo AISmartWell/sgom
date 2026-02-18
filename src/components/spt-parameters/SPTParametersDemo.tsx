@@ -32,6 +32,7 @@ const SPTParametersDemo = () => {
   const [slotWidth, setSlotWidth] = useState([12]);
   const [slotsPerRow, setSlotsPerRow] = useState([4]);
   const [rowSpacing, setRowSpacing] = useState([6]);
+  const [nozzleCount, setNozzleCount] = useState([4]);
 
   const runPipeline = () => {
     setIsRunning(true);
@@ -55,6 +56,8 @@ const SPTParametersDemo = () => {
   const cuttingTimeCased = Math.round(intervalLength * 50); // 50 min/ft in cased wells
   const cuttingTimeOpen = Math.round(intervalLength * 30); // 30 min/ft in open holes
   const inflowIncrease = Math.min(10, Math.max(5, Math.round(5 + (openArea / 2)))); // 5-10×
+  const drainageAreaPerFt = nozzleCount[0] <= 2 ? 13 : nozzleCount[0] <= 3 ? 18 : 23; // sq ft per linear ft by nozzle count
+  const totalDrainageArea = drainageAreaPerFt * intervalLength; // total drainage area, sq ft
 
   const cuttingData = [
     { zone: "Upper", slots: Math.round(totalSlots * 0.25), depth: `${selectedWell.perforationZone.split("-")[0]}-${Math.round((parseFloat(selectedWell.perforationZone.split("-")[0]) + parseFloat(selectedWell.perforationZone.split("-")[1])) / 3)}` },
@@ -214,6 +217,9 @@ const SPTParametersDemo = () => {
                 <div className="mt-1 text-[10px] text-muted-foreground">
                   Cutting speed: <strong className="text-foreground">{cuttingTimeCased} min</strong> (cased) / <strong className="text-foreground">{cuttingTimeOpen} min</strong> (open hole) | Inflow increase: <strong className="text-primary">{inflowIncrease}×</strong>
                 </div>
+                <div className="mt-1 text-[10px] text-muted-foreground">
+                  Nozzles: <strong className="text-foreground">{nozzleCount[0]}</strong> | Drainage area: <strong className="text-primary">{drainageAreaPerFt} sq ft/linear ft</strong> | Total drainage: <strong className="text-primary">{totalDrainageArea.toLocaleString()} sq ft</strong>
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -318,6 +324,14 @@ const SPTParametersDemo = () => {
                   </div>
                   <Slider value={rowSpacing} onValueChange={setRowSpacing} min={3} max={12} step={1} />
                 </div>
+                <div>
+                  <div className="flex justify-between text-xs mb-1">
+                    <span className="text-muted-foreground">Nozzle Count</span>
+                    <span className="font-mono font-medium">{nozzleCount[0]} ({drainageAreaPerFt} sq ft/ft)</span>
+                  </div>
+                  <Slider value={nozzleCount} onValueChange={setNozzleCount} min={2} max={4} step={1} />
+                  <p className="text-[10px] text-muted-foreground mt-1">2 nozzles → 13 ft²/ft | 3 → 18 ft²/ft | 4 → 23 ft²/ft</p>
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -373,7 +387,9 @@ const SPTParametersDemo = () => {
 
 4. ESTIMATED PERFORMANCE
     Max slot depth:  up to 5.0 ft (1.5 m)
-    Drainage area:   up to 25 sq ft / linear ft
+    Nozzle count:    ${nozzleCount[0]}
+    Drainage area:   ${drainageAreaPerFt} sq ft / linear ft (2 nozzles=13, 3=18, 4=23)
+    Total drainage:  ${totalDrainageArea.toLocaleString()} sq ft
     Cutting speed:   ${cuttingTimeCased} min (cased) / ${cuttingTimeOpen} min (open hole)
     Inflow increase: ${inflowIncrease}× (based on open area)
     Flow capacity:   ${flowCapacity.toFixed(0)} bbl/day
