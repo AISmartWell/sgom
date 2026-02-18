@@ -33,7 +33,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import nvidiaInceptionBadgeBw from "@/assets/nvidia-inception-badge-bw.png";
 
-const TOTAL_SLIDES = 18;
+const TOTAL_SLIDES = 19;
 
 const InvestorDeck = () => {
   const navigate = useNavigate();
@@ -457,7 +457,68 @@ const InvestorDeck = () => {
       </div>
     </div>,
 
-    // ===== SLIDE 11 — Target Market =====
+    // ===== SLIDE 11 — IoT Pricing =====
+    <div key="iot-pricing" className={`${slideClass} bg-gradient-to-br from-primary/5 via-background to-background`}>
+      <div className="flex items-center gap-3 mb-6">
+        <DollarSign className="h-8 w-8 text-primary" />
+        <h2 className="text-3xl md:text-4xl font-bold">IoT Pricing</h2>
+      </div>
+      <p className="text-muted-foreground mb-5">Hardware + SaaS model: one-time equipment cost per well plus monthly platform subscription</p>
+      <div className="grid md:grid-cols-3 gap-4 mb-5">
+        {[
+          { name: "Starter Kit", wells: "1–5 wells", hardware: "$2,500", hwDesc: "per well (one-time)", platform: "$500/mo", platDesc: "Platform + monitoring", color: "text-primary", bg: "bg-primary/10", border: "border-primary/20" },
+          { name: "Professional", wells: "6–25 wells", hardware: "$2,000", hwDesc: "per well (volume discount)", platform: "$350/mo per well", platDesc: "Full analytics + AI alerts", color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20" },
+          { name: "Enterprise", wells: "25+ wells", hardware: "Custom", hwDesc: "bulk pricing negotiated", platform: "Custom", platDesc: "Dedicated infrastructure", color: "text-warning", bg: "bg-warning/10", border: "border-warning/20" },
+        ].map((tier) => (
+          <div key={tier.name} className={`p-4 rounded-xl ${tier.bg} border ${tier.border}`}>
+            <h3 className="font-semibold mb-1">{tier.name}</h3>
+            <p className="text-xs text-muted-foreground mb-3">{tier.wells}</p>
+            <div className="space-y-2">
+              <div className="p-2 rounded-lg bg-background/50">
+                <p className="text-xs text-muted-foreground uppercase tracking-wider">Hardware</p>
+                <p className={`text-lg font-bold ${tier.color}`}>{tier.hardware}</p>
+                <p className="text-xs text-muted-foreground">{tier.hwDesc}</p>
+              </div>
+              <div className="p-2 rounded-lg bg-background/50">
+                <p className="text-xs text-muted-foreground uppercase tracking-wider">Platform</p>
+                <p className={`text-lg font-bold ${tier.color}`}>{tier.platform}</p>
+                <p className="text-xs text-muted-foreground">{tier.platDesc}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="overflow-hidden rounded-xl border border-border">
+        <table className="w-full text-sm">
+          <thead><tr className="bg-muted/50">
+            <th className="text-left p-2 font-medium">Component</th>
+            <th className="text-right p-2 font-medium">Cost per Well</th>
+          </tr></thead>
+          <tbody>
+            {[
+              ["Pressure sensor (0–10K psi)", "$350–$600"],
+              ["Flow meter (turbine/ultrasonic)", "$800–$1,500"],
+              ["Temperature probe (RTD)", "$150–$300"],
+              ["Water cut analyzer", "$400–$700"],
+              ["RTU / Controller", "$500–$900"],
+              ["Cellular IoT gateway", "$200–$400"],
+              ["Installation & commissioning", "$500–$1,000"],
+            ].map(([item, cost]) => (
+              <tr key={item} className="border-t border-border">
+                <td className="p-2 text-muted-foreground">{item}</td>
+                <td className="p-2 text-right font-mono text-primary font-medium">{cost}</td>
+              </tr>
+            ))}
+            <tr className="border-t-2 border-primary/30 bg-primary/5">
+              <td className="p-2 font-semibold">Total per well</td>
+              <td className="p-2 text-right font-mono text-primary font-bold">$2,900 – $5,400</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>,
+
+    // ===== SLIDE 12 — Target Market =====
     <div key="market" className={`${slideClass} bg-gradient-to-br from-primary/5 via-background to-background`}>
       <div className="flex items-center gap-3 mb-8">
         <Globe className="h-8 w-8 text-primary" />
