@@ -241,6 +241,8 @@ const TechnicalSpec = () => {
                  desc: "Automated field surveillance Stage 1 with configurable schedule (daily/weekly/monthly). Loads real satellite imagery (ESRI World Imagery) with GIS grid overlay. Scans 24 predefined field squares across Permian and Anadarko basins, detecting all wells via coordinates. Flags low-productive wells (< 10 bbl/day, water cut > 60%) and automatically purges closed/plugged wells from the active database. 5-stage pipeline: Initialize → Scan Fields → Analyze Wells → Flag Low-Prod → Remove Closed." },
               { icon: "📄", name: "Reports", route: "/dashboard/reports",
                 desc: "Analysis report generation. Data export." },
+              { icon: "💼", name: "SaaS Business Model", route: "/dashboard/saas-business-model",
+                desc: "Hybrid SaaS pricing model presentation: Base Subscription ($2,000–$15,000/mo) + Per-Well Analysis Fee ($120–$350/well). Three tiers: Explorer (up to 10 wells), Professional (up to 50 wells), Enterprise (unlimited). Interactive 3-year revenue projection chart (Recharts) splitting SaaS subscriptions vs per-well usage fees. Conservative scenario: Year 1 ARR $0.6M (5 clients) → Year 2 $2.2M (15 clients) → Year 3 $5.8M (35 clients). ~80% gross margin. Strategic rationale: low entry barrier (2–4 week onboarding), predictable + scalable revenue (70/30 subscription/usage split), aligned incentives (3× avg. tier upgrade in 18 mo), dual revenue streams (SaaS + SPT service)." },
             ].map((mod) => (
               <div key={mod.route} className="p-3 rounded-lg bg-muted/20 border border-border/30">
                 <p className="font-semibold text-foreground">{mod.icon} {mod.name}</p>
@@ -348,8 +350,77 @@ const TechnicalSpec = () => {
           </div>
         </Section>
 
-        {/* 10. File Structure */}
-        <Section icon={FileText} title="10. Key Directories">
+        {/* 10. SaaS Business Model */}
+        <Section icon={DollarSign} title="10. SaaS Business Model — Hybrid Pricing">
+          <h4 className="font-semibold text-foreground mb-2">Monetization Strategy</h4>
+          <p>The platform uses a hybrid SaaS pricing model combining a monthly base subscription with a per-well analysis fee. This approach ensures predictable recurring revenue while scaling naturally with client usage.</p>
+
+          <h4 className="font-semibold text-foreground mb-2 mt-4">Pricing Tiers</h4>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs border border-border/50 rounded">
+              <thead className="bg-muted/30">
+                <tr>
+                  <th className="text-left p-2 border-b border-border/50">Tier</th>
+                  <th className="text-left p-2 border-b border-border/50">Base / mo</th>
+                  <th className="text-left p-2 border-b border-border/50">Per Well</th>
+                  <th className="text-left p-2 border-b border-border/50">Well Limit</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  ["Explorer", "$2,000", "$350", "Up to 10 wells/mo"],
+                  ["Professional", "$6,000", "$200", "Up to 50 wells/mo"],
+                  ["Enterprise", "$15,000", "$120", "Unlimited"],
+                ].map(([tier, base, per, limit]) => (
+                  <tr key={tier} className="border-b border-border/30 hover:bg-muted/10">
+                    <td className="p-2 font-semibold text-foreground">{tier}</td>
+                    <td className="p-2 text-primary font-mono">{base}</td>
+                    <td className="p-2 font-mono">{per}</td>
+                    <td className="p-2">{limit}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <h4 className="font-semibold text-foreground mb-2 mt-4">Revenue Projections (Conservative)</h4>
+          <div className="mt-2 p-4 rounded-lg bg-muted/20 border border-border/30 space-y-2">
+            {[
+              ["Year 1", "$0.6M ARR", "5 clients"],
+              ["Year 2", "$2.2M ARR", "15 clients"],
+              ["Year 3", "$5.8M ARR", "35 clients"],
+            ].map(([year, arr, clients]) => (
+              <div key={year} className="flex items-center justify-between text-xs">
+                <span className="text-foreground font-medium">{year}</span>
+                <span className="text-primary font-bold">{arr}</span>
+                <span className="text-muted-foreground">{clients}</span>
+              </div>
+            ))}
+            <div className="flex items-center justify-between text-xs pt-2 border-t border-border/30">
+              <span className="text-foreground font-medium">Gross Margin</span>
+              <span className="text-primary font-bold">~80%</span>
+              <span className="text-muted-foreground">SaaS industry standard</span>
+            </div>
+          </div>
+
+          <h4 className="font-semibold text-foreground mb-2 mt-4">Key Assumptions</h4>
+          <ul className="list-disc pl-5 space-y-1 text-xs">
+            <li>Avg. 20 wells/client/mo (Yr1) → 40 wells (Yr3)</li>
+            <li>Blended per-well rate ~$200</li>
+            <li>Annual churn &lt;10%</li>
+            <li>Excludes SPT hardware/service revenue stream</li>
+          </ul>
+
+          <div className="mt-4">
+            <Button variant="outline" size="sm" onClick={() => navigate("/dashboard/saas-business-model")} className="gap-2">
+              <DollarSign className="h-4 w-4" />
+              Open SaaS Business Model
+            </Button>
+          </div>
+        </Section>
+
+        {/* 11. File Structure */}
+        <Section icon={FileText} title="11. Key Directories">
           <pre className="bg-muted/30 rounded-lg p-4 text-xs font-mono whitespace-pre overflow-x-auto">
 {`src/
 ├── pages/                  # Application pages
@@ -372,7 +443,8 @@ const TechnicalSpec = () => {
 │       ├── MLTraining.tsx
 │       ├── GeophysicalExpertise.tsx
 │       ├── FieldScanning.tsx
-│       └── Reports.tsx
+│       ├── Reports.tsx
+│       └── SaaSBusinessModel.tsx
 ├── components/              # UI components
 │   ├── ui/                  # shadcn/ui
 │   ├── layout/              # DashboardLayout, Sidebar
@@ -398,8 +470,8 @@ supabase/
           </pre>
         </Section>
 
-        {/* 11. Deployment */}
-        <Section icon={Wrench} title="11. Deployment & Running">
+        {/* 12. Deployment */}
+        <Section icon={Wrench} title="12. Deployment & Running">
           <div className="space-y-2">
             <p><strong>Dev Server:</strong> <code className="text-primary">npm run dev</code> (Vite, port 8080)</p>
             <p><strong>Build:</strong> <code className="text-primary">npm run build</code></p>
