@@ -96,17 +96,17 @@ const SPTProjectionDemo = () => {
       if (error) throw error;
 
       if (!data || data.length === 0) {
-        toast.error("Нет скважин в базе данных. Сначала импортируйте данные в модуле Data Collection.");
+        toast.error("No wells in database. Import data via Data Collection module first.");
         return;
       }
 
       const transformed = data.map(transformDbWell);
       setWellsData(transformed);
       setDataSource("real");
-      toast.success(`Загружено ${transformed.length} реальных скважин из базы данных`);
+      toast.success(`Loaded ${transformed.length} real wells from database`);
     } catch (err) {
       console.error("Error loading wells:", err);
-      toast.error("Ошибка загрузки данных");
+      toast.error("Failed to load well data");
     } finally {
       setIsLoading(false);
     }
@@ -171,11 +171,11 @@ const SPTProjectionDemo = () => {
           {dataSource === "demo" ? (
             <Button onClick={loadRealData} disabled={isLoading} size="sm">
               {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Database className="mr-2 h-4 w-4" />}
-              Загрузить реальные данные
+              Load Real Data
             </Button>
           ) : (
             <Button onClick={switchToDemo} variant="outline" size="sm">
-              Демо-данные
+              Demo Data
             </Button>
           )}
         </div>
