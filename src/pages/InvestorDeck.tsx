@@ -772,7 +772,7 @@ const InvestorDeck = () => {
         </div>
         <div className="flex items-center justify-center gap-2">
           <Globe className="h-4 w-4 text-primary" />
-          <span>www.aismartwell.com · sgom.lovable.app</span>
+          <span>www.aismartwell.com</span>
         </div>
       </div>
       <div className="flex items-center gap-4 mt-8">
