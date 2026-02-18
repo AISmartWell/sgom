@@ -51,6 +51,10 @@ const SPTParametersDemo = () => {
   const totalSlots = slotsPerRow[0] * Math.floor((parseFloat(selectedWell.perforationZone.split("-")[1]) - parseFloat(selectedWell.perforationZone.split("-")[0])) / (rowSpacing[0] * 12));
   const openArea = totalSlots * (slotLength[0] / 25.4) * (slotWidth[0] / 25.4) / 144; // sq ft
   const flowCapacity = openArea * 42 * 24; // estimated bbl/day
+  const intervalLength = parseFloat(selectedWell.perforationZone.split("-")[1]) - parseFloat(selectedWell.perforationZone.split("-")[0]);
+  const cuttingTimeCased = Math.round(intervalLength * 50); // 50 min/ft in cased wells
+  const cuttingTimeOpen = Math.round(intervalLength * 30); // 30 min/ft in open holes
+  const inflowIncrease = Math.min(10, Math.max(5, Math.round(5 + (openArea / 2)))); // 5-10×
 
   const cuttingData = [
     { zone: "Upper", slots: Math.round(totalSlots * 0.25), depth: `${selectedWell.perforationZone.split("-")[0]}-${Math.round((parseFloat(selectedWell.perforationZone.split("-")[0]) + parseFloat(selectedWell.perforationZone.split("-")[1])) / 3)}` },
@@ -88,6 +92,7 @@ const SPTParametersDemo = () => {
     { name: "Manifold Unit", spec: "High/low pressure line distribution", status: "Ready", category: "Surface" },
     { name: "Frack-Van (Monitoring)", spec: "SPT process monitoring center", status: "Ready", category: "Surface" },
     { name: "Abrasive Filler", spec: "Sand abrasive material", status: "In Stock", category: "Surface" },
+    { name: "Frack-Pump Service", spec: "High-pressure pumping unit with crew", status: "Scheduled", category: "Surface" },
   ];
 
   return (
@@ -206,6 +211,9 @@ const SPTParametersDemo = () => {
                 <div className="mt-2 text-[10px] text-muted-foreground">
                   Total slots: <strong className="text-foreground">{totalSlots}</strong> | Open area: <strong className="text-foreground">{openArea.toFixed(2)} sq ft</strong> | Est. flow: <strong className="text-primary">{flowCapacity.toFixed(0)} bbl/day</strong>
                 </div>
+                <div className="mt-1 text-[10px] text-muted-foreground">
+                  Cutting speed: <strong className="text-foreground">{cuttingTimeCased} min</strong> (cased) / <strong className="text-foreground">{cuttingTimeOpen} min</strong> (open hole) | Inflow increase: <strong className="text-primary">{inflowIncrease}×</strong>
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -301,7 +309,7 @@ const SPTParametersDemo = () => {
                     <span className="text-muted-foreground">Slots per Row</span>
                     <span className="font-mono font-medium">{slotsPerRow[0]}</span>
                   </div>
-                  <Slider value={slotsPerRow} onValueChange={setSlotsPerRow} min={2} max={8} step={1} />
+                  <Slider value={slotsPerRow} onValueChange={setSlotsPerRow} min={2} max={4} step={1} />
                 </div>
                 <div>
                   <div className="flex justify-between text-xs mb-1">
@@ -364,10 +372,12 @@ const SPTParametersDemo = () => {
    Total open area: ${openArea.toFixed(2)} sq ft
 
 4. ESTIMATED PERFORMANCE
-   Max slot depth:  up to 5.0 ft (1.5 m)
-   Drainage area:   up to 25 sq ft / linear ft
-   Flow capacity:   ${flowCapacity.toFixed(0)} bbl/day
-   Coverage ratio:  ${((totalSlots * slotLength[0]) / (parseFloat(selectedWell.perforationZone.split("-")[1]) - parseFloat(selectedWell.perforationZone.split("-")[0])) / 25.4 * 100).toFixed(1)}%
+    Max slot depth:  up to 5.0 ft (1.5 m)
+    Drainage area:   up to 25 sq ft / linear ft
+    Cutting speed:   ${cuttingTimeCased} min (cased) / ${cuttingTimeOpen} min (open hole)
+    Inflow increase: ${inflowIncrease}× (based on open area)
+    Flow capacity:   ${flowCapacity.toFixed(0)} bbl/day
+    Coverage ratio:  ${((totalSlots * slotLength[0]) / (parseFloat(selectedWell.perforationZone.split("-")[1]) - parseFloat(selectedWell.perforationZone.split("-")[0])) / 25.4 * 100).toFixed(1)}%
 
 5. SPT TOOL (Patent US 8863823)
 ${sptToolComponents.map(e => `   • ${e.name}: ${e.spec}`).join("\n")}
