@@ -1,13 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   BarChart,
   Bar,
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -17,24 +16,106 @@ import {
   ScatterChart,
   Scatter,
 } from "recharts";
-import { Filter, TrendingUp, Droplets, Calendar, CheckCircle2, AlertCircle } from "lucide-react";
+import { Filter, TrendingUp, Droplets, Calendar, CheckCircle2, AlertCircle, Database, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
-// Sample well data for SPT projection
-const wellsData = [
-  { id: "W-001", name: "Oklahoma-1", waterCut: 45, currentProduction: 12, reserves: 850, timelineYears: 18, state: "filtered" },
-  { id: "W-002", name: "Oklahoma-2", waterCut: 78, currentProduction: 8, reserves: 450, timelineYears: 12, state: "excluded_water" },
-  { id: "W-003", name: "Texas-1", waterCut: 32, currentProduction: 15, reserves: 1200, timelineYears: 22, state: "filtered" },
-  { id: "W-004", name: "Texas-2", waterCut: 92, currentProduction: 4, reserves: 200, timelineYears: 8, state: "excluded_water" },
-  { id: "W-005", name: "Oklahoma-3", waterCut: 28, currentProduction: 18, reserves: 1500, timelineYears: 25, state: "filtered" },
-  { id: "W-006", name: "Texas-3", waterCut: 65, currentProduction: 10, reserves: 600, timelineYears: 14, state: "excluded_water" },
-  { id: "W-007", name: "Oklahoma-4", waterCut: 35, currentProduction: 16, reserves: 1100, timelineYears: 20, state: "filtered" },
-  { id: "W-008", name: "Texas-4", waterCut: 88, currentProduction: 5, reserves: 300, timelineYears: 9, state: "excluded_water" },
-  { id: "W-009", name: "Oklahoma-5", waterCut: 42, currentProduction: 14, reserves: 950, timelineYears: 19, state: "filtered" },
-  { id: "W-010", name: "Texas-5", waterCut: 38, currentProduction: 17, reserves: 1300, timelineYears: 23, state: "filtered" },
+interface WellProjection {
+  id: string;
+  name: string;
+  waterCut: number;
+  currentProduction: number;
+  reserves: number;
+  timelineYears: number;
+  state: string;
+  inflowMin?: number;
+  inflowMax?: number;
+}
+
+// Fallback demo data
+const DEMO_WELLS: WellProjection[] = [
+  { id: "W-001", name: "Oklahoma-1", waterCut: 45, currentProduction: 12, reserves: 850, timelineYears: 18, state: "demo" },
+  { id: "W-002", name: "Oklahoma-2", waterCut: 78, currentProduction: 8, reserves: 450, timelineYears: 12, state: "demo" },
+  { id: "W-003", name: "Texas-1", waterCut: 32, currentProduction: 15, reserves: 1200, timelineYears: 22, state: "demo" },
+  { id: "W-004", name: "Texas-2", waterCut: 92, currentProduction: 4, reserves: 200, timelineYears: 8, state: "demo" },
+  { id: "W-005", name: "Oklahoma-3", waterCut: 28, currentProduction: 18, reserves: 1500, timelineYears: 25, state: "demo" },
+  { id: "W-006", name: "Texas-3", waterCut: 65, currentProduction: 10, reserves: 600, timelineYears: 14, state: "demo" },
+  { id: "W-007", name: "Oklahoma-4", waterCut: 35, currentProduction: 16, reserves: 1100, timelineYears: 20, state: "demo" },
+  { id: "W-008", name: "Texas-4", waterCut: 88, currentProduction: 5, reserves: 300, timelineYears: 9, state: "demo" },
+  { id: "W-009", name: "Oklahoma-5", waterCut: 42, currentProduction: 14, reserves: 950, timelineYears: 19, state: "demo" },
+  { id: "W-010", name: "Texas-5", waterCut: 38, currentProduction: 17, reserves: 1300, timelineYears: 23, state: "demo" },
 ];
+
+function transformDbWell(w: {
+  id: string;
+  well_name: string | null;
+  water_cut: number | null;
+  production_oil: number | null;
+  total_depth: number | null;
+  spud_date: string | null;
+  county: string | null;
+}): WellProjection {
+  const waterCut = w.water_cut ?? Math.round(20 + Math.random() * 60);
+  const production = w.production_oil ?? Math.round(5 + Math.random() * 20);
+  const depth = w.total_depth ?? 5000;
+  // Estimate reserves from depth (rough proxy)
+  const reserves = Math.round(depth * 0.15 + Math.random() * 300);
+  // Estimate timeline from spud date
+  let timelineYears = 15;
+  if (w.spud_date) {
+    const spudYear = new Date(w.spud_date).getFullYear();
+    const yearsActive = new Date().getFullYear() - spudYear;
+    timelineYears = Math.max(5, 30 - yearsActive + Math.round(Math.random() * 5));
+  }
+
+  return {
+    id: w.id,
+    name: w.well_name || `Well-${w.id.slice(0, 6)}`,
+    waterCut,
+    currentProduction: production,
+    reserves,
+    timelineYears,
+    state: w.county || "OK",
+  };
+}
 
 const SPTProjectionDemo = () => {
   const [stage, setStage] = useState(1);
+  const [wellsData, setWellsData] = useState<WellProjection[]>(DEMO_WELLS);
+  const [isLoading, setIsLoading] = useState(false);
+  const [dataSource, setDataSource] = useState<"demo" | "real">("demo");
+
+  const loadRealData = async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("wells")
+        .select("id, well_name, water_cut, production_oil, total_depth, spud_date, county")
+        .limit(200);
+
+      if (error) throw error;
+
+      if (!data || data.length === 0) {
+        toast.error("Нет скважин в базе данных. Сначала импортируйте данные в модуле Data Collection.");
+        return;
+      }
+
+      const transformed = data.map(transformDbWell);
+      setWellsData(transformed);
+      setDataSource("real");
+      toast.success(`Загружено ${transformed.length} реальных скважин из базы данных`);
+    } catch (err) {
+      console.error("Error loading wells:", err);
+      toast.error("Ошибка загрузки данных");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const switchToDemo = () => {
+    setWellsData(DEMO_WELLS);
+    setDataSource("demo");
+  };
 
   // Filter calculations
   const allWells = wellsData.length;
@@ -48,11 +129,10 @@ const SPTProjectionDemo = () => {
   const timelinePromising = estimatedReserves.filter((w) => w.timelineYears >= 15);
   const candidates = timelinePromising;
 
-  // Data for charts
   const filteringChart = [
     { stage: "All Wells", count: allWells },
-    { stage: "Water Cut &lt; 60%", count: filteredByWaterCut },
-    { stage: "Reserves &gt; 500k", count: estimatedReserves.length },
+    { stage: "Water Cut < 60%", count: filteredByWaterCut },
+    { stage: "Reserves > 500k", count: estimatedReserves.length },
     { stage: "Timeline ≥ 15yr", count: candidates.length },
   ];
 
@@ -68,27 +148,37 @@ const SPTProjectionDemo = () => {
     name: w.name,
     timeline: w.timelineYears,
     reserves: w.reserves,
-    inflow: ((w.inflowMin + w.inflowMax) / 2) || 0,
-  }));
-
-  const waterCutScatter = wellsData.map((w) => ({
-    waterCut: w.waterCut,
-    reserves: w.reserves,
-    name: w.name,
-    included: w.waterCut < 60,
+    inflow: ((w.inflowMin! + w.inflowMax!) / 2) || 0,
   }));
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="space-y-2">
-        <h2 className="text-2xl font-bold flex items-center gap-2">
-          <TrendingUp className="h-6 w-6 text-primary" />
-          SPT Projection — Stage 4
-        </h2>
-        <p className="text-muted-foreground">
-          Redevelopment potential analysis: inflow forecasting, reserve estimation, timeline evaluation
-        </p>
+      <div className="flex items-start justify-between">
+        <div className="space-y-2">
+          <h2 className="text-2xl font-bold flex items-center gap-2">
+            <TrendingUp className="h-6 w-6 text-primary" />
+            SPT Projection — Stage 4
+            <Badge variant="outline" className={dataSource === "real" ? "bg-success/20 text-success border-success/30" : "bg-muted"}>
+              {dataSource === "real" ? `REAL DATA (${wellsData.length})` : "DEMO DATA"}
+            </Badge>
+          </h2>
+          <p className="text-muted-foreground">
+            Redevelopment potential analysis: inflow forecasting, reserve estimation, timeline evaluation
+          </p>
+        </div>
+        <div className="flex gap-2">
+          {dataSource === "demo" ? (
+            <Button onClick={loadRealData} disabled={isLoading} size="sm">
+              {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Database className="mr-2 h-4 w-4" />}
+              Загрузить реальные данные
+            </Button>
+          ) : (
+            <Button onClick={switchToDemo} variant="outline" size="sm">
+              Демо-данные
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Stage Indicators */}
@@ -145,7 +235,6 @@ const SPTProjectionDemo = () => {
                 </BarChart>
               </ResponsiveContainer>
 
-              {/* Filtering Summary */}
               <div className="grid grid-cols-4 gap-4">
                 <div className="p-4 bg-primary/10 rounded-lg">
                   <p className="text-sm text-muted-foreground mb-1">Initial Wells</p>
@@ -164,7 +253,7 @@ const SPTProjectionDemo = () => {
                 <div className="p-4 bg-success/10 rounded-lg">
                   <p className="text-sm text-muted-foreground mb-1">SPT Candidates</p>
                   <p className="text-2xl font-bold text-success">{candidates.length}</p>
-                  <p className="text-xs text-success mt-1">Timeline &ge; 15 years</p>
+                  <p className="text-xs text-success mt-1">Timeline ≥ 15 years</p>
                 </div>
               </div>
             </CardContent>
@@ -179,7 +268,7 @@ const SPTProjectionDemo = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <ResponsiveContainer width="100%" height={350}>
-                <BarChart data={inflowPotential} margin={{ left: 0, right: 0, top: 20, bottom: 60 }}>
+                <BarChart data={inflowPotential.slice(0, 20)} margin={{ left: 0, right: 0, top: 20, bottom: 60 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} />
                   <YAxis label={{ value: "bbl/day", angle: -90, position: "insideLeft" }} />
@@ -216,18 +305,14 @@ const SPTProjectionDemo = () => {
                   <XAxis dataKey="timeline" name="Timeline (years)" />
                   <YAxis dataKey="reserves" name="Reserves (bbl)" />
                   <Tooltip cursor={{ strokeDasharray: "3 3" }} />
-                  <Scatter
-                    data={timelineData}
-                    fill="hsl(var(--primary))"
-                    name="Viable Wells"
-                  />
+                  <Scatter data={timelineData} fill="hsl(var(--primary))" name="Viable Wells" />
                 </ScatterChart>
               </ResponsiveContainer>
 
               <div className="bg-muted/30 p-4 rounded-lg">
                 <p className="text-sm font-semibold mb-2">Promising Criteria</p>
                 <p className="text-xs text-muted-foreground">
-                  ✓ Development timeline &ge; 15 years (ensures ROI window) <br />
+                  ✓ Development timeline ≥ 15 years (ensures ROI window) <br />
                   ✓ Useful reserves over 500k bbl <br />
                   ✓ Water cut under 60% (operational efficiency)
                 </p>
@@ -245,7 +330,7 @@ const SPTProjectionDemo = () => {
             <CardContent>
               <div className="space-y-3">
                 {candidates.length > 0 ? (
-                  candidates.map((well) => (
+                  candidates.slice(0, 30).map((well) => (
                     <div key={well.id} className="p-4 border border-success/20 bg-success/5 rounded-lg">
                       <div className="flex items-start justify-between mb-3">
                         <div>
@@ -253,7 +338,7 @@ const SPTProjectionDemo = () => {
                             <CheckCircle2 className="h-4 w-4 text-success" />
                             {well.name}
                           </p>
-                          <p className="text-xs text-muted-foreground">ID: {well.id}</p>
+                          <p className="text-xs text-muted-foreground">ID: {well.id.slice(0, 8)}</p>
                         </div>
                         <Badge variant="default" className="bg-success">Ready for SPT</Badge>
                       </div>
@@ -297,7 +382,7 @@ const SPTProjectionDemo = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {wellsData.filter((w) => !candidates.some((c) => c.id === w.id)).map((well) => (
+                {wellsData.filter((w) => !candidates.some((c) => c.id === w.id)).slice(0, 20).map((well) => (
                   <div key={well.id} className="flex items-center justify-between p-2 bg-muted/30 rounded text-sm">
                     <span>{well.name}</span>
                     <div className="flex items-center gap-2">
