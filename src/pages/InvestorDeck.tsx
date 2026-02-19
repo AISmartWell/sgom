@@ -103,7 +103,7 @@ const InvestorDeck = () => {
 
   const slides = [
     // ===== SLIDE 1 — Cover =====
-    <div key="cover" className={`${slideClass} items-center text-center bg-gradient-to-br from-primary/10 via-background to-accent/5`}>
+    <div key="cover" className={`${slideClass} items-center text-center bg-white`}>
       <div className="h-16 w-16 rounded-2xl bg-primary/20 flex items-center justify-center mb-6">
         <Droplets className="h-9 w-9 text-primary" />
       </div>
@@ -134,7 +134,7 @@ const InvestorDeck = () => {
     </div>,
 
     // ===== SLIDE 2 — The Problem =====
-    <div key="problem" className={`${slideClass} bg-gradient-to-br from-accent/5 via-background to-background`}>
+    <div key="problem" className={`${slideClass} bg-background`}>
       <div className="flex items-center gap-3 mb-8">
         <AlertTriangle className="h-8 w-8 text-accent" />
         <h2 className="text-3xl md:text-4xl font-bold">The Problem</h2>
@@ -160,7 +160,7 @@ const InvestorDeck = () => {
     </div>,
 
     // ===== SLIDE 3 — Solution =====
-    <div key="solution" className={`${slideClass} bg-gradient-to-br from-primary/5 via-background to-background`}>
+    <div key="solution" className={`${slideClass} bg-background`}>
       <div className="flex items-center gap-3 mb-6">
         <Lightbulb className="h-8 w-8 text-primary" />
         <h2 className="text-3xl md:text-4xl font-bold">Our Solution: AI SGOM</h2>
@@ -268,7 +268,7 @@ const InvestorDeck = () => {
     </div>,
 
     // ===== SLIDE 6 — Patented Technology =====
-    <div key="patent" className={`${slideClass} bg-gradient-to-br from-success/5 via-background to-background`}>
+    <div key="patent" className={`${slideClass} bg-background`}>
       <div className="flex items-center gap-3 mb-6">
         <Shield className="h-8 w-8 text-success" />
         <h2 className="text-3xl md:text-4xl font-bold">Patented SPT Technology</h2>
@@ -308,7 +308,7 @@ const InvestorDeck = () => {
     </div>,
 
     // ===== SLIDE 7 — Two Revenue Streams =====
-    <div key="revenue-streams" className={`${slideClass} bg-gradient-to-br from-primary/5 via-background to-background`}>
+    <div key="revenue-streams" className={`${slideClass} bg-background`}>
       <div className="flex items-center gap-3 mb-6">
         <DollarSign className="h-8 w-8 text-success" />
         <h2 className="text-3xl md:text-4xl font-bold">Two Revenue Streams</h2>
@@ -416,7 +416,7 @@ const InvestorDeck = () => {
     </div>,
 
     // ===== SLIDE 10 — IoT Strategy =====
-    <div key="iot" className={`${slideClass} bg-gradient-to-br from-primary/5 via-background to-background`}>
+    <div key="iot" className={`${slideClass} bg-background`}>
       <div className="flex items-center gap-3 mb-6">
         <Wifi className="h-8 w-8 text-primary" />
         <h2 className="text-3xl md:text-4xl font-bold">IoT Strategy</h2>
@@ -455,7 +455,7 @@ const InvestorDeck = () => {
     </div>,
 
     // ===== SLIDE 11 — IoT Pricing =====
-    <div key="iot-pricing" className={`${slideClass} bg-gradient-to-br from-primary/5 via-background to-background`}>
+    <div key="iot-pricing" className={`${slideClass} bg-background`}>
       <div className="flex items-center gap-3 mb-6">
         <DollarSign className="h-8 w-8 text-primary" />
         <h2 className="text-3xl md:text-4xl font-bold">IoT Pricing</h2>
@@ -516,7 +516,7 @@ const InvestorDeck = () => {
     </div>,
 
     // ===== SLIDE 12 — Target Market =====
-    <div key="market" className={`${slideClass} bg-gradient-to-br from-primary/5 via-background to-background`}>
+    <div key="market" className={`${slideClass} bg-background`}>
       <div className="flex items-center gap-3 mb-8">
         <Globe className="h-8 w-8 text-primary" />
         <h2 className="text-3xl md:text-4xl font-bold">Target Market</h2>
@@ -612,7 +612,7 @@ const InvestorDeck = () => {
     </div>,
 
     // ===== SLIDE 14 — Go-to-Market Strategy =====
-    <div key="gtm" className={`${slideClass} bg-gradient-to-br from-success/5 via-background to-background`}>
+    <div key="gtm" className={`${slideClass} bg-background`}>
       <div className="flex items-center gap-3 mb-5">
         <TrendingUp className="h-8 w-8 text-success" />
         <h2 className="text-3xl md:text-4xl font-bold">Go-to-Market Strategy</h2>
@@ -663,7 +663,7 @@ const InvestorDeck = () => {
     </div>,
 
     // ===== SLIDE 15 — Investment Budget =====
-    <div key="budget" className={`${slideClass} bg-gradient-to-br from-primary/10 via-background to-accent/5`}>
+    <div key="budget" className={`${slideClass} bg-background`}>
       <div className="flex items-center gap-3 mb-6">
         <DollarSign className="h-8 w-8 text-primary" />
         <h2 className="text-3xl md:text-4xl font-bold">Investment Budget: $2,387,840</h2>
@@ -784,7 +784,7 @@ const InvestorDeck = () => {
     </div>,
 
     // ===== SLIDE 18 — Contact =====
-    <div key="contact" className={`${slideClass} items-center text-center bg-gradient-to-br from-primary/10 via-background to-success/5`}>
+    <div key="contact" className={`${slideClass} items-center text-center bg-background`}>
       <div className="h-16 w-16 rounded-2xl bg-primary/20 flex items-center justify-center mb-6">
         <Droplets className="h-9 w-9 text-primary" />
       </div>
@@ -822,7 +822,7 @@ const InvestorDeck = () => {
   return (
     <div
       ref={deckRef}
-      className="min-h-screen bg-background text-foreground outline-none print:bg-white print:text-black"
+      className="deck-light min-h-screen bg-background text-foreground outline-none print:bg-white print:text-black"
       tabIndex={0}
       onKeyDown={handleKeyDown}
     >
