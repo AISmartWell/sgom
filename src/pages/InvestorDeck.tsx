@@ -53,15 +53,36 @@ const InvestorDeck = () => {
     }, 10);
   };
 
-  const next = () => animateSlide(Math.min(current + 1, TOTAL_SLIDES - 1), "next");
-  const prev = () => animateSlide(Math.max(current - 1, 0), "prev");
+  const next = useCallback(() => {
+    setCurrent(c => {
+      const newSlide = Math.min(c + 1, TOTAL_SLIDES - 1);
+      if (newSlide !== c) {
+        setDirection("next");
+        setAnimating(true);
+        setTimeout(() => setAnimating(false), 400);
+      }
+      return newSlide;
+    });
+  }, []);
+
+  const prev = useCallback(() => {
+    setCurrent(c => {
+      const newSlide = Math.max(c - 1, 0);
+      if (newSlide !== c) {
+        setDirection("prev");
+        setAnimating(true);
+        setTimeout(() => setAnimating(false), 400);
+      }
+      return newSlide;
+    });
+  }, []);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       if (e.key === "ArrowRight" || e.key === " ") next();
       if (e.key === "ArrowLeft") prev();
     },
-    []
+    [next, prev]
   );
 
   const handleExportPDF = async () => {
