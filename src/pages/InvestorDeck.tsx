@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 import { Button } from "@/components/ui/button";
@@ -39,10 +39,22 @@ const InvestorDeck = () => {
   const navigate = useNavigate();
   const [current, setCurrent] = useState(0);
   const [exporting, setExporting] = useState(false);
+  const [direction, setDirection] = useState<"next" | "prev">("next");
+  const [animating, setAnimating] = useState(false);
   const deckRef = useRef<HTMLDivElement>(null);
 
-  const next = () => setCurrent((p) => Math.min(p + 1, TOTAL_SLIDES - 1));
-  const prev = () => setCurrent((p) => Math.max(p - 1, 0));
+  const animateSlide = (newSlide: number, dir: "next" | "prev") => {
+    if (animating || newSlide === current) return;
+    setDirection(dir);
+    setAnimating(true);
+    setTimeout(() => {
+      setCurrent(newSlide);
+      setTimeout(() => setAnimating(false), 400);
+    }, 10);
+  };
+
+  const next = () => animateSlide(Math.min(current + 1, TOTAL_SLIDES - 1), "next");
+  const prev = () => animateSlide(Math.max(current - 1, 0), "prev");
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -833,29 +845,51 @@ const InvestorDeck = () => {
         </div>
       </div>
 
+      {/* Progress bar */}
+      <div className="fixed top-[49px] left-0 right-0 z-40 h-0.5 bg-muted/30 print:hidden">
+        <div
+          className="h-full bg-primary transition-all duration-500 ease-out"
+          style={{ width: `${((current + 1) / TOTAL_SLIDES) * 100}%` }}
+        />
+      </div>
+
       {/* Slide container */}
       <div className="pt-12 print:pt-0">
         <div className="slide-render-area relative w-full max-w-5xl mx-auto aspect-[16/9] overflow-hidden rounded-xl border border-border print:border-none print:max-w-none print:rounded-none">
-          {slides[current]}
+          <div
+            key={current}
+            className={`absolute inset-0 ${
+              animating
+                ? direction === "next"
+                  ? "animate-slide-in-from-right"
+                  : "animate-slide-in-from-left"
+                : ""
+            }`}
+            style={{ animation: animating ? undefined : "none" }}
+          >
+            {slides[current]}
+          </div>
         </div>
 
         {/* Navigation */}
         <div className="flex items-center justify-center gap-4 mt-6 pb-8 print:hidden">
-          <Button variant="outline" size="sm" onClick={prev} disabled={current === 0}>
+          <Button variant="outline" size="sm" onClick={prev} disabled={current === 0 || animating} className="transition-transform hover:scale-105">
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <div className="flex gap-1">
             {Array.from({ length: TOTAL_SLIDES }).map((_, i) => (
               <button
                 key={i}
-                onClick={() => setCurrent(i)}
-                className={`h-2 rounded-full transition-all ${
+                onClick={() => {
+                  if (i !== current) animateSlide(i, i > current ? "next" : "prev");
+                }}
+                className={`h-2 rounded-full transition-all duration-300 ${
                   i === current ? "w-6 bg-primary" : "w-2 bg-muted-foreground/30 hover:bg-muted-foreground/50"
                 }`}
               />
             ))}
           </div>
-          <Button variant="outline" size="sm" onClick={next} disabled={current === TOTAL_SLIDES - 1}>
+          <Button variant="outline" size="sm" onClick={next} disabled={current === TOTAL_SLIDES - 1 || animating} className="transition-transform hover:scale-105">
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
