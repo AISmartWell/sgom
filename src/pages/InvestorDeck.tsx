@@ -599,30 +599,54 @@ const InvestorDeck = () => {
       </p>
     </div>,
 
-    // ===== SLIDE 14 — Go-to-Market =====
+    // ===== SLIDE 14 — Go-to-Market Strategy =====
     <div key="gtm" className={`${slideClass} bg-gradient-to-br from-success/5 via-background to-background`}>
-      <div className="flex items-center gap-3 mb-8">
+      <div className="flex items-center gap-3 mb-5">
         <TrendingUp className="h-8 w-8 text-success" />
         <h2 className="text-3xl md:text-4xl font-bold">Go-to-Market Strategy</h2>
       </div>
-      <div className="space-y-6">
+
+      {/* Target Segments */}
+      <div className="grid md:grid-cols-3 gap-3 mb-5">
         {[
-          { phase: "Phase 1 — Now", title: "MVP & Validation", items: ["Live platform demo", "NVIDIA Inception membership", "Target: Diversified Energy pilot"] },
-          { phase: "Phase 2 — 6 months", title: "Pilot Deployments", items: ["500 wells analyzed → 4 restored", "Validate ROI on real marginal wells", "Iterate product based on field data"] },
-          { phase: "Phase 3 — 12 months", title: "Scale & IoT", items: ["Launch SaaS subscription + IoT sensors", "Expand to Permian & Bakken basins", "Partner with field service companies"] },
-        ].map((p) => (
-          <div key={p.phase} className="flex gap-4 items-start">
-            <Badge variant="outline" className="shrink-0 mt-1 text-xs">{p.phase}</Badge>
-            <div>
-              <h3 className="font-semibold">{p.title}</h3>
-              <div className="flex flex-wrap gap-2 mt-1">
-                {p.items.map((i) => (
-                  <span key={i} className="text-xs text-muted-foreground bg-muted/50 rounded-full px-3 py-1">{i}</span>
-                ))}
-              </div>
-            </div>
+          { segment: "Independent Operators", size: "1–50 wells", pain: "Can't afford $12K/well analysis", approach: "Direct sales, industry events", color: "text-primary", bg: "bg-primary/10", border: "border-primary/20" },
+          { segment: "PE & Acquisition Funds", size: "100–1,000+ wells", pain: "Need fast portfolio screening", approach: "NVIDIA Capital Connect, referrals", color: "text-success", bg: "bg-success/10", border: "border-success/20" },
+          { segment: "Service Companies", size: "Multi-basin ops", pain: "No AI tools for well selection", approach: "White-label / API partnerships", color: "text-accent", bg: "bg-accent/10", border: "border-accent/20" },
+        ].map((s) => (
+          <div key={s.segment} className={`p-3 rounded-xl ${s.bg} border ${s.border}`}>
+            <h3 className={`font-semibold text-sm ${s.color} mb-1`}>{s.segment}</h3>
+            <p className="text-xs text-muted-foreground mb-2">{s.size}</p>
+            <p className="text-xs mb-1"><span className="font-medium text-foreground">Pain:</span> <span className="text-muted-foreground">{s.pain}</span></p>
+            <p className="text-xs"><span className="font-medium text-foreground">Channel:</span> <span className="text-muted-foreground">{s.approach}</span></p>
           </div>
         ))}
+      </div>
+
+      {/* GTM Timeline */}
+      <div className="grid md:grid-cols-3 gap-3 mb-4">
+        {[
+          { phase: "Phase 1 · Now", title: "Validate", items: ["Live MVP demo", "NVIDIA Inception network", "First pilot: Diversified Energy"], kpi: "1 signed LOI", color: "primary" },
+          { phase: "Phase 2 · 6 mo", title: "Prove Unit Economics", items: ["500 wells → 4 restored", "Validate ROI on marginal wells", "Build case studies"], kpi: "$1M ARR pipeline", color: "accent" },
+          { phase: "Phase 3 · 12 mo", title: "Scale", items: ["SaaS launch + IoT sensors", "Permian & Bakken expansion", "Field service partnerships"], kpi: "10+ paying clients", color: "success" },
+        ].map((p) => (
+          <div key={p.phase} className={`p-3 rounded-xl bg-${p.color}/10 border border-${p.color}/20`}>
+            <Badge variant="outline" className="mb-2 text-xs">{p.phase}</Badge>
+            <h3 className="font-semibold text-sm mb-2">{p.title}</h3>
+            <ul className="space-y-1 text-xs text-muted-foreground mb-2">
+              {p.items.map((i) => <li key={i} className="flex items-center gap-1"><CheckCircle2 className="h-3 w-3 text-success shrink-0" />{i}</li>)}
+            </ul>
+            <p className={`text-xs font-semibold text-${p.color}`}>KPI: {p.kpi}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Sales channels summary */}
+      <div className="p-3 rounded-xl bg-muted/30 border border-border">
+        <div className="flex flex-wrap gap-4 text-xs">
+          <span><strong className="text-foreground">Primary:</strong> <span className="text-muted-foreground">NVIDIA Capital Connect · Direct outreach · Industry conferences (SPE, NAPE)</span></span>
+          <span><strong className="text-foreground">Digital:</strong> <span className="text-muted-foreground">LinkedIn B2B · Technical content · Case studies</span></span>
+          <span><strong className="text-foreground">Partnerships:</strong> <span className="text-muted-foreground">Maxxwell Production · Field service companies · Well acquisition brokers</span></span>
+        </div>
       </div>
     </div>,
 
