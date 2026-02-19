@@ -215,3 +215,34 @@
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(220, 15%, 35%);
 }
+
+/* Slide transition animations */
+@keyframes slide-in-from-right {
+  0% {
+    opacity: 0;
+    transform: translateX(60px) scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes slide-in-from-left {
+  0% {
+    opacity: 0;
+    transform: translateX(-60px) scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+.animate-slide-in-from-right {
+  animation: slide-in-from-right 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slide-in-from-left {
+  animation: slide-in-from-left 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
