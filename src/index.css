@@ -247,30 +247,3 @@
   animation: slide-in-from-left 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Investor Deck — Light minimalist theme override */
-.deck-light {
-  --background: 0 0% 100%;
-  --foreground: 220 15% 15%;
-  --card: 220 10% 97%;
-  --card-foreground: 220 15% 15%;
-  --muted: 220 10% 94%;
-  --muted-foreground: 220 10% 45%;
-  --border: 220 10% 88%;
-  --primary: 215 90% 42%;
-  --primary-foreground: 0 0% 100%;
-  --accent: 25 90% 50%;
-  --accent-foreground: 0 0% 100%;
-  --success: 160 65% 38%;
-  --warning: 38 90% 50%;
-  --destructive: 0 72% 51%;
-  color: hsl(220, 15%, 15%);
-  background: hsl(0, 0%, 100%);
-}
-
-.deck-light .bg-gradient-to-br {
-  background-image: none !important;
-}
-
-.deck-light [class*="bg-gradient"] {
-  background-image: none !important;
-}

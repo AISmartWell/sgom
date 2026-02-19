@@ -103,7 +103,7 @@ const InvestorDeck = () => {
 
   const slides = [
     // ===== SLIDE 1 — Cover =====
-    <div key="cover" className={`${slideClass} items-center text-center bg-white`}>
+    <div key="cover" className={`${slideClass} items-center text-center bg-background`}>
       <div className="h-16 w-16 rounded-2xl bg-primary/20 flex items-center justify-center mb-6">
         <Droplets className="h-9 w-9 text-primary" />
       </div>
@@ -822,7 +822,7 @@ const InvestorDeck = () => {
   return (
     <div
       ref={deckRef}
-      className="deck-light min-h-screen bg-background text-foreground outline-none print:bg-white print:text-black"
+      className="min-h-screen bg-background text-foreground outline-none print:bg-white print:text-black"
       tabIndex={0}
       onKeyDown={handleKeyDown}
     >
