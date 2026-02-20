@@ -28,6 +28,7 @@ import CumulativeAnalysis from "./pages/modules/CumulativeAnalysis";
 import MultiTenantDemo from "./pages/modules/MultiTenantDemo";
 import TelemetryArchitecture from "./pages/modules/TelemetryArchitecture";
 import SaaSBusinessModel from "./pages/modules/SaaSBusinessModel";
+import Architecture from "./pages/modules/Architecture";
 import NvidiaInception from "./pages/NvidiaInception";
 import AWSActivate from "./pages/AWSActivate";
 import InvestorDeck from "./pages/InvestorDeck";
@@ -69,6 +70,7 @@ const App = () => (
              <Route path="cumulative-analysis" element={<CumulativeAnalysis />} />
              <Route path="multi-tenant" element={<MultiTenantDemo />} />
              <Route path="saas-business-model" element={<SaaSBusinessModel />} />
+             <Route path="architecture" element={<Architecture />} />
           </Route>
            <Route path="/nvidia-inception" element={<NvidiaInception />} />
            <Route path="/aws-activate" element={<AWSActivate />} />

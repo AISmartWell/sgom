@@ -29,6 +29,7 @@ import {
   Settings,
   Building2,
   Presentation,
+  Layers,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -163,6 +164,12 @@ const menuItems = [
       icon: Presentation,
       href: "/dashboard/saas-business-model",
       badge: "💼",
+    },
+   {
+      title: "Architecture",
+      icon: Layers,
+      href: "/dashboard/architecture",
+      badge: "🏗️",
     },
    {
       title: "Investor Deck",
