@@ -36,14 +36,14 @@ const layers: { label: string; color: string; nodes: ArchNode[] }[] = [
         icon: Monitor,
         color: "primary",
         techs: ["React 18", "TypeScript", "Vite"],
-        description: "SPA с модульной архитектурой. Каждый модуль платформы — отдельная страница с lazy-компонентами.",
+        description: "Modular SPA architecture. Each platform module is a separate page with lazy-loaded components.",
         details: [
-          "React Router v6 — вложенный routing внутри DashboardLayout",
-          "TanStack React Query — кэширование, refetch, optimistic updates",
-          "shadcn/ui + Tailwind CSS — дизайн-система с семантическими токенами",
-          "Leaflet — интерактивные карты скважин (15,000+ маркеров)",
-          "Three.js (@react-three/fiber) — 3D геологические модели",
-          "Recharts — графики продакшн-данных, финансовые прогнозы",
+          "React Router v6 — nested routing inside DashboardLayout",
+          "TanStack React Query — caching, refetch, optimistic updates",
+          "shadcn/ui + Tailwind CSS — design system with semantic tokens",
+          "Leaflet — interactive well maps (15,000+ markers)",
+          "Three.js (@react-three/fiber) — 3D geological models",
+          "Recharts — production data charts, financial forecasts",
         ],
       },
     ],
@@ -58,12 +58,12 @@ const layers: { label: string; color: string; nodes: ArchNode[] }[] = [
         icon: Database,
         color: "accent",
         techs: ["PostgreSQL 15", "RLS", "Realtime"],
-        description: "Основное хранилище данных с Row Level Security для мультиарендности.",
+        description: "Primary data store with Row Level Security for multi-tenancy.",
         details: [
-          "Таблицы: companies, user_companies, wells",
-          "RLS-политики изолируют данные по company_id",
-          "Realtime-подписки для мониторинга скважин",
-          "Масштабирование: до 100K+ записей с индексами",
+          "Tables: companies, user_companies, wells",
+          "RLS policies isolate data by company_id",
+          "Realtime subscriptions for well monitoring",
+          "Scalable to 100K+ records with indexes",
         ],
       },
       {
@@ -72,12 +72,12 @@ const layers: { label: string; color: string; nodes: ArchNode[] }[] = [
         icon: Shield,
         color: "accent",
         techs: ["JWT", "Email/Password", "OAuth"],
-        description: "Аутентификация и авторизация пользователей с привязкой к компаниям.",
+        description: "User authentication and authorization linked to company accounts.",
         details: [
-          "JWT-токены с автообновлением",
-          "Связка user → company через user_companies",
-          "Защита маршрутов на уровне DashboardLayout",
-          "Поддержка ролей (owner, engineer, viewer)",
+          "JWT tokens with auto-refresh",
+          "User → Company mapping via user_companies",
+          "Route protection at DashboardLayout level",
+          "Role support (owner, engineer, viewer)",
         ],
       },
       {
@@ -86,12 +86,12 @@ const layers: { label: string; color: string; nodes: ArchNode[] }[] = [
         icon: Server,
         color: "accent",
         techs: ["Deno", "TypeScript"],
-        description: "Серверная логика: интеграции с внешними API и AI-обработка.",
+        description: "Server-side logic: external API integrations and AI processing.",
         details: [
-          "analyze-core — CV-анализ кернов через Gemini AI",
-          "rank-wells — ML-ранжирование скважин по потенциалу",
-          "fetch-wells — запрос данных из OCC ArcGIS API",
-          "get-oil-price — получение текущих цен на нефть",
+          "analyze-core — CV analysis of core samples via Gemini AI",
+          "rank-wells — ML-based well ranking by potential",
+          "fetch-wells — data retrieval from OCC ArcGIS API",
+          "get-oil-price — current oil price fetching",
         ],
       },
     ],
@@ -106,18 +106,18 @@ const layers: { label: string; color: string; nodes: ArchNode[] }[] = [
         icon: Brain,
         color: "warning",
         techs: ["Gemini 2.5 Flash", "Gemini Pro", "GPT-5"],
-        description: "ИИ-модели для анализа изображений, ранжирования и прогнозирования.",
+        description: "AI models for image analysis, well ranking, and production forecasting.",
         details: [
-          "Computer Vision — анализ фото кернов (литология, пористость)",
-          "NLP — генерация отчётов и рекомендаций",
-          "Scoring — ML-оценка потенциала скважин (94% accuracy)",
-          "Прогнозирование — моделирование продакшн-кривых",
+          "Computer Vision — core photo analysis (lithology, porosity)",
+          "NLP — report and recommendation generation",
+          "Scoring — ML well potential assessment (94% accuracy)",
+          "Forecasting — production curve modeling",
         ],
       },
     ],
   },
   {
-    label: "Внешние API",
+    label: "External APIs",
     color: "hsl(var(--success))",
     nodes: [
       {
@@ -126,12 +126,12 @@ const layers: { label: string; color: string; nodes: ArchNode[] }[] = [
         icon: Globe,
         color: "success",
         techs: ["REST", "GeoJSON", "Oklahoma"],
-        description: "Данные о скважинах штата Оклахома — координаты, операторы, статусы.",
+        description: "Oklahoma well data — coordinates, operators, statuses.",
         details: [
-          "15,000+ скважин с координатами и метаданными",
-          "Фильтрация по county, operator, status",
-          "Формат GeoJSON для отображения на карте",
-          "Polling каждые 24ч для обновления данных",
+          "15,000+ wells with coordinates and metadata",
+          "Filtering by county, operator, status",
+          "GeoJSON format for map rendering",
+          "24h polling for data updates",
         ],
       },
       {
@@ -140,18 +140,17 @@ const layers: { label: string; color: string; nodes: ArchNode[] }[] = [
         icon: Radio,
         color: "success",
         techs: ["MQTT", "HTTP", "RTU"],
-        description: "Поток телеметрии от скважинного оборудования в реальном времени.",
+        description: "Real-time telemetry stream from wellsite equipment.",
         details: [
-          "Датчики → RTU → Транспорт (HTTP/MQTT)",
-          "Пакеты каждые 1–15 мин (давление, дебит, t°, обводнённость)",
-          "Ingestion API → RLS Engine → Realtime дашборд",
-          "Буферизация на RTU при потере связи",
+          "Sensors → RTU → Transport (HTTP/MQTT)",
+          "Packets every 1–15 min (pressure, flow rate, temp, water cut)",
+          "Ingestion API → RLS Engine → Realtime dashboard",
+          "RTU buffering on connectivity loss",
         ],
       },
     ],
   },
 ];
-
 const ArchitectureNode = ({ node }: { node: ArchNode }) => {
   const [expanded, setExpanded] = useState(false);
   const Icon = node.icon;
@@ -208,10 +207,10 @@ const Architecture = () => {
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2 flex items-center gap-3">
           <Layers className="h-8 w-8 text-primary" />
-          Архитектура платформы
+           Platform Architecture
         </h1>
         <p className="text-muted-foreground">
-          SGOM — многослойная архитектура с изоляцией данных, AI-обработкой и интеграцией внешних источников
+          SGOM — multi-layered architecture with data isolation, AI processing, and external source integration
         </p>
       </div>
 
@@ -256,15 +255,15 @@ const Architecture = () => {
       {/* Tech Stats */}
       <Card className="mt-8">
         <CardHeader>
-          <CardTitle className="text-base">Сводка по стеку</CardTitle>
+          <CardTitle className="text-base">Stack Summary</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
             {[
-              { label: "Модулей", value: "20+" },
+              { label: "Modules", value: "20+" },
               { label: "Edge Functions", value: "4" },
-              { label: "Таблиц БД", value: "3" },
-              { label: "AI моделей", value: "3" },
+              { label: "DB Tables", value: "3" },
+              { label: "AI Models", value: "3" },
             ].map((s) => (
               <div key={s.label}>
                 <div className="text-2xl font-bold text-primary">{s.value}</div>
