@@ -172,6 +172,12 @@ const menuItems = [
       badge: "🏗️",
     },
    {
+      title: "MVP Scope",
+      icon: Target,
+      href: "/mvp-scope",
+      badge: "🗺️",
+    },
+   {
       title: "Investor Deck",
       icon: Presentation,
       href: "/investor-deck",
