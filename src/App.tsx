@@ -34,6 +34,7 @@ import AWSActivate from "./pages/AWSActivate";
 import InvestorDeck from "./pages/InvestorDeck";
 import TechnicalSpec from "./pages/TechnicalSpec";
 import BudgetOverview from "./pages/BudgetOverview";
+import CounterProposal from "./pages/CounterProposal";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -77,6 +78,7 @@ const App = () => (
            <Route path="/investor-deck" element={<InvestorDeck />} />
            <Route path="/docs" element={<TechnicalSpec />} />
            <Route path="/budget" element={<BudgetOverview />} />
+           <Route path="/counter-proposal" element={<CounterProposal />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
