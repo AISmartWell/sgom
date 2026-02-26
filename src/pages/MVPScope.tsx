@@ -48,6 +48,13 @@ const mvpModules = [
   },
   {
     stage: "Core",
+    title: "EOR Optimization",
+    icon: Brain,
+    description: "AI-driven Enhanced Oil Recovery optimization through automated geological analysis and SPT well selection",
+    emoji: "🧠",
+  },
+  {
+    stage: "Core",
     title: "Multi-Tenant Auth",
     icon: Building2,
     description: "Company-based access control, user management, RLS policies",
@@ -129,7 +136,7 @@ const MVPScope = () => {
           <Card className="border-primary/30 bg-primary/5">
             <CardContent className="pt-6 text-center">
               <Rocket className="h-8 w-8 text-primary mx-auto mb-2" />
-              <p className="text-3xl font-bold text-primary">7</p>
+              <p className="text-3xl font-bold text-primary">8</p>
               <p className="text-sm text-muted-foreground">MVP Modules</p>
             </CardContent>
           </Card>
