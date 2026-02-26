@@ -47,6 +47,13 @@ const mvpModules = [
     emoji: "⚙️",
   },
   {
+    stage: "Stage 6",
+    title: "Geophysical Expertise",
+    icon: Activity,
+    description: "Well log analysis with AI interpretation and formation evaluation",
+    emoji: "📊",
+  },
+  {
     stage: "Core",
     title: "EOR Optimization",
     icon: Brain,
@@ -83,13 +90,6 @@ const phase2Modules = [
     description: "Real-time SCADA data ingestion and monitoring",
     reason: "Requires hardware integration / simulators",
     emoji: "📡",
-  },
-  {
-    title: "Geophysical Expertise",
-    icon: Activity,
-    description: "Well log analysis with AI interpretation",
-    reason: "Depends on ML model availability",
-    emoji: "📊",
   },
 ];
 
@@ -136,14 +136,14 @@ const MVPScope = () => {
           <Card className="border-primary/30 bg-primary/5">
             <CardContent className="pt-6 text-center">
               <Rocket className="h-8 w-8 text-primary mx-auto mb-2" />
-              <p className="text-3xl font-bold text-primary">8</p>
+              <p className="text-3xl font-bold text-primary">9</p>
               <p className="text-sm text-muted-foreground">MVP Modules</p>
             </CardContent>
           </Card>
           <Card className="border-yellow-500/30 bg-yellow-500/5">
             <CardContent className="pt-6 text-center">
               <Clock className="h-8 w-8 text-yellow-500 mx-auto mb-2" />
-              <p className="text-3xl font-bold text-yellow-500">4</p>
+              <p className="text-3xl font-bold text-yellow-500">3</p>
               <p className="text-sm text-muted-foreground">Phase 2</p>
             </CardContent>
           </Card>
