@@ -1,3 +1,4 @@
+import { useRef, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,15 +14,56 @@ import {
   CheckCircle2,
   AlertTriangle,
   Scale,
+  Loader2,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 const CounterProposal = () => {
   const navigate = useNavigate();
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [exporting, setExporting] = useState(false);
 
+  const handleExportPDF = async () => {
+    if (!contentRef.current) return;
+    setExporting(true);
+    try {
+      const canvas = await html2canvas(contentRef.current, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+      });
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = pageWidth - 20;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      
+      let heightLeft = imgHeight;
+      let position = 10;
+
+      pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight - 20;
+
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight + 10;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight - 20;
+      }
+
+      pdf.save("Counter-Proposal_AI_Smart_Well.pdf");
+    } catch (error) {
+      console.error("PDF export failed:", error);
+    } finally {
+      setExporting(false);
+    }
+  };
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <div className="max-w-5xl mx-auto p-6 md:p-10">
+      <div ref={contentRef} className="max-w-5xl mx-auto p-6 md:p-10">
         {/* Header */}
         <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="mb-4">
           <ArrowLeft className="mr-2 h-4 w-4" />
@@ -368,9 +410,13 @@ const CounterProposal = () => {
               <FileText className="mr-2 h-4 w-4" />
               Print
             </Button>
-            <Button onClick={() => window.print()}>
-              <Download className="mr-2 h-4 w-4" />
-              Export PDF
+            <Button onClick={handleExportPDF} disabled={exporting}>
+              {exporting ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Download className="mr-2 h-4 w-4" />
+              )}
+              {exporting ? "Generating..." : "Save as PDF"}
             </Button>
           </div>
         </div>
