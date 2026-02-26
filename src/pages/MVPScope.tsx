@@ -275,17 +275,17 @@ const MVPScope = () => {
 
         {/* Comparison Table */}
         <section>
-          <h2 className="text-2xl font-bold mb-2">📋 Сравнительный анализ модулей</h2>
-          <p className="text-sm text-muted-foreground mb-6">Все модули платформы SGOM vs статус включения в MVP</p>
+          <h2 className="text-2xl font-bold mb-2">📋 Module Comparison Analysis</h2>
+          <p className="text-sm text-muted-foreground mb-6">All SGOM platform modules vs MVP inclusion status</p>
 
           <div className="rounded-xl border border-border overflow-hidden">
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/50">
-                  <TableHead className="font-bold">Модуль</TableHead>
-                  <TableHead className="font-bold">Описание</TableHead>
-                  <TableHead className="font-bold text-center">Статус в MVP</TableHead>
-                  <TableHead className="font-bold text-center">Фаза</TableHead>
+                  <TableHead className="font-bold">Module</TableHead>
+                  <TableHead className="font-bold">Description</TableHead>
+                  <TableHead className="font-bold text-center">MVP Status</TableHead>
+                  <TableHead className="font-bold text-center">Phase</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -297,9 +297,9 @@ const MVPScope = () => {
                     <TableCell className="text-xs text-muted-foreground max-w-xs">{mod.description}</TableCell>
                     <TableCell className="text-center">
                       {mod.inMVP ? (
-                        <Badge className="bg-primary/20 text-primary border-primary/30">✅ Включён</Badge>
+                        <Badge className="bg-primary/20 text-primary border-primary/30">✅ Included</Badge>
                       ) : (
-                        <Badge variant="outline" className="text-muted-foreground">❌ Нет</Badge>
+                        <Badge variant="outline" className="text-muted-foreground">❌ Deferred</Badge>
                       )}
                     </TableCell>
                     <TableCell className="text-center">
@@ -317,9 +317,9 @@ const MVPScope = () => {
           </div>
 
           <div className="mt-4 flex gap-6 text-sm text-muted-foreground">
-            <span>✅ В MVP: <strong className="text-primary">{allModulesComparison.filter(m => m.inMVP).length}</strong></span>
-            <span>❌ Отложено: <strong>{allModulesComparison.filter(m => !m.inMVP).length}</strong></span>
-            <span>Всего модулей: <strong>{allModulesComparison.length}</strong></span>
+            <span>✅ In MVP: <strong className="text-primary">{allModulesComparison.filter(m => m.inMVP).length}</strong></span>
+            <span>❌ Deferred: <strong>{allModulesComparison.filter(m => !m.inMVP).length}</strong></span>
+            <span>Total modules: <strong>{allModulesComparison.length}</strong></span>
           </div>
         </section>
 
