@@ -71,12 +71,12 @@ const CounterProposal = () => {
         </Button>
 
         <div className="mb-8">
-          <Badge className="mb-3 bg-primary/10 text-primary border-primary/20">CONFIDENTIAL</Badge>
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">Counter-Proposal</h1>
-          <p className="text-lg text-muted-foreground">
+          <Badge className="mb-3 bg-primary/10 text-primary border-primary/20 font-semibold">CONFIDENTIAL</Badge>
+          <h1 className="text-3xl md:text-4xl font-extrabold mb-2 text-foreground">Counter-Proposal</h1>
+          <p className="text-lg font-medium text-foreground/80">
             AI Smart Well — SGOM Platform · Development Agreement
           </p>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-sm text-foreground/60 mt-1 font-medium">
             Date: {new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
           </p>
         </div>
@@ -93,21 +93,21 @@ const CounterProposal = () => {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-              <div className="p-4 rounded-lg bg-background/60 border">
-                <p className="text-sm text-muted-foreground">Cash Fee</p>
-                <p className="text-2xl font-bold">$37,500</p>
+              <div className="p-4 rounded-lg bg-background/80 border">
+                <p className="text-sm font-medium text-foreground/70">Cash Fee</p>
+                <p className="text-2xl font-bold text-foreground">$37,500</p>
               </div>
-              <div className="p-4 rounded-lg bg-background/60 border">
-                <p className="text-sm text-muted-foreground">Equity Requested</p>
+              <div className="p-4 rounded-lg bg-background/80 border">
+                <p className="text-sm font-medium text-foreground/70">Equity Requested</p>
                 <p className="text-2xl font-bold text-destructive">25%</p>
               </div>
-              <div className="p-4 rounded-lg bg-background/60 border">
-                <p className="text-sm text-muted-foreground">Implied Total Value</p>
+              <div className="p-4 rounded-lg bg-background/80 border">
+                <p className="text-sm font-medium text-foreground/70">Implied Total Value</p>
                 <p className="text-2xl font-bold text-destructive">~$637,500+</p>
-                <p className="text-xs text-muted-foreground">at $2.39M Pre-Seed valuation</p>
+                <p className="text-xs font-medium text-foreground/60">at $2.39M Pre-Seed valuation</p>
               </div>
             </div>
-            <div className="space-y-2 text-sm text-muted-foreground">
+            <div className="space-y-2 text-sm font-medium text-foreground/80">
               <p className="flex items-start gap-2">
                 <AlertTriangle className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
                 25% equity dilution is excessive for an 18-week development contract
