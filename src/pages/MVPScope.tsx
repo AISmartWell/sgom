@@ -183,7 +183,7 @@ const MVPScope = () => {
               <h2 className="text-2xl font-bold">Essential MVP</h2>
               <p className="text-sm text-muted-foreground">Data-to-Recommendation Pipeline — must ship</p>
             </div>
-            <Badge className="ml-auto bg-primary/20 text-primary border-primary/30">$125K scope</Badge>
+            
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
