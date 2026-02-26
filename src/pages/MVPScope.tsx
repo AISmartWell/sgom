@@ -55,6 +55,13 @@ const mvpModules = [
   },
   {
     stage: "Core",
+    title: "Core Analysis (CV)",
+    icon: Microscope,
+    description: "Computer vision for core sample classification and geological interpretation",
+    emoji: "🔬",
+  },
+  {
+    stage: "Core",
     title: "EOR Optimization",
     icon: Brain,
     description: "AI-driven Enhanced Oil Recovery optimization through automated geological analysis and SPT well selection",
@@ -95,12 +102,6 @@ const phase2Modules = [
 
 const v11Modules = [
   {
-    title: "Core Analysis (CV)",
-    icon: Microscope,
-    description: "Computer vision for core sample classification",
-    emoji: "🔬",
-  },
-  {
     title: "SPT Projection",
     icon: TrendingUp,
     description: "Post-treatment production forecasting",
@@ -136,7 +137,7 @@ const MVPScope = () => {
           <Card className="border-primary/30 bg-primary/5">
             <CardContent className="pt-6 text-center">
               <Rocket className="h-8 w-8 text-primary mx-auto mb-2" />
-              <p className="text-3xl font-bold text-primary">9</p>
+              <p className="text-3xl font-bold text-primary">10</p>
               <p className="text-sm text-muted-foreground">MVP Modules</p>
             </CardContent>
           </Card>
@@ -150,7 +151,7 @@ const MVPScope = () => {
           <Card className="border-muted-foreground/30 bg-muted/30">
             <CardContent className="pt-6 text-center">
               <Layers className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-              <p className="text-3xl font-bold text-muted-foreground">3</p>
+              <p className="text-3xl font-bold text-muted-foreground">2</p>
               <p className="text-sm text-muted-foreground">v1.1 Secondary</p>
             </CardContent>
           </Card>
