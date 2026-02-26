@@ -2,6 +2,8 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, CheckCircle2, Clock, Rocket, Layers, Shield, Brain, Radio, Microscope, BarChart3, Target, DollarSign, Settings, FolderSearch, TrendingDown, Radar, Activity, GraduationCap, Building2, TrendingUp } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 
 const mvpModules = [
   {
@@ -113,6 +115,20 @@ const v11Modules = [
     description: "Multi-year ROI projections and sensitivity analysis",
     emoji: "💰",
   },
+];
+
+const allModulesComparison = [
+  ...mvpModules.map(m => ({ title: m.title, emoji: m.emoji, description: m.description, inMVP: true, phase: "MVP" as const })),
+  ...phase2Modules.map(m => ({ title: m.title, emoji: m.emoji, description: m.description, inMVP: false, phase: "Phase 2" as const })),
+  ...v11Modules.map(m => ({ title: m.title, emoji: m.emoji, description: m.description, inMVP: false, phase: "v1.1" as const })),
+  { title: "Data Collection", emoji: "🗄️", description: "Well data ingestion from Oklahoma & Texas databases", inMVP: false, phase: "v1.1" as const },
+  { title: "Geological Analysis", emoji: "🗺️", description: "AI seismic analysis, well logs, 3D geological modeling", inMVP: false, phase: "v1.1" as const },
+  { title: "Real-Time Monitor", emoji: "📡", description: "Live SCADA data monitoring dashboard", inMVP: false, phase: "Phase 2" as const },
+  { title: "Telemetry Architecture", emoji: "🔗", description: "IoT data pipeline architecture and design", inMVP: false, phase: "Phase 2" as const },
+  { title: "SPT Treatment", emoji: "🔧", description: "Hydro-slotting technology configuration (Patent US8863823)", inMVP: false, phase: "v1.1" as const },
+  { title: "Reports", emoji: "✅", description: "Automated report generation and export", inMVP: false, phase: "v1.1" as const },
+  { title: "SaaS Business Model", emoji: "💼", description: "Subscription tiers, pricing, and go-to-market strategy", inMVP: false, phase: "v1.1" as const },
+  { title: "Architecture", emoji: "🏗️", description: "System architecture overview and tech stack documentation", inMVP: false, phase: "v1.1" as const },
 ];
 
 const MVPScope = () => {
@@ -254,6 +270,56 @@ const MVPScope = () => {
                 </CardContent>
               </Card>
             ))}
+          </div>
+        </section>
+
+        {/* Comparison Table */}
+        <section>
+          <h2 className="text-2xl font-bold mb-2">📋 Сравнительный анализ модулей</h2>
+          <p className="text-sm text-muted-foreground mb-6">Все модули платформы SGOM vs статус включения в MVP</p>
+
+          <div className="rounded-xl border border-border overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted/50">
+                  <TableHead className="font-bold">Модуль</TableHead>
+                  <TableHead className="font-bold">Описание</TableHead>
+                  <TableHead className="font-bold text-center">Статус в MVP</TableHead>
+                  <TableHead className="font-bold text-center">Фаза</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {allModulesComparison.map((mod) => (
+                  <TableRow key={mod.title}>
+                    <TableCell className="font-medium whitespace-nowrap">
+                      <span className="mr-1.5">{mod.emoji}</span>{mod.title}
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground max-w-xs">{mod.description}</TableCell>
+                    <TableCell className="text-center">
+                      {mod.inMVP ? (
+                        <Badge className="bg-primary/20 text-primary border-primary/30">✅ Включён</Badge>
+                      ) : (
+                        <Badge variant="outline" className="text-muted-foreground">❌ Нет</Badge>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Badge variant="outline" className={cn(
+                        "text-[10px]",
+                        mod.phase === "MVP" && "border-primary/40 text-primary",
+                        mod.phase === "Phase 2" && "border-yellow-500/40 text-yellow-600 dark:text-yellow-400",
+                        mod.phase === "v1.1" && "border-muted-foreground/40 text-muted-foreground",
+                      )}>{mod.phase}</Badge>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          <div className="mt-4 flex gap-6 text-sm text-muted-foreground">
+            <span>✅ В MVP: <strong className="text-primary">{allModulesComparison.filter(m => m.inMVP).length}</strong></span>
+            <span>❌ Отложено: <strong>{allModulesComparison.filter(m => !m.inMVP).length}</strong></span>
+            <span>Всего модулей: <strong>{allModulesComparison.length}</strong></span>
           </div>
         </section>
 
