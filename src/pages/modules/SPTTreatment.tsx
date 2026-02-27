@@ -3,10 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useSPTSimulation } from "@/hooks/useSPTSimulation";
-import WellVisualization from "@/components/spt/WellVisualization";
-import MetricsPanel from "@/components/spt/MetricsPanel";
-import SimulationControls from "@/components/spt/SimulationControls";
 
 const benefits = [
   { label: "Slot Depth", value: "Up to 5 ft (1.5m)" },
@@ -21,7 +17,6 @@ const benefits = [
 
 const SPTTreatment = () => {
   const navigate = useNavigate();
-  const simulation = useSPTSimulation(4000);
 
   return (
     <div className="p-8">
@@ -53,34 +48,6 @@ const SPTTreatment = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Slot Perforation Process Visualization */}
-          <Card className="glass-card">
-            <CardHeader>
-              <CardTitle>Slot Perforation Process</CardTitle>
-              <CardDescription>Real-time treatment visualization</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <WellVisualization
-                progress={simulation.metrics.progress}
-                status={simulation.status}
-                depth={simulation.metrics.depth}
-                targetDepth={simulation.targetDepth}
-              />
-              
-              <MetricsPanel metrics={simulation.metrics} />
-              
-              <SimulationControls
-                status={simulation.status}
-                progress={simulation.metrics.progress}
-                slotsCut={simulation.metrics.slotsCut}
-                onStart={simulation.start}
-                onPause={simulation.pause}
-                onResume={simulation.resume}
-                onReset={simulation.reset}
-                onStop={simulation.stop}
-              />
-            </CardContent>
-          </Card>
 
           {/* Technology Description */}
           <Card className="glass-card">

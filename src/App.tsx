@@ -15,7 +15,7 @@ import Financial from "./pages/modules/Financial";
 import SPTTreatment from "./pages/modules/SPTTreatment";
 import SPTProjection from "./pages/modules/SPTProjection";
 import EconomicAnalysis from "./pages/modules/EconomicAnalysis";
-import SPTParameters from "./pages/modules/SPTParameters";
+
 import Reports from "./pages/modules/Reports";
 import CoreAnalysis from "./pages/modules/CoreAnalysis";
 import RealtimeDashboard from "./pages/modules/RealtimeDashboard";
@@ -60,7 +60,7 @@ const App = () => (
             <Route path="spt-treatment" element={<SPTTreatment />} />
             <Route path="spt-projection" element={<SPTProjection />} />
             <Route path="economic-analysis" element={<EconomicAnalysis />} />
-            <Route path="spt-parameters" element={<SPTParameters />} />
+            
             <Route path="reports" element={<Reports />} />
             <Route path="core-analysis" element={<CoreAnalysis />} />
             <Route path="realtime" element={<RealtimeDashboard />} />
