@@ -367,7 +367,7 @@ Phase 3 — Scale (Months 13-18): $25,000
                   { item: "Working product / MVP", status: true, note: "Live MVP at sgom.lovable.app — 19 modules" },
                   { item: "Not previously received AWS Activate $100K tier", status: true, note: "First AWS Activate application" },
                   { item: "Less than $10M in funding raised", status: true, note: "No funding raised yet (pre-seed)" },
-                  { item: "Valid business entity (LLC/Corp)", status: true, note: "AI Smart Development Corporation — USA" },
+                  { item: "Valid business entity (LLC/Corp)", status: true, note: "AI Smart Well Inc. — USA" },
                   { item: "AWS account in good standing", status: true, note: "Create new or use existing account" },
                 ].map((check, i) => (
                   <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
