@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft, CheckCircle2, Clock, Rocket, Layers, Shield, Brain, Radio, Microscope, BarChart3, Target, DollarSign, Settings, FolderSearch, TrendingDown, Radar, Activity, GraduationCap, Building2, TrendingUp, ChevronDown } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Clock, Rocket, Layers, Shield, Brain, Radio, Microscope, BarChart3, Target, DollarSign, Settings, FolderSearch, TrendingDown, Radar, Activity, GraduationCap, Building2, TrendingUp, ChevronDown, AlertTriangle, Server, Globe, Gauge, CreditCard, ShieldCheck, FileText } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -377,6 +377,146 @@ const MVPScope = () => {
               </Card>
             ))}
           </div>
+        </section>
+
+        {/* Technical Clarifications from Dev Team */}
+        <section>
+          <div className="flex items-center gap-3 mb-6">
+            <div className="h-10 w-10 rounded-xl bg-accent/20 flex items-center justify-center">
+              <AlertTriangle className="h-5 w-5 text-accent-foreground" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold">🔧 Технические уточнения от команды</h2>
+              <p className="text-sm text-muted-foreground">Согласованные архитектурные решения для MVP</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Card className="border-primary/20">
+              <CardHeader className="pb-2">
+                <div className="flex items-center gap-2">
+                  <Server className="h-4 w-4 text-primary" />
+                  <CardTitle className="text-sm">Python ML Service (Модули 4, 5)</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <p className="text-xs text-muted-foreground">Dedicated FastAPI inference service вместо Deno Edge Functions для ML моделей.</p>
+                <div className="space-y-1">
+                  <div className="flex items-start gap-2 text-xs"><CheckCircle2 className="h-3 w-3 text-primary mt-0.5 shrink-0" /> Хостинг на AWS/GCP</div>
+                  <div className="flex items-start gap-2 text-xs"><CheckCircle2 className="h-3 w-3 text-primary mt-0.5 shrink-0" /> Edge Functions вызывают ML API</div>
+                  <div className="flex items-start gap-2 text-xs"><CheckCircle2 className="h-3 w-3 text-primary mt-0.5 shrink-0" /> Gemini остаётся для текстового анализа</div>
+                </div>
+                <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">✅ Согласовано</Badge>
+              </CardContent>
+            </Card>
+
+            <Card className="border-primary/20">
+              <CardHeader className="pb-2">
+                <div className="flex items-center gap-2">
+                  <Globe className="h-4 w-4 text-primary" />
+                  <CardTitle className="text-sm">Texas API Integration (Модуль 2)</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <p className="text-xs text-muted-foreground">Texas RRC не имеет REST API — требуется custom ETL pipeline.</p>
+                <div className="space-y-1">
+                  <div className="flex items-start gap-2 text-xs"><AlertTriangle className="h-3 w-3 text-yellow-500 mt-0.5 shrink-0" /> Дополнительно 2–3 недели</div>
+                  <div className="flex items-start gap-2 text-xs"><CheckCircle2 className="h-3 w-3 text-primary mt-0.5 shrink-0" /> В рамках бюджета $125K</div>
+                  <div className="flex items-start gap-2 text-xs"><CheckCircle2 className="h-3 w-3 text-primary mt-0.5 shrink-0" /> Нормализация под схему Oklahoma</div>
+                </div>
+                <Badge variant="outline" className="text-[10px] border-yellow-500/30 text-yellow-600 dark:text-yellow-400">⚠️ +2-3 недели</Badge>
+              </CardContent>
+            </Card>
+
+            <Card className="border-primary/20">
+              <CardHeader className="pb-2">
+                <div className="flex items-center gap-2">
+                  <Gauge className="h-4 w-4 text-primary" />
+                  <CardTitle className="text-sm">Reservoir Simulation (Модуль 9)</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <p className="text-xs text-muted-foreground">MVP: аналитические модели. Физический симулятор — post-MVP.</p>
+                <div className="space-y-1">
+                  <div className="flex items-start gap-2 text-xs"><CheckCircle2 className="h-3 w-3 text-primary mt-0.5 shrink-0" /> Material balance, decline analysis</div>
+                  <div className="flex items-start gap-2 text-xs"><CheckCircle2 className="h-3 w-3 text-primary mt-0.5 shrink-0" /> Recovery factors</div>
+                  <div className="flex items-start gap-2 text-xs text-muted-foreground"><Shield className="h-3 w-3 mt-0.5 shrink-0" /> Physics solver — Phase 2</div>
+                </div>
+                <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">✅ Согласовано</Badge>
+              </CardContent>
+            </Card>
+
+            <Card className="border-primary/20">
+              <CardHeader className="pb-2">
+                <div className="flex items-center gap-2">
+                  <Radio className="h-4 w-4 text-primary" />
+                  <CardTitle className="text-sm">IoT / Telemetry (Модули 11–12)</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <p className="text-xs text-muted-foreground">MVP: API + MQTT + software simulator. SCADA — post-MVP.</p>
+                <div className="space-y-1">
+                  <div className="flex items-start gap-2 text-xs"><CheckCircle2 className="h-3 w-3 text-primary mt-0.5 shrink-0" /> Ingestion API + MQTT endpoint</div>
+                  <div className="flex items-start gap-2 text-xs"><CheckCircle2 className="h-3 w-3 text-primary mt-0.5 shrink-0" /> Device structure + simulator</div>
+                  <div className="flex items-start gap-2 text-xs text-muted-foreground"><Shield className="h-3 w-3 mt-0.5 shrink-0" /> SCADA — Phase 2</div>
+                </div>
+                <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">✅ Согласовано</Badge>
+              </CardContent>
+            </Card>
+
+            <Card className="border-primary/20">
+              <CardHeader className="pb-2">
+                <div className="flex items-center gap-2">
+                  <CreditCard className="h-4 w-4 text-primary" />
+                  <CardTitle className="text-sm">Billing / Payments (Модуль 13)</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <p className="text-xs text-muted-foreground">Admin UI + subscription structure. Stripe — опционально.</p>
+                <div className="space-y-1">
+                  <div className="flex items-start gap-2 text-xs"><CheckCircle2 className="h-3 w-3 text-primary mt-0.5 shrink-0" /> Admin panel + тарифная сетка</div>
+                  <div className="flex items-start gap-2 text-xs"><AlertTriangle className="h-3 w-3 text-yellow-500 mt-0.5 shrink-0" /> Stripe automation: +2-3 нед.</div>
+                  <div className="flex items-start gap-2 text-xs text-muted-foreground"><Shield className="h-3 w-3 mt-0.5 shrink-0" /> Рекомендация: manual billing</div>
+                </div>
+                <Badge variant="outline" className="text-[10px] border-yellow-500/30 text-yellow-600 dark:text-yellow-400">⚠️ Требует решения</Badge>
+              </CardContent>
+            </Card>
+
+            <Card className="border-primary/20">
+              <CardHeader className="pb-2">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="h-4 w-4 text-primary" />
+                  <CardTitle className="text-sm">Security Audit (Milestone 6)</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <p className="text-xs text-muted-foreground">MVP: внутренний audit. Полный pentest — post-launch.</p>
+                <div className="space-y-1">
+                  <div className="flex items-start gap-2 text-xs"><CheckCircle2 className="h-3 w-3 text-primary mt-0.5 shrink-0" /> RLS policies audit</div>
+                  <div className="flex items-start gap-2 text-xs"><CheckCircle2 className="h-3 w-3 text-primary mt-0.5 shrink-0" /> API protection + access control</div>
+                  <div className="flex items-start gap-2 text-xs text-muted-foreground"><Shield className="h-3 w-3 mt-0.5 shrink-0" /> Third-party pentest — post-launch</div>
+                </div>
+                <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">✅ Согласовано</Badge>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card className="mt-4 border-muted">
+            <CardHeader className="pb-2">
+              <div className="flex items-center gap-2">
+                <FileText className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm">📎 Дополнительные обязательства</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div className="flex items-center gap-2 text-xs"><CheckCircle2 className="h-3 w-3 text-primary shrink-0" /> API документация (OpenAPI/Swagger)</div>
+                <div className="flex items-center gap-2 text-xs"><CheckCircle2 className="h-3 w-3 text-primary shrink-0" /> Full mobile responsiveness</div>
+                <div className="flex items-center gap-2 text-xs"><CheckCircle2 className="h-3 w-3 text-primary shrink-0" /> Investor Deck & Budget pages</div>
+                <div className="flex items-center gap-2 text-xs"><CheckCircle2 className="h-3 w-3 text-primary shrink-0" /> Technical documentation for handover</div>
+              </div>
+            </CardContent>
+          </Card>
         </section>
 
         {/* Comparison Table */}
