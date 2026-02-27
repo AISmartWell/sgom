@@ -80,14 +80,22 @@ const TechnicalResponse = () => {
       title: "Additional Items",
       text: "Confirmed inclusion of: OpenAPI/Swagger documentation, full mobile responsiveness, Investor Deck & Budget page refinements (existing pages, not rebuild), technical handover documentation.",
     },
+    {
+      title: "Texas API Integration (Module 2)",
+      text: "Resolved. The +2–3 weeks will be absorbed in parallel with ML + backend stabilization — total timeline remains 18 weeks. Fallback: if TX pipeline not validated by Week 2, proceed Oklahoma-only for MVP; Texas rolls out in Sprint 1 post-launch.",
+    },
+    {
+      title: "Stripe Billing (Module 13)",
+      text: "Resolved. Option A (Manual Billing) confirmed for MVP launch. Full Stripe automation scheduled immediately post-launch in Sprint 1. Critical path stays clean.",
+    },
   ];
 
   const actionItems = [
-    { item: "Provide adjusted milestone schedule with Texas integration", owner: "Dev Team", status: "Pending" },
-    { item: "Confirm Gemini vs Python ML scope boundary", owner: "Both", status: "Proposed above" },
-    { item: "Confirm billing approach (Option A or B)", owner: "Dev Team", status: "Pending" },
-    { item: "Define Oklahoma-only fallback criteria for Texas", owner: "Dev Team", status: "Pending" },
-    { item: "Review interactive MVP Scope specification", owner: "Dev Team", status: "Ready for Review" },
+    { item: "Provide adjusted milestone schedule with Texas integration", owner: "Dev Team", status: "In Progress" },
+    { item: "Gemini vs Python ML scope boundary", owner: "Both", status: "Aligned" },
+    { item: "Billing approach: Option A for MVP", owner: "Both", status: "Confirmed" },
+    { item: "Define Oklahoma-only fallback criteria for Texas", owner: "Dev Team", status: "In Progress" },
+    { item: "Review interactive MVP Scope specification", owner: "Dev Team", status: "In Review" },
   ];
 
   return (
@@ -158,91 +166,66 @@ const TechnicalResponse = () => {
           </div>
         </div>
 
-        {/* Open Items */}
-        <div className="mb-8 rounded-xl border-2 border-amber-200" style={{ background: "#fffbeb" }}>
+        {/* Dev Team Response — Resolved */}
+        <div className="mb-8 rounded-xl border-2 border-blue-200" style={{ background: "#eff6ff" }}>
           <div className="p-6 pb-3">
             <h2 className="flex items-center gap-2 text-lg font-bold" style={{ color: "#1a1a2e" }}>
-              <AlertTriangle className="h-5 w-5 text-amber-500" />
-              ⚠️ Open Items — Decision Required
+              <CheckCircle2 className="h-5 w-5 text-blue-600" />
+              📨 Dev Team Response — Decisions Confirmed
             </h2>
+            <p className="text-xs mt-1" style={{ color: "#6b7280" }}>
+              Received: {new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+            </p>
           </div>
-          <div className="px-6 pb-6 space-y-6">
-            {/* Item 6 — Texas API */}
-            <div className="p-4 rounded-lg border border-gray-200" style={{ background: "#ffffff" }}>
-              <p className="font-semibold text-sm mb-2" style={{ color: "#1a1a2e" }}>
-                6. Texas API Integration (Module 2)
+          <div className="px-6 pb-6 space-y-4">
+            {/* Texas API — Resolved */}
+            <div className="p-4 rounded-lg border border-green-200" style={{ background: "#f0fdf4" }}>
+              <p className="font-semibold text-sm mb-2 flex items-center gap-2" style={{ color: "#1a1a2e" }}>
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                6. Texas API Integration (Module 2) — RESOLVED
               </p>
-              <p className="text-sm mb-3" style={{ color: "#374151" }}>
-                We acknowledge the complexity: no clean REST API, custom ETL/scraping required, larger dataset,
-                additional 2–3 weeks.
-              </p>
-              <p className="text-sm font-medium mb-2" style={{ color: "#1a1a2e" }}>Questions:</p>
               <ul className="space-y-2 text-sm" style={{ color: "#374151" }}>
                 <li className="flex items-start gap-2">
-                  <span className="text-amber-500 mt-0.5">•</span>
-                  Does this +2–3 weeks extend the total timeline from 18 to 20–21 weeks, or is it absorbed by
-                  parallelizing with other modules?
+                  <span className="text-green-600 mt-0.5 font-bold">✓</span>
+                  <span><strong>Timeline:</strong> The +2–3 weeks will be absorbed in parallel with ML + backend stabilization. Total timeline remains 18 weeks.</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-amber-500 mt-0.5">•</span>
-                  Please provide a proposed adjusted milestone schedule showing where Texas work fits.
+                  <span className="text-green-600 mt-0.5 font-bold">✓</span>
+                  <span><strong>Milestone schedule:</strong> Adjusted breakdown showing Texas ETL running in parallel — to be shared shortly.</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-amber-500 mt-0.5">•</span>
-                  What is the fallback if a reliable data route cannot be validated within week 2? Do we proceed with
-                  Oklahoma-only for initial launch?
+                  <span className="text-green-600 mt-0.5 font-bold">✓</span>
+                  <span><strong>Fallback:</strong> If TX pipeline not validated by Week 2 of integration → proceed Oklahoma-only for MVP launch. Texas rolls out in Sprint 1 post-launch.</span>
                 </li>
               </ul>
             </div>
 
-            {/* Item 7 — Stripe Billing */}
-            <div className="p-4 rounded-lg border border-gray-200" style={{ background: "#ffffff" }}>
+            {/* Stripe Billing — Resolved */}
+            <div className="p-4 rounded-lg border border-green-200" style={{ background: "#f0fdf4" }}>
+              <p className="font-semibold text-sm mb-2 flex items-center gap-2" style={{ color: "#1a1a2e" }}>
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                7. Stripe Billing (Module 13) — RESOLVED
+              </p>
+              <p className="text-sm" style={{ color: "#374151" }}>
+                <strong>Decision:</strong> Option A (Manual Billing) confirmed for MVP. Full Stripe automation scheduled immediately post-launch in Sprint 1. Critical path stays clean — no unnecessary integration risk before go-live.
+              </p>
+            </div>
+
+            {/* Additional Alignments */}
+            <div className="p-4 rounded-lg border border-blue-200" style={{ background: "#ffffff" }}>
               <p className="font-semibold text-sm mb-2" style={{ color: "#1a1a2e" }}>
-                7. Stripe Billing (Module 13)
+                Additional Alignments
               </p>
-              <p className="text-sm mb-3" style={{ color: "#374151" }}>
-                We need to make a decision here. Two options on the table:
-              </p>
-              <div className="overflow-auto mb-4">
-                <table className="w-full text-sm border-collapse">
-                  <thead>
-                    <tr className="border-b border-gray-200">
-                      <th className="text-left py-2 px-3 font-medium" style={{ color: "#6b7280" }}></th>
-                      <th className="text-center py-2 px-3 font-medium text-blue-600">Option A: Manual Billing</th>
-                      <th className="text-center py-2 px-3 font-medium text-amber-600">Option B: Full Stripe</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100" style={{ color: "#374151" }}>
-                    <tr>
-                      <td className="py-2 px-3 font-medium" style={{ color: "#6b7280" }}>Scope</td>
-                      <td className="py-2 px-3 text-center text-sm">Admin UI + subscription structure + invoice generation</td>
-                      <td className="py-2 px-3 text-center text-sm">Full Stripe: automated recurring billing, usage metering, customer portal</td>
-                    </tr>
-                    <tr>
-                      <td className="py-2 px-3 font-medium" style={{ color: "#6b7280" }}>Timeline</td>
-                      <td className="py-2 px-3 text-center">None (fits current schedule)</td>
-                      <td className="py-2 px-3 text-center">+2–3 weeks</td>
-                    </tr>
-                    <tr>
-                      <td className="py-2 px-3 font-medium" style={{ color: "#6b7280" }}>Cost</td>
-                      <td className="py-2 px-3 text-center">Within $125K</td>
-                      <td className="py-2 px-3 text-center">Within $125K (compresses other work)</td>
-                    </tr>
-                    <tr>
-                      <td className="py-2 px-3 font-medium" style={{ color: "#6b7280" }}>Risk</td>
-                      <td className="py-2 px-3 text-center">Manual effort post-launch</td>
-                      <td className="py-2 px-3 text-center">Additional integration complexity</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <div className="p-3 rounded-lg border border-blue-200" style={{ background: "#eff6ff" }}>
-                <p className="text-sm" style={{ color: "#374151" }}>
-                  <span className="font-semibold text-blue-700">Our recommendation:</span> Option A for MVP launch,
-                  with Stripe automation as a fast-follow in Sprint 1 post-launch. This keeps the critical path clean.
-                  Please confirm your agreement or propose an alternative.
-                </p>
-              </div>
+              <ul className="space-y-2 text-sm" style={{ color: "#374151" }}>
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-600 mt-0.5 font-bold">→</span>
+                  <span><strong>Gemini vs Python ML scope:</strong> Aligned with the proposal. Will be formalized in the technical spec.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-600 mt-0.5 font-bold">→</span>
+                  <span><strong>MVP Scope specification:</strong> Will be reviewed in detail; structured feedback to follow separately.</span>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
@@ -322,11 +305,13 @@ const TechnicalResponse = () => {
                       <td className="py-2 px-3 text-center">
                         <Badge
                           className={
-                            row.status === "Pending"
-                              ? "bg-amber-100 text-amber-700 border-amber-200"
-                              : row.status === "Ready for Review"
+                            row.status === "Confirmed" || row.status === "Aligned"
                               ? "bg-green-100 text-green-700 border-green-200"
-                              : "bg-blue-100 text-blue-700 border-blue-200"
+                              : row.status === "In Progress"
+                              ? "bg-amber-100 text-amber-700 border-amber-200"
+                              : row.status === "In Review"
+                              ? "bg-blue-100 text-blue-700 border-blue-200"
+                              : "bg-gray-100 text-gray-700 border-gray-200"
                           }
                         >
                           {row.status}
@@ -343,7 +328,7 @@ const TechnicalResponse = () => {
         {/* Closing */}
         <div className="mb-8">
           <p className="text-sm leading-relaxed" style={{ color: "#374151" }}>
-            Please respond with your position on items 6 and 7 so we can finalize the milestone schedule.
+            Items 6 and 7 are now resolved. Adjusted milestone schedule and Oklahoma fallback criteria to follow.
           </p>
           <p className="text-sm mt-4 font-medium" style={{ color: "#374151" }}>
             Best regards,
