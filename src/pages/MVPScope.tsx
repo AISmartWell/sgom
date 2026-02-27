@@ -427,13 +427,13 @@ const MVPScope = () => {
                 </div>
               </CardHeader>
               <CardContent className="space-y-2">
-                <p className="text-xs text-muted-foreground">Texas RRC has no REST API — custom ETL pipeline required.</p>
+                <p className="text-xs text-muted-foreground">Texas RRC has no REST API — custom ETL pipeline required. Timeline absorbed in parallel.</p>
                 <div className="space-y-1">
-                  <div className="flex items-start gap-2 text-xs"><AlertTriangle className="h-3 w-3 text-yellow-500 mt-0.5 shrink-0" /> Additional 2–3 weeks</div>
+                  <div className="flex items-start gap-2 text-xs"><CheckCircle2 className="h-3 w-3 text-primary mt-0.5 shrink-0" /> +2–3 weeks absorbed in parallel — total 18 weeks</div>
                   <div className="flex items-start gap-2 text-xs"><CheckCircle2 className="h-3 w-3 text-primary mt-0.5 shrink-0" /> Within $125K budget</div>
-                  <div className="flex items-start gap-2 text-xs"><CheckCircle2 className="h-3 w-3 text-primary mt-0.5 shrink-0" /> Normalized to Oklahoma schema</div>
+                  <div className="flex items-start gap-2 text-xs"><CheckCircle2 className="h-3 w-3 text-primary mt-0.5 shrink-0" /> Fallback: Oklahoma-only if TX not validated by Week 2</div>
                 </div>
-                <Badge variant="outline" className="text-[10px] border-yellow-500/30 text-yellow-600 dark:text-yellow-400">⚠️ +2-3 weeks</Badge>
+                <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">✅ Resolved</Badge>
               </CardContent>
             </Card>
 
@@ -481,13 +481,13 @@ const MVPScope = () => {
                 </div>
               </CardHeader>
               <CardContent className="space-y-2">
-                <p className="text-xs text-muted-foreground">Admin UI + subscription structure. Stripe — optional.</p>
+                <p className="text-xs text-muted-foreground">Manual billing for MVP. Full Stripe automation — Sprint 1 post-launch.</p>
                 <div className="space-y-1">
                   <div className="flex items-start gap-2 text-xs"><CheckCircle2 className="h-3 w-3 text-primary mt-0.5 shrink-0" /> Admin panel + pricing tiers</div>
-                  <div className="flex items-start gap-2 text-xs"><AlertTriangle className="h-3 w-3 text-yellow-500 mt-0.5 shrink-0" /> Stripe automation: +2-3 weeks</div>
-                  <div className="flex items-start gap-2 text-xs text-muted-foreground"><Shield className="h-3 w-3 mt-0.5 shrink-0" /> Recommendation: manual billing</div>
+                  <div className="flex items-start gap-2 text-xs"><CheckCircle2 className="h-3 w-3 text-primary mt-0.5 shrink-0" /> Manual billing confirmed for MVP</div>
+                  <div className="flex items-start gap-2 text-xs text-muted-foreground"><Shield className="h-3 w-3 mt-0.5 shrink-0" /> Stripe automation — Sprint 1 post-launch</div>
                 </div>
-                <Badge variant="outline" className="text-[10px] border-yellow-500/30 text-yellow-600 dark:text-yellow-400">⚠️ Decision required</Badge>
+                <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">✅ Resolved</Badge>
               </CardContent>
             </Card>
 
