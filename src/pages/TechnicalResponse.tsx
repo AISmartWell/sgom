@@ -343,8 +343,7 @@ const TechnicalResponse = () => {
         {/* Closing */}
         <div className="mb-8">
           <p className="text-sm leading-relaxed" style={{ color: "#374151" }}>
-            Please respond with your position on items 6 and 7 so we can finalize the milestone schedule and proceed
-            to contract signing.
+            Please respond with your position on items 6 and 7 so we can finalize the milestone schedule.
           </p>
           <p className="text-sm mt-4 font-medium" style={{ color: "#374151" }}>
             Best regards,
