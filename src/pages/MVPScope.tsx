@@ -13,9 +13,9 @@ const mvpModules = [
     icon: Radar,
     description: "Satellite imagery + well location mapping for field overview",
     emoji: "🛰️",
-    inputs: ["Координаты месторождения (lat/lon)", "Источник спутниковых снимков (Sentinel-2 / Mapbox)"],
-    outputs: ["Карта месторождения с маркерами скважин", "Границы лицензионного участка"],
-    acceptance: ["Отображение ≥100 скважин на карте без задержек", "Поддержка зума и кластеризации маркеров", "Загрузка спутниковых тайлов < 3 сек"],
+    inputs: ["Field coordinates (lat/lon)", "Satellite imagery source (Sentinel-2 / Mapbox)"],
+    outputs: ["Field map with well markers", "License area boundaries"],
+    acceptance: ["Display ≥100 wells on map without lag", "Zoom and marker clustering support", "Satellite tile loading < 3 sec"],
     dependencies: [],
   },
   {
@@ -24,9 +24,9 @@ const mvpModules = [
     icon: FolderSearch,
     description: "Automated categorization and quality scoring of well data",
     emoji: "📂",
-    inputs: ["Сырые данные скважин из Stage 1", "Публичные БД (Oklahoma/Texas OCC/RRC)"],
-    outputs: ["Категоризированные записи (active/inactive/plugged)", "Quality Score (0–100) для каждой скважины"],
-    acceptance: ["Автоматическая классификация ≥95% записей", "AI Quality Score для каждой скважины", "Фильтрация по статусу, формации, округу"],
+    inputs: ["Raw well data from Stage 1", "Public databases (Oklahoma/Texas OCC/RRC)"],
+    outputs: ["Categorized records (active/inactive/plugged)", "Quality Score (0–100) per well"],
+    acceptance: ["Automatic classification of ≥95% records", "AI Quality Score per well", "Filtering by status, formation, county"],
     dependencies: ["Field Scanning"],
   },
   {
@@ -35,9 +35,9 @@ const mvpModules = [
     icon: TrendingDown,
     description: "Production decline curves and cumulative output analysis",
     emoji: "📈",
-    inputs: ["Исторические данные добычи (oil/gas/water)", "Временные ряды по скважинам"],
-    outputs: ["Кривые падения добычи (Arps decline)", "Кумулятивная добыча и прогноз EUR", "Коэффициент обводнённости (water cut trend)"],
-    acceptance: ["Построение decline curve для выбранной скважины", "Расчёт EUR (Estimated Ultimate Recovery)", "Интерактивные графики с Recharts"],
+    inputs: ["Historical production data (oil/gas/water)", "Time series per well"],
+    outputs: ["Production decline curves (Arps decline)", "Cumulative production and EUR forecast", "Water cut trend coefficient"],
+    acceptance: ["Decline curve generation for selected well", "EUR (Estimated Ultimate Recovery) calculation", "Interactive charts with Recharts"],
     dependencies: ["Data Classification"],
   },
   {
@@ -46,9 +46,9 @@ const mvpModules = [
     icon: Target,
     description: "ML-driven candidate ranking for SPT treatment",
     emoji: "🎯",
-    inputs: ["Классифицированные данные скважин", "Decline curves из Stage 3", "Геологические параметры (формация, глубина)"],
-    outputs: ["Ранжированный список кандидатов для SPT", "AI Score (0–100) с объяснением факторов", "Top-N рекомендации"],
-    acceptance: ["Ранжирование ≥50 скважин за < 5 сек", "Прозрачная формула скоринга", "Фильтры по штату, формации, минимальному баллу"],
+    inputs: ["Classified well data", "Decline curves from Stage 3", "Geological parameters (formation, depth)"],
+    outputs: ["Ranked list of SPT treatment candidates", "AI Score (0–100) with factor explanation", "Top-N recommendations"],
+    acceptance: ["Ranking of ≥50 wells in < 5 sec", "Transparent scoring formula", "Filters by state, formation, minimum score"],
     dependencies: ["Cumulative Analysis", "Data Classification"],
   },
   {
@@ -57,9 +57,9 @@ const mvpModules = [
     icon: DollarSign,
     description: "ROI modeling, NPV/IRR calculations per well candidate",
     emoji: "💵",
-    inputs: ["Текущая добыча скважины", "Прогноз прироста после SPT", "Стоимость обработки SPT", "Цена нефти (API)"],
-    outputs: ["NPV, IRR, Payback Period для каждого кандидата", "Sensitivity analysis (цена нефти ±20%)", "Сравнительная таблица ROI"],
-    acceptance: ["Расчёт NPV/IRR за < 2 сек", "Динамическое обновление при смене цены нефти", "Экспорт результатов в PDF"],
+    inputs: ["Current well production", "Post-SPT production uplift forecast", "SPT treatment cost", "Oil price (API)"],
+    outputs: ["NPV, IRR, Payback Period per candidate", "Sensitivity analysis (oil price ±20%)", "Comparative ROI table"],
+    acceptance: ["NPV/IRR calculation in < 2 sec", "Dynamic update on oil price change", "Export results to PDF"],
     dependencies: ["AI Well Selection & Ranking"],
   },
   {
@@ -68,9 +68,9 @@ const mvpModules = [
     icon: Settings,
     description: "Treatment slot configuration and chemical dosage optimization",
     emoji: "⚙️",
-    inputs: ["Данные о скважине (глубина, диаметр, формация)", "Выбранный кандидат из Stage 4"],
-    outputs: ["Конфигурация слотов (количество, глубина, интервал)", "Дозировка химических реагентов", "Расчётное давление обработки"],
-    acceptance: ["Визуализация расположения слотов на стволе скважины", "Автоматический подбор параметров по формации", "Валидация параметров (мин/макс диапазоны)"],
+    inputs: ["Well data (depth, diameter, formation)", "Selected candidate from Stage 4"],
+    outputs: ["Slot configuration (count, depth, interval)", "Chemical reagent dosage", "Estimated treatment pressure"],
+    acceptance: ["Slot placement visualization on wellbore", "Automatic parameter selection by formation", "Parameter validation (min/max ranges)"],
     dependencies: ["AI Well Selection & Ranking"],
   },
   {
@@ -79,9 +79,9 @@ const mvpModules = [
     icon: Activity,
     description: "Well log analysis with AI interpretation and formation evaluation",
     emoji: "📊",
-    inputs: ["Каротажные данные (GR, SP, Resistivity, Porosity)", "LAS-файлы или табличные данные"],
-    outputs: ["AI-интерпретация каротажных кривых", "Определение коллекторских зон", "Рекомендации по интервалам обработки"],
-    acceptance: ["Визуализация каротажных кривых (multi-track)", "AI-разметка продуктивных зон", "Поддержка загрузки LAS-файлов"],
+    inputs: ["Well log data (GR, SP, Resistivity, Porosity)", "LAS files or tabular data"],
+    outputs: ["AI interpretation of well log curves", "Reservoir zone identification", "Treatment interval recommendations"],
+    acceptance: ["Multi-track well log visualization", "AI-annotated productive zones", "LAS file upload support"],
     dependencies: ["Data Classification"],
   },
   {
@@ -90,20 +90,20 @@ const mvpModules = [
     icon: Microscope,
     description: "Computer vision for core sample classification and geological interpretation",
     emoji: "🔬",
-    inputs: ["Фотографии керна (JPEG/PNG)", "Метаданные (глубина отбора, скважина)"],
-    outputs: ["Классификация литотипа (limestone/sandstone/shale/dolomite)", "Confidence score и описание", "Geological interpretation report"],
-    acceptance: ["Классификация изображения за < 5 сек", "Accuracy ≥ 85% на тестовом наборе", "Поддержка drag & drop загрузки"],
+    inputs: ["Core sample photos (JPEG/PNG)", "Metadata (sampling depth, well)"],
+    outputs: ["Lithotype classification (limestone/sandstone/shale/dolomite)", "Confidence score and description", "Geological interpretation report"],
+    acceptance: ["Image classification in < 5 sec", "Accuracy ≥ 85% on test dataset", "Drag & drop upload support"],
     dependencies: [],
   },
   {
     stage: "Core",
     title: "EOR Optimization",
     icon: Brain,
-    description: "AI-driven Enhanced Oil Recovery optimization — центральный хаб MVP pipeline",
+    description: "AI-driven Enhanced Oil Recovery optimization — central MVP pipeline hub",
     emoji: "🧠",
-    inputs: ["Результаты всех Stage 1–7 модулей", "Данные Core Analysis"],
-    outputs: ["Сводный отчёт по оптимизации EOR", "Итоговые рекомендации по обработке", "Dashboard с ключевыми метриками"],
-    acceptance: ["Агрегация данных из всех модулей", "Единый dashboard с KPI", "Генерация PDF-отчёта"],
+    inputs: ["Results from all Stage 1–7 modules", "Core Analysis data"],
+    outputs: ["EOR optimization summary report", "Final treatment recommendations", "Dashboard with key metrics"],
+    acceptance: ["Data aggregation from all modules", "Unified KPI dashboard", "PDF report generation"],
     dependencies: ["Field Scanning", "Data Classification", "Cumulative Analysis", "AI Well Selection & Ranking", "Economic Analysis", "SPT Parameters", "Geophysical Expertise", "Core Analysis (CV)"],
   },
   {
@@ -112,9 +112,9 @@ const mvpModules = [
     icon: Building2,
     description: "Company-based access control, user management, RLS policies",
     emoji: "🏢",
-    inputs: ["Email/password для регистрации", "Название компании"],
-    outputs: ["JWT-токены аутентификации", "Company-scoped данные (RLS)", "Роли: admin / operator / viewer"],
-    acceptance: ["Регистрация и логин пользователей", "Изоляция данных между компаниями (RLS)", "Минимум 3 роли с разными правами"],
+    inputs: ["Email/password for registration", "Company name"],
+    outputs: ["JWT authentication tokens", "Company-scoped data (RLS)", "Roles: admin / operator / viewer"],
+    acceptance: ["User registration and login", "Data isolation between companies (RLS)", "Minimum 3 roles with different permissions"],
     dependencies: [],
   },
 ];
@@ -259,7 +259,7 @@ const MVPScope = () => {
                     <div className="px-6 pb-5 space-y-4 border-t border-border/40 pt-4">
                       {/* Inputs */}
                       <div>
-                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">📥 Входные данные</p>
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">📥 Inputs</p>
                         <ul className="space-y-1">
                           {mod.inputs.map((inp, i) => (
                             <li key={i} className="text-xs text-foreground/80 flex items-start gap-2">
@@ -271,7 +271,7 @@ const MVPScope = () => {
 
                       {/* Outputs */}
                       <div>
-                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">📤 Выходные данные</p>
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">📤 Outputs</p>
                         <ul className="space-y-1">
                           {mod.outputs.map((out, i) => (
                             <li key={i} className="text-xs text-foreground/80 flex items-start gap-2">
@@ -283,7 +283,7 @@ const MVPScope = () => {
 
                       {/* Acceptance Criteria */}
                       <div>
-                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">✅ Критерии приёмки</p>
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">✅ Acceptance Criteria</p>
                         <ul className="space-y-1">
                           {mod.acceptance.map((acc, i) => (
                             <li key={i} className="text-xs text-foreground/80 flex items-start gap-2">
@@ -296,7 +296,7 @@ const MVPScope = () => {
                       {/* Dependencies */}
                       {mod.dependencies.length > 0 && (
                         <div>
-                          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">🔗 Зависимости</p>
+                          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">🔗 Dependencies</p>
                           <div className="flex flex-wrap gap-1.5">
                             {mod.dependencies.map((dep) => (
                               <Badge key={dep} variant="outline" className="text-[10px] border-primary/30 text-primary/80">
@@ -386,8 +386,8 @@ const MVPScope = () => {
               <AlertTriangle className="h-5 w-5 text-accent-foreground" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold">🔧 Технические уточнения от команды</h2>
-              <p className="text-sm text-muted-foreground">Согласованные архитектурные решения для MVP</p>
+              <h2 className="text-2xl font-bold">🔧 Technical Clarifications from Dev Team</h2>
+              <p className="text-sm text-muted-foreground">Agreed architecture decisions for MVP</p>
             </div>
           </div>
 
@@ -396,17 +396,17 @@ const MVPScope = () => {
               <CardHeader className="pb-2">
                 <div className="flex items-center gap-2">
                   <Server className="h-4 w-4 text-primary" />
-                  <CardTitle className="text-sm">Python ML Service (Модули 4, 5)</CardTitle>
+                   <CardTitle className="text-sm">Python ML Service (Modules 4, 5)</CardTitle>
                 </div>
               </CardHeader>
               <CardContent className="space-y-2">
-                <p className="text-xs text-muted-foreground">Dedicated FastAPI inference service вместо Deno Edge Functions для ML моделей.</p>
+                <p className="text-xs text-muted-foreground">Dedicated FastAPI inference service instead of Deno Edge Functions for ML models.</p>
                 <div className="space-y-1">
-                  <div className="flex items-start gap-2 text-xs"><CheckCircle2 className="h-3 w-3 text-primary mt-0.5 shrink-0" /> Хостинг на AWS/GCP</div>
-                  <div className="flex items-start gap-2 text-xs"><CheckCircle2 className="h-3 w-3 text-primary mt-0.5 shrink-0" /> Edge Functions вызывают ML API</div>
-                  <div className="flex items-start gap-2 text-xs"><CheckCircle2 className="h-3 w-3 text-primary mt-0.5 shrink-0" /> Gemini остаётся для текстового анализа</div>
+                  <div className="flex items-start gap-2 text-xs"><CheckCircle2 className="h-3 w-3 text-primary mt-0.5 shrink-0" /> Hosted on AWS/GCP</div>
+                  <div className="flex items-start gap-2 text-xs"><CheckCircle2 className="h-3 w-3 text-primary mt-0.5 shrink-0" /> Edge Functions call ML API</div>
+                  <div className="flex items-start gap-2 text-xs"><CheckCircle2 className="h-3 w-3 text-primary mt-0.5 shrink-0" /> Gemini retained for text analysis</div>
                 </div>
-                <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">✅ Согласовано</Badge>
+                <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">✅ Agreed</Badge>
               </CardContent>
             </Card>
 
@@ -414,17 +414,17 @@ const MVPScope = () => {
               <CardHeader className="pb-2">
                 <div className="flex items-center gap-2">
                   <Globe className="h-4 w-4 text-primary" />
-                  <CardTitle className="text-sm">Texas API Integration (Модуль 2)</CardTitle>
+                   <CardTitle className="text-sm">Texas API Integration (Module 2)</CardTitle>
                 </div>
               </CardHeader>
               <CardContent className="space-y-2">
-                <p className="text-xs text-muted-foreground">Texas RRC не имеет REST API — требуется custom ETL pipeline.</p>
+                <p className="text-xs text-muted-foreground">Texas RRC has no REST API — custom ETL pipeline required.</p>
                 <div className="space-y-1">
-                  <div className="flex items-start gap-2 text-xs"><AlertTriangle className="h-3 w-3 text-yellow-500 mt-0.5 shrink-0" /> Дополнительно 2–3 недели</div>
-                  <div className="flex items-start gap-2 text-xs"><CheckCircle2 className="h-3 w-3 text-primary mt-0.5 shrink-0" /> В рамках бюджета $125K</div>
-                  <div className="flex items-start gap-2 text-xs"><CheckCircle2 className="h-3 w-3 text-primary mt-0.5 shrink-0" /> Нормализация под схему Oklahoma</div>
+                  <div className="flex items-start gap-2 text-xs"><AlertTriangle className="h-3 w-3 text-yellow-500 mt-0.5 shrink-0" /> Additional 2–3 weeks</div>
+                  <div className="flex items-start gap-2 text-xs"><CheckCircle2 className="h-3 w-3 text-primary mt-0.5 shrink-0" /> Within $125K budget</div>
+                  <div className="flex items-start gap-2 text-xs"><CheckCircle2 className="h-3 w-3 text-primary mt-0.5 shrink-0" /> Normalized to Oklahoma schema</div>
                 </div>
-                <Badge variant="outline" className="text-[10px] border-yellow-500/30 text-yellow-600 dark:text-yellow-400">⚠️ +2-3 недели</Badge>
+                <Badge variant="outline" className="text-[10px] border-yellow-500/30 text-yellow-600 dark:text-yellow-400">⚠️ +2-3 weeks</Badge>
               </CardContent>
             </Card>
 
@@ -432,17 +432,17 @@ const MVPScope = () => {
               <CardHeader className="pb-2">
                 <div className="flex items-center gap-2">
                   <Gauge className="h-4 w-4 text-primary" />
-                  <CardTitle className="text-sm">Reservoir Simulation (Модуль 9)</CardTitle>
+                   <CardTitle className="text-sm">Reservoir Simulation (Module 9)</CardTitle>
                 </div>
               </CardHeader>
               <CardContent className="space-y-2">
-                <p className="text-xs text-muted-foreground">MVP: аналитические модели. Физический симулятор — post-MVP.</p>
+                <p className="text-xs text-muted-foreground">MVP: analytical models. Physics simulator — post-MVP.</p>
                 <div className="space-y-1">
                   <div className="flex items-start gap-2 text-xs"><CheckCircle2 className="h-3 w-3 text-primary mt-0.5 shrink-0" /> Material balance, decline analysis</div>
                   <div className="flex items-start gap-2 text-xs"><CheckCircle2 className="h-3 w-3 text-primary mt-0.5 shrink-0" /> Recovery factors</div>
                   <div className="flex items-start gap-2 text-xs text-muted-foreground"><Shield className="h-3 w-3 mt-0.5 shrink-0" /> Physics solver — Phase 2</div>
                 </div>
-                <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">✅ Согласовано</Badge>
+                <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">✅ Agreed</Badge>
               </CardContent>
             </Card>
 
@@ -450,7 +450,7 @@ const MVPScope = () => {
               <CardHeader className="pb-2">
                 <div className="flex items-center gap-2">
                   <Radio className="h-4 w-4 text-primary" />
-                  <CardTitle className="text-sm">IoT / Telemetry (Модули 11–12)</CardTitle>
+                   <CardTitle className="text-sm">IoT / Telemetry (Modules 11–12)</CardTitle>
                 </div>
               </CardHeader>
               <CardContent className="space-y-2">
@@ -460,7 +460,7 @@ const MVPScope = () => {
                   <div className="flex items-start gap-2 text-xs"><CheckCircle2 className="h-3 w-3 text-primary mt-0.5 shrink-0" /> Device structure + simulator</div>
                   <div className="flex items-start gap-2 text-xs text-muted-foreground"><Shield className="h-3 w-3 mt-0.5 shrink-0" /> SCADA — Phase 2</div>
                 </div>
-                <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">✅ Согласовано</Badge>
+                <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">✅ Agreed</Badge>
               </CardContent>
             </Card>
 
@@ -468,17 +468,17 @@ const MVPScope = () => {
               <CardHeader className="pb-2">
                 <div className="flex items-center gap-2">
                   <CreditCard className="h-4 w-4 text-primary" />
-                  <CardTitle className="text-sm">Billing / Payments (Модуль 13)</CardTitle>
+                   <CardTitle className="text-sm">Billing / Payments (Module 13)</CardTitle>
                 </div>
               </CardHeader>
               <CardContent className="space-y-2">
-                <p className="text-xs text-muted-foreground">Admin UI + subscription structure. Stripe — опционально.</p>
+                <p className="text-xs text-muted-foreground">Admin UI + subscription structure. Stripe — optional.</p>
                 <div className="space-y-1">
-                  <div className="flex items-start gap-2 text-xs"><CheckCircle2 className="h-3 w-3 text-primary mt-0.5 shrink-0" /> Admin panel + тарифная сетка</div>
-                  <div className="flex items-start gap-2 text-xs"><AlertTriangle className="h-3 w-3 text-yellow-500 mt-0.5 shrink-0" /> Stripe automation: +2-3 нед.</div>
-                  <div className="flex items-start gap-2 text-xs text-muted-foreground"><Shield className="h-3 w-3 mt-0.5 shrink-0" /> Рекомендация: manual billing</div>
+                  <div className="flex items-start gap-2 text-xs"><CheckCircle2 className="h-3 w-3 text-primary mt-0.5 shrink-0" /> Admin panel + pricing tiers</div>
+                  <div className="flex items-start gap-2 text-xs"><AlertTriangle className="h-3 w-3 text-yellow-500 mt-0.5 shrink-0" /> Stripe automation: +2-3 weeks</div>
+                  <div className="flex items-start gap-2 text-xs text-muted-foreground"><Shield className="h-3 w-3 mt-0.5 shrink-0" /> Recommendation: manual billing</div>
                 </div>
-                <Badge variant="outline" className="text-[10px] border-yellow-500/30 text-yellow-600 dark:text-yellow-400">⚠️ Требует решения</Badge>
+                <Badge variant="outline" className="text-[10px] border-yellow-500/30 text-yellow-600 dark:text-yellow-400">⚠️ Decision required</Badge>
               </CardContent>
             </Card>
 
@@ -490,13 +490,13 @@ const MVPScope = () => {
                 </div>
               </CardHeader>
               <CardContent className="space-y-2">
-                <p className="text-xs text-muted-foreground">MVP: внутренний audit. Полный pentest — post-launch.</p>
+                <p className="text-xs text-muted-foreground">MVP: internal audit. Full pentest — post-launch.</p>
                 <div className="space-y-1">
                   <div className="flex items-start gap-2 text-xs"><CheckCircle2 className="h-3 w-3 text-primary mt-0.5 shrink-0" /> RLS policies audit</div>
                   <div className="flex items-start gap-2 text-xs"><CheckCircle2 className="h-3 w-3 text-primary mt-0.5 shrink-0" /> API protection + access control</div>
                   <div className="flex items-start gap-2 text-xs text-muted-foreground"><Shield className="h-3 w-3 mt-0.5 shrink-0" /> Third-party pentest — post-launch</div>
                 </div>
-                <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">✅ Согласовано</Badge>
+                <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">✅ Agreed</Badge>
               </CardContent>
             </Card>
           </div>
@@ -505,7 +505,7 @@ const MVPScope = () => {
             <CardHeader className="pb-2">
               <div className="flex items-center gap-2">
                 <FileText className="h-4 w-4 text-muted-foreground" />
-                <CardTitle className="text-sm">📎 Дополнительные обязательства</CardTitle>
+                <CardTitle className="text-sm">📎 Additional Commitments</CardTitle>
               </div>
             </CardHeader>
             <CardContent>
