@@ -399,14 +399,14 @@ const MVPScope = () => {
           </div>
         </section>
 
-        {/* Technical Clarifications from Dev Team */}
+        {/* Technical Clarifications */}
         <section>
           <div className="flex items-center gap-3 mb-6">
             <div className="h-10 w-10 rounded-xl bg-accent/20 flex items-center justify-center">
               <AlertTriangle className="h-5 w-5 text-accent-foreground" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold">🔧 Technical Clarifications from Dev Team</h2>
+              <h2 className="text-2xl font-bold">🔧 Technical Clarifications</h2>
               <p className="text-sm text-muted-foreground">Agreed architecture decisions for MVP</p>
             </div>
           </div>
