@@ -67,7 +67,7 @@ NVIDIA TECHNOLOGIES USED:
 • DLI — Team certification in CUDA, TensorRT, LLM fine-tuning
 
 TEAM:
-• Anatoliy Nikulin — CEO & SPT Engineer, Maxxwell Production (10+ years field experience, patent inventor)
+• Anatoliy Nikouline — CEO & SPT Engineer, Maxxwell Production (10+ years field experience, patent inventor)
 • Alexander Alishoev — Lead Developer, Full-Stack & AI/ML Architecture
 • Edward Rubinstein — Business Strategy
 • Maxxwell Production — Technology Partner (since 2012, worked with Chevron, Baker Hughes, Halliburton)
@@ -388,7 +388,7 @@ NVIDIA INCEPTION: Official Member`;
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {[
                     {
-                      name: "Anatoliy Nikulin",
+                      name: "Anatoliy Nikouline",
                       role: "CEO & SPT Engineer",
                       company: "Maxxwell Production",
                       detail: "Patent inventor (US 8,863,823), 10+ years field experience. Add as Founder/CEO.",
