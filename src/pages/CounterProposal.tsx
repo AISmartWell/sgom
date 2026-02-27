@@ -383,6 +383,32 @@ const CounterProposal = () => {
           </div>
         </div>
 
+        {/* MVP Scope Ready */}
+        <div className="mb-8 rounded-xl border-2 border-green-200" style={{ background: "#f0fdf4" }}>
+          <div className="p-6">
+            <h2 className="flex items-center gap-2 text-lg font-bold mb-3" style={{ color: "#1a1a2e" }}>
+              <CheckCircle2 className="h-5 w-5 text-green-600" />
+              MVP Scope — Ready for Review
+            </h2>
+            <p className="text-sm mb-3" style={{ color: "#374151" }}>
+              We have prepared a comprehensive, interactive technical specification covering all 10 Phase 1 modules 
+              with detailed inputs/outputs, acceptance criteria, dependencies, and budget allocations ($125K total).
+            </p>
+            <p className="text-sm mb-4" style={{ color: "#374151" }}>
+              The document is available for your team's review at:
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate("/mvp-scope")}
+              className="border-green-300 text-green-700 hover:bg-green-50"
+            >
+              <FileText className="mr-2 h-4 w-4" />
+              View MVP Scope →
+            </Button>
+          </div>
+        </div>
+
         {/* Footer */}
         <div className="text-center py-6">
           <p className="text-sm mb-4" style={{ color: "#6b7280" }}>
