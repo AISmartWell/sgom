@@ -106,12 +106,6 @@ const menuItems = [
     badge: "💵",
   },
   {
-    title: "SPT Parameters",
-    icon: Settings,
-    href: "/dashboard/spt-parameters",
-    badge: "⚙️",
-  },
-  {
     title: "Reports",
     icon: FileText,
     href: "/dashboard/reports",
