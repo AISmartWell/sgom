@@ -124,14 +124,14 @@
     {
       id: 7,
       title: "SPT Parameters",
-      description: "Generate cutting program for recompletion",
+      description: "Treatment parameters provided by Maxxwell Production",
       icon: Settings,
-      route: "/dashboard/spt-parameters",
+      route: null,
       details: [
-        "Technological parameters calculation",
-        "Cutting program for all services",
-        "Equipment specifications",
-        "Slot-perforation design optimization",
+        "Slot perforation pattern visualization",
+        "Treatment parameters from Maxxwell engineer",
+        "Equipment specifications reference",
+        "Read-only informational view",
       ],
     },
   ];
@@ -386,12 +386,13 @@
  
        {/* Main Content Tabs */}
        <Tabs defaultValue="details" className="space-y-6">
-         <TabsList className="bg-muted/50">
-           <TabsTrigger value="details">Stage Details</TabsTrigger>
-           <TabsTrigger value="database">Well Database</TabsTrigger>
-           <TabsTrigger value="analysis">Cumulative Analysis</TabsTrigger>
-           <TabsTrigger value="economics">Economic Model</TabsTrigger>
-         </TabsList>
+          <TabsList className="bg-muted/50">
+            <TabsTrigger value="details">Stage Details</TabsTrigger>
+            <TabsTrigger value="database">Well Database</TabsTrigger>
+            <TabsTrigger value="analysis">Cumulative Analysis</TabsTrigger>
+            <TabsTrigger value="economics">Economic Model</TabsTrigger>
+            <TabsTrigger value="spt-parameters">SPT Parameters</TabsTrigger>
+          </TabsList>
  
          {/* Stage Details */}
          <TabsContent value="details" className="space-y-4">
@@ -449,17 +450,23 @@
                           </li>
                         ))}
                       </ul>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="mt-3 w-full text-xs text-primary hover:text-primary"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(stage.route);
-                        }}
-                      >
-                        Open Stage {stage.id} →
-                      </Button>
+                      {stage.route ? (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="mt-3 w-full text-xs text-primary hover:text-primary"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(stage.route);
+                          }}
+                        >
+                          Open Stage {stage.id} →
+                        </Button>
+                      ) : (
+                        <Badge variant="outline" className="mt-3 w-full justify-center text-xs">
+                          Informational — provided by Maxxwell Production
+                        </Badge>
+                      )}
                     </CardContent>
                   </Card>
                 );
@@ -734,7 +741,96 @@
                </div>
              </CardContent>
            </Card>
-         </TabsContent>
+          </TabsContent>
+
+          {/* SPT Parameters Tab */}
+          <TabsContent value="spt-parameters">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card className="border-primary/20">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Settings className="h-5 w-5 text-primary" />
+                    SPT Technology Reference
+                  </CardTitle>
+                  <CardDescription>
+                    Slot Perforation Technology — Patent US 8,863,823 by Maxxwell Production
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-3 text-sm">
+                    <div className="flex justify-between p-3 bg-muted/30 rounded-lg">
+                      <span className="text-muted-foreground">Max Slots per Row</span>
+                      <span className="font-medium">4</span>
+                    </div>
+                    <div className="flex justify-between p-3 bg-muted/30 rounded-lg">
+                      <span className="text-muted-foreground">Nozzle Count</span>
+                      <span className="font-medium">2–4</span>
+                    </div>
+                    <div className="flex justify-between p-3 bg-muted/30 rounded-lg">
+                      <span className="text-muted-foreground">Cut Speed (Cased)</span>
+                      <span className="font-medium">50 min/ft</span>
+                    </div>
+                    <div className="flex justify-between p-3 bg-muted/30 rounded-lg">
+                      <span className="text-muted-foreground">Cut Speed (Open Hole)</span>
+                      <span className="font-medium">30 min/ft</span>
+                    </div>
+                    <div className="flex justify-between p-3 bg-muted/30 rounded-lg">
+                      <span className="text-muted-foreground">Max Slot Depth</span>
+                      <span className="font-medium">5 ft</span>
+                    </div>
+                    <div className="flex justify-between p-3 bg-muted/30 rounded-lg">
+                      <span className="text-muted-foreground">Expected Inflow Increase</span>
+                      <span className="font-medium text-primary">5–10×</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-primary/20">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Droplets className="h-5 w-5 text-primary" />
+                    Drainage Area by Nozzle Count
+                  </CardTitle>
+                  <CardDescription>
+                    Parameters provided by Maxxwell Production engineer
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-3 text-sm">
+                    <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="font-medium">2 Nozzles</span>
+                        <Badge variant="outline" className="border-primary/30 text-primary">13 ft²/ft</Badge>
+                      </div>
+                      <Progress value={43} className="h-2" />
+                    </div>
+                    <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="font-medium">3 Nozzles</span>
+                        <Badge variant="outline" className="border-primary/30 text-primary">18 ft²/ft</Badge>
+                      </div>
+                      <Progress value={65} className="h-2" />
+                    </div>
+                    <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="font-medium">4 Nozzles</span>
+                        <Badge variant="outline" className="border-primary/30 text-primary">23 ft²/ft</Badge>
+                      </div>
+                      <Progress value={100} className="h-2" />
+                    </div>
+                  </div>
+
+                  <div className="mt-4 p-4 bg-muted/30 rounded-lg border border-border/50">
+                    <p className="text-xs text-muted-foreground">
+                      <strong>Note:</strong> All treatment parameters are defined and entered by Maxxwell Production engineers. 
+                      This tab provides reference information only. For treatment program details, contact the SPT engineering team.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
        </Tabs>
      </div>
    );
