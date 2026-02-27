@@ -16,6 +16,7 @@ const mvpModules = [
     inputs: ["Field coordinates (lat/lon)", "Satellite imagery source (Sentinel-2 / Mapbox)"],
     outputs: ["Field map with well markers", "License area boundaries"],
     acceptance: ["Display ≥100 wells on map without lag", "Zoom and marker clustering support", "Satellite tile loading < 3 sec"],
+    budget: 8000,
     dependencies: [],
   },
   {
@@ -27,6 +28,7 @@ const mvpModules = [
     inputs: ["Raw well data from Stage 1", "Public databases (Oklahoma/Texas OCC/RRC)"],
     outputs: ["Categorized records (active/inactive/plugged)", "Quality Score (0–100) per well"],
     acceptance: ["Automatic classification of ≥95% records", "AI Quality Score per well", "Filtering by status, formation, county"],
+    budget: 15000,
     dependencies: ["Field Scanning"],
   },
   {
@@ -38,6 +40,7 @@ const mvpModules = [
     inputs: ["Historical production data (oil/gas/water)", "Time series per well"],
     outputs: ["Production decline curves (Arps decline)", "Cumulative production and EUR forecast", "Water cut trend coefficient"],
     acceptance: ["Decline curve generation for selected well", "EUR (Estimated Ultimate Recovery) calculation", "Interactive charts with Recharts"],
+    budget: 12000,
     dependencies: ["Data Classification"],
   },
   {
@@ -49,6 +52,7 @@ const mvpModules = [
     inputs: ["Classified well data", "Decline curves from Stage 3", "Geological parameters (formation, depth)"],
     outputs: ["Ranked list of SPT treatment candidates", "AI Score (0–100) with factor explanation", "Top-N recommendations"],
     acceptance: ["Ranking of ≥50 wells in < 5 sec", "Transparent scoring formula", "Filters by state, formation, minimum score"],
+    budget: 18000,
     dependencies: ["Cumulative Analysis", "Data Classification"],
   },
   {
@@ -60,6 +64,7 @@ const mvpModules = [
     inputs: ["Current well production", "Post-SPT production uplift forecast", "SPT treatment cost", "Oil price (API)"],
     outputs: ["NPV, IRR, Payback Period per candidate", "Sensitivity analysis (oil price ±20%)", "Comparative ROI table"],
     acceptance: ["NPV/IRR calculation in < 2 sec", "Dynamic update on oil price change", "Export results to PDF"],
+    budget: 10000,
     dependencies: ["AI Well Selection & Ranking"],
   },
   {
@@ -71,6 +76,7 @@ const mvpModules = [
     inputs: ["Well data (depth, diameter, formation)", "Selected candidate from Stage 4"],
     outputs: ["Slot configuration (count, depth, interval)", "Chemical reagent dosage", "Estimated treatment pressure"],
     acceptance: ["Slot placement visualization on wellbore", "Automatic parameter selection by formation", "Parameter validation (min/max ranges)"],
+    budget: 12000,
     dependencies: ["AI Well Selection & Ranking"],
   },
   {
@@ -82,6 +88,7 @@ const mvpModules = [
     inputs: ["Well log data (GR, SP, Resistivity, Porosity)", "LAS files or tabular data"],
     outputs: ["AI interpretation of well log curves", "Reservoir zone identification", "Treatment interval recommendations"],
     acceptance: ["Multi-track well log visualization", "AI-annotated productive zones", "LAS file upload support"],
+    budget: 15000,
     dependencies: ["Data Classification"],
   },
   {
@@ -93,6 +100,7 @@ const mvpModules = [
     inputs: ["Core sample photos (JPEG/PNG)", "Metadata (sampling depth, well)"],
     outputs: ["Lithotype classification (limestone/sandstone/shale/dolomite)", "Confidence score and description", "Geological interpretation report"],
     acceptance: ["Image classification in < 5 sec", "Accuracy ≥ 85% on test dataset", "Drag & drop upload support"],
+    budget: 10000,
     dependencies: [],
   },
   {
@@ -104,6 +112,7 @@ const mvpModules = [
     inputs: ["Results from all Stage 1–7 modules", "Core Analysis data"],
     outputs: ["EOR optimization summary report", "Final treatment recommendations", "Dashboard with key metrics"],
     acceptance: ["Data aggregation from all modules", "Unified KPI dashboard", "PDF report generation"],
+    budget: 15000,
     dependencies: ["Field Scanning", "Data Classification", "Cumulative Analysis", "AI Well Selection & Ranking", "Economic Analysis", "SPT Parameters", "Geophysical Expertise", "Core Analysis (CV)"],
   },
   {
@@ -115,6 +124,7 @@ const mvpModules = [
     inputs: ["Email/password for registration", "Company name"],
     outputs: ["JWT authentication tokens", "Company-scoped data (RLS)", "Roles: admin / operator / viewer"],
     acceptance: ["User registration and login", "Data isolation between companies (RLS)", "Minimum 3 roles with different permissions"],
+    budget: 10000,
     dependencies: [],
   },
 ];
@@ -190,12 +200,19 @@ const MVPScope = () => {
 
       <main className="container mx-auto px-6 py-10 space-y-12 max-w-6xl">
         {/* Summary */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <Card className="border-primary/30 bg-primary/5">
             <CardContent className="pt-6 text-center">
               <Rocket className="h-8 w-8 text-primary mx-auto mb-2" />
               <p className="text-3xl font-bold text-primary">10</p>
               <p className="text-sm text-muted-foreground">MVP Modules</p>
+            </CardContent>
+          </Card>
+          <Card className="border-primary/30 bg-primary/5">
+            <CardContent className="pt-6 text-center">
+              <DollarSign className="h-8 w-8 text-primary mx-auto mb-2" />
+              <p className="text-3xl font-bold text-primary">${(mvpModules.reduce((s, m) => s + m.budget, 0) / 1000).toFixed(0)}K</p>
+              <p className="text-sm text-muted-foreground">Total Budget</p>
             </CardContent>
           </Card>
           <Card className="border-yellow-500/30 bg-yellow-500/5">
@@ -247,6 +264,9 @@ const MVPScope = () => {
                           </div>
                           <CardTitle className="text-sm">{mod.emoji} {mod.title}</CardTitle>
                         </div>
+                        <Badge variant="outline" className="text-[10px] border-primary/30 text-primary shrink-0">
+                          ${mod.budget.toLocaleString()}
+                        </Badge>
                         <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                       </div>
                     </CardHeader>
