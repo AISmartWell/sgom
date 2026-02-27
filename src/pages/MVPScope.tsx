@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft, CheckCircle2, Clock, Rocket, Layers, Shield, Brain, Radio, Microscope, BarChart3, Target, DollarSign, Settings, FolderSearch, TrendingDown, Radar, Activity, GraduationCap, Building2, TrendingUp } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Clock, Rocket, Layers, Shield, Brain, Radio, Microscope, BarChart3, Target, DollarSign, Settings, FolderSearch, TrendingDown, Radar, Activity, GraduationCap, Building2, TrendingUp, ChevronDown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 
 const mvpModules = [
@@ -12,6 +13,10 @@ const mvpModules = [
     icon: Radar,
     description: "Satellite imagery + well location mapping for field overview",
     emoji: "🛰️",
+    inputs: ["Координаты месторождения (lat/lon)", "Источник спутниковых снимков (Sentinel-2 / Mapbox)"],
+    outputs: ["Карта месторождения с маркерами скважин", "Границы лицензионного участка"],
+    acceptance: ["Отображение ≥100 скважин на карте без задержек", "Поддержка зума и кластеризации маркеров", "Загрузка спутниковых тайлов < 3 сек"],
+    dependencies: [],
   },
   {
     stage: "Stage 2",
@@ -19,6 +24,10 @@ const mvpModules = [
     icon: FolderSearch,
     description: "Automated categorization and quality scoring of well data",
     emoji: "📂",
+    inputs: ["Сырые данные скважин из Stage 1", "Публичные БД (Oklahoma/Texas OCC/RRC)"],
+    outputs: ["Категоризированные записи (active/inactive/plugged)", "Quality Score (0–100) для каждой скважины"],
+    acceptance: ["Автоматическая классификация ≥95% записей", "AI Quality Score для каждой скважины", "Фильтрация по статусу, формации, округу"],
+    dependencies: ["Field Scanning"],
   },
   {
     stage: "Stage 3",
@@ -26,6 +35,10 @@ const mvpModules = [
     icon: TrendingDown,
     description: "Production decline curves and cumulative output analysis",
     emoji: "📈",
+    inputs: ["Исторические данные добычи (oil/gas/water)", "Временные ряды по скважинам"],
+    outputs: ["Кривые падения добычи (Arps decline)", "Кумулятивная добыча и прогноз EUR", "Коэффициент обводнённости (water cut trend)"],
+    acceptance: ["Построение decline curve для выбранной скважины", "Расчёт EUR (Estimated Ultimate Recovery)", "Интерактивные графики с Recharts"],
+    dependencies: ["Data Classification"],
   },
   {
     stage: "Stage 4",
@@ -33,6 +46,10 @@ const mvpModules = [
     icon: Target,
     description: "ML-driven candidate ranking for SPT treatment",
     emoji: "🎯",
+    inputs: ["Классифицированные данные скважин", "Decline curves из Stage 3", "Геологические параметры (формация, глубина)"],
+    outputs: ["Ранжированный список кандидатов для SPT", "AI Score (0–100) с объяснением факторов", "Top-N рекомендации"],
+    acceptance: ["Ранжирование ≥50 скважин за < 5 сек", "Прозрачная формула скоринга", "Фильтры по штату, формации, минимальному баллу"],
+    dependencies: ["Cumulative Analysis", "Data Classification"],
   },
   {
     stage: "Stage 5",
@@ -40,6 +57,10 @@ const mvpModules = [
     icon: DollarSign,
     description: "ROI modeling, NPV/IRR calculations per well candidate",
     emoji: "💵",
+    inputs: ["Текущая добыча скважины", "Прогноз прироста после SPT", "Стоимость обработки SPT", "Цена нефти (API)"],
+    outputs: ["NPV, IRR, Payback Period для каждого кандидата", "Sensitivity analysis (цена нефти ±20%)", "Сравнительная таблица ROI"],
+    acceptance: ["Расчёт NPV/IRR за < 2 сек", "Динамическое обновление при смене цены нефти", "Экспорт результатов в PDF"],
+    dependencies: ["AI Well Selection & Ranking"],
   },
   {
     stage: "Stage 7",
@@ -47,6 +68,10 @@ const mvpModules = [
     icon: Settings,
     description: "Treatment slot configuration and chemical dosage optimization",
     emoji: "⚙️",
+    inputs: ["Данные о скважине (глубина, диаметр, формация)", "Выбранный кандидат из Stage 4"],
+    outputs: ["Конфигурация слотов (количество, глубина, интервал)", "Дозировка химических реагентов", "Расчётное давление обработки"],
+    acceptance: ["Визуализация расположения слотов на стволе скважины", "Автоматический подбор параметров по формации", "Валидация параметров (мин/макс диапазоны)"],
+    dependencies: ["AI Well Selection & Ranking"],
   },
   {
     stage: "Stage 6",
@@ -54,6 +79,10 @@ const mvpModules = [
     icon: Activity,
     description: "Well log analysis with AI interpretation and formation evaluation",
     emoji: "📊",
+    inputs: ["Каротажные данные (GR, SP, Resistivity, Porosity)", "LAS-файлы или табличные данные"],
+    outputs: ["AI-интерпретация каротажных кривых", "Определение коллекторских зон", "Рекомендации по интервалам обработки"],
+    acceptance: ["Визуализация каротажных кривых (multi-track)", "AI-разметка продуктивных зон", "Поддержка загрузки LAS-файлов"],
+    dependencies: ["Data Classification"],
   },
   {
     stage: "Core",
@@ -61,13 +90,21 @@ const mvpModules = [
     icon: Microscope,
     description: "Computer vision for core sample classification and geological interpretation",
     emoji: "🔬",
+    inputs: ["Фотографии керна (JPEG/PNG)", "Метаданные (глубина отбора, скважина)"],
+    outputs: ["Классификация литотипа (limestone/sandstone/shale/dolomite)", "Confidence score и описание", "Geological interpretation report"],
+    acceptance: ["Классификация изображения за < 5 сек", "Accuracy ≥ 85% на тестовом наборе", "Поддержка drag & drop загрузки"],
+    dependencies: [],
   },
   {
     stage: "Core",
     title: "EOR Optimization",
     icon: Brain,
-    description: "AI-driven Enhanced Oil Recovery optimization through automated geological analysis and SPT well selection",
+    description: "AI-driven Enhanced Oil Recovery optimization — центральный хаб MVP pipeline",
     emoji: "🧠",
+    inputs: ["Результаты всех Stage 1–7 модулей", "Данные Core Analysis"],
+    outputs: ["Сводный отчёт по оптимизации EOR", "Итоговые рекомендации по обработке", "Dashboard с ключевыми метриками"],
+    acceptance: ["Агрегация данных из всех модулей", "Единый dashboard с KPI", "Генерация PDF-отчёта"],
+    dependencies: ["Field Scanning", "Data Classification", "Cumulative Analysis", "AI Well Selection & Ranking", "Economic Analysis", "SPT Parameters", "Geophysical Expertise", "Core Analysis (CV)"],
   },
   {
     stage: "Core",
@@ -75,6 +112,10 @@ const mvpModules = [
     icon: Building2,
     description: "Company-based access control, user management, RLS policies",
     emoji: "🏢",
+    inputs: ["Email/password для регистрации", "Название компании"],
+    outputs: ["JWT-токены аутентификации", "Company-scoped данные (RLS)", "Роли: admin / operator / viewer"],
+    acceptance: ["Регистрация и логин пользователей", "Изоляция данных между компаниями (RLS)", "Минимум 3 роли с разными правами"],
+    dependencies: [],
   },
 ];
 
@@ -173,7 +214,7 @@ const MVPScope = () => {
           </Card>
         </div>
 
-        {/* MVP Core */}
+        {/* MVP Core with detailed specs */}
         <section>
           <div className="flex items-center gap-3 mb-6">
             <div className="h-10 w-10 rounded-xl bg-primary/20 flex items-center justify-center">
@@ -183,27 +224,92 @@ const MVPScope = () => {
               <h2 className="text-2xl font-bold">Essential MVP</h2>
               <p className="text-sm text-muted-foreground">Data-to-Recommendation Pipeline — must ship</p>
             </div>
-            
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="space-y-4">
             {mvpModules.map((mod) => (
-              <Card key={mod.title} className="border-primary/20 hover:border-primary/40 transition-colors">
-                <CardHeader className="pb-2">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <mod.icon className="h-5 w-5 text-primary" />
+              <Collapsible key={mod.title}>
+                <Card className="border-primary/20 hover:border-primary/40 transition-colors">
+                  <CollapsibleTrigger className="w-full text-left">
+                    <CardHeader className="pb-2">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                          <mod.icon className="h-5 w-5 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Badge variant="outline" className="text-[10px]">{mod.stage}</Badge>
+                            {mod.dependencies.length > 0 && (
+                              <Badge variant="outline" className="text-[10px] border-muted-foreground/30 text-muted-foreground">
+                                {mod.dependencies.length} dep{mod.dependencies.length > 1 ? 's' : ''}
+                              </Badge>
+                            )}
+                          </div>
+                          <CardTitle className="text-sm">{mod.emoji} {mod.title}</CardTitle>
+                        </div>
+                        <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pt-0 pb-3">
+                      <p className="text-xs text-muted-foreground">{mod.description}</p>
+                    </CardContent>
+                  </CollapsibleTrigger>
+
+                  <CollapsibleContent>
+                    <div className="px-6 pb-5 space-y-4 border-t border-border/40 pt-4">
+                      {/* Inputs */}
+                      <div>
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">📥 Входные данные</p>
+                        <ul className="space-y-1">
+                          {mod.inputs.map((inp, i) => (
+                            <li key={i} className="text-xs text-foreground/80 flex items-start gap-2">
+                              <span className="text-muted-foreground mt-0.5">•</span> {inp}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      {/* Outputs */}
+                      <div>
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">📤 Выходные данные</p>
+                        <ul className="space-y-1">
+                          {mod.outputs.map((out, i) => (
+                            <li key={i} className="text-xs text-foreground/80 flex items-start gap-2">
+                              <span className="text-primary mt-0.5">→</span> {out}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      {/* Acceptance Criteria */}
+                      <div>
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">✅ Критерии приёмки</p>
+                        <ul className="space-y-1">
+                          {mod.acceptance.map((acc, i) => (
+                            <li key={i} className="text-xs text-foreground/80 flex items-start gap-2">
+                              <CheckCircle2 className="h-3 w-3 text-primary mt-0.5 shrink-0" /> {acc}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      {/* Dependencies */}
+                      {mod.dependencies.length > 0 && (
+                        <div>
+                          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">🔗 Зависимости</p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {mod.dependencies.map((dep) => (
+                              <Badge key={dep} variant="outline" className="text-[10px] border-primary/30 text-primary/80">
+                                {dep}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <Badge variant="outline" className="text-[10px] mb-1">{mod.stage}</Badge>
-                      <CardTitle className="text-sm">{mod.emoji} {mod.title}</CardTitle>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-xs text-muted-foreground">{mod.description}</p>
-                </CardContent>
-              </Card>
+                  </CollapsibleContent>
+                </Card>
+              </Collapsible>
             ))}
           </div>
         </section>
@@ -327,12 +433,12 @@ const MVPScope = () => {
         <section>
           <h2 className="text-xl font-bold mb-4">MVP Pipeline Flow</h2>
           <div className="flex flex-wrap items-center gap-2 text-sm">
-            {mvpModules.slice(0, 6).map((mod, i) => (
+            {mvpModules.slice(0, 7).map((mod, i) => (
               <div key={mod.title} className="flex items-center gap-2">
                 <span className="px-3 py-1.5 rounded-lg bg-primary/10 text-primary font-medium text-xs">
                   {mod.emoji} {mod.title}
                 </span>
-                {i < 5 && <span className="text-muted-foreground">→</span>}
+                {i < 6 && <span className="text-muted-foreground">→</span>}
               </div>
             ))}
           </div>
