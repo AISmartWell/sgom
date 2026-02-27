@@ -36,6 +36,7 @@ import TechnicalSpec from "./pages/TechnicalSpec";
 import BudgetOverview from "./pages/BudgetOverview";
 import CounterProposal from "./pages/CounterProposal";
 import MVPScope from "./pages/MVPScope";
+import TechnicalResponse from "./pages/TechnicalResponse";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -80,7 +81,8 @@ const App = () => (
            <Route path="/docs" element={<TechnicalSpec />} />
            <Route path="/budget" element={<BudgetOverview />} />
            <Route path="/counter-proposal" element={<CounterProposal />} />
-           <Route path="/mvp-scope" element={<MVPScope />} />
+            <Route path="/mvp-scope" element={<MVPScope />} />
+            <Route path="/technical-response" element={<TechnicalResponse />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
