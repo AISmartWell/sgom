@@ -399,6 +399,145 @@ const MVPScope = () => {
           </div>
         </section>
 
+        {/* Funding Roadmap */}
+        <section>
+          <div className="flex items-center gap-3 mb-6">
+            <div className="h-10 w-10 rounded-xl bg-primary/20 flex items-center justify-center">
+              <DollarSign className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold">💰 Funding Roadmap</h2>
+              <p className="text-sm text-muted-foreground">Two-phase funding strategy — MVP funded by grants, Phase 2 by Pre-Seed round</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            {/* Phase 1 */}
+            <Card className="border-primary/30 bg-primary/5">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <Rocket className="h-4 w-4 text-primary" />
+                    Phase 1 — MVP Development
+                  </CardTitle>
+                  <Badge className="bg-primary/20 text-primary border-primary/30">Active</Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-muted-foreground">Dev Contract (10 modules)</span>
+                    <span className="font-semibold text-foreground">$125,000</span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-muted-foreground">Team Salaries (18 weeks)</span>
+                    <span className="font-semibold text-foreground">$216,000</span>
+                  </div>
+                  <div className="border-t border-border/40 pt-2 flex justify-between text-xs font-bold">
+                    <span>Total Phase 1</span>
+                    <span className="text-primary">$341,000</span>
+                  </div>
+                </div>
+                <div className="space-y-1.5 pt-2 border-t border-border/40">
+                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Funding Sources</p>
+                  <div className="flex items-center gap-2 text-xs">
+                    <CheckCircle2 className="h-3 w-3 text-primary shrink-0" />
+                    <span>DOE SBIR Phase I Grant — $275,000</span>
+                    <Badge variant="outline" className="text-[9px] ml-auto">Non-dilutive</Badge>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <CheckCircle2 className="h-3 w-3 text-primary shrink-0" />
+                    <span>Pre-Seed/Seed allocation — $66,000</span>
+                  </div>
+                  <div className="mt-2 px-3 py-1.5 rounded-lg bg-primary/10 text-xs text-primary font-medium text-center">
+                    Net Cash Outlay: $0
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Phase 2 */}
+            <Card className="border-yellow-500/20 bg-yellow-500/5">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-yellow-500" />
+                    Phase 2 — Post-MVP Expansion
+                  </CardTitle>
+                  <Badge variant="outline" className="text-[10px] border-yellow-500/30 text-yellow-600 dark:text-yellow-400">Planned</Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-muted-foreground">Reservoir Simulation (physics engine)</span>
+                    <span className="font-semibold text-foreground">TBD</span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-muted-foreground">ML Training Pipeline (GPU infra)</span>
+                    <span className="font-semibold text-foreground">TBD</span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-muted-foreground">IoT / SCADA Integration</span>
+                    <span className="font-semibold text-foreground">TBD</span>
+                  </div>
+                  <div className="border-t border-border/40 pt-2 flex justify-between text-xs font-bold">
+                    <span>Estimated Phase 2</span>
+                    <span className="text-yellow-600 dark:text-yellow-400">$150K–250K</span>
+                  </div>
+                </div>
+                <div className="space-y-1.5 pt-2 border-t border-border/40">
+                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Funding Sources</p>
+                  <div className="flex items-center gap-2 text-xs">
+                    <CheckCircle2 className="h-3 w-3 text-primary shrink-0" />
+                    <span>Pre-Seed/Seed round — $2.39M total</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <span className="ml-5">25% allocated to AI platform dev</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <CheckCircle2 className="h-3 w-3 text-primary shrink-0" />
+                    <span>Infrastructure credits — $565K total</span>
+                    <Badge variant="outline" className="text-[9px] ml-auto">Non-dilutive</Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Funding flow */}
+          <Card className="border-muted">
+            <CardContent className="pt-6">
+              <div className="flex flex-wrap items-center justify-center gap-3 text-xs">
+                <div className="px-3 py-2 rounded-lg bg-primary/10 text-primary font-medium text-center">
+                  <div className="font-bold">DOE SBIR</div>
+                  <div className="text-[10px]">$275K grant</div>
+                </div>
+                <span className="text-muted-foreground">→</span>
+                <div className="px-3 py-2 rounded-lg bg-primary/10 text-primary font-medium text-center">
+                  <div className="font-bold">Phase 1 MVP</div>
+                  <div className="text-[10px]">$341K total</div>
+                </div>
+                <span className="text-muted-foreground">→</span>
+                <div className="px-3 py-2 rounded-lg bg-primary/10 text-primary font-medium text-center">
+                  <div className="font-bold">Demo to Investors</div>
+                  <div className="text-[10px]">Working product</div>
+                </div>
+                <span className="text-muted-foreground">→</span>
+                <div className="px-3 py-2 rounded-lg bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 font-medium text-center">
+                  <div className="font-bold">Pre-Seed $2.39M</div>
+                  <div className="text-[10px]">via NVIDIA Capital Connect</div>
+                </div>
+                <span className="text-muted-foreground">→</span>
+                <div className="px-3 py-2 rounded-lg bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 font-medium text-center">
+                  <div className="font-bold">Phase 2 Expansion</div>
+                  <div className="text-[10px]">$150K–250K</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
+
         {/* Technical Clarifications from Dev Team */}
         <section>
           <div className="flex items-center gap-3 mb-6">
