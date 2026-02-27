@@ -122,7 +122,7 @@ const AWSActivate = () => {
   ];
 
   const applicationText = {
-    companyDescription: `SGO.ai is an AI-powered Enhanced Oil Recovery (EOR) optimization platform leveraging Slot Perforation Technology (SPT). We automate geological analysis and well selection using computer vision and machine learning, reducing field engineer decision time from weeks to minutes.
+     companyDescription: `AI Smart Well is an AI-powered Enhanced Oil Recovery (EOR) optimization platform leveraging Slot Perforation Technology (SPT). We automate geological analysis and well selection using computer vision and machine learning, reducing field engineer decision time from weeks to minutes.
 
 We are an official member of the NVIDIA Inception Program and DOE SBIR Phase I grant applicant ($275,000). Our founding team has 15+ years in oil & gas operations combined with deep AI/ML expertise.`,
 
@@ -130,7 +130,7 @@ We are an official member of the NVIDIA Inception Program and DOE SBIR Phase I g
 
 Currently, 80% of EOR decisions are made without AI assistance, leading to suboptimal well selection and leaving $3.2B/year in recoverable oil value untapped in the U.S. alone.`,
 
-    solution: `SGO.ai's platform ingests well logs, core sample imagery, production history, and seismic data to automatically:
+    solution: `AI Smart Well's platform ingests well logs, core sample imagery, production history, and seismic data to automatically:
 1. Score and rank wells by SPT treatment potential (AI Well Ranking Engine)
 2. Analyze core sample photography via computer vision (Core Analysis Module)
 3. Calculate optimal SPT parameters per geological formation (SPT Parameters Engine)
@@ -367,7 +367,7 @@ Phase 3 — Scale (Months 13-18): $25,000
                   { item: "Working product / MVP", status: true, note: "Live MVP at sgom.lovable.app — 19 modules" },
                   { item: "Not previously received AWS Activate $100K tier", status: true, note: "First AWS Activate application" },
                   { item: "Less than $10M in funding raised", status: true, note: "No funding raised yet (pre-seed)" },
-                  { item: "Valid business entity (LLC/Corp)", status: true, note: "SGO.ai LLC — USA" },
+                  { item: "Valid business entity (LLC/Corp)", status: true, note: "AI Smart Development Corporation — USA" },
                   { item: "AWS account in good standing", status: true, note: "Create new or use existing account" },
                 ].map((check, i) => (
                   <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">

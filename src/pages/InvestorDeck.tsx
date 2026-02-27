@@ -602,7 +602,7 @@ const InvestorDeck = () => {
           <thead>
             <tr className="bg-muted/50">
               <th className="text-left p-3 font-medium"></th>
-              <th className="text-center p-3 font-bold text-primary">SGO.ai</th>
+              <th className="text-center p-3 font-bold text-primary">AI Smart Well</th>
               <th className="text-center p-3 font-medium text-muted-foreground">Legacy Software</th>
               <th className="text-center p-3 font-medium text-muted-foreground">Big Oil In-House</th>
             </tr>
