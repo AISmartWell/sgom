@@ -45,7 +45,7 @@ import nvidiaLogoBw from "@/assets/nvidia-logo-bw.png";
      },
      {
        name: "EOR Optimization Engine",
-       description: "Cumulative production analysis and SPT parameter calculation",
+       description: "Cumulative production analysis and SPT technology optimization",
        model: "Mathematical + AI Hybrid",
        capabilities: ["Decline curve analysis", "Reserve estimation", "Economic modeling", "Parameter optimization"],
        gpuPotential: "Physics-informed neural networks (PINNs)",
@@ -249,7 +249,7 @@ import nvidiaLogoBw from "@/assets/nvidia-logo-bw.png";
                          </div>
                          <div className="p-3 rounded-lg bg-success/10 text-sm flex items-center gap-2">
                            <CheckCircle2 className="h-4 w-4 text-success" />
-                           SPT Parameters
+                           SPT Technology
                          </div>
                          <div className="p-3 rounded-lg bg-success/10 text-sm flex items-center gap-2">
                            <CheckCircle2 className="h-4 w-4 text-success" />
