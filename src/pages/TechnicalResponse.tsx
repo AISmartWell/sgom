@@ -259,6 +259,11 @@ const TechnicalResponse = () => {
               The document includes detailed inputs/outputs, acceptance criteria, inter-module dependencies, and individual
               budget allocations from the $125K total.
             </p>
+            <div className="p-3 mb-3 rounded-lg border border-indigo-300" style={{ background: "#e0e7ff" }}>
+              <p className="text-sm font-semibold" style={{ color: "#4338ca" }}>
+                📢 Please review the new module. The full interactive specification is ready for your analysis.
+              </p>
+            </div>
             <p className="text-sm mb-4" style={{ color: "#374151" }}>
               Please review the specification thoroughly before our next alignment meeting. We expect your feedback on:
             </p>
