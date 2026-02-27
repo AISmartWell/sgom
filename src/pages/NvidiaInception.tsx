@@ -106,10 +106,16 @@ import nvidiaLogoBw from "@/assets/nvidia-logo-bw.png";
        {/* Header */}
        <div className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
          <div className="max-w-7xl mx-auto px-6 py-4">
-           <Button variant="ghost" size="sm" onClick={() => navigate("/")} className="mb-2">
-             <ArrowLeft className="mr-2 h-4 w-4" />
-             Back to Platform
-           </Button>
+            <div className="flex items-center gap-2 mb-2">
+              <Button variant="ghost" size="sm" onClick={() => navigate("/")}>
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Platform
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => navigate("/dashboard")}>
+                <Sparkles className="mr-2 h-4 w-4" />
+                Dashboard
+              </Button>
+            </div>
            <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <img 
