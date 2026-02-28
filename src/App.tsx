@@ -29,6 +29,7 @@ import MultiTenantDemo from "./pages/modules/MultiTenantDemo";
 import TelemetryArchitecture from "./pages/modules/TelemetryArchitecture";
 import SaaSBusinessModel from "./pages/modules/SaaSBusinessModel";
 import Architecture from "./pages/modules/Architecture";
+import WellAnalysisPipeline from "./pages/modules/WellAnalysisPipeline";
 import NvidiaInception from "./pages/NvidiaInception";
 import NvidiaShowcase from "./pages/NvidiaShowcase";
 import AWSActivate from "./pages/AWSActivate";
@@ -76,6 +77,7 @@ const App = () => (
              <Route path="multi-tenant" element={<MultiTenantDemo />} />
              <Route path="saas-business-model" element={<SaaSBusinessModel />} />
              <Route path="architecture" element={<Architecture />} />
+             <Route path="well-analysis" element={<WellAnalysisPipeline />} />
           </Route>
            <Route path="/nvidia-inception" element={<NvidiaInception />} />
            <Route path="/nvidia-showcase" element={<NvidiaShowcase />} />

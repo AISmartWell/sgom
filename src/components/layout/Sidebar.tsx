@@ -120,6 +120,12 @@ const menuItems = [
     badge: "🎯",
   },
   {
+    title: "Well Analysis Pipeline",
+    icon: Droplets,
+    href: "/dashboard/well-analysis",
+    badge: "🔬",
+  },
+  {
     title: "Reservoir Simulation",
     icon: BarChart3,
     href: "/dashboard/simulation",
