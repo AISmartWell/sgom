@@ -32,6 +32,7 @@ const WellFilters = ({ filters, onFiltersChange, disabled }: WellFiltersProps) =
             <SelectContent>
               <SelectItem value="Oklahoma">Oklahoma - Anadarko Basin</SelectItem>
               <SelectItem value="Texas">Texas - Permian Basin</SelectItem>
+              <SelectItem value="TexasEagleFord">Texas - Eagle Ford Shale</SelectItem>
               <SelectItem value="NewMexico">New Mexico - Delaware Basin</SelectItem>
             </SelectContent>
           </Select>
