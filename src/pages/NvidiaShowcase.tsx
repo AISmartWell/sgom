@@ -142,7 +142,7 @@ NVIDIA INCEPTION: Official Member`;
     { name: "AI Well Selection", emoji: "🎯", stage: "Stage 4", route: "/dashboard/well-selection", nvidia: true, description: "ML-driven candidate ranking" },
     { name: "Economic Analysis", emoji: "💵", stage: "Stage 5", route: "/dashboard/economic-analysis", nvidia: false, description: "NPV, IRR, ROI calculations" },
     { name: "Geophysical Expertise", emoji: "🔬", stage: "Stage 6", route: "/dashboard/geophysical", nvidia: true, description: "AI well log interpretation" },
-    { name: "Core Analysis (CV)", emoji: "🔬", stage: "Stage 10", route: "/dashboard/core-analysis", nvidia: true, description: "NVIDIA Computer Vision for rock analysis" },
+    { name: "Core Analysis (CV)", emoji: "🔬", stage: "Core", route: "/dashboard/core-analysis", nvidia: true, description: "NVIDIA Computer Vision for rock analysis" },
     { name: "EOR Optimization", emoji: "🧠", stage: "Stage 8", route: "/dashboard/eor-optimization", nvidia: true, description: "Central hub — all modules aggregated" },
   ];
 
