@@ -66,7 +66,7 @@ const ModuleCard = ({
         )}
 
         <div className="flex items-center text-sm font-medium text-primary opacity-0 group-hover:opacity-100 transition-opacity">
-          <span>Открыть модуль</span>
+          <span>Open Module</span>
           <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
         </div>
       </div>
