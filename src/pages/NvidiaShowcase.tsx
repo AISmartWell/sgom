@@ -56,7 +56,7 @@ KEY METRICS:
 • 10+ functional AI modules in production
 • 15,000+ wells analyzed across Oklahoma & Texas
 • 94% accuracy in AI well ranking
-• 5-20x production increase potential with SPT
+• 5-10x inflow increase potential with SPT
 • 312% projected ROI, 7-8 month payback
 
 NVIDIA TECHNOLOGIES USED:
@@ -215,7 +215,7 @@ NVIDIA INCEPTION: Official Member`;
                 { icon: Brain, label: "AI Modules", value: "10+", color: "text-[#76B900]" },
                 { icon: Database, label: "Wells Analyzed", value: "15,000+", color: "text-primary" },
                 { icon: Target, label: "AI Accuracy", value: "94%", color: "text-success" },
-                { icon: TrendingUp, label: "Production Uplift", value: "5-20×", color: "text-accent" },
+                { icon: TrendingUp, label: "Inflow Uplift", value: "5-10×", color: "text-accent" },
               ].map((stat) => (
                 <Card key={stat.label} className="text-center">
                   <CardContent className="pt-6">

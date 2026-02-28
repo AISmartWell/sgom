@@ -6,12 +6,14 @@ import { useNavigate } from "react-router-dom";
 
 const benefits = [
   { label: "Slot Depth", value: "Up to 5 ft (1.5m)" },
-  { label: "Drainage Area", value: "25 ft²/linear ft" },
+  { label: "Drainage (2 nozzles)", value: "13 ft²/linear m" },
+  { label: "Drainage (4 nozzles)", value: "23 ft²/linear m" },
   { label: "Stress Relief", value: "50-100%" },
   { label: "Permeability Increase", value: "30-50%" },
-  { label: "Porosity Increase", value: "4-5×" },
-  { label: "Inflow Increase", value: "5-20×" },
-  { label: "Effect Duration", value: "Up to 25 years" },
+  { label: "Inflow Increase", value: "5-10×" },
+  { label: "Cut Speed (Cased)", value: "50 min/linear ft" },
+  { label: "Cut Speed (Open Hole)", value: "30 min/linear ft" },
+  { label: "Effect Duration", value: "10-15 years" },
   { label: "Max Extraction Rate", value: "Up to 95%" },
 ];
 
@@ -80,7 +82,7 @@ const SPTTreatment = () => {
                 <div className="text-center p-4 bg-accent/10 rounded-lg">
                   <p className="text-3xl">⚡</p>
                   <p className="text-sm font-medium mt-2">High Efficiency</p>
-                  <p className="text-xs text-muted-foreground">5-20x production boost</p>
+                  <p className="text-xs text-muted-foreground">5-10× inflow increase</p>
                 </div>
               </div>
             </CardContent>
@@ -113,11 +115,11 @@ const SPTTreatment = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="text-center p-6 bg-success/10 rounded-xl">
-                <p className="text-4xl font-bold text-success">5-20×</p>
-                <p className="text-sm text-muted-foreground mt-2">Production Increase</p>
+                <p className="text-4xl font-bold text-success">5-10×</p>
+                <p className="text-sm text-muted-foreground mt-2">Inflow Increase</p>
               </div>
               <div className="text-center p-4 bg-primary/10 rounded-lg">
-                <p className="text-2xl font-bold text-primary">25 years</p>
+                <p className="text-2xl font-bold text-primary">10-15 yr</p>
                 <p className="text-xs text-muted-foreground">Effect Duration</p>
               </div>
               <div className="text-center p-4 bg-accent/10 rounded-lg">
