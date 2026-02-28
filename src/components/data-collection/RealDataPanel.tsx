@@ -46,14 +46,24 @@ const OKLAHOMA_COUNTIES = [
   "ALL", "CANADIAN", "CADDO", "GRADY", "OKLAHOMA", "BLAINE", "KINGFISHER", "LOGAN", "GARVIN", "MCCLAIN", "STEPHENS", "CARTER"
 ];
 
+const TEXAS_REGIONS = [
+  { value: "PERMIAN", label: "Permian Basin" },
+  { value: "EAGLE_FORD", label: "Eagle Ford Shale" },
+  { value: "BARNETT", label: "Barnett Shale" },
+  { value: "ALL", label: "All Texas" },
+];
+
 export const RealDataPanel = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
+  const [isFetchingTexas, setIsFetchingTexas] = useState(false);
   const [wells, setWells] = useState<WellRecord[]>([]);
   const [stats, setStats] = useState<DbStats | null>(null);
   const [selectedCounty, setSelectedCounty] = useState("ALL");
+  const [selectedTexasRegion, setSelectedTexasRegion] = useState("PERMIAN");
   const [selectedWell, setSelectedWell] = useState<WellRecord | null>(null);
   const [companyId, setCompanyId] = useState<string | null>(null);
+  const [activeSource, setActiveSource] = useState<"OK" | "TX">("OK");
 
   useEffect(() => {
     const loadCompany = async () => {
@@ -129,6 +139,25 @@ export const RealDataPanel = () => {
     }
   };
 
+  const fetchFromTexasRRC = async () => {
+    setIsFetchingTexas(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("fetch-texas-wells", {
+        body: { region: selectedTexasRegion, limit: 200, company_id: companyId },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      toast.success(`Fetched ${data.fetched} Texas wells, stored ${data.stored}`);
+      await loadStats();
+      await loadWells();
+    } catch (err) {
+      console.error("Texas fetch error:", err);
+      toast.error(err instanceof Error ? err.message : "Failed to fetch Texas wells");
+    } finally {
+      setIsFetchingTexas(false);
+    }
+  };
+
   useEffect(() => {
     loadStats();
     loadWells();
@@ -143,14 +172,32 @@ export const RealDataPanel = () => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Database className="h-5 w-5 text-primary" />
-          Real Well Data — Oklahoma OCC
+          Real Well Data — Multi-State
           <Badge className="bg-success/20 text-success border-success/30 ml-2">LIVE API</Badge>
         </CardTitle>
         <CardDescription>
-          Connected to Oklahoma Corporation Commission ArcGIS API — real well records
+          Connected to Oklahoma OCC & Texas RRC ArcGIS APIs — real well records
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* Source Tabs */}
+        <div className="flex gap-2">
+          <Button
+            variant={activeSource === "OK" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setActiveSource("OK")}
+          >
+            🟢 Oklahoma (OCC)
+          </Button>
+          <Button
+            variant={activeSource === "TX" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setActiveSource("TX")}
+          >
+            🔵 Texas (RRC)
+          </Button>
+        </div>
+
         {/* Stats */}
         {stats && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -202,24 +249,48 @@ export const RealDataPanel = () => {
         )}
 
         {/* Controls */}
-        <div className="flex items-center gap-3">
-          <Select value={selectedCounty} onValueChange={setSelectedCounty}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select county" />
-            </SelectTrigger>
-            <SelectContent>
-              {OKLAHOMA_COUNTIES.map((c) => (
-                <SelectItem key={c} value={c}>{c === "ALL" ? "All Counties" : c}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button onClick={fetchFromOCC} disabled={isFetching}>
-            {isFetching ? (
-              <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Fetching...</>
-            ) : (
-              <><Download className="mr-2 h-4 w-4" />Fetch from OCC API</>
-            )}
-          </Button>
+        <div className="flex items-center gap-3 flex-wrap">
+          {activeSource === "OK" ? (
+            <>
+              <Select value={selectedCounty} onValueChange={setSelectedCounty}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select county" />
+                </SelectTrigger>
+                <SelectContent>
+                  {OKLAHOMA_COUNTIES.map((c) => (
+                    <SelectItem key={c} value={c}>{c === "ALL" ? "All Counties" : c}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button onClick={fetchFromOCC} disabled={isFetching}>
+                {isFetching ? (
+                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Fetching...</>
+                ) : (
+                  <><Download className="mr-2 h-4 w-4" />Fetch from OCC API</>
+                )}
+              </Button>
+            </>
+          ) : (
+            <>
+              <Select value={selectedTexasRegion} onValueChange={setSelectedTexasRegion}>
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder="Select region" />
+                </SelectTrigger>
+                <SelectContent>
+                  {TEXAS_REGIONS.map((r) => (
+                    <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button onClick={fetchFromTexasRRC} disabled={isFetchingTexas}>
+                {isFetchingTexas ? (
+                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Fetching...</>
+                ) : (
+                  <><Download className="mr-2 h-4 w-4" />Fetch from Texas RRC</>
+                )}
+              </Button>
+            </>
+          )}
         </div>
 
         {/* Wells table */}
