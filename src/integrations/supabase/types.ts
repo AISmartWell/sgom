@@ -35,6 +35,47 @@ export type Database = {
         }
         Relationships: []
       }
+      core_analyses: {
+        Row: {
+          analysis: string
+          company_id: string
+          created_at: string
+          id: string
+          image_url: string | null
+          rock_type: string | null
+          sample_name: string | null
+          user_id: string
+        }
+        Insert: {
+          analysis: string
+          company_id: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          rock_type?: string | null
+          sample_name?: string | null
+          user_id: string
+        }
+        Update: {
+          analysis?: string
+          company_id?: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          rock_type?: string | null
+          sample_name?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "core_analyses_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_companies: {
         Row: {
           company_id: string
