@@ -13,6 +13,10 @@ import {
   TrendingUp,
   Droplets,
   Users,
+  Radar,
+  FolderSearch,
+  TrendingDown,
+  Brain,
 } from "lucide-react";
 
 const Dashboard = () => {
@@ -31,6 +35,93 @@ const Dashboard = () => {
   }, []);
 
   const modules = [
+    // ── Stages 1–6 ──
+    {
+      title: "Field Scanning",
+      description: "Satellite imagery & well location mapping",
+      icon: Radar,
+      href: "/dashboard/field-scanning",
+      status: "ready" as const,
+      emoji: "🛰️",
+      stats: [
+        { label: "Stage", value: "1" },
+        { label: "Wells", value: "15,000+" },
+      ],
+    },
+    {
+      title: "Data Classification",
+      description: "AI-driven well data categorization & filtering",
+      icon: FolderSearch,
+      href: "/dashboard/data-classification",
+      status: "ready" as const,
+      emoji: "📂",
+      stats: [
+        { label: "Stage", value: "2" },
+        { label: "Sources", value: "5" },
+      ],
+    },
+    {
+      title: "Cumulative Analysis",
+      description: "Production decline curves & reserve estimation",
+      icon: TrendingDown,
+      href: "/dashboard/cumulative-analysis",
+      status: "ready" as const,
+      emoji: "📈",
+      stats: [
+        { label: "Stage", value: "3" },
+        { label: "Wells", value: "847" },
+      ],
+    },
+    {
+      title: "SPT Projection",
+      description: "AI well ranking & inflow projection for SPT candidates",
+      icon: TrendingUp,
+      href: "/dashboard/spt-projection",
+      status: "ready" as const,
+      emoji: "🚀",
+      stats: [
+        { label: "Stage", value: "4" },
+        { label: "Accuracy", value: "94%" },
+      ],
+    },
+    {
+      title: "Economic Analysis",
+      description: "ROI, payback period & profit projection per well",
+      icon: DollarSign,
+      href: "/dashboard/economic-analysis",
+      status: "ready" as const,
+      emoji: "💵",
+      stats: [
+        { label: "Stage", value: "5" },
+        { label: "ROI", value: "7-8mo" },
+      ],
+    },
+    {
+      title: "Geophysical Expertise",
+      description: "Well log analysis & formation evaluation",
+      icon: Activity,
+      href: "/dashboard/geophysical",
+      status: "ready" as const,
+      emoji: "📊",
+      stats: [
+        { label: "Stage", value: "6" },
+        { label: "Formations", value: "120" },
+      ],
+    },
+    // ── EOR Optimization (integrator) ──
+    {
+      title: "EOR Optimization",
+      description: "Final treatment recommendations & PDF reports",
+      icon: Brain,
+      href: "/dashboard/eor-optimization",
+      status: "in-progress" as const,
+      emoji: "🧠",
+      stats: [
+        { label: "Candidates", value: "6-10" },
+        { label: "Effect", value: "5-20x" },
+      ],
+    },
+    // ── Additional Modules ──
     {
       title: "Data Collection",
       description: "Collect and integrate well data from Oklahoma & Texas databases",
