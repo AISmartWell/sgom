@@ -16,6 +16,7 @@ import {
   Droplets,
   Mountain,
   Eye,
+  History,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,6 +24,7 @@ import ReactMarkdown from "react-markdown";
 import { CVDemoVisualization } from "@/components/core-analysis/CVDemoVisualization";
 import { SampleGallery } from "@/components/core-analysis/SampleGallery";
 import { AdvancedAnalysisPanel } from "@/components/core-analysis/AdvancedAnalysisPanel";
+import { AnalysisHistory } from "@/components/core-analysis/AnalysisHistory";
 
 const CoreAnalysis = () => {
   const navigate = useNavigate();
@@ -79,6 +81,54 @@ const CoreAnalysis = () => {
     }
   };
 
+  const saveAnalysis = async (analysisText: string, sampleName?: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: membership } = await supabase
+        .from("user_companies")
+        .select("company_id")
+        .eq("user_id", user.id)
+        .limit(1)
+        .single();
+
+      if (!membership) return;
+
+      let imageUrl: string | null = null;
+      if (image) {
+        const fileName = `${user.id}/${Date.now()}.jpg`;
+        const base64Data = image.replace(/^data:image\/\w+;base64,/, "");
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from("core-images")
+          .upload(fileName, Uint8Array.from(atob(base64Data), c => c.charCodeAt(0)), {
+            contentType: "image/jpeg",
+          });
+
+        if (!uploadError && uploadData) {
+          const { data: urlData } = supabase.storage
+            .from("core-images")
+            .getPublicUrl(uploadData.path);
+          imageUrl = urlData.publicUrl;
+        }
+      }
+
+      const rockTypeMatch = analysisText.match(/(?:Rock Type|Primary rock type)[:\s]*\**([^*\n,]+)/i);
+      const rockType = rockTypeMatch ? rockTypeMatch[1].trim().substring(0, 100) : null;
+
+      await supabase.from("core_analyses" as any).insert({
+        user_id: user.id,
+        company_id: membership.company_id,
+        sample_name: sampleName || imageFile?.name || "Core Sample",
+        image_url: imageUrl,
+        analysis: analysisText,
+        rock_type: rockType,
+      });
+    } catch (err) {
+      console.error("Failed to save analysis:", err);
+    }
+  };
+
   const analyzeCore = async () => {
     if (!image) {
       toast.error("Please upload a core sample image first");
@@ -93,16 +143,12 @@ const CoreAnalysis = () => {
         body: { imageBase64: image },
       });
 
-      if (error) {
-        throw error;
-      }
-
-      if (data.error) {
-        throw new Error(data.error);
-      }
+      if (error) throw error;
+      if (data.error) throw new Error(data.error);
 
       setAnalysis(data.analysis);
       toast.success("Core analysis complete!");
+      await saveAnalysis(data.analysis);
     } catch (error) {
       console.error("Analysis error:", error);
       toast.error(error instanceof Error ? error.message : "Analysis failed");
@@ -146,7 +192,7 @@ const CoreAnalysis = () => {
       </div>
 
       <Tabs defaultValue="analyze" className="space-y-6">
-        <TabsList className="grid w-full max-w-2xl grid-cols-4">
+        <TabsList className="grid w-full max-w-3xl grid-cols-5">
           <TabsTrigger value="analyze" className="gap-2">
             <Scan className="h-4 w-4" />
             Analysis
@@ -158,6 +204,10 @@ const CoreAnalysis = () => {
           <TabsTrigger value="advanced" className="gap-2">
             <Layers className="h-4 w-4" />
             Advanced CV
+          </TabsTrigger>
+          <TabsTrigger value="history" className="gap-2">
+            <History className="h-4 w-4" />
+            History
           </TabsTrigger>
           <TabsTrigger value="demo" className="gap-2">
             <Eye className="h-4 w-4" />
@@ -388,6 +438,12 @@ const CoreAnalysis = () => {
         <TabsContent value="advanced">
           <div className="max-w-3xl mx-auto">
             <AdvancedAnalysisPanel />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="history">
+          <div className="max-w-4xl mx-auto">
+            <AnalysisHistory />
           </div>
         </TabsContent>
 
