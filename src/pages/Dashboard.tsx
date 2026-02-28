@@ -118,7 +118,7 @@ const Dashboard = () => {
       emoji: "🧠",
       stats: [
         { label: "Candidates", value: "6-10" },
-        { label: "Effect", value: "5-20x" },
+        { label: "Effect", value: "5-10x" },
       ],
     },
     // ── Additional Modules ──
@@ -190,8 +190,8 @@ const Dashboard = () => {
       status: "pending" as const,
       emoji: "🔧",
       stats: [
-        { label: "Effect", value: "5-20x" },
-        { label: "Duration", value: "25yr" },
+        { label: "Effect", value: "5-10x" },
+        { label: "Duration", value: "10-15yr" },
       ],
     },
   ];
