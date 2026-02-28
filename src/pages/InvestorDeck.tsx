@@ -27,13 +27,13 @@ import {
   Wifi,
   Database,
   Cpu,
-  ArrowUpRight,
+  
   Phone,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import nvidiaInceptionBadgeBw from "@/assets/nvidia-inception-badge-bw.png";
 
-const TOTAL_SLIDES = 19;
+const TOTAL_SLIDES = 15;
 
 const InvestorDeck = () => {
   const navigate = useNavigate();
@@ -186,10 +186,10 @@ const InvestorDeck = () => {
         <Lightbulb className="h-8 w-8 text-primary" />
         <h2 className="text-3xl md:text-4xl font-bold">Our Solution: AI SGOM</h2>
       </div>
-      <p className="text-lg text-muted-foreground mb-6 max-w-3xl">
+      <p className="text-lg text-muted-foreground mb-4 max-w-3xl">
         SGOM — AI-powered geological analysis platform that revolutionizes well selection
       </p>
-      <div className="grid md:grid-cols-4 gap-4 mb-6">
+      <div className="grid md:grid-cols-4 gap-4 mb-4">
         {[
           { icon: Database, title: "Input", desc: "500 wells data, well logs, production history, geological data" },
           { icon: Cpu, title: "AI Analysis", desc: "Computer Vision, ML Prediction, Historical Analysis, Risk Scoring" },
@@ -203,58 +203,24 @@ const InvestorDeck = () => {
           </div>
         ))}
       </div>
-      <p className="text-sm text-muted-foreground italic">"What used to take a team of engineers weeks, our platform delivers in minutes."</p>
-    </div>,
-
-    // ===== SLIDE 4 — Cost Comparison =====
-    <div key="comparison" className={`${slideClass} bg-background`}>
-      <div className="flex items-center gap-3 mb-6">
-        <BarChart3 className="h-8 w-8 text-success" />
-        <h2 className="text-3xl md:text-4xl font-bold">Manual vs SGOM AI</h2>
-      </div>
-      <div className="overflow-hidden rounded-xl border border-border mb-6">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="bg-muted/50">
-              <th className="text-left p-3 font-medium">Parameter</th>
-              <th className="text-center p-3 font-medium text-muted-foreground">Manual</th>
-              <th className="text-center p-3 font-bold text-primary">SGOM AI</th>
-              <th className="text-center p-3 font-medium text-success">Savings</th>
-            </tr>
-          </thead>
-          <tbody>
-            {[
-              ["Cost per well", "$12,100", "$2,000", "83%"],
-              ["Time per well", "25 days", "9 days", "65%"],
-              ["Team required", "3 specialists", "AI + 1 operator", "2 FTEs"],
-              ["500 wells cost", "$6,050,000", "$1,000,000", "$5M+"],
-              ["Accuracy", "40-60%", "90%+", "+30-50%"],
-              ["Scalability", "Limited", "Unlimited", "∞"],
-            ].map(([param, manual, sgom, savings]) => (
-              <tr key={param} className="border-t border-border">
-                <td className="p-3 font-medium">{param}</td>
-                <td className="p-3 text-center text-muted-foreground">{manual}</td>
-                <td className="p-3 text-center font-semibold text-primary">{sgom}</td>
-                <td className="p-3 text-center text-success font-semibold">{savings}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-4 mb-3">
         {[
-          { value: "-83%", label: "Cost Reduction", sub: "$12,100 → $2,000 per well", color: "text-success" },
-          { value: "-65%", label: "Time Savings", sub: "25 days → 9 days per well", color: "text-primary" },
-          { value: "+50%", label: "Accuracy Boost", sub: "40-60% → 90%+ success rate", color: "text-warning" },
+          { value: "-83%", label: "Cost Reduction", sub: "$12,100 → $2,000/well", color: "text-success" },
+          { value: "-65%", label: "Time Savings", sub: "25 days → 9 days/well", color: "text-primary" },
+          { value: "+50%", label: "Accuracy Boost", sub: "40-60% → 90%+ success", color: "text-warning" },
         ].map((s) => (
-          <div key={s.label} className="p-4 rounded-xl bg-muted/30 border border-border text-center">
-            <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
-            <p className="text-sm font-medium">{s.label}</p>
+          <div key={s.label} className="p-3 rounded-xl bg-muted/30 border border-border text-center">
+            <p className={`text-xl font-bold ${s.color}`}>{s.value}</p>
+            <p className="text-xs font-medium">{s.label}</p>
             <p className="text-xs text-muted-foreground">{s.sub}</p>
           </div>
         ))}
       </div>
+      <p className="text-sm text-muted-foreground italic">"What used to take a team of engineers weeks, our platform delivers in minutes."</p>
     </div>,
+
+
+
 
     // ===== SLIDE 5 — How It Works =====
     <div key="workflow" className={`${slideClass} bg-background`}>
@@ -407,34 +373,7 @@ const InvestorDeck = () => {
       </div>
     </div>,
 
-    // ===== SLIDE 9 — Product (MVP) =====
-    <div key="product" className={`${slideClass} bg-background`}>
-      <div className="flex items-center gap-3 mb-6">
-        <Zap className="h-8 w-8 text-primary" />
-        <h2 className="text-3xl md:text-4xl font-bold">Product — MVP Live</h2>
-      </div>
-      <div className="grid md:grid-cols-2 gap-4">
-        {[
-          { title: "Core Vision AI", desc: "Upload rock photos → classification, porosity, fracture analysis" },
-          { title: "AI Well Ranking", desc: "Score wells by production potential, water cut, economic viability" },
-          { title: "EOR Workflow", desc: "7-stage pipeline from scanning to treatment parameters" },
-          { title: "Financial Forecast", desc: "Real-time oil prices, ROI calculation, payback period" },
-          { title: "Real-Time Telemetry", desc: "IoT sensor architecture for pressure, flow, temperature" },
-          { title: "ML Training Module", desc: "Train custom models (LSTM, Transformer) on well data" },
-        ].map((f) => (
-          <div key={f.title} className="p-4 rounded-lg bg-card border border-border">
-            <h3 className="font-semibold text-primary mb-1">{f.title}</h3>
-            <p className="text-sm text-muted-foreground">{f.desc}</p>
-          </div>
-        ))}
-      </div>
-      <div className="mt-4 text-center">
-        <button onClick={() => navigate('/budget')} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 transition-colors text-sm font-medium">
-          <DollarSign className="h-4 w-4" />
-          MVP Budget Breakdown →
-        </button>
-      </div>
-    </div>,
+
 
     // ===== SLIDE 10 — IoT Strategy =====
     <div key="iot" className={`${slideClass} bg-background`}>
@@ -470,70 +409,6 @@ const InvestorDeck = () => {
           <strong className="text-foreground">Result:</strong> IoT transforms SGOM from a one-time consulting tool into a <strong className="text-primary">continuous revenue platform</strong> — increasing Client LTV from $50K–150K to $200K–500K+ through monthly SaaS subscriptions and self-learning AI optimization.
         </p>
       </div>
-      <Button variant="outline" size="sm" className="mt-4 self-start" onClick={next}>
-        Details → IoT Pricing
-      </Button>
-    </div>,
-
-    // ===== SLIDE 11 — IoT Pricing =====
-    <div key="iot-pricing" className={`${slideClass} bg-background`}>
-      <div className="flex items-center gap-3 mb-6">
-        <DollarSign className="h-8 w-8 text-primary" />
-        <h2 className="text-3xl md:text-4xl font-bold">IoT Pricing</h2>
-      </div>
-      <p className="text-muted-foreground mb-5">Hardware + SaaS model: one-time equipment cost per well plus monthly platform subscription</p>
-      <div className="grid md:grid-cols-3 gap-4 mb-5">
-        {[
-          { name: "Starter Kit", wells: "1–5 wells", hardware: "$2,500", hwDesc: "per well (one-time)", platform: "$500/mo", platDesc: "Platform + monitoring", color: "text-primary", bg: "bg-primary/10", border: "border-primary/20" },
-          { name: "Professional", wells: "6–25 wells", hardware: "$2,000", hwDesc: "per well (volume discount)", platform: "$350/mo per well", platDesc: "Full analytics + AI alerts", color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20" },
-          { name: "Enterprise", wells: "25+ wells", hardware: "Custom", hwDesc: "bulk pricing negotiated", platform: "Custom", platDesc: "Dedicated infrastructure", color: "text-warning", bg: "bg-warning/10", border: "border-warning/20" },
-        ].map((tier) => (
-          <div key={tier.name} className={`p-4 rounded-xl ${tier.bg} border ${tier.border}`}>
-            <h3 className="font-semibold mb-1">{tier.name}</h3>
-            <p className="text-xs text-muted-foreground mb-3">{tier.wells}</p>
-            <div className="space-y-2">
-              <div className="p-2 rounded-lg bg-background/50">
-                <p className="text-xs text-muted-foreground uppercase tracking-wider">Hardware</p>
-                <p className={`text-lg font-bold ${tier.color}`}>{tier.hardware}</p>
-                <p className="text-xs text-muted-foreground">{tier.hwDesc}</p>
-              </div>
-              <div className="p-2 rounded-lg bg-background/50">
-                <p className="text-xs text-muted-foreground uppercase tracking-wider">Platform</p>
-                <p className={`text-lg font-bold ${tier.color}`}>{tier.platform}</p>
-                <p className="text-xs text-muted-foreground">{tier.platDesc}</p>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-      <div className="overflow-hidden rounded-xl border border-border">
-        <table className="w-full text-sm">
-          <thead><tr className="bg-muted/50">
-            <th className="text-left p-2 font-medium">Component</th>
-            <th className="text-right p-2 font-medium">Cost per Well</th>
-          </tr></thead>
-          <tbody>
-            {[
-              ["Pressure sensor (0–10K psi)", "$350–$600"],
-              ["Flow meter (turbine/ultrasonic)", "$800–$1,500"],
-              ["Temperature probe (RTD)", "$150–$300"],
-              ["Water cut analyzer", "$400–$700"],
-              ["RTU / Controller", "$500–$900"],
-              ["Cellular IoT gateway", "$200–$400"],
-              ["Installation & commissioning", "$500–$1,000"],
-            ].map(([item, cost]) => (
-              <tr key={item} className="border-t border-border">
-                <td className="p-2 text-muted-foreground">{item}</td>
-                <td className="p-2 text-right font-mono text-primary font-medium">{cost}</td>
-              </tr>
-            ))}
-            <tr className="border-t-2 border-primary/30 bg-primary/5">
-              <td className="p-2 font-semibold">Total per well</td>
-              <td className="p-2 text-right font-mono text-primary font-bold">$2,900 – $5,400</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
     </div>,
 
     // ===== SLIDE 12 — Target Market =====
@@ -566,30 +441,8 @@ const InvestorDeck = () => {
       </div>
     </div>,
 
-    // ===== SLIDE 12 — Scale-Up Path =====
-    <div key="scaleup" className={`${slideClass} bg-background`}>
-      <div className="flex items-center gap-3 mb-8">
-        <ArrowUpRight className="h-8 w-8 text-primary" />
-        <h2 className="text-3xl md:text-4xl font-bold">Scale-Up Path</h2>
-      </div>
-      <div className="grid md:grid-cols-3 gap-6">
-        {[
-          { phase: "Pilot · Year 1", wells: "500", owned: "4", invest: "$2.39M", note: "Prove model", color: "primary" },
-          { phase: "Series A · Year 2", wells: "2,000", owned: "25", invest: "$5.2M", note: "Scale operations", color: "accent" },
-          { phase: "Growth · Year 3+", wells: "5,000+", owned: "60+", invest: "$11M+", note: "Expand markets", color: "success" },
-        ].map((p) => (
-          <div key={p.phase} className={`p-6 rounded-xl bg-${p.color}/10 border border-${p.color}/20`}>
-            <Badge variant="outline" className="mb-4">{p.phase}</Badge>
-            <div className="space-y-3 text-sm">
-              <div className="flex justify-between"><span className="text-muted-foreground">Wells Analyzed</span><span className="font-bold">{p.wells}</span></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">Wells Owned</span><span className="font-bold">{p.owned}</span></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">Investment</span><span className={`font-bold text-${p.color}`}>{p.invest}</span></div>
-            </div>
-            <p className="text-xs text-muted-foreground mt-3 italic">{p.note}</p>
-          </div>
-        ))}
-      </div>
-    </div>,
+
+
 
     // ===== SLIDE 13 — Competition =====
     <div key="competition" className={`${slideClass} bg-background`}>
