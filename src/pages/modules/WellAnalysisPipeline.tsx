@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { StageVisualization } from "@/components/pipeline/StageVisualization";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -347,7 +348,10 @@ const WellAnalysisPipeline = () => {
               </CardHeader>
 
               {isComplete && result && (
-                <CardContent className="pt-0">
+                <CardContent className="pt-0 space-y-3">
+                  {/* Mini-visualization */}
+                  <StageVisualization stageKey={stage.key} metrics={result.metrics} />
+                  
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
                     {result.metrics.map((m) => (
                       <div key={m.label} className="text-sm">
