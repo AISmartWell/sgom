@@ -622,8 +622,8 @@ const InvestorDeck = () => {
             ER
           </div>
           <h3 className="text-base font-semibold">Edward Rubinstein</h3>
-          <p className="text-xs text-primary mb-1">Co-Founder / CEO</p>
-          <p className="text-xs text-muted-foreground">Business strategy.</p>
+          <p className="text-xs text-primary mb-1">Co-Founder · Strategy & Partnerships</p>
+          <p className="text-xs text-muted-foreground">Strategy & partnerships.</p>
         </div>
         <div className="p-5 rounded-xl bg-card border border-border">
           <div className="h-14 w-14 rounded-full bg-accent/20 flex items-center justify-center mb-3 text-xl font-bold text-accent">
@@ -678,7 +678,7 @@ const InvestorDeck = () => {
         <div className="flex items-center justify-center gap-2">
           <Users className="h-4 w-4 text-primary" />
           <span className="font-semibold">Edward Rubinstein</span>
-          <span className="text-muted-foreground">· Co-Founder/CEO</span>
+          <span className="text-muted-foreground">· Co-Founder · Strategy & Partnerships</span>
         </div>
         <div className="flex items-center justify-center gap-2">
           <Mail className="h-4 w-4 text-primary" />
