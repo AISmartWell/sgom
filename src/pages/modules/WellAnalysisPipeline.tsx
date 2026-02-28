@@ -21,6 +21,7 @@ import {
   ChevronRight,
   Loader2,
   Droplets,
+  Microscope,
 } from "lucide-react";
 
 interface WellRecord {
@@ -48,6 +49,7 @@ interface StageResult {
 const STAGES = [
   { key: "field_scan", label: "Field Scanning", icon: Radar, badge: "Stage 1", duration: 1500 },
   { key: "classification", label: "Data Classification", icon: FolderSearch, badge: "Stage 2", duration: 1800 },
+  { key: "core_analysis", label: "Core Analysis (CV)", icon: Microscope, badge: "Core", duration: 2000 },
   { key: "cumulative", label: "Cumulative Analysis", icon: TrendingDown, badge: "Stage 3", duration: 2200 },
   { key: "spt_projection", label: "SPT Projection", icon: TrendingUp, badge: "Stage 4", duration: 2000 },
   { key: "economic", label: "Economic Analysis", icon: DollarSign, badge: "Stage 5", duration: 1800 },
@@ -110,6 +112,21 @@ const WellAnalysisPipeline = () => {
             ],
             verdict: "✅ Sufficient data for analysis",
           };
+        case "core_analysis": {
+          const porosity = 8 + Math.random() * 12;
+          const perm = 20 + Math.random() * 130;
+          const fractures = Math.floor(2 + Math.random() * 6);
+          return {
+            title: "Core Analysis Complete",
+            metrics: [
+              { label: "Rock Type", value: well.formation?.includes("Lime") ? "Limestone" : well.formation?.includes("Sand") ? "Sandstone" : "Shale/Sandstone" },
+              { label: "Porosity", value: `${porosity.toFixed(1)}%`, color: porosity > 15 ? "text-success" : "text-warning" },
+              { label: "Permeability", value: `${perm.toFixed(0)} mD`, color: perm > 80 ? "text-success" : "text-warning" },
+              { label: "Fractures", value: `${fractures} detected`, color: fractures > 4 ? "text-primary" : "text-muted-foreground" },
+            ],
+            verdict: porosity > 12 && perm > 50 ? "✅ Good reservoir quality — favorable for production" : "⚠️ Moderate reservoir quality — further testing recommended",
+          };
+        }
         case "cumulative":
           const decline = 8 + Math.random() * 12;
           const reserves = (oil * 365 * (1 / (decline / 100)) * 0.6).toFixed(0);
@@ -233,7 +250,7 @@ const WellAnalysisPipeline = () => {
           <h1 className="text-3xl font-bold">Well Analysis Pipeline</h1>
         </div>
         <p className="text-muted-foreground">
-          Select a well and run the full 7-stage analysis — from field scanning to EOR recommendation
+          Select a well and run the full 8-stage analysis — from field scanning to EOR recommendation
         </p>
       </div>
 
@@ -356,7 +373,7 @@ const WellAnalysisPipeline = () => {
               <h3 className="text-lg font-bold text-success">Analysis Complete</h3>
             </div>
             <p className="text-sm text-muted-foreground mb-4">
-              Full 7-stage analysis for <strong>{selectedWell?.well_name || selectedWell?.api_number}</strong> has been completed.
+              Full 8-stage analysis for <strong>{selectedWell?.well_name || selectedWell?.api_number}</strong> has been completed.
               Review each stage above for detailed results and recommendations.
             </p>
             <div className="flex gap-3">
