@@ -21,6 +21,8 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import ReactMarkdown from "react-markdown";
 import { CVDemoVisualization } from "@/components/core-analysis/CVDemoVisualization";
+import { SampleGallery } from "@/components/core-analysis/SampleGallery";
+import { AdvancedAnalysisPanel } from "@/components/core-analysis/AdvancedAnalysisPanel";
 
 const CoreAnalysis = () => {
   const navigate = useNavigate();
@@ -144,14 +146,22 @@ const CoreAnalysis = () => {
       </div>
 
       <Tabs defaultValue="analyze" className="space-y-6">
-        <TabsList className="grid w-full max-w-md grid-cols-2">
+        <TabsList className="grid w-full max-w-2xl grid-cols-4">
           <TabsTrigger value="analyze" className="gap-2">
             <Scan className="h-4 w-4" />
-            Core Analysis
+            Analysis
+          </TabsTrigger>
+          <TabsTrigger value="gallery" className="gap-2">
+            <ImageIcon className="h-4 w-4" />
+            Samples
+          </TabsTrigger>
+          <TabsTrigger value="advanced" className="gap-2">
+            <Layers className="h-4 w-4" />
+            Advanced CV
           </TabsTrigger>
           <TabsTrigger value="demo" className="gap-2">
             <Eye className="h-4 w-4" />
-            Демо CV
+            Demo
           </TabsTrigger>
         </TabsList>
 
@@ -318,6 +328,66 @@ const CoreAnalysis = () => {
             )}
           </CardContent>
         </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="gallery">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <SampleGallery
+              onSelectSample={(dataUrl, name) => {
+                setImage(dataUrl);
+                setImageFile(new File([], name));
+                setAnalysis(null);
+              }}
+            />
+            {/* Right column: same analysis results card */}
+            <Card className="glass-card">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Analysis Results
+                </CardTitle>
+                <CardDescription>
+                  Select a sample, then click "Analyze Core" on the Analysis tab
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {image ? (
+                  <div className="space-y-4">
+                    <img src={image} alt="Selected sample" className="w-full h-48 object-cover rounded-lg border border-border" />
+                    <Button onClick={() => { analyzeCore(); }} disabled={isAnalyzing} className="w-full">
+                      {isAnalyzing ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Analyzing...
+                        </>
+                      ) : (
+                        <>
+                          <Scan className="mr-2 h-4 w-4" />
+                          Analyze Selected Sample
+                        </>
+                      )}
+                    </Button>
+                    {analysis && (
+                      <div className="prose prose-sm dark:prose-invert max-w-none overflow-auto max-h-[400px]">
+                        <ReactMarkdown>{analysis}</ReactMarkdown>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-12 text-center">
+                    <ImageIcon className="h-10 w-10 text-muted-foreground/50 mb-3" />
+                    <p className="text-muted-foreground text-sm">Click a sample image to select it</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="advanced">
+          <div className="max-w-3xl mx-auto">
+            <AdvancedAnalysisPanel />
           </div>
         </TabsContent>
 
