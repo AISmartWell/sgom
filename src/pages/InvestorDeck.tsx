@@ -622,7 +622,7 @@ const InvestorDeck = () => {
             ER
           </div>
           <h3 className="text-base font-semibold">Edward Rubinstein</h3>
-          <p className="text-xs text-primary mb-1">Co-Founder · Strategy & Partnerships</p>
+          <p className="text-xs text-primary mb-1">Co-Founder · Strategy & Partnerships · AI Smart Well</p>
           <p className="text-xs text-muted-foreground">Strategy & partnerships.</p>
         </div>
         <div className="p-5 rounded-xl bg-card border border-border">
@@ -646,7 +646,7 @@ const InvestorDeck = () => {
             NZ
           </div>
           <h3 className="text-base font-semibold">Natalia Zaruchevskaya</h3>
-          <p className="text-xs text-primary mb-1">Co-Founder · Business Development</p>
+          <p className="text-xs text-primary mb-1">Co-Founder · Business Development · AI Smart Well</p>
           <p className="text-xs text-muted-foreground">Business development, partnerships, client relations.</p>
         </div>
         <div className="p-5 rounded-xl bg-card border border-border">
