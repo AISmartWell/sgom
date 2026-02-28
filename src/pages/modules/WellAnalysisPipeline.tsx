@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { StageVisualization } from "@/components/pipeline/StageVisualization";
 import FieldScanMap from "@/components/pipeline/FieldScanMap";
 import { Button } from "@/components/ui/button";
@@ -86,121 +87,22 @@ const WellAnalysisPipeline = () => {
     fetchWells();
   }, []);
 
-  const generateStageResult = useCallback(
-    (stageKey: string, well: WellRecord): StageResult => {
-      const oil = well.production_oil ?? 15;
-      const gas = well.production_gas ?? 500;
-      const wc = well.water_cut ?? 45;
-      const depth = well.total_depth ?? 5000;
+  const analyzeStage = useCallback(
+    async (stageKey: string, well: WellRecord): Promise<StageResult> => {
+      const { data, error } = await supabase.functions.invoke("analyze-well-stage", {
+        body: { well, stageKey },
+      });
 
-      switch (stageKey) {
-        case "field_scan":
-          return {
-            title: "Field Scanning Complete",
-            metrics: [
-              { label: "Location", value: `${well.county || "Unknown"}, ${well.state}` },
-              { label: "Basin", value: well.state === "TX" ? "Permian Basin" : "Anadarko Basin" },
-              { label: "Well Type", value: well.well_type || "Oil" },
-              { label: "Status", value: well.status || "Active" },
-            ],
-            verdict: oil < 10 ? "⚠️ Low producer — candidate for optimization" : "✅ Active producer identified",
-          };
-        case "classification":
-          return {
-            title: "Data Classified",
-            metrics: [
-              { label: "Production History", value: "Available", color: "text-success" },
-              { label: "Initial Rates", value: `${(oil * 3.5).toFixed(0)} bbl/d` },
-              { label: "Incident Reports", value: wc > 55 ? "High water cut flagged" : "Normal", color: wc > 55 ? "text-warning" : "text-success" },
-              { label: "Data Quality", value: `${85 + Math.floor(Math.random() * 12)}%` },
-            ],
-            verdict: "✅ Sufficient data for analysis",
-          };
-        case "core_analysis": {
-          const porosity = 8 + Math.random() * 12;
-          const perm = 20 + Math.random() * 130;
-          const fractures = Math.floor(2 + Math.random() * 6);
-          return {
-            title: "Core Analysis Complete",
-            metrics: [
-              { label: "Rock Type", value: well.formation?.includes("Lime") ? "Limestone" : well.formation?.includes("Sand") ? "Sandstone" : "Shale/Sandstone" },
-              { label: "Porosity", value: `${porosity.toFixed(1)}%`, color: porosity > 15 ? "text-success" : "text-warning" },
-              { label: "Permeability", value: `${perm.toFixed(0)} mD`, color: perm > 80 ? "text-success" : "text-warning" },
-              { label: "Fractures", value: `${fractures} detected`, color: fractures > 4 ? "text-primary" : "text-muted-foreground" },
-            ],
-            verdict: porosity > 12 && perm > 50 ? "✅ Good reservoir quality — favorable for production" : "⚠️ Moderate reservoir quality — further testing recommended",
-          };
-        }
-        case "cumulative":
-          const decline = 8 + Math.random() * 12;
-          const reserves = (oil * 365 * (1 / (decline / 100)) * 0.6).toFixed(0);
-          return {
-            title: "Decline Analysis Complete",
-            metrics: [
-              { label: "Current Rate", value: `${oil.toFixed(1)} bbl/d` },
-              { label: "Decline Rate", value: `${decline.toFixed(1)}%/yr`, color: decline > 15 ? "text-destructive" : "text-warning" },
-              { label: "Est. Reserves", value: `${(+reserves / 1000).toFixed(0)}k bbl` },
-              { label: "Economic Limit", value: `${(3 + Math.random() * 8).toFixed(0)} yrs` },
-            ],
-            verdict: decline > 15 ? "⚠️ Rapid decline — SPT treatment recommended" : "📊 Moderate decline detected",
-          };
-        case "spt_projection": {
-          const projectedInflow = oil * (2.0 + Math.random() * 0.5) + 5 + Math.random() * 5;
-          const pass = wc < 60 && projectedInflow > 15;
-          return {
-            title: "SPT Projection Result",
-            metrics: [
-              { label: "Water Cut", value: `${wc.toFixed(1)}%`, color: wc > 55 ? "text-destructive" : "text-success" },
-              { label: "Projected Inflow", value: `${projectedInflow.toFixed(1)} bbl/d`, color: "text-primary" },
-              { label: "SPT Score", value: `${(65 + Math.random() * 30).toFixed(0)}/100` },
-              { label: "Recommendation", value: pass ? "Candidate ✅" : "Not recommended ❌", color: pass ? "text-success" : "text-destructive" },
-            ],
-            verdict: pass ? "🚀 Well qualifies for SPT treatment" : "❌ Does not meet SPT criteria",
-          };
-        }
-        case "economic": {
-          const treatmentCost = 25000 + Math.random() * 15000;
-          const addedRevenue = (oil * 1.5 + 5) * 70 * 365;
-          const roi = ((addedRevenue - treatmentCost) / treatmentCost) * 100;
-          const payback = treatmentCost / (addedRevenue / 12);
-          return {
-            title: "Economic Forecast",
-            metrics: [
-              { label: "Treatment Cost", value: `$${(treatmentCost / 1000).toFixed(0)}k` },
-              { label: "Added Revenue/yr", value: `$${(addedRevenue / 1000).toFixed(0)}k`, color: "text-success" },
-              { label: "ROI", value: `${roi.toFixed(0)}%`, color: roi > 200 ? "text-success" : "text-warning" },
-              { label: "Payback", value: `${payback.toFixed(1)} months` },
-            ],
-            verdict: roi > 200 ? "💰 Highly profitable investment" : "📊 Moderate return expected",
-          };
-        }
-        case "geophysical":
-          return {
-            title: "Geophysical Assessment",
-            metrics: [
-              { label: "Formation", value: well.formation || "Woodford Shale" },
-              { label: "Total Depth", value: `${depth.toFixed(0)} ft` },
-              { label: "Porosity Est.", value: `${(8 + Math.random() * 10).toFixed(1)}%` },
-              { label: "Permeability", value: `${(20 + Math.random() * 120).toFixed(0)} mD` },
-            ],
-            verdict: "✅ Formation suitable for SPT enhancement",
-          };
-        case "eor": {
-          const score = 60 + Math.random() * 35;
-          return {
-            title: "EOR Final Recommendation",
-            metrics: [
-              { label: "Overall Score", value: `${score.toFixed(0)}/100`, color: score > 75 ? "text-success" : "text-warning" },
-              { label: "Suggested Method", value: "SPT Hydro-Slotting" },
-              { label: "Priority", value: score > 80 ? "High" : score > 65 ? "Medium" : "Low", color: score > 80 ? "text-success" : "text-warning" },
-              { label: "Expected Uplift", value: `${(2 + Math.random() * 3).toFixed(1)}x production` },
-            ],
-            verdict: score > 75 ? "🎯 Strong candidate — proceed with treatment plan" : "📋 Moderate candidate — review with team",
-          };
-        }
-        default:
-          return { title: "", metrics: [], verdict: "" };
+      if (error) {
+        console.error(`AI analysis error for ${stageKey}:`, error);
+        throw new Error(error.message || "AI analysis failed");
       }
+
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+
+      return data as StageResult;
     },
     []
   );
@@ -210,22 +112,46 @@ const WellAnalysisPipeline = () => {
     setIsRunning(true);
     setCompletedStages(new Map());
     setCurrentStageIdx(0);
+    setStageProgress(0);
 
     for (let i = 0; i < STAGES.length; i++) {
       setCurrentStageIdx(i);
-      const steps = 25;
-      for (let s = 0; s <= steps; s++) {
-        await new Promise((r) => setTimeout(r, STAGES[i].duration / steps));
-        setStageProgress((s / steps) * 100);
+      setStageProgress(10); // Show initial progress
+
+      try {
+        // Start AI analysis and show indeterminate progress
+        const progressInterval = setInterval(() => {
+          setStageProgress((prev) => Math.min(prev + 3, 90));
+        }, 200);
+
+        const result = await analyzeStage(STAGES[i].key, selectedWell);
+
+        clearInterval(progressInterval);
+        setStageProgress(100);
+
+        // Brief pause to show 100%
+        await new Promise((r) => setTimeout(r, 300));
+
+        setCompletedStages((prev) => new Map(prev).set(STAGES[i].key, result));
+      } catch (err: any) {
+        console.error(`Stage ${STAGES[i].key} failed:`, err);
+        const message = err.message || "Unknown error";
+        if (message.includes("Rate limit")) {
+          toast.error("Rate limit exceeded. Please wait and try again.");
+        } else if (message.includes("Payment required")) {
+          toast.error("AI credits exhausted. Please add credits.");
+        } else {
+          toast.error(`Stage ${STAGES[i].label} failed: ${message}`);
+        }
+        setIsRunning(false);
+        return;
       }
-      const result = generateStageResult(STAGES[i].key, selectedWell);
-      setCompletedStages((prev) => new Map(prev).set(STAGES[i].key, result));
     }
 
     setCurrentStageIdx(STAGES.length);
     setIsRunning(false);
     setStageProgress(100);
-  }, [selectedWell, generateStageResult]);
+  }, [selectedWell, analyzeStage]);
 
   const reset = () => {
     setCurrentStageIdx(-1);
