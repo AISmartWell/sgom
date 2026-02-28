@@ -193,7 +193,7 @@ const MVPScope = () => {
           <Card className="border-primary/30 bg-primary/5">
             <CardContent className="pt-6 text-center">
               <Rocket className="h-8 w-8 text-primary mx-auto mb-2" />
-              <p className="text-3xl font-bold text-primary">10</p>
+              <p className="text-3xl font-bold text-primary">{mvpModules.length}</p>
               <p className="text-sm text-muted-foreground">MVP Modules</p>
             </CardContent>
           </Card>
