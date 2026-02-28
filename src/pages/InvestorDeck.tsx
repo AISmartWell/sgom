@@ -265,8 +265,8 @@ const InvestorDeck = () => {
         <div>
           <div className="grid grid-cols-3 gap-3 mb-4">
             {[
-              { value: "3-5 ft", label: "Slot depth" },
-              { value: "60%", label: "Stress reduction" },
+              { value: "Up to 5 ft", label: "Slot depth" },
+              { value: "50-100%", label: "Stress relief" },
               { value: "+50%", label: "Permeability" },
               { value: "5-10×", label: "Inflow increase" },
               { value: "10-15 yrs", label: "Effect duration" },

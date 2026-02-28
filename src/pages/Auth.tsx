@@ -122,7 +122,7 @@ const Auth = () => {
                 <div className="h-10 w-10 rounded-lg bg-success/10 flex items-center justify-center">
                   <Droplets className="h-5 w-5 text-success" />
                 </div>
-                <span>5-20x production increase</span>
+                <span>5-10x inflow increase</span>
               </div>
             </div>
           </div>

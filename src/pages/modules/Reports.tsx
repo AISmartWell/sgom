@@ -20,7 +20,7 @@ const Reports = () => {
     {
       icon: Droplets,
       label: "Production Increase",
-      value: "5-20×",
+      value: "5-10×",
       color: "text-primary",
       bgColor: "bg-primary/10",
     },
