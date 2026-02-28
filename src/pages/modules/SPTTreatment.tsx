@@ -10,6 +10,7 @@ const benefits = [
   { label: "Drainage (4 nozzles)", value: "23 ft²/linear m" },
   { label: "Stress Relief", value: "50-100%" },
   { label: "Permeability Increase", value: "30-50%" },
+  { label: "Porosity Increase", value: "30-50%" },
   { label: "Inflow Increase", value: "5-10×" },
   { label: "Cut Speed (Cased)", value: "50 min/linear ft" },
   { label: "Cut Speed (Open Hole)", value: "30 min/linear ft" },
