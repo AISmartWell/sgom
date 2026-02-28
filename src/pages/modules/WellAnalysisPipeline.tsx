@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { StageVisualization } from "@/components/pipeline/StageVisualization";
 import FieldScanMap from "@/components/pipeline/FieldScanMap";
+import PipelineReport from "@/components/pipeline/PipelineReport";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -305,29 +306,12 @@ const WellAnalysisPipeline = () => {
       </div>
 
       {/* Final Summary */}
-      {currentStageIdx >= STAGES.length && (
-        <Card className="mt-6 border-success/40 bg-success/5 animate-fade-in">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3 mb-4">
-              <CheckCircle2 className="h-6 w-6 text-success" />
-              <h3 className="text-lg font-bold text-success">Analysis Complete</h3>
-            </div>
-            <p className="text-sm text-muted-foreground mb-4">
-              Full 8-stage analysis for <strong>{selectedWell?.well_name || selectedWell?.api_number}</strong> has been completed.
-              Review each stage above for detailed results and recommendations.
-            </p>
-            <div className="flex gap-3">
-              <Button variant="outline" onClick={reset}>
-                <RotateCcw className="mr-2 h-4 w-4" />
-                Analyze Another Well
-              </Button>
-              <Button onClick={() => navigate("/dashboard/eor-optimization")}>
-                <Brain className="mr-2 h-4 w-4" />
-                View EOR Module
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+      {currentStageIdx >= STAGES.length && selectedWell && (
+        <PipelineReport
+          well={selectedWell}
+          stages={STAGES.map((s) => ({ key: s.key, label: s.label, badge: s.badge }))}
+          completedStages={completedStages}
+        />
       )}
     </div>
   );
