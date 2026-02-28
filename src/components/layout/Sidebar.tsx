@@ -30,6 +30,7 @@ import {
   Building2,
   Presentation,
   Layers,
+  GitBranch,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -172,6 +173,12 @@ const menuItems = [
     icon: Layers,
     href: "/dashboard/architecture",
     badge: "🏗️",
+  },
+  {
+    title: "Data Pipeline",
+    icon: GitBranch,
+    href: "/dashboard/data-pipeline",
+    badge: "🔄",
   },
   {
     title: "MVP Scope",
