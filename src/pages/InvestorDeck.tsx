@@ -294,30 +294,44 @@ const InvestorDeck = () => {
       </div>
     </div>,
 
-    // ===== SLIDE 7 — Two Revenue Streams =====
+    // ===== SLIDE 7 — Two Revenue Streams + SaaS =====
     <div key="revenue-streams" className={`${slideClass} bg-background`}>
-      <div className="flex items-center gap-3 mb-6">
+      <div className="flex items-center gap-3 mb-4">
         <DollarSign className="h-8 w-8 text-success" />
-        <h2 className="text-3xl md:text-4xl font-bold">Two Revenue Streams</h2>
+        <h2 className="text-3xl md:text-4xl font-bold">Revenue Model</h2>
       </div>
-      <p className="text-muted-foreground mb-6">Diversified income through analysis services and production ownership</p>
-      <div className="grid md:grid-cols-2 gap-6">
-        <div className="p-6 rounded-xl bg-primary/10 border border-primary/20">
-          <Badge className="mb-3 bg-primary/20 text-primary border-primary/30">STREAM 1</Badge>
-          <h3 className="text-lg font-semibold mb-3">SGOM Analysis Services (B2B)</h3>
-          <p className="text-sm text-muted-foreground mb-4">AI-powered well analysis sold to operators worldwide. 29M abandoned wells represent our addressable market.</p>
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between"><span className="text-muted-foreground">Price per well</span><span className="font-medium">$2,000</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">Client savings</span><span className="font-medium text-success">$10,100/well</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">Typical project</span><span className="font-medium">200-500 wells</span></div>
+      <p className="text-muted-foreground mb-4">SaaS platform subscriptions + production ownership</p>
+      <div className="grid md:grid-cols-2 gap-5 mb-4">
+        {/* Stream 1 — SaaS */}
+        <div className="p-5 rounded-xl bg-primary/10 border border-primary/20">
+          <Badge className="mb-2 bg-primary/20 text-primary border-primary/30">STREAM 1 — SaaS Platform</Badge>
+          <h3 className="text-base font-semibold mb-2">SGOM Subscriptions (B2B)</h3>
+          <div className="grid grid-cols-3 gap-2 mb-3">
+            {[
+              { tier: "Explorer", price: "$2,000/mo", wells: "Up to 50 wells", perWell: "$120/well", color: "text-muted-foreground" },
+              { tier: "Professional", price: "$6,000/mo", wells: "Up to 200 wells", perWell: "$200/well", color: "text-primary" },
+              { tier: "Enterprise", price: "$15,000/mo", wells: "Unlimited", perWell: "$350/well", color: "text-accent" },
+            ].map((t) => (
+              <div key={t.tier} className="p-2 rounded-lg bg-background/50 text-center">
+                <p className={`text-xs font-semibold ${t.color}`}>{t.tier}</p>
+                <p className="text-sm font-bold">{t.price}</p>
+                <p className="text-[10px] text-muted-foreground">{t.wells}</p>
+                <p className="text-[10px] text-muted-foreground">+ {t.perWell}</p>
+              </div>
+            ))}
           </div>
-          <p className="text-xs text-muted-foreground mt-3">Target: Well acquisition funds · Private equity E&P · Mid-size operators</p>
+          <div className="space-y-1 text-xs">
+            <div className="flex justify-between"><span className="text-muted-foreground">Client savings vs manual</span><span className="font-medium text-success">$10,100/well</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground">Target LTV</span><span className="font-medium">$200K–$500K+</span></div>
+          </div>
+          <p className="text-[10px] text-muted-foreground mt-2">Hybrid model: subscription + per-well fees for scalable recurring revenue</p>
         </div>
-        <div className="p-6 rounded-xl bg-success/10 border border-success/20">
-          <Badge className="mb-3 bg-success/20 text-success border-success/30">STREAM 2</Badge>
-          <h3 className="text-lg font-semibold mb-3">Production Ownership</h3>
-          <p className="text-sm text-muted-foreground mb-4">We own and operate restored wells, capturing 100% of the production upside.</p>
-          <div className="grid grid-cols-2 gap-3 text-sm">
+        {/* Stream 2 — Production */}
+        <div className="p-5 rounded-xl bg-success/10 border border-success/20">
+          <Badge className="mb-2 bg-success/20 text-success border-success/30">STREAM 2 — Production</Badge>
+          <h3 className="text-base font-semibold mb-2">Well Ownership & Operations</h3>
+          <p className="text-xs text-muted-foreground mb-3">We own and operate restored wells, capturing 100% of production upside.</p>
+          <div className="grid grid-cols-2 gap-2 text-sm">
             {[
               { value: "500", label: "Wells Analyzed" },
               { value: "6-10", label: "Winners Found" },
@@ -330,8 +344,11 @@ const InvestorDeck = () => {
               </div>
             ))}
           </div>
-          <p className="text-xs text-muted-foreground mt-3">30-35 bbl/day per well · Annual revenue: $2.1M–$2.5M</p>
+          <p className="text-xs text-muted-foreground mt-2">30-35 bbl/day per well · Annual revenue: $2.1M–$2.5M</p>
         </div>
+      </div>
+      <div className="p-3 rounded-xl bg-muted/30 border border-border">
+        <p className="text-xs text-muted-foreground"><strong className="text-foreground">Why Hybrid SaaS:</strong> Monthly subscriptions ensure predictable recurring revenue; per-well fees scale with usage. Production ownership adds high-margin upside. Combined model delivers 35-38% EBITDA in Year 1.</p>
       </div>
     </div>,
 
