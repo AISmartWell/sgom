@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { StageVisualization } from "@/components/pipeline/StageVisualization";
+import FieldScanMap from "@/components/pipeline/FieldScanMap";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -39,6 +40,8 @@ interface WellRecord {
   total_depth: number | null;
   well_type: string | null;
   status: string | null;
+  latitude: number | null;
+  longitude: number | null;
 }
 
 interface StageResult {
@@ -74,7 +77,7 @@ const WellAnalysisPipeline = () => {
     const fetchWells = async () => {
       const { data } = await supabase
         .from("wells")
-        .select("id, well_name, api_number, operator, county, state, formation, production_oil, production_gas, water_cut, total_depth, well_type, status")
+        .select("id, well_name, api_number, operator, county, state, formation, production_oil, production_gas, water_cut, total_depth, well_type, status, latitude, longitude")
         .order("well_name")
         .limit(200);
       if (data) setWells(data);
@@ -254,6 +257,13 @@ const WellAnalysisPipeline = () => {
           Select a well and run the full 8-stage analysis — from field scanning to EOR recommendation
         </p>
       </div>
+
+      {/* Field Scan Map */}
+      <FieldScanMap
+        wells={wells}
+        loading={loading}
+        onWellSelected={(id) => { setSelectedWellId(id); reset(); }}
+      />
 
       {/* Well Selector */}
       <Card className="glass-card mb-6">
