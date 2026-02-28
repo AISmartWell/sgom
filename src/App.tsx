@@ -38,6 +38,7 @@ import BudgetOverview from "./pages/BudgetOverview";
 import CounterProposal from "./pages/CounterProposal";
 import MVPScope from "./pages/MVPScope";
 import TechnicalResponse from "./pages/TechnicalResponse";
+import NvidiaCapitalConnectLetter from "./pages/NvidiaCapitalConnectLetter";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -85,6 +86,7 @@ const App = () => (
            <Route path="/counter-proposal" element={<CounterProposal />} />
             <Route path="/mvp-scope" element={<MVPScope />} />
             <Route path="/technical-response" element={<TechnicalResponse />} />
+            <Route path="/nvidia-capital-connect" element={<NvidiaCapitalConnectLetter />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
