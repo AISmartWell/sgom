@@ -9,12 +9,12 @@ import {
 import { DollarSign, TrendingUp, Clock, Calculator, CheckCircle2 } from "lucide-react";
 
 const SPT_CANDIDATES = [
-  { id: "W-001", name: "Oklahoma-1", currentProd: 12, projectedInflow: 34, reserves: 850, timeline: 18 },
-  { id: "W-003", name: "Texas-1", currentProd: 15, projectedInflow: 41, reserves: 1200, timeline: 22 },
-  { id: "W-005", name: "Oklahoma-3", currentProd: 18, projectedInflow: 48, reserves: 1500, timeline: 25 },
-  { id: "W-007", name: "Oklahoma-4", currentProd: 16, projectedInflow: 43, reserves: 1100, timeline: 20 },
-  { id: "W-009", name: "Oklahoma-5", currentProd: 14, projectedInflow: 39, reserves: 950, timeline: 19 },
-  { id: "W-010", name: "Texas-5", currentProd: 17, projectedInflow: 45, reserves: 1300, timeline: 23 },
+  { id: "W-001", name: "Oklahoma-1", currentProd: 12, projectedInflow: 19, reserves: 850, timeline: 18 },
+  { id: "W-003", name: "Texas-1", currentProd: 15, projectedInflow: 21, reserves: 1200, timeline: 22 },
+  { id: "W-005", name: "Oklahoma-3", currentProd: 18, projectedInflow: 26, reserves: 1500, timeline: 25 },
+  { id: "W-007", name: "Oklahoma-4", currentProd: 16, projectedInflow: 22, reserves: 1100, timeline: 20 },
+  { id: "W-009", name: "Oklahoma-5", currentProd: 14, projectedInflow: 20, reserves: 950, timeline: 19 },
+  { id: "W-010", name: "Texas-5", currentProd: 17, projectedInflow: 24, reserves: 1300, timeline: 23 },
 ];
 
 const EconomicAnalysisDemo = () => {
