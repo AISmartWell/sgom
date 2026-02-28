@@ -439,30 +439,119 @@ import nvidiaLogoBw from "@/assets/nvidia-logo-bw.png";
            </TabsContent>
          </Tabs>
  
-         {/* CTA */}
-         <Card className="bg-gradient-to-r from-[#76B900]/10 via-primary/5 to-accent/10 border-[#76B900]/30">
-           <CardContent className="py-8">
-             <div className="text-center space-y-4">
-                <div className="flex flex-col items-center justify-center gap-4">
-                  <img 
-                    src={nvidiaInceptionBadge} 
-                    alt="NVIDIA Inception Program" 
-                    className="h-16 object-contain"
-                  />
-                  <h2 className="text-2xl font-bold">NVIDIA Inception Member</h2>
-                </div>
-               <p className="text-muted-foreground max-w-2xl mx-auto">
-                  We are officially accepted into the NVIDIA Inception program! We now have access to DGX Cloud,
-                  NVIDIA technical support, and resources to scale our AI infrastructure.
-               </p>
-               <div className="flex justify-center gap-4 pt-4">
-                 <Button size="lg" variant="outline" onClick={() => navigate("/dashboard")}>
-                   Explore Platform
-                 </Button>
+        {/* Capital Connect Access */}
+        <Card className="border-[#76B900]/30 bg-gradient-to-br from-[#76B900]/5 via-transparent to-primary/5">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2 text-xl">
+                  <TrendingUp className="h-5 w-5 text-[#76B900]" />
+                  NVIDIA Capital Connect — VC Exposure
+                </CardTitle>
+                <CardDescription className="mt-1">
+                  Automatic benefit of NVIDIA Inception — direct access to 200+ venture capital firms
+                </CardDescription>
+              </div>
+              <Badge className="bg-[#76B900] text-white">Active Benefit</Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* What is Capital Connect */}
+            <div className="p-4 rounded-lg bg-muted/30 border border-border/50">
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                <strong className="text-foreground">Capital Connect</strong> is NVIDIA's curated platform connecting Inception startups
+                with top-tier venture capital investors. VCs actively browse startup profiles filtered by stage, industry, and NVIDIA technology usage.
+                No separate application required — it's an automatic benefit of Inception membership.
+              </p>
+            </div>
+
+            {/* Activation Checklist */}
+            <div>
+              <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-[#76B900]" />
+                Activation Checklist
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {[
+                  { step: "Update Product Profile", detail: "Company description, metrics, NVIDIA tech usage", done: true },
+                  { step: "Upload Pitch Deck (PDF)", detail: "Export 15-slide deck from /investor-deck", done: false },
+                  { step: "Set Funding Stage", detail: "Select 'Pre-Seed / Seed' — target $2.39M", done: false },
+                  { step: "Check 'Looking for Funding'", detail: "Enable VC visibility in Inception portal", done: false },
+                  { step: "Add Key Metrics", detail: "15K+ wells, 94% accuracy, 312% ROI, $3.2B SAM", done: true },
+                  { step: "Select Workloads", detail: "Data Science, Edge Computing, Agentic AI, MLOps", done: true },
+                ].map((item, i) => (
+                  <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-muted/20 border border-border/30">
+                    <div className={`h-5 w-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                      item.done ? "bg-[#76B900] text-white" : "border-2 border-muted-foreground/30"
+                    }`}>
+                      {item.done && <CheckCircle2 className="h-3 w-3" />}
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium">{item.step}</div>
+                      <div className="text-xs text-muted-foreground">{item.detail}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Key Numbers for VCs */}
+            <div>
+              <h4 className="font-semibold text-sm mb-3">Key Numbers for VC Profile</h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {[
+                  { label: "Raise Target", value: "$2.39M", sub: "Pre-Seed / Seed" },
+                  { label: "SAM", value: "$3.2B", sub: "Serviceable Market" },
+                  { label: "Year 1 EBITDA", value: "35-38%", sub: "Hybrid SaaS + Production" },
+                  { label: "Payback", value: "7-8 mo", sub: "312% ROI" },
+                ].map((stat) => (
+                  <div key={stat.label} className="text-center p-3 rounded-lg bg-muted/30 border border-border/30">
+                    <div className="text-lg font-bold text-[#76B900]">{stat.value}</div>
+                    <div className="text-xs font-medium">{stat.label}</div>
+                    <div className="text-[10px] text-muted-foreground">{stat.sub}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex flex-wrap gap-3 pt-2">
+              <Button onClick={() => navigate("/investor-deck")} className="gap-2 bg-[#76B900] hover:bg-[#76B900]/90">
+                <ArrowRight className="h-4 w-4" />
+                Open Pitch Deck
+              </Button>
+              <Button variant="outline" onClick={() => navigate("/nvidia-showcase")} className="gap-2">
+                <Eye className="h-4 w-4" />
+                Upload Kit
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* CTA */}
+        <Card className="bg-gradient-to-r from-[#76B900]/10 via-primary/5 to-accent/10 border-[#76B900]/30">
+          <CardContent className="py-8">
+            <div className="text-center space-y-4">
+               <div className="flex flex-col items-center justify-center gap-4">
+                 <img 
+                   src={nvidiaInceptionBadge} 
+                   alt="NVIDIA Inception Program" 
+                   className="h-16 object-contain"
+                 />
+                 <h2 className="text-2xl font-bold">NVIDIA Inception Member</h2>
                </div>
-             </div>
-           </CardContent>
-         </Card>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                 We are officially accepted into the NVIDIA Inception program! We now have access to DGX Cloud,
+                 NVIDIA technical support, Capital Connect VC exposure, and resources to scale our AI infrastructure.
+              </p>
+              <div className="flex justify-center gap-4 pt-4">
+                <Button size="lg" variant="outline" onClick={() => navigate("/dashboard")}>
+                  Explore Platform
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
        </div>
      </div>
    );
