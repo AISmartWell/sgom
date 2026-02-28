@@ -268,8 +268,8 @@ const InvestorDeck = () => {
               { value: "3-5 ft", label: "Slot depth" },
               { value: "60%", label: "Stress reduction" },
               { value: "+50%", label: "Permeability" },
-              { value: "Up to 10x", label: "Production boost" },
-              { value: "15-20 yrs", label: "Effect duration" },
+              { value: "5-10×", label: "Inflow increase" },
+              { value: "10-15 yrs", label: "Effect duration" },
               { value: "95%", label: "Recovery rate" },
             ].map((m) => (
               <div key={m.label} className="p-3 rounded-lg bg-success/10 border border-success/20 text-center">
