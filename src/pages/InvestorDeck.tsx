@@ -237,7 +237,7 @@ const InvestorDeck = () => {
           { n: 4, label: "SPT Projection", color: "bg-accent/20 text-accent" },
           { n: 5, label: "Economic Analysis", color: "bg-warning/20 text-warning" },
           { n: 6, label: "Geophysical Review", color: "bg-success/20 text-success" },
-          { n: 7, label: "SPT Parameters", color: "bg-success/20 text-success" },
+          { n: 7, label: "EOR Optimization", color: "bg-success/20 text-success" },
         ].map((s) => (
           <div key={s.n} className="flex flex-col items-center text-center">
             <div className={`h-12 w-12 rounded-full flex items-center justify-center font-bold text-lg mb-2 ${s.color}`}>
