@@ -779,6 +779,14 @@
                       <span className="font-medium">5 ft</span>
                     </div>
                     <div className="flex justify-between p-3 bg-muted/30 rounded-lg">
+                      <span className="text-muted-foreground">Permeability Increase</span>
+                      <span className="font-medium text-primary">30–50%</span>
+                    </div>
+                    <div className="flex justify-between p-3 bg-muted/30 rounded-lg">
+                      <span className="text-muted-foreground">Porosity Increase</span>
+                      <span className="font-medium text-primary">30–50%</span>
+                    </div>
+                    <div className="flex justify-between p-3 bg-muted/30 rounded-lg">
                       <span className="text-muted-foreground">Expected Inflow Increase</span>
                       <span className="font-medium text-primary">5–10×</span>
                     </div>

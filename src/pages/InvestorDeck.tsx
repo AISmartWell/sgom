@@ -267,7 +267,7 @@ const InvestorDeck = () => {
             {[
               { value: "Up to 5 ft", label: "Slot depth" },
               { value: "50-100%", label: "Stress relief" },
-              { value: "+50%", label: "Permeability" },
+              { value: "+50%", label: "Permeability/Porosity" },
               { value: "5-10×", label: "Inflow increase" },
               { value: "10-15 yrs", label: "Effect duration" },
               { value: "95%", label: "Recovery rate" },
