@@ -402,9 +402,9 @@ NVIDIA INCEPTION: Official Member`;
                     },
                     {
                       name: "Edward Rubinstein",
-                      role: "Strategy & Partnerships",
+                      role: "Co-Founder · Strategy & Partnerships",
                       company: "AI Smart Well",
-                      detail: "Strategy & partnerships, investor relations. Add as Co-Founder.",
+                      detail: "Strategic planning, investor relations, partnership development. Drives business growth and market expansion. Add as Co-Founder.",
                     },
                     {
                       name: "Natalia Zaruchevskaya",

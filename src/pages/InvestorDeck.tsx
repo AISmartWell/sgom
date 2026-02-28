@@ -623,7 +623,7 @@ const InvestorDeck = () => {
           </div>
           <h3 className="text-base font-semibold">Edward Rubinstein</h3>
           <p className="text-xs text-primary mb-1">Co-Founder · Strategy & Partnerships · AI Smart Well</p>
-          <p className="text-xs text-muted-foreground">Strategy & partnerships.</p>
+          <p className="text-xs text-muted-foreground">Strategic planning, investor relations, partnership development. Drives business growth and market expansion.</p>
         </div>
         <div className="p-5 rounded-xl bg-card border border-border">
           <div className="h-14 w-14 rounded-full bg-primary/20 flex items-center justify-center mb-3 text-xl font-bold text-primary">
