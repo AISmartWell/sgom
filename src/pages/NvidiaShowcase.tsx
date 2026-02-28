@@ -70,6 +70,7 @@ TEAM:
 • Anatoliy Nikouline — CEO & SPT Engineer, Maxxwell Production (10+ years field experience, patent inventor)
 • Alexander Alishoev — Lead Developer, Full-Stack & AI/ML Architecture
 • Edward Rubinstein — Business Strategy
+• Natalia Zaruchevskaya — Co-Founder, Business Development
 • Maxxwell Production — Technology Partner (since 2012, worked with Chevron, Baker Hughes, Halliburton)
 
 WEBSITE: https://www.aismartwellsgom.com
@@ -385,7 +386,7 @@ NVIDIA INCEPTION: Official Member`;
                 <CardDescription>Add these team members to your NVIDIA Inception account</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   {[
                     {
                       name: "Anatoliy Nikouline",
@@ -404,6 +405,12 @@ NVIDIA INCEPTION: Official Member`;
                       role: "Business Strategy",
                       company: "AI Smart Well",
                       detail: "Business development & investor relations. Add as Business Advisor.",
+                    },
+                    {
+                      name: "Natalia Zaruchevskaya",
+                      role: "Co-Founder · Business Development",
+                      company: "AI Smart Well",
+                      detail: "Business development, partnerships, client relations.",
                     },
                   ].map((member) => (
                     <div key={member.name} className="p-4 rounded-lg bg-muted/30 border border-border/50">
@@ -427,7 +434,7 @@ NVIDIA INCEPTION: Official Member`;
                 <div className="space-y-3">
                   {[
                     "Update Product Profile — copy text from 'Product Profile' tab",
-                    "Add team members — Anatoliy (CEO), Alexander (CTO), Edward (Business)",
+                    "Add team members — Anatoliy (CEO), Alexander (CTO), Edward (Business), Natalia (Business Development)",
                     "Upload demo video (2:30 screencast following the script)",
                     "Add platform URL: https://www.aismartwellsgom.com",
                     "Update Technology Usage: NVIDIA API Catalog, DGX Cloud (planned), RAPIDS (planned)",

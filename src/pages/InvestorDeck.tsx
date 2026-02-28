@@ -616,7 +616,7 @@ const InvestorDeck = () => {
         <Users className="h-8 w-8 text-primary" />
         <h2 className="text-3xl md:text-4xl font-bold">Team</h2>
       </div>
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-5">
         <div className="p-5 rounded-xl bg-card border border-border">
           <div className="h-14 w-14 rounded-full bg-primary/20 flex items-center justify-center mb-3 text-xl font-bold text-primary">
             ER
@@ -640,6 +640,14 @@ const InvestorDeck = () => {
           <h3 className="text-base font-semibold">Alexander Alishoev</h3>
           <p className="text-xs text-success mb-1">Lead Developer</p>
           <p className="text-xs text-muted-foreground">Full-stack development, AI/ML integration, platform architecture.</p>
+        </div>
+        <div className="p-5 rounded-xl bg-card border border-border">
+          <div className="h-14 w-14 rounded-full bg-primary/20 flex items-center justify-center mb-3 text-xl font-bold text-primary">
+            NZ
+          </div>
+          <h3 className="text-base font-semibold">Natalia Zaruchevskaya</h3>
+          <p className="text-xs text-primary mb-1">Co-Founder · Business Development</p>
+          <p className="text-xs text-muted-foreground">Business development, partnerships, client relations.</p>
         </div>
         <div className="p-5 rounded-xl bg-card border border-border">
           <div className="h-14 w-14 rounded-full bg-primary/20 flex items-center justify-center mb-3 text-xl font-bold text-primary">
