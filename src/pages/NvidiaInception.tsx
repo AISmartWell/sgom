@@ -456,27 +456,38 @@ import nvidiaLogoBw from "@/assets/nvidia-logo-bw.png";
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* What is Capital Connect */}
+            {/* Overview */}
             <div className="p-4 rounded-lg bg-muted/30 border border-border/50">
               <p className="text-sm text-muted-foreground leading-relaxed">
-                <strong className="text-foreground">Capital Connect</strong> is NVIDIA's curated platform connecting Inception startups
-                with top-tier venture capital investors. VCs actively browse startup profiles filtered by stage, industry, and NVIDIA technology usage.
-                No separate application required — it's an automatic benefit of Inception membership.
+                Tap into a global network of venture capital firms with <strong className="text-foreground">NVIDIA Inception Capital Connect (ICC)</strong>.
+                NVIDIA works with hundreds of investors around the world that are looking for investment opportunities in growing tech companies.
+                Through ICC, we help connect VC firms with approved Inception members that are raising funds.
               </p>
             </div>
 
-            {/* Activation Checklist */}
+            {/* Important Note */}
+            <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/30 flex items-start gap-3">
+              <Zap className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+              <div>
+                <div className="text-sm font-medium text-destructive">Important</div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  You must deactivate your current NVIDIA funding request in the portal before submitting a new one.
+                </p>
+              </div>
+            </div>
+
+            {/* Request Benefit Checklist */}
             <div>
               <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-[#76B900]" />
-                Activation Checklist
+                Request Benefit — Activation Steps
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {[
                   { step: "Update Product Profile", detail: "Company description, metrics, NVIDIA tech usage", done: true },
                   { step: "Upload Pitch Deck (PDF)", detail: "Export 15-slide deck from /investor-deck", done: false },
                   { step: "Set Funding Stage", detail: "Select 'Pre-Seed / Seed' — target $2.39M", done: false },
-                  { step: "Check 'Looking for Funding'", detail: "Enable VC visibility in Inception portal", done: false },
+                  { step: "Request Benefit in Portal", detail: "Click 'Request Benefit' on Capital Connect page", done: false },
                   { step: "Add Key Metrics", detail: "15K+ wells, 94% accuracy, 312% ROI, $3.2B SAM", done: true },
                   { step: "Select Workloads", detail: "Data Science, Edge Computing, Agentic AI, MLOps", done: true },
                 ].map((item, i) => (
