@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -79,15 +79,31 @@ const WellAnalysisPipeline = () => {
 
   const selectedWell = wells.find((w) => w.id === selectedWellId) || null;
 
-  const filteredWells = useMemo(() => {
-    if (!wellSearch.trim()) return wells;
-    const q = wellSearch.toLowerCase();
-    return wells.filter((w) =>
-      [w.well_name, w.api_number, w.operator, w.county, w.formation]
-        .filter(Boolean)
-        .some((v) => v!.toLowerCase().includes(q))
-    );
-  }, [wells, wellSearch]);
+  const [searchResults, setSearchResults] = useState<WellRecord[]>([]);
+  const [searching, setSearching] = useState(false);
+
+  // Server-side search when user types
+  useEffect(() => {
+    if (!wellSearch.trim()) {
+      setSearchResults([]);
+      return;
+    }
+    const timeout = setTimeout(async () => {
+      setSearching(true);
+      const s = `%${wellSearch.trim()}%`;
+      const { data } = await supabase
+        .from("wells")
+        .select("id, well_name, api_number, operator, county, state, formation, production_oil, production_gas, water_cut, total_depth, well_type, status, latitude, longitude")
+        .or(`well_name.ilike.${s},api_number.ilike.${s},operator.ilike.${s},county.ilike.${s},formation.ilike.${s}`)
+        .order("well_name")
+        .limit(50);
+      setSearchResults(data || []);
+      setSearching(false);
+    }, 300);
+    return () => clearTimeout(timeout);
+  }, [wellSearch]);
+
+  const filteredWells = wellSearch.trim() ? searchResults : wells;
 
   const selectedLabel = selectedWell
     ? `${selectedWell.well_name || selectedWell.api_number || selectedWell.id.slice(0, 8)} — ${selectedWell.county || ""}, ${selectedWell.state}`
@@ -232,8 +248,12 @@ const WellAnalysisPipeline = () => {
                     />
                   </div>
                   <ScrollArea className="max-h-64">
-                    {filteredWells.length === 0 ? (
-                      <p className="text-sm text-muted-foreground text-center py-4">No wells found</p>
+                    {searching ? (
+                      <p className="text-sm text-muted-foreground text-center py-4">Searching...</p>
+                    ) : filteredWells.length === 0 ? (
+                      <p className="text-sm text-muted-foreground text-center py-4">
+                        {wellSearch.trim() ? "No wells found" : "Type to search or scroll"}
+                      </p>
                     ) : (
                       filteredWells.map((w) => (
                         <button
