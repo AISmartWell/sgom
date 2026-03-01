@@ -3,8 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
-import { Database, RefreshCw, Loader2 } from "lucide-react";
+import { Database, RefreshCw, Loader2, Search } from "lucide-react";
 
 interface ImportedWellsTableProps {
   refreshTrigger: number;
@@ -15,22 +16,42 @@ export const ImportedWellsTable = ({ refreshTrigger }: ImportedWellsTableProps) 
   const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [page, setPage] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const PAGE_SIZE = 20;
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      setPage(0);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   const loadWells = async () => {
     setIsLoading(true);
     const from = page * PAGE_SIZE;
     const to = from + PAGE_SIZE - 1;
 
+    let query = supabase
+      .from("wells")
+      .select("id, api_number, well_name, operator, state, county, formation, status, source, production_oil, production_gas, created_at")
+      .order("created_at", { ascending: false });
+
+    let countQuery = supabase
+      .from("wells")
+      .select("*", { count: "exact", head: true });
+
+    if (debouncedSearch.trim()) {
+      const s = `%${debouncedSearch.trim()}%`;
+      const filter = `well_name.ilike.${s},api_number.ilike.${s},operator.ilike.${s},county.ilike.${s},formation.ilike.${s}`;
+      query = query.or(filter);
+      countQuery = countQuery.or(filter);
+    }
+
     const [{ data, error }, { count }] = await Promise.all([
-      supabase
-        .from("wells")
-        .select("id, api_number, well_name, operator, state, county, formation, status, source, production_oil, production_gas, created_at")
-        .order("created_at", { ascending: false })
-        .range(from, to),
-      supabase
-        .from("wells")
-        .select("*", { count: "exact", head: true }),
+      query.range(from, to),
+      countQuery,
     ]);
 
     if (!error && data) setWells(data);
@@ -40,7 +61,7 @@ export const ImportedWellsTable = ({ refreshTrigger }: ImportedWellsTableProps) 
 
   useEffect(() => {
     loadWells();
-  }, [page, refreshTrigger]);
+  }, [page, refreshTrigger, debouncedSearch]);
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
@@ -64,6 +85,15 @@ export const ImportedWellsTable = ({ refreshTrigger }: ImportedWellsTableProps) 
             <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
             Refresh
           </Button>
+        </div>
+        <div className="relative mt-3">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search by well name, API #, operator, county, formation..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9"
+          />
         </div>
       </CardHeader>
       <CardContent>
