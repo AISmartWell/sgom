@@ -49,7 +49,7 @@ const ROCK_TYPES = ["Sandstone", "Limestone", "Dolomite", "Shale", "Granite", "B
 const EXTERNAL_SOURCES = [
   { label: "USGS Core Research Center", url: "https://my.usgs.gov/crcwc/query", icon: "🇺🇸" },
   { label: "BEG Texas Core Facility", url: "https://www.beg.utexas.edu/research/programs/core-research-center", icon: "🤠" },
-  { label: "Kansas Geological Survey", url: "https://www.kgs.ku.edu/Magellan/Core/index.html", icon: "🌾" },
+  { label: "Kansas Geological Survey", url: "https://www.kgs.ku.edu/Magellan/CoreLibrary/index.html", icon: "🌾" },
 ];
 
 export const CoreImageGallery = () => {
