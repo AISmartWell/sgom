@@ -6,10 +6,12 @@ import { FileSpreadsheet, PenLine, Cloud, Database } from "lucide-react";
 import { CSVUpload } from "@/components/data-import/CSVUpload";
 import { ManualWellEntry } from "@/components/data-import/ManualWellEntry";
 import { APIIntegrationPanel } from "@/components/data-import/APIIntegrationPanel";
+import { ImportedWellsTable } from "@/components/data-import/ImportedWellsTable";
 
 const DataImport = () => {
   const [companyId, setCompanyId] = useState<string | null>(null);
   const [wellCount, setWellCount] = useState(0);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const loadCompany = async () => {
     const { data } = await supabase.from("user_companies").select("company_id").limit(1).maybeSingle();
@@ -28,6 +30,7 @@ const DataImport = () => {
 
   const handleImportComplete = () => {
     loadCount();
+    setRefreshTrigger((t) => t + 1);
   };
 
   return (
@@ -73,6 +76,8 @@ const DataImport = () => {
           <APIIntegrationPanel />
         </TabsContent>
       </Tabs>
+
+      <ImportedWellsTable refreshTrigger={refreshTrigger} />
     </div>
   );
 };
