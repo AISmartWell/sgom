@@ -76,6 +76,72 @@ export type Database = {
           },
         ]
       }
+      core_images: {
+        Row: {
+          api_number: string | null
+          company_id: string
+          created_at: string
+          depth_from: number | null
+          depth_to: number | null
+          description: string | null
+          file_name: string
+          file_path: string
+          formation: string | null
+          id: string
+          rock_type: string | null
+          source: string
+          user_id: string
+          well_id: string | null
+        }
+        Insert: {
+          api_number?: string | null
+          company_id: string
+          created_at?: string
+          depth_from?: number | null
+          depth_to?: number | null
+          description?: string | null
+          file_name: string
+          file_path: string
+          formation?: string | null
+          id?: string
+          rock_type?: string | null
+          source?: string
+          user_id: string
+          well_id?: string | null
+        }
+        Update: {
+          api_number?: string | null
+          company_id?: string
+          created_at?: string
+          depth_from?: number | null
+          depth_to?: number | null
+          description?: string | null
+          file_name?: string
+          file_path?: string
+          formation?: string | null
+          id?: string
+          rock_type?: string | null
+          source?: string
+          user_id?: string
+          well_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "core_images_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "core_images_well_id_fkey"
+            columns: ["well_id"]
+            isOneToOne: false
+            referencedRelation: "wells"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_companies: {
         Row: {
           company_id: string

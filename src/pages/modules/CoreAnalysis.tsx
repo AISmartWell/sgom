@@ -17,6 +17,7 @@ import {
   Mountain,
   Eye,
   History,
+  Database,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -25,6 +26,7 @@ import { CVDemoVisualization } from "@/components/core-analysis/CVDemoVisualizat
 import { SampleGallery } from "@/components/core-analysis/SampleGallery";
 import { AdvancedAnalysisPanel } from "@/components/core-analysis/AdvancedAnalysisPanel";
 import { AnalysisHistory } from "@/components/core-analysis/AnalysisHistory";
+import { CoreImageGallery } from "@/components/core-analysis/CoreImageGallery";
 
 const CoreAnalysis = () => {
   const navigate = useNavigate();
@@ -192,10 +194,14 @@ const CoreAnalysis = () => {
       </div>
 
       <Tabs defaultValue="analyze" className="space-y-6">
-        <TabsList className="grid w-full max-w-3xl grid-cols-5">
+        <TabsList className="grid w-full max-w-4xl grid-cols-6">
           <TabsTrigger value="analyze" className="gap-2">
             <Scan className="h-4 w-4" />
             Analysis
+          </TabsTrigger>
+          <TabsTrigger value="core-library" className="gap-2">
+            <Database className="h-4 w-4" />
+            Core Library
           </TabsTrigger>
           <TabsTrigger value="gallery" className="gap-2">
             <ImageIcon className="h-4 w-4" />
@@ -379,6 +385,10 @@ const CoreAnalysis = () => {
           </CardContent>
         </Card>
           </div>
+        </TabsContent>
+
+        <TabsContent value="core-library">
+          <CoreImageGallery />
         </TabsContent>
 
         <TabsContent value="gallery">
