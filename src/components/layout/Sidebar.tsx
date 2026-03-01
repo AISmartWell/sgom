@@ -32,6 +32,7 @@ import {
   Layers,
   GitBranch,
   Import,
+  ShieldCheck,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -186,6 +187,12 @@ const menuItems = [
     icon: Import,
     href: "/dashboard/data-import",
     badge: "📥",
+  },
+  {
+    title: "Data Security",
+    icon: ShieldCheck,
+    href: "/dashboard/data-security",
+    badge: "🔒",
   },
   {
     title: "MVP Scope",
