@@ -78,8 +78,9 @@ const WellAnalysisPipeline = () => {
   const [wellPickerOpen, setWellPickerOpen] = useState(false);
   const [searchResults, setSearchResults] = useState<WellRecord[]>([]);
   const [searching, setSearching] = useState(false);
+  const [cachedSelectedWell, setCachedSelectedWell] = useState<WellRecord | null>(null);
 
-  const selectedWell = wells.find((w) => w.id === selectedWellId) || searchResults.find((w) => w.id === selectedWellId) || null;
+  const selectedWell = wells.find((w) => w.id === selectedWellId) || searchResults.find((w) => w.id === selectedWellId) || cachedSelectedWell;
 
   // Server-side search when user types
   useEffect(() => {
@@ -260,6 +261,7 @@ const WellAnalysisPipeline = () => {
                           className={`w-full text-left px-3 py-2 text-sm hover:bg-accent transition-colors ${w.id === selectedWellId ? "bg-accent font-medium" : ""}`}
                           onClick={() => {
                             setSelectedWellId(w.id);
+                            setCachedSelectedWell(w);
                             reset();
                             setWellPickerOpen(false);
                             setWellSearch("");
