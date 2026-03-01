@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -9,7 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   ArrowLeft,
   Play,
@@ -72,8 +74,24 @@ const WellAnalysisPipeline = () => {
   const [stageProgress, setStageProgress] = useState(0);
   const [completedStages, setCompletedStages] = useState<Map<string, StageResult>>(new Map());
   const [loading, setLoading] = useState(true);
+  const [wellSearch, setWellSearch] = useState("");
+  const [wellPickerOpen, setWellPickerOpen] = useState(false);
 
   const selectedWell = wells.find((w) => w.id === selectedWellId) || null;
+
+  const filteredWells = useMemo(() => {
+    if (!wellSearch.trim()) return wells;
+    const q = wellSearch.toLowerCase();
+    return wells.filter((w) =>
+      [w.well_name, w.api_number, w.operator, w.county, w.formation]
+        .filter(Boolean)
+        .some((v) => v!.toLowerCase().includes(q))
+    );
+  }, [wells, wellSearch]);
+
+  const selectedLabel = selectedWell
+    ? `${selectedWell.well_name || selectedWell.api_number || selectedWell.id.slice(0, 8)} — ${selectedWell.county || ""}, ${selectedWell.state}`
+    : "";
 
   useEffect(() => {
     const fetchWells = async () => {
@@ -198,18 +216,43 @@ const WellAnalysisPipeline = () => {
           <div className="flex flex-col sm:flex-row gap-4 items-end">
             <div className="flex-1 space-y-2">
               <label className="text-sm font-medium">Select Well</label>
-              <Select value={selectedWellId} onValueChange={(v) => { setSelectedWellId(v); reset(); }}>
-                <SelectTrigger>
-                  <SelectValue placeholder={loading ? "Loading wells..." : "Choose a well from database"} />
-                </SelectTrigger>
-                <SelectContent className="max-h-64">
-                  {wells.map((w) => (
-                    <SelectItem key={w.id} value={w.id}>
-                      {w.well_name || w.api_number || w.id.slice(0, 8)} — {w.county}, {w.state}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Popover open={wellPickerOpen} onOpenChange={setWellPickerOpen}>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="w-full justify-start font-normal">
+                    {loading ? "Loading wells..." : selectedLabel || "Search and select a well..."}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+                  <div className="p-2 border-b">
+                    <Input
+                      placeholder="Search by name, API #, operator..."
+                      value={wellSearch}
+                      onChange={(e) => setWellSearch(e.target.value)}
+                      autoFocus
+                    />
+                  </div>
+                  <ScrollArea className="max-h-64">
+                    {filteredWells.length === 0 ? (
+                      <p className="text-sm text-muted-foreground text-center py-4">No wells found</p>
+                    ) : (
+                      filteredWells.map((w) => (
+                        <button
+                          key={w.id}
+                          className={`w-full text-left px-3 py-2 text-sm hover:bg-accent transition-colors ${w.id === selectedWellId ? "bg-accent font-medium" : ""}`}
+                          onClick={() => {
+                            setSelectedWellId(w.id);
+                            reset();
+                            setWellPickerOpen(false);
+                            setWellSearch("");
+                          }}
+                        >
+                          {w.well_name || w.api_number || w.id.slice(0, 8)} — {w.county}, {w.state}
+                        </button>
+                      ))
+                    )}
+                  </ScrollArea>
+                </PopoverContent>
+              </Popover>
             </div>
             <div className="flex gap-2">
               <Button onClick={runPipeline} disabled={!selectedWellId || isRunning}>
