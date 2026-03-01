@@ -76,11 +76,10 @@ const WellAnalysisPipeline = () => {
   const [loading, setLoading] = useState(true);
   const [wellSearch, setWellSearch] = useState("");
   const [wellPickerOpen, setWellPickerOpen] = useState(false);
-
-  const selectedWell = wells.find((w) => w.id === selectedWellId) || null;
-
   const [searchResults, setSearchResults] = useState<WellRecord[]>([]);
   const [searching, setSearching] = useState(false);
+
+  const selectedWell = wells.find((w) => w.id === selectedWellId) || searchResults.find((w) => w.id === selectedWellId) || null;
 
   // Server-side search when user types
   useEffect(() => {
