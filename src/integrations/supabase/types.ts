@@ -171,6 +171,60 @@ export type Database = {
           },
         ]
       }
+      well_alerts: {
+        Row: {
+          alert_type: string
+          company_id: string
+          created_at: string
+          current_value: number | null
+          id: string
+          is_read: boolean
+          message: string
+          previous_value: number | null
+          severity: string
+          well_id: string
+        }
+        Insert: {
+          alert_type: string
+          company_id: string
+          created_at?: string
+          current_value?: number | null
+          id?: string
+          is_read?: boolean
+          message: string
+          previous_value?: number | null
+          severity?: string
+          well_id: string
+        }
+        Update: {
+          alert_type?: string
+          company_id?: string
+          created_at?: string
+          current_value?: number | null
+          id?: string
+          is_read?: boolean
+          message?: string
+          previous_value?: number | null
+          severity?: string
+          well_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "well_alerts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "well_alerts_well_id_fkey"
+            columns: ["well_id"]
+            isOneToOne: false
+            referencedRelation: "wells"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       wells: {
         Row: {
           api_number: string | null
