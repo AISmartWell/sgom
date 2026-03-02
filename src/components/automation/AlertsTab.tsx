@@ -38,6 +38,16 @@ const alertTypeLabels: Record<string, string> = {
 
 const PIE_COLORS = ["hsl(var(--destructive))", "hsl(45 93% 47%)", "hsl(var(--primary))"];
 
+const DEMO_ALERTS: WellAlert[] = [
+  { id: "d1", well_id: "w1", company_id: "c1", alert_type: "production_drop", severity: "critical", message: "Oil production dropped 34% (1,200 → 792 bbl/day) — Well #A-117", previous_value: 1200, current_value: 792, is_read: false, created_at: new Date(Date.now() - 1000 * 60 * 30).toISOString() },
+  { id: "d2", well_id: "w2", company_id: "c1", alert_type: "water_cut_high", severity: "warning", message: "Water cut exceeded 70% threshold (74.2%) — Well #B-204", previous_value: 65, current_value: 74.2, is_read: false, created_at: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString() },
+  { id: "d3", well_id: "w3", company_id: "c1", alert_type: "status_change", severity: "info", message: "Well status changed: Active → Shut-in — Well #C-089", previous_value: null, current_value: null, is_read: true, created_at: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString() },
+  { id: "d4", well_id: "w4", company_id: "c1", alert_type: "production_drop", severity: "critical", message: "Oil production dropped 28% (890 → 641 bbl/day) — Well #D-312", previous_value: 890, current_value: 641, is_read: true, created_at: new Date(Date.now() - 1000 * 60 * 60 * 8).toISOString() },
+  { id: "d5", well_id: "w5", company_id: "c1", alert_type: "water_cut_high", severity: "warning", message: "Water cut exceeded 70% threshold (71.8%) — Well #E-055", previous_value: 68, current_value: 71.8, is_read: false, created_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString() },
+  { id: "d6", well_id: "w1", company_id: "c1", alert_type: "status_change", severity: "info", message: "Well status changed: Drilling → Active — Well #A-117", previous_value: null, current_value: null, is_read: true, created_at: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString() },
+  { id: "d7", well_id: "w6", company_id: "c1", alert_type: "production_drop", severity: "critical", message: "Oil production dropped 41% (1,540 → 909 bbl/day) — Well #F-198", previous_value: 1540, current_value: 909, is_read: true, created_at: new Date(Date.now() - 1000 * 60 * 60 * 72).toISOString() },
+];
+
 interface AlertsTabProps {
   alerts: WellAlert[];
   loading: boolean;
@@ -48,21 +58,24 @@ interface AlertsTabProps {
 }
 
 export function AlertsTab({ alerts, loading, unreadCount, onRefresh, onMarkAsRead, onMarkAllRead }: AlertsTabProps) {
+  const isDemo = alerts.length === 0;
+  const displayAlerts = isDemo ? DEMO_ALERTS : alerts;
+
   const stats = useMemo(() => {
-    const critical = alerts.filter(a => a.severity === "critical").length;
-    const warning = alerts.filter(a => a.severity === "warning").length;
-    const info = alerts.filter(a => a.severity === "info").length;
-    return { total: alerts.length, critical, warning, info };
-  }, [alerts]);
+    const critical = displayAlerts.filter(a => a.severity === "critical").length;
+    const warning = displayAlerts.filter(a => a.severity === "warning").length;
+    const info = displayAlerts.filter(a => a.severity === "info").length;
+    return { total: displayAlerts.length, critical, warning, info };
+  }, [displayAlerts]);
 
   const pieData = useMemo(() => {
     const byType: Record<string, number> = {};
-    alerts.forEach(a => {
+    displayAlerts.forEach(a => {
       const label = alertTypeLabels[a.alert_type] || a.alert_type;
       byType[label] = (byType[label] || 0) + 1;
     });
     return Object.entries(byType).map(([name, value]) => ({ name, value }));
-  }, [alerts]);
+  }, [displayAlerts]);
 
   const barData = useMemo(() => {
     const days: Record<string, number> = {};
@@ -71,13 +84,13 @@ export function AlertsTab({ alerts, loading, unreadCount, onRefresh, onMarkAsRea
       d.setDate(d.getDate() - i);
       days[d.toLocaleDateString("en-US", { weekday: "short" })] = 0;
     }
-    alerts.forEach(a => {
+    displayAlerts.forEach(a => {
       const d = new Date(a.created_at);
       const key = d.toLocaleDateString("en-US", { weekday: "short" });
       if (key in days) days[key]++;
     });
     return Object.entries(days).map(([day, count]) => ({ day, count }));
-  }, [alerts]);
+  }, [displayAlerts]);
 
   const statCards = [
     { label: "Total Alerts", value: stats.total, icon: Bell, colorClass: "text-foreground" },
@@ -105,8 +118,16 @@ export function AlertsTab({ alerts, loading, unreadCount, onRefresh, onMarkAsRea
         ))}
       </div>
 
+      {/* Demo banner */}
+      {isDemo && !loading && (
+        <div className="rounded-lg border border-dashed border-primary/40 bg-primary/5 px-4 py-2 text-sm text-muted-foreground flex items-center gap-2">
+          <Info className="h-4 w-4 text-primary" />
+          Demo visualization — real alerts will appear when well data changes.
+        </div>
+      )}
+
       {/* Charts row */}
-      {alerts.length > 0 && (
+      {displayAlerts.length > 0 && (
         <div className="grid md:grid-cols-2 gap-4">
           <Card className="border-muted">
             <CardHeader className="pb-2">
@@ -181,15 +202,9 @@ export function AlertsTab({ alerts, loading, unreadCount, onRefresh, onMarkAsRea
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-6 w-6 animate-spin text-primary" />
             </div>
-          ) : alerts.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <Bell className="h-12 w-12 mx-auto mb-3 opacity-30" />
-              <p className="font-medium">No alerts yet</p>
-              <p className="text-sm mt-1">Alerts are automatically generated when well data changes.</p>
-            </div>
           ) : (
             <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
-              {alerts.map(alert => {
+              {displayAlerts.map(alert => {
                 const cfg = severityConfig[alert.severity] || severityConfig.info;
                 const Icon = cfg.icon;
                 return (
