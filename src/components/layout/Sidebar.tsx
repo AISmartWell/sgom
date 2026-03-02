@@ -33,6 +33,7 @@ import {
   GitBranch,
   Import,
   ShieldCheck,
+  Zap,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -193,6 +194,12 @@ const menuItems = [
     icon: ShieldCheck,
     href: "/dashboard/data-security",
     badge: "🔒",
+  },
+  {
+    title: "Automation",
+    icon: Zap,
+    href: "/dashboard/automation",
+    badge: "⚡",
   },
   {
     title: "MVP Scope",
