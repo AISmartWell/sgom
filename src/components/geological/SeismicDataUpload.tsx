@@ -1,8 +1,43 @@
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Upload, FileUp, X, FileText, AlertCircle } from "lucide-react";
+import { Upload, FileUp, X, FileText, AlertCircle, Download } from "lucide-react";
 import { toast } from "sonner";
+
+const SAMPLE_CSV = `depth,trace1,trace2,trace3
+0,12.5,-8.3,15.1
+50,25.7,18.2,-5.4
+100,-15.3,32.1,22.8
+150,45.2,-12.7,8.9
+200,-28.6,41.5,-18.3
+250,18.9,-25.4,35.7
+300,-8.1,15.6,-42.3
+350,32.4,-38.2,12.1
+400,-22.7,28.9,45.6
+450,55.1,-15.8,-22.4
+500,-35.2,48.3,18.7
+550,42.8,22.1,-31.5
+600,-18.4,-35.9,28.3
+650,28.6,45.2,-8.7
+700,-45.1,12.4,38.9
+750,15.3,-28.7,-15.2
+800,38.9,32.6,42.1
+850,-22.1,-18.5,8.4
+900,48.7,25.3,-35.8
+950,-12.9,-42.1,22.6
+1000,35.4,18.7,-28.9
+`;
+
+const downloadSampleCSV = () => {
+  const blob = new Blob([SAMPLE_CSV], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "seismic_sample.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+  toast.success("Sample CSV downloaded");
+};
 
 export interface SeismicTrace {
   depth: number;
@@ -142,9 +177,19 @@ const SeismicDataUpload = ({ onDataLoaded, onClear, hasUploadedData }: SeismicDa
       <p className="text-xs text-muted-foreground mt-1">
         Format: depth, trace1, trace2, trace3 (comma-separated)
       </p>
-      <div className="flex items-center justify-center gap-1 mt-2 text-xs text-muted-foreground">
-        <AlertCircle className="h-3 w-3" />
-        <span>SEG-Y support — Phase 2</span>
+      <div className="flex items-center justify-center gap-3 mt-2 text-xs text-muted-foreground">
+        <div className="flex items-center gap-1">
+          <AlertCircle className="h-3 w-3" />
+          <span>SEG-Y support — Phase 2</span>
+        </div>
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); downloadSampleCSV(); }}
+          className="flex items-center gap-1 text-primary hover:underline"
+        >
+          <Download className="h-3 w-3" />
+          <span>Download Sample CSV</span>
+        </button>
       </div>
     </div>
   );
