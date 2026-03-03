@@ -15,14 +15,16 @@ import { Cpu, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
+import SeismicDataUpload, { type SeismicTrace } from "./SeismicDataUpload";
 
 const SeismicVisualization = () => {
   const [analysisReport, setAnalysisReport] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [uploadedData, setUploadedData] = useState<SeismicTrace[] | null>(null);
 
   // Generate synthetic seismic trace data
-  const seismicData = useMemo(() => {
-    const data = [];
+  const syntheticData = useMemo(() => {
+    const data: SeismicTrace[] = [];
     for (let i = 0; i < 100; i++) {
       const depth = i * 50;
       const trace1 = Math.sin(i * 0.3) * 50 + Math.random() * 20 - 10;
@@ -39,6 +41,9 @@ const SeismicVisualization = () => {
     }
     return data;
   }, []);
+
+  const seismicData = uploadedData || syntheticData;
+  const isUsingRealData = !!uploadedData;
 
   const horizons = [
     { depth: 500, name: "Top Reservoir", color: "hsl(var(--success))" },
@@ -89,20 +94,28 @@ const SeismicVisualization = () => {
 
   return (
     <div className="space-y-4">
+      {/* Upload Section */}
+      <SeismicDataUpload
+        onDataLoaded={(data) => { setUploadedData(data); setAnalysisReport(null); }}
+        onClear={() => { setUploadedData(null); setAnalysisReport(null); }}
+        hasUploadedData={isUsingRealData}
+      />
+
       <div className="flex items-center justify-between">
         <div>
           <h4 className="font-semibold">Seismic Amplitude Section</h4>
-          <p className="text-sm text-muted-foreground">Multi-trace seismic interpretation with horizon picks</p>
+          <p className="text-sm text-muted-foreground">
+            {isUsingRealData
+              ? "Displaying uploaded operator data"
+              : "Synthetic demo data — upload CSV for real analysis"}
+          </p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex gap-2">
-            {horizons.map((h) => (
-              <div key={h.name} className="flex items-center gap-1 text-xs">
-                <div className="w-3 h-0.5" style={{ backgroundColor: h.color }} />
-                <span className="text-muted-foreground">{h.name}</span>
-              </div>
-            ))}
-          </div>
+          {isUsingRealData && (
+            <span className="text-xs px-2 py-1 bg-primary/15 text-primary rounded-full font-medium">
+              Real Data
+            </span>
+          )}
           <Button size="sm" onClick={runAIAnalysis} disabled={isAnalyzing}>
             {isAnalyzing ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
