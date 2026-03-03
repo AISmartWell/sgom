@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   Map,
   Layers,
@@ -16,10 +17,12 @@ import SeismicVisualization from "@/components/geological/SeismicVisualization";
 import WellLogVisualization from "@/components/geological/WellLogVisualization";
 import Geological3DModel from "@/components/geological/Geological3DModel";
 import CrossSectionVisualization from "@/components/geological/CrossSectionVisualization";
+import SeismicMap from "@/components/geological/SeismicMap";
 
 const GeologicalAnalysis = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("seismic");
+  const [showSeismicMap, setShowSeismicMap] = useState(false);
 
   return (
     <div className="p-8">
@@ -124,7 +127,7 @@ const GeologicalAnalysis = () => {
               <CardTitle>Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button variant="outline" className="w-full justify-start">
+              <Button variant="outline" className="w-full justify-start" onClick={() => setShowSeismicMap(true)}>
                 <Map className="mr-2 h-4 w-4" />
                 View Seismic Map
               </Button>
@@ -144,6 +147,19 @@ const GeologicalAnalysis = () => {
           </Card>
         </div>
       </div>
+
+      {/* Seismic Map Dialog */}
+      <Dialog open={showSeismicMap} onOpenChange={setShowSeismicMap}>
+        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Map className="h-5 w-5" />
+              Seismic Horizons Map — Permian Basin
+            </DialogTitle>
+          </DialogHeader>
+          <SeismicMap />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
