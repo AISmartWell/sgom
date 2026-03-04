@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -10,8 +10,10 @@ import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   ArrowLeft, Play, RotateCcw, CheckCircle2, Loader2, Droplets,
-  FileSpreadsheet, MapPin, AlertTriangle, TrendingUp,
+  FileSpreadsheet, MapPin, AlertTriangle, TrendingUp, Download,
 } from "lucide-react";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 import PilotWellsMap from "@/components/oklahoma-pilot/PilotWellsMap";
 import WellSelectionTable from "@/components/oklahoma-pilot/WellSelectionTable";
 
@@ -61,6 +63,7 @@ interface WellAnalysis {
 
 const OklahomaPilot = () => {
   const navigate = useNavigate();
+  const reportRef = useRef<HTMLDivElement>(null);
   const [allWells, setAllWells] = useState<WellRecord[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
@@ -255,6 +258,29 @@ const OklahomaPilot = () => {
     URL.revokeObjectURL(url);
   };
 
+  const handleExportPDF = useCallback(async () => {
+    if (!reportRef.current) return;
+    toast.info("Generating PDF...");
+    const canvas = await html2canvas(reportRef.current, {
+      scale: 2,
+      backgroundColor: "#0f172a",
+      useCORS: true,
+    });
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pdfW = pdf.internal.pageSize.getWidth();
+    const pdfH = (canvas.height * pdfW) / canvas.width;
+    let yOffset = 0;
+    const pageH = pdf.internal.pageSize.getHeight();
+    while (yOffset < pdfH) {
+      if (yOffset > 0) pdf.addPage();
+      pdf.addImage(imgData, "PNG", 0, -yOffset, pdfW, pdfH);
+      yOffset += pageH;
+    }
+    pdf.save(`oklahoma-pilot-${selectedWells.length}wells-${new Date().toISOString().slice(0, 10)}.pdf`);
+    toast.success("PDF saved!");
+  }, [selectedWells]);
+
   const getSptScore = (a: WellAnalysis): string => {
     const eor = a.stages.get("eor");
     if (!eor) return "—";
@@ -287,9 +313,14 @@ const OklahomaPilot = () => {
           </div>
           <div className="flex gap-2">
             {completedWells > 0 && (
-              <Button variant="outline" size="sm" onClick={handleExportCSV}>
-                <FileSpreadsheet className="mr-2 h-4 w-4" /> Export CSV
-              </Button>
+              <>
+                <Button variant="outline" size="sm" onClick={handleExportCSV}>
+                  <FileSpreadsheet className="mr-2 h-4 w-4" /> CSV
+                </Button>
+                <Button variant="outline" size="sm" onClick={handleExportPDF}>
+                  <Download className="mr-2 h-4 w-4" /> PDF
+                </Button>
+              </>
             )}
             <Button onClick={runBatchAnalysis} disabled={isRunning || selectedIds.size === 0}>
               {isRunning ? (
@@ -516,14 +547,15 @@ const OklahomaPilot = () => {
 
       {/* Combined Results */}
       {completedWells >= totalAnalyzing && totalAnalyzing > 0 && (
-        <Card className="mt-6 border-success/30 glass-card animate-fade-in">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-success" />
-              Oklahoma Pilot — Combined Results
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+        <div ref={reportRef}>
+          <Card className="mt-6 border-success/30 glass-card animate-fade-in">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-success" />
+                Oklahoma Pilot — Combined Results
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <div className="p-3 bg-success/10 rounded-lg text-center">
                 <p className="text-2xl font-bold text-success">{completedWells}</p>
@@ -579,7 +611,8 @@ const OklahomaPilot = () => {
               <p>Oklahoma Pilot Analysis — {new Date().toLocaleDateString()} — © {new Date().getFullYear()} Maxxwell Production</p>
             </div>
           </CardContent>
-        </Card>
+          </Card>
+        </div>
       )}
     </div>
   );
