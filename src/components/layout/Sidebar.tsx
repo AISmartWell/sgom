@@ -86,6 +86,12 @@ const menuItems = [
     href: "/dashboard/eor-optimization",
     badge: "🧠",
   },
+  {
+    title: "Oklahoma Pilot",
+    icon: Map,
+    href: "/dashboard/oklahoma-pilot",
+    badge: "🛢️",
+  },
   // ── Additional Modules ──
   {
     title: "Real-Time Monitor",
