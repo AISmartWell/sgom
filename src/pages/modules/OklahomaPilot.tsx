@@ -15,6 +15,7 @@ import {
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import PilotWellsMap from "@/components/oklahoma-pilot/PilotWellsMap";
+import PilotWellLog from "@/components/oklahoma-pilot/PilotWellLog";
 import WellSelectionTable from "@/components/oklahoma-pilot/WellSelectionTable";
 import PilotCharts from "@/components/oklahoma-pilot/PilotCharts";
 
@@ -611,6 +612,16 @@ const OklahomaPilot = () => {
                           <div className="mt-2 p-2 bg-muted/30 rounded text-xs">
                             <p className="font-medium">{getVerdict(analysis!)}</p>
                           </div>
+                        )}
+
+                        {isDone && (
+                          <PilotWellLog
+                            wellName={well.well_name || well.api_number || "Unknown"}
+                            totalDepth={well.total_depth}
+                            waterCut={well.water_cut}
+                            productionOil={well.production_oil}
+                            formation={well.formation}
+                          />
                         )}
 
                         {isError && (
