@@ -675,24 +675,83 @@ const OklahomaPilot = () => {
 
             <Separator />
 
+            {/* Detailed per-well analysis */}
             <div>
-              <h4 className="text-sm font-semibold mb-3">EOR Recommendations</h4>
-              <div className="space-y-2">
+              <h4 className="text-sm font-semibold mb-3">Detailed Well Analysis</h4>
+              <div className="space-y-4">
                 {selectedWells.map((well) => {
                   const a = analyses.get(well.id);
                   if (!a || a.status !== "done") return null;
                   return (
-                    <div key={well.id} className="flex items-center justify-between p-2 bg-muted/30 rounded text-sm">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle2 className="h-4 w-4 text-success" />
-                        <span className="font-medium">{well.well_name}</span>
-                        <span className="text-xs text-muted-foreground">{well.county}</span>
+                    <div key={well.id} className="p-4 bg-muted/20 rounded-lg border border-border/50 space-y-3">
+                      {/* Well header */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 className="h-4 w-4 text-success" />
+                          <span className="font-semibold">{well.well_name || well.api_number}</span>
+                          <span className="text-xs text-muted-foreground">{well.operator} · {well.county}, OK</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="text-[10px]">
+                            SPT: {getSptScore(a)}
+                          </Badge>
+                          <Badge variant="outline" className={`text-[10px] ${(well.water_cut ?? 0) > 70 ? "border-destructive/50 text-destructive" : "border-success/50 text-success"}`}>
+                            {(well.water_cut ?? 0) > 70 ? "⚠️ High WC" : "✅ Stable"}
+                          </Badge>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs">SPT: <span className="font-bold">{getSptScore(a)}</span></span>
-                        <Badge variant="outline" className="text-[10px]">
-                          {(well.water_cut ?? 0) > 70 ? "⚠️ High WC" : "✅ Stable"}
-                        </Badge>
+
+                      {/* Well properties */}
+                      <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 text-xs">
+                        <div className="p-2 bg-muted/30 rounded">
+                          <p className="text-muted-foreground">Oil</p>
+                          <p className="font-semibold">{well.production_oil?.toFixed(1) ?? "—"} bbl/d</p>
+                        </div>
+                        <div className="p-2 bg-muted/30 rounded">
+                          <p className="text-muted-foreground">Gas</p>
+                          <p className="font-semibold">{well.production_gas?.toFixed(0) ?? "—"} MCF/d</p>
+                        </div>
+                        <div className="p-2 bg-muted/30 rounded">
+                          <p className="text-muted-foreground">Water Cut</p>
+                          <p className="font-semibold">{well.water_cut?.toFixed(1) ?? "—"}%</p>
+                        </div>
+                        <div className="p-2 bg-muted/30 rounded">
+                          <p className="text-muted-foreground">Depth</p>
+                          <p className="font-semibold">{well.total_depth ? `${well.total_depth.toLocaleString()} ft` : "—"}</p>
+                        </div>
+                        <div className="p-2 bg-muted/30 rounded">
+                          <p className="text-muted-foreground">Formation</p>
+                          <p className="font-semibold">{well.formation || "—"}</p>
+                        </div>
+                        <div className="p-2 bg-muted/30 rounded">
+                          <p className="text-muted-foreground">Type</p>
+                          <p className="font-semibold">{well.well_type || "Oil"}</p>
+                        </div>
+                      </div>
+
+                      {/* Stage-by-stage metrics */}
+                      <div className="space-y-2">
+                        {STAGES.map((stage) => {
+                          const result = a.stages.get(stage.key);
+                          if (!result) return null;
+                          return (
+                            <div key={stage.key} className="p-2 bg-muted/10 rounded border border-border/30">
+                              <div className="flex items-center gap-2 mb-1">
+                                <Badge variant="outline" className="text-[9px] px-1.5 py-0">{stage.badge}</Badge>
+                                <span className="text-xs font-semibold">{stage.label}</span>
+                              </div>
+                              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                                {result.metrics.map((m) => (
+                                  <div key={m.label}>
+                                    <p className="text-muted-foreground text-[10px]">{m.label}</p>
+                                    <p className={`font-semibold ${m.color || ""}`}>{m.value}</p>
+                                  </div>
+                                ))}
+                              </div>
+                              <p className="text-[10px] text-muted-foreground mt-1 border-t border-border/20 pt-1">{result.verdict}</p>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   );
