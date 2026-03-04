@@ -49,10 +49,33 @@ const PilotWellsMap = ({ wells, selectedIds, activeWellId, onWellClick }: PilotW
     const map = L.map(mapRef.current, { scrollWheelZoom: true, zoomControl: true });
     mapInstanceRef.current = map;
 
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+    // Satellite imagery layer (ESRI World Imagery)
+    const satellite = L.tileLayer(
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+      { attribution: "Tiles &copy; Esri", maxZoom: 19 }
+    );
+
+    // Labels overlay on top of satellite
+    const labels = L.tileLayer(
+      "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+      { maxZoom: 19 }
+    );
+
+    // Dark base map as alternative
+    const dark = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
       attribution: '&copy; <a href="https://www.openstreetmap.org/">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
       maxZoom: 18,
-    }).addTo(map);
+    });
+
+    // Default to satellite + labels
+    satellite.addTo(map);
+    labels.addTo(map);
+
+    L.control.layers(
+      { "🛰️ Satellite": satellite, "🌑 Dark": dark },
+      { "Labels": labels },
+      { position: "topright" }
+    ).addTo(map);
 
     const markers: L.CircleMarker[] = [];
 
