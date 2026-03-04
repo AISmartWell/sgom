@@ -13,7 +13,10 @@ interface WellRecord {
   production_oil: number | null;
   production_gas: number | null;
   formation: string | null;
+  total_depth?: number | null;
 }
+
+type SptRating = "excellent" | "good" | "marginal" | "not_suitable";
 
 interface WellSelectionTableProps {
   wells: WellRecord[];
@@ -22,7 +25,15 @@ interface WellSelectionTableProps {
   onSelectAll: () => void;
   onDeselectAll: () => void;
   maxSelection?: number;
+  getSptRating?: (well: WellRecord) => SptRating;
 }
+
+const ratingConfig: Record<SptRating, { label: string; className: string }> = {
+  excellent: { label: "Excellent", className: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" },
+  good: { label: "Good", className: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30" },
+  marginal: { label: "Marginal", className: "bg-orange-500/20 text-orange-400 border-orange-500/30" },
+  not_suitable: { label: "N/A", className: "bg-muted text-muted-foreground" },
+};
 
 const WellSelectionTable = ({
   wells,
@@ -31,6 +42,7 @@ const WellSelectionTable = ({
   onSelectAll,
   onDeselectAll,
   maxSelection = 20,
+  getSptRating: getSptRatingProp,
 }: WellSelectionTableProps) => {
   return (
     <div>
@@ -47,17 +59,19 @@ const WellSelectionTable = ({
           </button>
         </div>
       </div>
-      <ScrollArea className="max-h-[400px]">
+      <ScrollArea className="max-h-[500px]">
         <table className="w-full text-xs">
           <thead className="sticky top-0 bg-background z-10">
             <tr className="border-b border-border/50">
               <th className="p-2 w-8" />
+              <th className="p-2 text-left font-medium text-muted-foreground">SPT Rating</th>
               <th className="p-2 text-left font-medium text-muted-foreground">Well Name</th>
               <th className="p-2 text-left font-medium text-muted-foreground">API #</th>
               <th className="p-2 text-left font-medium text-muted-foreground">County</th>
               <th className="p-2 text-left font-medium text-muted-foreground">Operator</th>
               <th className="p-2 text-right font-medium text-muted-foreground">Oil (bbl/d)</th>
               <th className="p-2 text-right font-medium text-muted-foreground">WC %</th>
+              <th className="p-2 text-right font-medium text-muted-foreground">Depth (ft)</th>
               <th className="p-2 text-left font-medium text-muted-foreground">Formation</th>
             </tr>
           </thead>
@@ -65,11 +79,13 @@ const WellSelectionTable = ({
             {wells.map((well) => {
               const isSelected = selectedIds.has(well.id);
               const wc = well.water_cut ?? 0;
+              const rating = getSptRatingProp?.(well) ?? "not_suitable";
+              const rc = ratingConfig[rating];
               return (
                 <tr
                   key={well.id}
                   className={`border-b border-border/20 cursor-pointer transition-colors ${
-                    isSelected ? "bg-primary/5" : "hover:bg-muted/30"
+                    isSelected ? "bg-primary/5" : rating === "not_suitable" ? "opacity-50 hover:opacity-70" : "hover:bg-muted/30"
                   }`}
                   onClick={() => onToggle(well.id)}
                 >
@@ -79,6 +95,11 @@ const WellSelectionTable = ({
                       disabled={!isSelected && selectedIds.size >= maxSelection}
                       onCheckedChange={() => onToggle(well.id)}
                     />
+                  </td>
+                  <td className="p-2">
+                    <Badge variant="outline" className={rc.className + " text-[10px]"}>
+                      {rc.label}
+                    </Badge>
                   </td>
                   <td className="p-2 font-medium">{well.well_name || "—"}</td>
                   <td className="p-2 text-muted-foreground">{well.api_number || "—"}</td>
@@ -91,10 +112,11 @@ const WellSelectionTable = ({
                   <td className="p-2 text-muted-foreground">{well.operator || "—"}</td>
                   <td className="p-2 text-right font-medium">{well.production_oil?.toFixed(1) ?? "—"}</td>
                   <td className="p-2 text-right">
-                    <span className={`font-medium ${wc > 70 ? "text-destructive" : wc > 50 ? "text-warning" : "text-success"}`}>
+                    <span className={`font-medium ${wc > 70 ? "text-destructive" : wc > 50 ? "text-yellow-400" : "text-success"}`}>
                       {well.water_cut?.toFixed(1) ?? "—"}%
                     </span>
                   </td>
+                  <td className="p-2 text-right text-muted-foreground">{well.total_depth?.toFixed(0) ?? "—"}</td>
                   <td className="p-2 text-muted-foreground">{well.formation || "—"}</td>
                 </tr>
               );

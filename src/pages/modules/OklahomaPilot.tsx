@@ -19,6 +19,24 @@ import WellSelectionTable from "@/components/oklahoma-pilot/WellSelectionTable";
 
 const MAX_ANALYSIS = 20;
 
+// SPT candidate criteria based on Maxxwell Production parameters
+const isSptCandidate = (w: WellRecord): boolean => {
+  const oil = w.production_oil ?? 0;
+  const wc = w.water_cut ?? 0;
+  // Low-production, still producing, water cut not too extreme
+  return oil > 0 && oil <= 25 && wc < 80;
+};
+
+const getSptRating = (w: WellRecord): "excellent" | "good" | "marginal" => {
+  const oil = w.production_oil ?? 0;
+  const wc = w.water_cut ?? 0;
+  // Excellent: low production + ideal water cut range (20-60%)
+  if (oil > 0 && oil <= 15 && wc >= 20 && wc <= 60) return "excellent";
+  // Good: moderate production or slightly outside ideal WC
+  if (oil > 0 && oil <= 25 && wc >= 10 && wc <= 70) return "good";
+  return "marginal";
+};
+
 const STAGES = [
   { key: "field_scan", label: "Field Scanning", badge: "Stage 1" },
   { key: "classification", label: "Data Classification", badge: "Stage 2" },
@@ -73,32 +91,31 @@ const OklahomaPilot = () => {
   const [currentStageIdx, setCurrentStageIdx] = useState(-1);
   const [stageProgress, setStageProgress] = useState(0);
 
-  // Load ~50 low-production Oklahoma wells — SPT candidates
-  // SPT targets: declining wells with production < 25 bbl/d, water cut 20-60%
+  // Load ALL Oklahoma wells, then classify SPT candidates client-side
   useEffect(() => {
     const load = async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("wells")
         .select("id, well_name, api_number, operator, county, state, formation, production_oil, production_gas, water_cut, total_depth, well_type, status, latitude, longitude")
         .eq("state", "OK")
-        .gt("production_oil", 0)       // still producing
-        .lte("production_oil", 25)     // low-production (≤25 bbl/d)
         .order("production_oil", { ascending: true })
-        .limit(50);
+        .limit(500);
+      if (error) {
+        console.error("Failed to load wells:", error);
+        toast.error("Failed to load wells");
+      }
       if (data) {
         setAllWells(data);
-        // Auto-select top 10 best SPT candidates (lowest production, moderate water cut)
-        const sptCandidates = [...data]
-          .sort((a, b) => {
-            // Prefer water cut 20-60% range and lowest production
-            const wcA = a.water_cut ?? 0;
-            const wcB = b.water_cut ?? 0;
-            const inRangeA = wcA >= 20 && wcA <= 60 ? 1 : 0;
-            const inRangeB = wcB >= 20 && wcB <= 60 ? 1 : 0;
-            if (inRangeA !== inRangeB) return inRangeB - inRangeA;
-            return (a.production_oil ?? 0) - (b.production_oil ?? 0);
-          });
-        const top10 = new Set(sptCandidates.slice(0, 10).map((w) => w.id));
+        // Auto-select top 10 SPT candidates (excellent first, then good)
+        const candidates = data.filter(isSptCandidate);
+        const ranked = [...candidates].sort((a, b) => {
+          const ratingOrder = { excellent: 0, good: 1, marginal: 2 };
+          const rA = ratingOrder[getSptRating(a)];
+          const rB = ratingOrder[getSptRating(b)];
+          if (rA !== rB) return rA - rB;
+          return (a.production_oil ?? 0) - (b.production_oil ?? 0);
+        });
+        const top10 = new Set(ranked.slice(0, 10).map((w) => w.id));
         setSelectedIds(top10);
       }
       setLoading(false);
@@ -106,6 +123,11 @@ const OklahomaPilot = () => {
     load();
   }, []);
 
+  const sptCandidates = allWells.filter(isSptCandidate);
+  const excellentWells = sptCandidates.filter(w => getSptRating(w) === "excellent");
+  const goodWells = sptCandidates.filter(w => getSptRating(w) === "good");
+  const marginalWells = sptCandidates.filter(w => getSptRating(w) === "marginal");
+  const nonCandidates = allWells.filter(w => !isSptCandidate(w));
   const selectedWells = allWells.filter((w) => selectedIds.has(w.id));
 
   const toggleWell = useCallback((id: string) => {
@@ -321,7 +343,7 @@ const OklahomaPilot = () => {
               <Badge className="bg-success/20 text-success border-success/30">LIVE</Badge>
             </div>
             <p className="text-muted-foreground">
-              {allWells.length} low-production Oklahoma wells (≤25 bbl/d) — SPT treatment candidates
+              Loaded {allWells.length} Oklahoma wells → <span className="text-success font-medium">{sptCandidates.length} SPT candidates</span> identified (≤25 bbl/d, WC &lt;80%)
             </p>
           </div>
           <div className="flex gap-2">
@@ -390,36 +412,50 @@ const OklahomaPilot = () => {
           <div className="space-y-4">
             <Card className="glass-card">
               <CardHeader className="pb-2">
-                <CardTitle className="text-base">Pilot Summary</CardTitle>
+                <CardTitle className="text-base">SPT Screening Results</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="p-3 bg-primary/10 rounded-lg text-center">
+                  <div className="p-3 bg-muted/30 rounded-lg text-center">
                     <p className="text-2xl font-bold">{allWells.length}</p>
-                    <p className="text-xs text-muted-foreground">Total Wells</p>
+                    <p className="text-xs text-muted-foreground">Total OK Wells</p>
                   </div>
                   <div className="p-3 bg-success/10 rounded-lg text-center">
-                    <p className="text-2xl font-bold">{selectedIds.size}</p>
-                    <p className="text-xs text-muted-foreground">Selected</p>
+                    <p className="text-2xl font-bold text-success">{sptCandidates.length}</p>
+                    <p className="text-xs text-muted-foreground">SPT Candidates</p>
                   </div>
-                  <div className="p-3 bg-warning/10 rounded-lg text-center">
-                    <p className="text-2xl font-bold">{allWells.filter(w => (w.water_cut ?? 0) > 70).length}</p>
-                    <p className="text-xs text-muted-foreground">High Water Cut</p>
+                  <div className="p-3 bg-emerald-500/10 rounded-lg text-center">
+                    <p className="text-2xl font-bold text-emerald-400">{excellentWells.length}</p>
+                    <p className="text-xs text-muted-foreground">Excellent</p>
                   </div>
-                  <div className="p-3 bg-primary/10 rounded-lg text-center">
-                    <p className="text-2xl font-bold">{new Set(allWells.map(w => w.county)).size}</p>
-                    <p className="text-xs text-muted-foreground">Counties</p>
+                  <div className="p-3 bg-yellow-500/10 rounded-lg text-center">
+                    <p className="text-2xl font-bold text-yellow-400">{goodWells.length}</p>
+                    <p className="text-xs text-muted-foreground">Good</p>
                   </div>
+                  <div className="p-3 bg-orange-500/10 rounded-lg text-center">
+                    <p className="text-2xl font-bold text-orange-400">{marginalWells.length}</p>
+                    <p className="text-xs text-muted-foreground">Marginal</p>
+                  </div>
+                  <div className="p-3 bg-destructive/10 rounded-lg text-center">
+                    <p className="text-2xl font-bold text-destructive">{nonCandidates.length}</p>
+                    <p className="text-xs text-muted-foreground">Not Suitable</p>
+                  </div>
+                </div>
+                <Separator className="my-3" />
+                <div className="text-xs text-muted-foreground space-y-1">
+                  <p><span className="text-emerald-400 font-medium">Excellent:</span> ≤15 bbl/d, WC 20–60%</p>
+                  <p><span className="text-yellow-400 font-medium">Good:</span> ≤25 bbl/d, WC 10–70%</p>
+                  <p><span className="text-orange-400 font-medium">Marginal:</span> ≤25 bbl/d, WC &lt;80%</p>
                 </div>
               </CardContent>
             </Card>
             <Card className="glass-card">
               <CardHeader className="pb-2">
-                <CardTitle className="text-base">By County</CardTitle>
+                <CardTitle className="text-base">Candidates by County</CardTitle>
               </CardHeader>
               <CardContent>
                 {Object.entries(
-                  allWells.reduce<Record<string, number>>((acc, w) => {
+                  sptCandidates.reduce<Record<string, number>>((acc, w) => {
                     const c = w.county || "Unknown";
                     acc[c] = (acc[c] || 0) + 1;
                     return acc;
@@ -456,6 +492,14 @@ const OklahomaPilot = () => {
               onSelectAll={selectTopN}
               onDeselectAll={deselectAll}
               maxSelection={MAX_ANALYSIS}
+              getSptRating={(w) => {
+                const oil = w.production_oil ?? 0;
+                const wc = w.water_cut ?? 0;
+                if (oil <= 0 || oil > 25 || wc >= 80) return "not_suitable";
+                if (oil <= 15 && wc >= 20 && wc <= 60) return "excellent";
+                if (oil <= 25 && wc >= 10 && wc <= 70) return "good";
+                return "marginal";
+              }}
             />
           </CardContent>
         </Card>
