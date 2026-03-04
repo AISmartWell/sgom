@@ -6,36 +6,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
-  ArrowLeft,
-  Play,
-  RotateCcw,
-  CheckCircle2,
-  Loader2,
-  Droplets,
-  Download,
-  FileSpreadsheet,
-  MapPin,
-  AlertTriangle,
-  TrendingUp,
+  ArrowLeft, Play, RotateCcw, CheckCircle2, Loader2, Droplets,
+  FileSpreadsheet, MapPin, AlertTriangle, TrendingUp,
 } from "lucide-react";
 import PilotWellsMap from "@/components/oklahoma-pilot/PilotWellsMap";
+import WellSelectionTable from "@/components/oklahoma-pilot/WellSelectionTable";
 
-// The 10 selected Oklahoma wells by API number
-const TARGET_API_NUMBERS = [
-  "3501537443", // HARTSHORN
-  "3505136826", // FLOYD MCCAUGHTRY
-  "3501537382", // WEST CEMENT UNIT
-  "3501726054", // WATCH THIS 1208
-  "3510938669", // MCKINNIS
-  "3501726105", // HUFNAGEL
-  "3501726050", // CHILES 22/15
-  "3501726025", // AUSTIN 27_34
-  "3501726059", // GARTH BROOKS 1107
-  "3505136849", // H.L. JOHNSON "A"
-];
+const MAX_ANALYSIS = 20;
 
 const STAGES = [
   { key: "field_scan", label: "Field Scanning", badge: "Stage 1" },
@@ -81,7 +61,8 @@ interface WellAnalysis {
 
 const OklahomaPilot = () => {
   const navigate = useNavigate();
-  const [wells, setWells] = useState<WellRecord[]>([]);
+  const [allWells, setAllWells] = useState<WellRecord[]>([]);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [analyses, setAnalyses] = useState<Map<string, WellAnalysis>>(new Map());
   const [isRunning, setIsRunning] = useState(false);
@@ -89,24 +70,50 @@ const OklahomaPilot = () => {
   const [currentStageIdx, setCurrentStageIdx] = useState(-1);
   const [stageProgress, setStageProgress] = useState(0);
 
-  // Load the 10 target wells
+  // Load ~50 Oklahoma wells
   useEffect(() => {
     const load = async () => {
       const { data } = await supabase
         .from("wells")
         .select("id, well_name, api_number, operator, county, state, formation, production_oil, production_gas, water_cut, total_depth, well_type, status, latitude, longitude")
-        .in("api_number", TARGET_API_NUMBERS)
-        .order("production_oil", { ascending: false });
+        .eq("state", "OK")
+        .order("production_oil", { ascending: false })
+        .limit(50);
       if (data) {
-        setWells(data);
-        const initial = new Map<string, WellAnalysis>();
-        data.forEach((w) => initial.set(w.id, { well: w, stages: new Map(), status: "pending" }));
-        setAnalyses(initial);
+        setAllWells(data);
+        // Auto-select top 10 by oil production
+        const top10 = new Set(data.slice(0, 10).map((w) => w.id));
+        setSelectedIds(top10);
       }
       setLoading(false);
     };
     load();
   }, []);
+
+  const selectedWells = allWells.filter((w) => selectedIds.has(w.id));
+
+  const toggleWell = useCallback((id: string) => {
+    if (isRunning) return;
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else if (next.size < MAX_ANALYSIS) {
+        next.add(id);
+      }
+      return next;
+    });
+  }, [isRunning]);
+
+  const selectTopN = useCallback(() => {
+    if (isRunning) return;
+    setSelectedIds(new Set(allWells.slice(0, MAX_ANALYSIS).map((w) => w.id)));
+  }, [allWells, isRunning]);
+
+  const deselectAll = useCallback(() => {
+    if (isRunning) return;
+    setSelectedIds(new Set());
+  }, [isRunning]);
 
   const analyzeStage = async (well: WellRecord, stageKey: string): Promise<StageResult> => {
     const { data, error } = await supabase.functions.invoke("analyze-well-stage", {
@@ -118,11 +125,19 @@ const OklahomaPilot = () => {
   };
 
   const runBatchAnalysis = useCallback(async () => {
-    if (wells.length === 0) return;
+    if (selectedWells.length === 0) {
+      toast.error("Select at least one well to analyze");
+      return;
+    }
     setIsRunning(true);
 
-    for (let wi = 0; wi < wells.length; wi++) {
-      const well = wells[wi];
+    // Init analyses
+    const initial = new Map<string, WellAnalysis>();
+    selectedWells.forEach((w) => initial.set(w.id, { well: w, stages: new Map(), status: "pending" }));
+    setAnalyses(initial);
+
+    for (let wi = 0; wi < selectedWells.length; wi++) {
+      const well = selectedWells[wi];
       setCurrentWellIdx(wi);
 
       setAnalyses((prev) => {
@@ -162,7 +177,7 @@ const OklahomaPilot = () => {
           if (err.message?.includes("Rate limit")) {
             toast.error("Rate limit — pausing 10 seconds...");
             await new Promise((r) => setTimeout(r, 10000));
-            si--; // retry this stage
+            si--;
             continue;
           }
 
@@ -191,23 +206,22 @@ const OklahomaPilot = () => {
     setCurrentWellIdx(-1);
     setCurrentStageIdx(-1);
     toast.success("Batch analysis complete!");
-  }, [wells]);
+  }, [selectedWells]);
 
   const reset = () => {
     setCurrentWellIdx(-1);
     setCurrentStageIdx(-1);
     setStageProgress(0);
     setIsRunning(false);
-    const initial = new Map<string, WellAnalysis>();
-    wells.forEach((w) => initial.set(w.id, { well: w, stages: new Map(), status: "pending" }));
-    setAnalyses(initial);
+    setAnalyses(new Map());
   };
 
   const completedWells = Array.from(analyses.values()).filter((a) => a.status === "done").length;
-  const overallProgress = wells.length > 0
-    ? ((completedWells + (currentWellIdx >= 0 && currentWellIdx < wells.length
+  const totalAnalyzing = selectedWells.length;
+  const overallProgress = totalAnalyzing > 0
+    ? ((completedWells + (currentWellIdx >= 0 && currentWellIdx < totalAnalyzing
         ? (currentStageIdx + stageProgress / 100) / STAGES.length
-        : 0)) / wells.length) * 100
+        : 0)) / totalAnalyzing) * 100
     : 0;
 
   const handleExportCSV = () => {
@@ -225,8 +239,7 @@ const OklahomaPilot = () => {
             i === 0 ? String(a.well.production_oil ?? "") : "",
             i === 0 ? String(a.well.water_cut ?? "") : "",
             i === 0 ? stage.label : "",
-            m.label,
-            m.value,
+            m.label, m.value,
             i === 0 ? result.verdict : "",
           ]);
         });
@@ -237,12 +250,11 @@ const OklahomaPilot = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `oklahoma-pilot-10wells-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `oklahoma-pilot-${selectedWells.length}wells-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };
 
-  // Extract SPT score from EOR stage
   const getSptScore = (a: WellAnalysis): string => {
     const eor = a.stages.get("eor");
     if (!eor) return "—";
@@ -260,32 +272,30 @@ const OklahomaPilot = () => {
       {/* Header */}
       <div className="mb-8">
         <Button variant="ghost" size="sm" onClick={() => navigate("/dashboard")} className="mb-2">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Dashboard
+          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Dashboard
         </Button>
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-3 mb-2">
               <span className="text-3xl">🛢️</span>
-              <h1 className="text-3xl font-bold">Oklahoma Pilot — 10 Wells</h1>
+              <h1 className="text-3xl font-bold">Oklahoma Pilot</h1>
               <Badge className="bg-success/20 text-success border-success/30">LIVE</Badge>
             </div>
             <p className="text-muted-foreground">
-              Full 8-stage AI analysis pipeline running on 10 real Oklahoma wells
+              Select wells from {allWells.length} Oklahoma wells, then run full 8-stage AI analysis
             </p>
           </div>
           <div className="flex gap-2">
             {completedWells > 0 && (
               <Button variant="outline" size="sm" onClick={handleExportCSV}>
-                <FileSpreadsheet className="mr-2 h-4 w-4" />
-                Export CSV
+                <FileSpreadsheet className="mr-2 h-4 w-4" /> Export CSV
               </Button>
             )}
-            <Button onClick={runBatchAnalysis} disabled={isRunning || wells.length === 0}>
+            <Button onClick={runBatchAnalysis} disabled={isRunning || selectedIds.size === 0}>
               {isRunning ? (
-                <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Analyzing {currentWellIdx + 1}/{wells.length}...</>
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Analyzing {currentWellIdx + 1}/{totalAnalyzing}...</>
               ) : (
-                <><Play className="mr-2 h-4 w-4" />Run Full Analysis (10 wells)</>
+                <><Play className="mr-2 h-4 w-4" />Analyze {selectedIds.size} Wells</>
               )}
             </Button>
             <Button variant="outline" onClick={reset} disabled={isRunning}>
@@ -300,14 +310,14 @@ const OklahomaPilot = () => {
         <Card className="mb-6 glass-card border-primary/30">
           <CardContent className="pt-6">
             <div className="flex justify-between text-sm mb-2">
-              <span>Overall: {completedWells}/{wells.length} wells completed</span>
+              <span>Overall: {completedWells}/{totalAnalyzing} wells completed</span>
               <span className="font-medium">{Math.round(overallProgress)}%</span>
             </div>
             <Progress value={overallProgress} className="h-3" />
-            {isRunning && currentWellIdx >= 0 && currentWellIdx < wells.length && (
+            {isRunning && currentWellIdx >= 0 && currentWellIdx < totalAnalyzing && (
               <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
                 <Loader2 className="h-3 w-3 animate-spin" />
-                Analyzing: <span className="font-medium text-foreground">{wells[currentWellIdx]?.well_name}</span>
+                Analyzing: <span className="font-medium text-foreground">{selectedWells[currentWellIdx]?.well_name}</span>
                 — Stage {currentStageIdx + 1}/{STAGES.length}: {STAGES[currentStageIdx]?.label}
               </div>
             )}
@@ -315,87 +325,111 @@ const OklahomaPilot = () => {
         </Card>
       )}
 
-      {/* Loading state */}
       {loading && (
         <div className="text-center py-12">
           <Loader2 className="h-8 w-8 mx-auto mb-3 animate-spin text-primary" />
-          <p>Loading 10 target wells...</p>
+          <p>Loading Oklahoma wells...</p>
         </div>
       )}
 
-      {/* Map + Summary Grid */}
-      {!loading && wells.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-          {/* Map */}
-          <div className="md:col-span-2">
-            <PilotWellsMap wells={wells} activeWellId={currentWellIdx >= 0 ? wells[currentWellIdx]?.id : undefined} />
+      {/* Map + Stats */}
+      {!loading && allWells.length > 0 && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
+          <div className="lg:col-span-2">
+            <PilotWellsMap
+              wells={allWells}
+              selectedIds={selectedIds}
+              activeWellId={currentWellIdx >= 0 ? selectedWells[currentWellIdx]?.id : undefined}
+              onWellClick={isRunning ? undefined : toggleWell}
+            />
           </div>
-          {/* Stats */}
-          <Card className="glass-card">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base">Pilot Summary</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="p-3 bg-primary/10 rounded-lg text-center">
-                  <p className="text-2xl font-bold">{wells.length}</p>
-                  <p className="text-xs text-muted-foreground">Wells</p>
+          <div className="space-y-4">
+            <Card className="glass-card">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">Pilot Summary</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="p-3 bg-primary/10 rounded-lg text-center">
+                    <p className="text-2xl font-bold">{allWells.length}</p>
+                    <p className="text-xs text-muted-foreground">Total Wells</p>
+                  </div>
+                  <div className="p-3 bg-success/10 rounded-lg text-center">
+                    <p className="text-2xl font-bold">{selectedIds.size}</p>
+                    <p className="text-xs text-muted-foreground">Selected</p>
+                  </div>
+                  <div className="p-3 bg-warning/10 rounded-lg text-center">
+                    <p className="text-2xl font-bold">{allWells.filter(w => (w.water_cut ?? 0) > 70).length}</p>
+                    <p className="text-xs text-muted-foreground">High Water Cut</p>
+                  </div>
+                  <div className="p-3 bg-primary/10 rounded-lg text-center">
+                    <p className="text-2xl font-bold">{new Set(allWells.map(w => w.county)).size}</p>
+                    <p className="text-xs text-muted-foreground">Counties</p>
+                  </div>
                 </div>
-                <div className="p-3 bg-success/10 rounded-lg text-center">
-                  <p className="text-2xl font-bold">{new Set(wells.map(w => w.county)).size}</p>
-                  <p className="text-xs text-muted-foreground">Counties</p>
-                </div>
-                <div className="p-3 bg-warning/10 rounded-lg text-center">
-                  <p className="text-2xl font-bold">{wells.filter(w => (w.water_cut ?? 0) > 70).length}</p>
-                  <p className="text-xs text-muted-foreground">High Water Cut</p>
-                </div>
-                <div className="p-3 bg-primary/10 rounded-lg text-center">
-                  <p className="text-2xl font-bold">{(wells.reduce((s, w) => s + (w.production_oil ?? 0), 0)).toFixed(0)}</p>
-                  <p className="text-xs text-muted-foreground">Total bbl/d</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* County distribution */}
-          <Card className="glass-card">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base">By County</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {Object.entries(
-                wells.reduce<Record<string, number>>((acc, w) => {
-                  const c = w.county || "Unknown";
-                  acc[c] = (acc[c] || 0) + 1;
-                  return acc;
-                }, {})
-              ).sort((a, b) => b[1] - a[1]).map(([county, count]) => (
-                <div key={county} className="flex justify-between items-center py-1.5 text-sm">
-                  <span className="flex items-center gap-2">
-                    <MapPin className="h-3 w-3 text-primary" />
-                    {county}
-                  </span>
-                  <Badge variant="outline">{count} wells</Badge>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+            <Card className="glass-card">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">By County</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {Object.entries(
+                  allWells.reduce<Record<string, number>>((acc, w) => {
+                    const c = w.county || "Unknown";
+                    acc[c] = (acc[c] || 0) + 1;
+                    return acc;
+                  }, {})
+                ).sort((a, b) => b[1] - a[1]).map(([county, count]) => (
+                  <div key={county} className="flex justify-between items-center py-1.5 text-sm">
+                    <span className="flex items-center gap-2">
+                      <MapPin className="h-3 w-3 text-primary" />
+                      {county}
+                    </span>
+                    <Badge variant="outline">{count}</Badge>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
         </div>
       )}
 
-      {/* Wells Table with Analysis Status */}
-      {!loading && (
+      {/* Well Selection Table */}
+      {!loading && allWells.length > 0 && !isRunning && analyses.size === 0 && (
+        <Card className="glass-card border-primary/30 mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Droplets className="h-5 w-5 text-primary" />
+              Select Wells for Analysis
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <WellSelectionTable
+              wells={allWells}
+              selectedIds={selectedIds}
+              onToggle={toggleWell}
+              onSelectAll={selectTopN}
+              onDeselectAll={deselectAll}
+              maxSelection={MAX_ANALYSIS}
+            />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Analysis Results */}
+      {analyses.size > 0 && (
         <Card className="glass-card border-primary/30">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Droplets className="h-5 w-5 text-primary" />
-              Well-by-Well Analysis
+              Well-by-Well Analysis ({completedWells}/{totalAnalyzing})
             </CardTitle>
           </CardHeader>
           <CardContent>
             <ScrollArea className="max-h-[600px]">
               <div className="space-y-3">
-                {wells.map((well, idx) => {
+                {selectedWells.map((well, idx) => {
                   const analysis = analyses.get(well.id);
                   const isActive = idx === currentWellIdx && isRunning;
                   const isDone = analysis?.status === "done";
@@ -410,7 +444,6 @@ const OklahomaPilot = () => {
                       }`}
                     >
                       <CardContent className="pt-4">
-                        {/* Well header */}
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-3">
                             <div className={`h-8 w-8 rounded-lg flex items-center justify-center text-sm font-bold ${
@@ -436,7 +469,6 @@ const OklahomaPilot = () => {
                           </div>
                         </div>
 
-                        {/* Stage progress bar */}
                         {(isActive || isDone || completedStages > 0) && (
                           <div className="mt-2">
                             <div className="flex gap-1 mb-1">
@@ -461,14 +493,12 @@ const OklahomaPilot = () => {
                           </div>
                         )}
 
-                        {/* Verdict when done */}
                         {isDone && (
                           <div className="mt-2 p-2 bg-muted/30 rounded text-xs">
                             <p className="font-medium">{getVerdict(analysis!)}</p>
                           </div>
                         )}
 
-                        {/* Error */}
                         {isError && (
                           <div className="mt-2 p-2 bg-destructive/10 rounded text-xs text-destructive">
                             Error: {analysis?.error}
@@ -484,8 +514,8 @@ const OklahomaPilot = () => {
         </Card>
       )}
 
-      {/* Combined Results Summary */}
-      {completedWells >= wells.length && wells.length > 0 && (
+      {/* Combined Results */}
+      {completedWells >= totalAnalyzing && totalAnalyzing > 0 && (
         <Card className="mt-6 border-success/30 glass-card animate-fade-in">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -505,13 +535,13 @@ const OklahomaPilot = () => {
               </div>
               <div className="p-3 bg-warning/10 rounded-lg text-center">
                 <p className="text-2xl font-bold text-warning">
-                  {wells.filter(w => (w.water_cut ?? 0) > 70).length}
+                  {selectedWells.filter(w => (w.water_cut ?? 0) > 70).length}
                 </p>
                 <p className="text-xs text-muted-foreground">EOR Candidates</p>
               </div>
               <div className="p-3 bg-success/10 rounded-lg text-center">
                 <p className="text-2xl font-bold text-success">
-                  {wells.filter(w => (w.water_cut ?? 0) < 30).length}
+                  {selectedWells.filter(w => (w.water_cut ?? 0) < 30).length}
                 </p>
                 <p className="text-xs text-muted-foreground">Stable Wells</p>
               </div>
@@ -519,11 +549,10 @@ const OklahomaPilot = () => {
 
             <Separator />
 
-            {/* Per-well EOR summary */}
             <div>
               <h4 className="text-sm font-semibold mb-3">EOR Recommendations</h4>
               <div className="space-y-2">
-                {wells.map((well) => {
+                {selectedWells.map((well) => {
                   const a = analyses.get(well.id);
                   if (!a || a.status !== "done") return null;
                   return (
