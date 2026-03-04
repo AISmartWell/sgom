@@ -73,19 +73,32 @@ const OklahomaPilot = () => {
   const [currentStageIdx, setCurrentStageIdx] = useState(-1);
   const [stageProgress, setStageProgress] = useState(0);
 
-  // Load ~50 Oklahoma wells
+  // Load ~50 low-production Oklahoma wells — SPT candidates
+  // SPT targets: declining wells with production < 25 bbl/d, water cut 20-60%
   useEffect(() => {
     const load = async () => {
       const { data } = await supabase
         .from("wells")
         .select("id, well_name, api_number, operator, county, state, formation, production_oil, production_gas, water_cut, total_depth, well_type, status, latitude, longitude")
         .eq("state", "OK")
-        .order("production_oil", { ascending: false })
+        .gt("production_oil", 0)       // still producing
+        .lte("production_oil", 25)     // low-production (≤25 bbl/d)
+        .order("production_oil", { ascending: true })
         .limit(50);
       if (data) {
         setAllWells(data);
-        // Auto-select top 10 by oil production
-        const top10 = new Set(data.slice(0, 10).map((w) => w.id));
+        // Auto-select top 10 best SPT candidates (lowest production, moderate water cut)
+        const sptCandidates = [...data]
+          .sort((a, b) => {
+            // Prefer water cut 20-60% range and lowest production
+            const wcA = a.water_cut ?? 0;
+            const wcB = b.water_cut ?? 0;
+            const inRangeA = wcA >= 20 && wcA <= 60 ? 1 : 0;
+            const inRangeB = wcB >= 20 && wcB <= 60 ? 1 : 0;
+            if (inRangeA !== inRangeB) return inRangeB - inRangeA;
+            return (a.production_oil ?? 0) - (b.production_oil ?? 0);
+          });
+        const top10 = new Set(sptCandidates.slice(0, 10).map((w) => w.id));
         setSelectedIds(top10);
       }
       setLoading(false);
@@ -308,7 +321,7 @@ const OklahomaPilot = () => {
               <Badge className="bg-success/20 text-success border-success/30">LIVE</Badge>
             </div>
             <p className="text-muted-foreground">
-              Select wells from {allWells.length} Oklahoma wells, then run full 8-stage AI analysis
+              {allWells.length} low-production Oklahoma wells (≤25 bbl/d) — SPT treatment candidates
             </p>
           </div>
           <div className="flex gap-2">
