@@ -155,11 +155,20 @@ const OklahomaPilot = () => {
     setSelectedIds(new Set());
   }, [isRunning]);
 
+  const [lastPolygonIds, setLastPolygonIds] = useState<string[]>([]);
+
   const selectByPolygon = useCallback((wellIds: string[]) => {
     if (isRunning) return;
+    setLastPolygonIds(wellIds);
     setSelectedIds(new Set(wellIds.slice(0, MAX_ANALYSIS)));
     toast.success(`${Math.min(wellIds.length, MAX_ANALYSIS)} wells selected by area (${wellIds.length} found)`);
   }, [isRunning]);
+
+  const reselectLastPolygon = useCallback(() => {
+    if (isRunning || lastPolygonIds.length === 0) return;
+    setSelectedIds(new Set(lastPolygonIds.slice(0, MAX_ANALYSIS)));
+    toast.success(`Re-selected ${Math.min(lastPolygonIds.length, MAX_ANALYSIS)} wells from last area`);
+  }, [isRunning, lastPolygonIds]);
 
   const analyzeStage = async (well: WellRecord, stageKey: string): Promise<StageResult> => {
     const { data, error } = await supabase.functions.invoke("analyze-well-stage", {
@@ -417,6 +426,17 @@ const OklahomaPilot = () => {
               onWellClick={isRunning ? undefined : toggleWell}
               onPolygonSelect={isRunning ? undefined : selectByPolygon}
             />
+            {lastPolygonIds.length > 0 && !isRunning && (
+              <div className="flex items-center gap-2 mt-2">
+                <Button size="sm" variant="outline" onClick={reselectLastPolygon} className="text-xs">
+                  <MapPin className="h-3 w-3 mr-1" />
+                  Выбрать все в области ({lastPolygonIds.length})
+                </Button>
+                <span className="text-[10px] text-muted-foreground">
+                  Повторно применить последний выбор
+                </span>
+              </div>
+            )}
           </div>
           <div className="space-y-4">
             <Card className="glass-card">
