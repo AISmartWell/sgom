@@ -154,6 +154,12 @@ const OklahomaPilot = () => {
     setSelectedIds(new Set());
   }, [isRunning]);
 
+  const selectByPolygon = useCallback((wellIds: string[]) => {
+    if (isRunning) return;
+    setSelectedIds(new Set(wellIds.slice(0, MAX_ANALYSIS)));
+    toast.success(`${Math.min(wellIds.length, MAX_ANALYSIS)} wells selected by area (${wellIds.length} found)`);
+  }, [isRunning]);
+
   const analyzeStage = async (well: WellRecord, stageKey: string): Promise<StageResult> => {
     const { data, error } = await supabase.functions.invoke("analyze-well-stage", {
       body: { well, stageKey },
@@ -408,6 +414,7 @@ const OklahomaPilot = () => {
               selectedIds={selectedIds}
               activeWellId={currentWellIdx >= 0 ? selectedWells[currentWellIdx]?.id : undefined}
               onWellClick={isRunning ? undefined : toggleWell}
+              onPolygonSelect={isRunning ? undefined : selectByPolygon}
             />
           </div>
           <div className="space-y-4">
