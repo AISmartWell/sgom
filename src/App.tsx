@@ -46,6 +46,7 @@ import TechnicalResponse from "./pages/TechnicalResponse";
 import NvidiaCapitalConnectLetter from "./pages/NvidiaCapitalConnectLetter";
 import DiversifiedEnergyProposal from "./pages/DiversifiedEnergyProposal";
 import KazakhstanTemplate from "./pages/KazakhstanTemplate";
+import KazakhstanProcess from "./pages/KazakhstanProcess";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -101,6 +102,7 @@ const App = () => (
             <Route path="/nvidia-capital-connect" element={<NvidiaCapitalConnectLetter />} />
              <Route path="/diversified-energy-proposal" element={<DiversifiedEnergyProposal />} />
              <Route path="/kazakhstan-template" element={<KazakhstanTemplate />} />
+             <Route path="/kazakhstan-process" element={<KazakhstanProcess />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
