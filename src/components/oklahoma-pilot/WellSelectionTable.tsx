@@ -1,7 +1,8 @@
+import { useState, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { MapPin } from "lucide-react";
+import { MapPin, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 
 interface WellRecord {
   id: string;
@@ -17,6 +18,8 @@ interface WellRecord {
 }
 
 type SptRating = "excellent" | "good" | "marginal" | "not_suitable";
+type SortKey = "spt" | "oil" | "wc" | null;
+type SortDir = "asc" | "desc";
 
 interface WellSelectionTableProps {
   wells: WellRecord[];
@@ -35,6 +38,15 @@ const ratingConfig: Record<SptRating, { label: string; className: string }> = {
   not_suitable: { label: "N/A", className: "bg-muted text-muted-foreground" },
 };
 
+const ratingOrder: Record<SptRating, number> = { excellent: 0, good: 1, marginal: 2, not_suitable: 3 };
+
+const SortIcon = ({ active, dir }: { active: boolean; dir: SortDir }) => {
+  if (!active) return <ArrowUpDown className="h-3 w-3 ml-1 opacity-40" />;
+  return dir === "asc"
+    ? <ArrowUp className="h-3 w-3 ml-1 text-primary" />
+    : <ArrowDown className="h-3 w-3 ml-1 text-primary" />;
+};
+
 const WellSelectionTable = ({
   wells,
   selectedIds,
@@ -44,6 +56,35 @@ const WellSelectionTable = ({
   maxSelection = 20,
   getSptRating: getSptRatingProp,
 }: WellSelectionTableProps) => {
+  const [sortKey, setSortKey] = useState<SortKey>(null);
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
+
+  const handleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortDir(prev => prev === "asc" ? "desc" : "asc");
+    } else {
+      setSortKey(key);
+      setSortDir("asc");
+    }
+  };
+
+  const sortedWells = useMemo(() => {
+    if (!sortKey) return wells;
+    return [...wells].sort((a, b) => {
+      let cmp = 0;
+      if (sortKey === "spt") {
+        const ra = getSptRatingProp?.(a) ?? "not_suitable";
+        const rb = getSptRatingProp?.(b) ?? "not_suitable";
+        cmp = ratingOrder[ra] - ratingOrder[rb];
+      } else if (sortKey === "oil") {
+        cmp = (a.production_oil ?? 999) - (b.production_oil ?? 999);
+      } else if (sortKey === "wc") {
+        cmp = (a.water_cut ?? 999) - (b.water_cut ?? 999);
+      }
+      return sortDir === "asc" ? cmp : -cmp;
+    });
+  }, [wells, sortKey, sortDir, getSptRatingProp]);
+
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
@@ -64,19 +105,43 @@ const WellSelectionTable = ({
           <thead className="sticky top-0 bg-background z-10">
             <tr className="border-b border-border/50">
               <th className="p-2 w-8" />
-              <th className="p-2 text-left font-medium text-muted-foreground">SPT Rating</th>
+              <th
+                className="p-2 text-left font-medium text-muted-foreground cursor-pointer select-none hover:text-foreground transition-colors"
+                onClick={() => handleSort("spt")}
+              >
+                <span className="flex items-center">
+                  SPT Rating
+                  <SortIcon active={sortKey === "spt"} dir={sortDir} />
+                </span>
+              </th>
               <th className="p-2 text-left font-medium text-muted-foreground">Well Name</th>
               <th className="p-2 text-left font-medium text-muted-foreground">API #</th>
               <th className="p-2 text-left font-medium text-muted-foreground">County</th>
               <th className="p-2 text-left font-medium text-muted-foreground">Operator</th>
-              <th className="p-2 text-right font-medium text-muted-foreground">Oil (bbl/d)</th>
-              <th className="p-2 text-right font-medium text-muted-foreground">WC %</th>
+              <th
+                className="p-2 text-right font-medium text-muted-foreground cursor-pointer select-none hover:text-foreground transition-colors"
+                onClick={() => handleSort("oil")}
+              >
+                <span className="flex items-center justify-end">
+                  Oil (bbl/d)
+                  <SortIcon active={sortKey === "oil"} dir={sortDir} />
+                </span>
+              </th>
+              <th
+                className="p-2 text-right font-medium text-muted-foreground cursor-pointer select-none hover:text-foreground transition-colors"
+                onClick={() => handleSort("wc")}
+              >
+                <span className="flex items-center justify-end">
+                  WC %
+                  <SortIcon active={sortKey === "wc"} dir={sortDir} />
+                </span>
+              </th>
               <th className="p-2 text-right font-medium text-muted-foreground">Depth (ft)</th>
               <th className="p-2 text-left font-medium text-muted-foreground">Formation</th>
             </tr>
           </thead>
           <tbody>
-            {wells.map((well) => {
+            {sortedWells.map((well) => {
               const isSelected = selectedIds.has(well.id);
               const wc = well.water_cut ?? 0;
               const rating = getSptRatingProp?.(well) ?? "not_suitable";
