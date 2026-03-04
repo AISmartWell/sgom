@@ -16,6 +16,7 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import PilotWellsMap from "@/components/oklahoma-pilot/PilotWellsMap";
 import WellSelectionTable from "@/components/oklahoma-pilot/WellSelectionTable";
+import PilotCharts from "@/components/oklahoma-pilot/PilotCharts";
 
 const MAX_ANALYSIS = 20;
 
@@ -472,6 +473,24 @@ const OklahomaPilot = () => {
               </CardContent>
             </Card>
           </div>
+        </div>
+      )}
+
+      {/* Analytics Charts */}
+      {!loading && allWells.length > 0 && (
+        <div className="mb-8">
+          <PilotCharts
+            wells={allWells}
+            getSptRating={(w) => {
+              const oil = w.production_oil ?? 0;
+              const wc = w.water_cut ?? 0;
+              if (oil <= 0 || oil > 25 || wc >= 80) return "not_suitable";
+              if (oil <= 15 && wc >= 20 && wc <= 60) return "excellent";
+              if (oil <= 25 && wc >= 10 && wc <= 70) return "good";
+              return "marginal";
+            }}
+            analyses={analyses}
+          />
         </div>
       )}
 
