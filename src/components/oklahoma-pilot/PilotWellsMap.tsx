@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw";
@@ -33,7 +33,6 @@ const getMarkerColor = (waterCut: number | null): string => {
   return "#22c55e";
 };
 
-// Point-in-polygon ray casting
 const isPointInPolygon = (point: [number, number], polygon: [number, number][]): boolean => {
   const [x, y] = point;
   let inside = false;
@@ -50,11 +49,15 @@ const isPointInPolygon = (point: [number, number], polygon: [number, number][]):
 const PilotWellsMap = ({ wells, selectedIds, activeWellId, onWellClick, onPolygonSelect }: PilotWellsMapProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
+  const markersRef = useRef<Map<string, L.CircleMarker>>(new Map());
   const wellsRef = useRef(wells);
   wellsRef.current = wells;
   const onPolygonSelectRef = useRef(onPolygonSelect);
   onPolygonSelectRef.current = onPolygonSelect;
+  const onWellClickRef = useRef(onWellClick);
+  onWellClickRef.current = onWellClick;
 
+  // Initialize map once when wells data loads
   useEffect(() => {
     if (!mapRef.current || wells.length === 0) return;
 
@@ -65,21 +68,19 @@ const PilotWellsMap = ({ wells, selectedIds, activeWellId, onWellClick, onPolygo
       mapInstanceRef.current.remove();
       mapInstanceRef.current = null;
     }
+    markersRef.current.clear();
 
     const map = L.map(mapRef.current, { scrollWheelZoom: true, zoomControl: true });
     mapInstanceRef.current = map;
 
-    // Satellite imagery layer (ESRI World Imagery)
     const satellite = L.tileLayer(
       "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
       { attribution: "Tiles &copy; Esri", maxZoom: 19 }
     );
-
     const labels = L.tileLayer(
       "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
       { maxZoom: 19 }
     );
-
     const dark = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
       attribution: '&copy; OSM &copy; CARTO',
       maxZoom: 18,
@@ -94,23 +95,17 @@ const PilotWellsMap = ({ wells, selectedIds, activeWellId, onWellClick, onPolygo
       { position: "topright" }
     ).addTo(map);
 
-    // Well markers
-    const markers: L.CircleMarker[] = [];
-
+    // Create markers
+    const allMarkers: L.CircleMarker[] = [];
     validWells.forEach((well) => {
       const color = getMarkerColor(well.water_cut);
-      const isActive = well.id === activeWellId;
-      const isSelected = selectedIds?.has(well.id) ?? true;
-      const radius = isActive ? 12 : isSelected ? 8 : 5;
-      const opacity = isSelected ? 0.9 : 0.35;
-
       const marker = L.circleMarker([well.latitude!, well.longitude!], {
-        radius,
+        radius: 8,
         fillColor: color,
-        color: isActive ? "#ffffff" : isSelected ? color : "#6b7280",
-        weight: isActive ? 3 : isSelected ? 2 : 1,
+        color,
+        weight: 2,
         opacity: 1,
-        fillOpacity: opacity,
+        fillOpacity: 0.9,
       }).addTo(map);
 
       marker.bindPopup(`
@@ -123,21 +118,21 @@ const PilotWellsMap = ({ wells, selectedIds, activeWellId, onWellClick, onPolygo
             <span style="color: #888;">Oil:</span><span style="font-weight: 600;">${well.production_oil?.toFixed(1) ?? "—"} bbl/d</span>
             <span style="color: #888;">Water Cut:</span><span style="font-weight: 600; color: ${color};">${well.water_cut?.toFixed(1) ?? "—"}%</span>
           </div>
-          ${isSelected ? '<div style="margin-top:6px;font-size:10px;color:#22c55e;">✓ Selected for analysis</div>' : '<div style="margin-top:6px;font-size:10px;color:#888;">Click to select</div>'}
         </div>
       `);
 
-      if (onWellClick) {
-        marker.on("click", () => onWellClick(well.id));
-      }
+      marker.on("click", () => {
+        if (onWellClickRef.current) onWellClickRef.current(well.id);
+      });
 
-      markers.push(marker);
+      markersRef.current.set(well.id, marker);
+      allMarkers.push(marker);
     });
 
-    const group = L.featureGroup(markers);
+    const group = L.featureGroup(allMarkers);
     map.fitBounds(group.getBounds().pad(0.3));
 
-    // Drawing controls for polygon selection
+    // Drawing controls
     const drawnItems = new L.FeatureGroup();
     map.addLayer(drawnItems);
 
@@ -146,40 +141,25 @@ const PilotWellsMap = ({ wells, selectedIds, activeWellId, onWellClick, onPolygo
       draw: {
         polygon: {
           allowIntersection: false,
-          shapeOptions: {
-            color: "#3b82f6",
-            weight: 2,
-            fillColor: "#3b82f6",
-            fillOpacity: 0.15,
-          },
+          shapeOptions: { color: "#3b82f6", weight: 2, fillColor: "#3b82f6", fillOpacity: 0.15 },
         },
         rectangle: {
-          shapeOptions: {
-            color: "#3b82f6",
-            weight: 2,
-            fillColor: "#3b82f6",
-            fillOpacity: 0.15,
-          },
+          shapeOptions: { color: "#3b82f6", weight: 2, fillColor: "#3b82f6", fillOpacity: 0.15 },
         },
         circle: false,
         circlemarker: false,
         marker: false,
         polyline: false,
       },
-      edit: {
-        featureGroup: drawnItems,
-        remove: true,
-      },
+      edit: { featureGroup: drawnItems, remove: true },
     });
     map.addControl(drawControl);
 
-    // Handle polygon/rectangle created
     map.on(L.Draw.Event.CREATED, (event: any) => {
       const layer = event.layer;
       drawnItems.clearLayers();
       drawnItems.addLayer(layer);
 
-      // Find wells inside the drawn shape
       const currentWells = wellsRef.current.filter(w => w.latitude && w.longitude);
       let insideIds: string[] = [];
 
@@ -189,7 +169,6 @@ const PilotWellsMap = ({ wells, selectedIds, activeWellId, onWellClick, onPolygo
           .filter(w => bounds.contains(L.latLng(w.latitude!, w.longitude!)))
           .map(w => w.id);
       } else {
-        // Polygon - use ray casting
         const latlngs = layer.getLatLngs()[0] as L.LatLng[];
         const polygon: [number, number][] = latlngs.map((ll: L.LatLng) => [ll.lat, ll.lng]);
         insideIds = currentWells
@@ -201,7 +180,6 @@ const PilotWellsMap = ({ wells, selectedIds, activeWellId, onWellClick, onPolygo
         onPolygonSelectRef.current(insideIds);
       }
 
-      // Show count tooltip
       const center = layer.getBounds().getCenter();
       L.popup()
         .setLatLng(center)
@@ -209,17 +187,40 @@ const PilotWellsMap = ({ wells, selectedIds, activeWellId, onWellClick, onPolygo
         .openOn(map);
     });
 
-    map.on(L.Draw.Event.DELETED, () => {
-      // Clear polygon selection — don't deselect wells, just remove shape
-    });
-
     return () => {
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
       }
+      markersRef.current.clear();
     };
-  }, [wells, selectedIds, activeWellId, onWellClick]);
+    // Only re-init when wells array reference changes (data load)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wells]);
+
+  // Update marker styles when selection/active state changes (without recreating the map)
+  useEffect(() => {
+    if (!mapInstanceRef.current) return;
+
+    markersRef.current.forEach((marker, wellId) => {
+      const well = wells.find(w => w.id === wellId);
+      if (!well) return;
+
+      const color = getMarkerColor(well.water_cut);
+      const isActive = wellId === activeWellId;
+      const isSelected = selectedIds?.has(wellId) ?? true;
+      const radius = isActive ? 12 : isSelected ? 8 : 5;
+      const opacity = isSelected ? 0.9 : 0.35;
+
+      marker.setRadius(radius);
+      marker.setStyle({
+        fillColor: color,
+        color: isActive ? "#ffffff" : isSelected ? color : "#6b7280",
+        weight: isActive ? 3 : isSelected ? 2 : 1,
+        fillOpacity: opacity,
+      });
+    });
+  }, [wells, selectedIds, activeWellId]);
 
   return (
     <Card className="glass-card border-primary/30">
