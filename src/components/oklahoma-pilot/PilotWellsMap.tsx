@@ -2,7 +2,6 @@ import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { MapPin } from "lucide-react";
 
 interface WellRecord {
@@ -20,17 +19,19 @@ interface WellRecord {
 
 interface PilotWellsMapProps {
   wells: WellRecord[];
+  selectedIds?: Set<string>;
   activeWellId?: string;
+  onWellClick?: (wellId: string) => void;
 }
 
 const getMarkerColor = (waterCut: number | null): string => {
   if (waterCut == null) return "#6b7280";
-  if (waterCut > 70) return "#ef4444"; // destructive — high water cut
-  if (waterCut > 50) return "#f59e0b"; // warning — moderate
-  return "#22c55e"; // success — stable
+  if (waterCut > 70) return "#ef4444";
+  if (waterCut > 50) return "#f59e0b";
+  return "#22c55e";
 };
 
-const PilotWellsMap = ({ wells, activeWellId }: PilotWellsMapProps) => {
+const PilotWellsMap = ({ wells, selectedIds, activeWellId, onWellClick }: PilotWellsMapProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
 
@@ -40,16 +41,12 @@ const PilotWellsMap = ({ wells, activeWellId }: PilotWellsMapProps) => {
     const validWells = wells.filter((w) => w.latitude && w.longitude);
     if (validWells.length === 0) return;
 
-    // Cleanup previous instance
     if (mapInstanceRef.current) {
       mapInstanceRef.current.remove();
       mapInstanceRef.current = null;
     }
 
-    const map = L.map(mapRef.current, {
-      scrollWheelZoom: true,
-      zoomControl: true,
-    });
+    const map = L.map(mapRef.current, { scrollWheelZoom: true, zoomControl: true });
     mapInstanceRef.current = map;
 
     L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
@@ -59,18 +56,20 @@ const PilotWellsMap = ({ wells, activeWellId }: PilotWellsMapProps) => {
 
     const markers: L.CircleMarker[] = [];
 
-    validWells.forEach((well, idx) => {
+    validWells.forEach((well) => {
       const color = getMarkerColor(well.water_cut);
       const isActive = well.id === activeWellId;
-      const radius = isActive ? 12 : 8;
+      const isSelected = selectedIds?.has(well.id) ?? true;
+      const radius = isActive ? 12 : isSelected ? 8 : 5;
+      const opacity = isSelected ? 0.9 : 0.35;
 
       const marker = L.circleMarker([well.latitude!, well.longitude!], {
         radius,
         fillColor: color,
-        color: isActive ? "#ffffff" : color,
-        weight: isActive ? 3 : 2,
+        color: isActive ? "#ffffff" : isSelected ? color : "#6b7280",
+        weight: isActive ? 3 : isSelected ? 2 : 1,
         opacity: 1,
-        fillOpacity: 0.85,
+        fillOpacity: opacity,
       }).addTo(map);
 
       marker.bindPopup(`
@@ -83,27 +82,17 @@ const PilotWellsMap = ({ wells, activeWellId }: PilotWellsMapProps) => {
             <span style="color: #888;">Oil:</span><span style="font-weight: 600;">${well.production_oil?.toFixed(1) ?? "—"} bbl/d</span>
             <span style="color: #888;">Water Cut:</span><span style="font-weight: 600; color: ${color};">${well.water_cut?.toFixed(1) ?? "—"}%</span>
           </div>
+          ${isSelected ? '<div style="margin-top:6px;font-size:10px;color:#22c55e;">✓ Selected for analysis</div>' : '<div style="margin-top:6px;font-size:10px;color:#888;">Click to select</div>'}
         </div>
       `);
 
-      // Number label
-      const icon = L.divIcon({
-        className: "",
-        html: `<div style="
-          width: ${radius * 2}px; height: ${radius * 2}px;
-          display: flex; align-items: center; justify-content: center;
-          font-size: 10px; font-weight: 700; color: white;
-          pointer-events: none;
-        ">${idx + 1}</div>`,
-        iconSize: [radius * 2, radius * 2],
-        iconAnchor: [radius, radius],
-      });
+      if (onWellClick) {
+        marker.on("click", () => onWellClick(well.id));
+      }
 
-      L.marker([well.latitude!, well.longitude!], { icon, interactive: false }).addTo(map);
       markers.push(marker);
     });
 
-    // Fit bounds
     const group = L.featureGroup(markers);
     map.fitBounds(group.getBounds().pad(0.3));
 
@@ -113,18 +102,18 @@ const PilotWellsMap = ({ wells, activeWellId }: PilotWellsMapProps) => {
         mapInstanceRef.current = null;
       }
     };
-  }, [wells, activeWellId]);
+  }, [wells, selectedIds, activeWellId, onWellClick]);
 
   return (
     <Card className="glass-card border-primary/30">
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
           <MapPin className="h-4 w-4 text-primary" />
-          Well Locations
+          Oklahoma Wells ({wells.length})
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div ref={mapRef} className="h-[350px] rounded-lg overflow-hidden border border-border/50" />
+        <div ref={mapRef} className="h-[400px] rounded-lg overflow-hidden border border-border/50" />
         <div className="flex items-center gap-4 mt-3 text-[10px] text-muted-foreground">
           <span className="flex items-center gap-1">
             <span className="inline-block w-2.5 h-2.5 rounded-full bg-green-500" /> WC &lt; 50%
@@ -134,6 +123,12 @@ const PilotWellsMap = ({ wells, activeWellId }: PilotWellsMapProps) => {
           </span>
           <span className="flex items-center gap-1">
             <span className="inline-block w-2.5 h-2.5 rounded-full bg-red-500" /> WC &gt; 70%
+          </span>
+          <span className="ml-auto flex items-center gap-1">
+            <span className="inline-block w-2.5 h-2.5 rounded-full border border-muted-foreground opacity-40" /> Not selected
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="inline-block w-3 h-3 rounded-full bg-primary" /> Selected
           </span>
         </div>
       </CardContent>
