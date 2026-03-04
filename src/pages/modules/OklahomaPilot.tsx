@@ -21,6 +21,7 @@ import {
   AlertTriangle,
   TrendingUp,
 } from "lucide-react";
+import PilotWellsMap from "@/components/oklahoma-pilot/PilotWellsMap";
 
 // The 10 selected Oklahoma wells by API number
 const TARGET_API_NUMBERS = [
@@ -322,9 +323,13 @@ const OklahomaPilot = () => {
         </div>
       )}
 
-      {/* Wells Summary Grid */}
+      {/* Map + Summary Grid */}
       {!loading && wells.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+          {/* Map */}
+          <div className="md:col-span-2">
+            <PilotWellsMap wells={wells} activeWellId={currentWellIdx >= 0 ? wells[currentWellIdx]?.id : undefined} />
+          </div>
           {/* Stats */}
           <Card className="glass-card">
             <CardHeader className="pb-2">
