@@ -34,16 +34,32 @@ function wellHash(well: WellData, salt: number): number {
 // Formation-based porosity ranges (industry-standard values)
 function formationPorosity(formation: string | null): { min: number; max: number; rockType: string } {
   const f = (formation || "").toLowerCase();
-  if (f.includes("woodford") || f.includes("barnett")) return { min: 4, max: 8, rockType: "Shale" };
-  if (f.includes("hunton") || f.includes("arbuckle")) return { min: 12, max: 20, rockType: "Limestone" };
-  if (f.includes("simpson") || f.includes("wilcox")) return { min: 18, max: 28, rockType: "Sandstone" };
+  // Porosity ranges based on published reservoir characterization studies:
+  // Woodford: matrix φ 0.8–6% (Frontiers Earth Sci 2022; ScienceDirect 2018)
+  if (f.includes("woodford")) return { min: 1, max: 6, rockType: "Organic Shale" };
+  // Barnett: matrix φ 4–6% (typical gas shale)
+  if (f.includes("barnett")) return { min: 3, max: 6, rockType: "Siliceous Shale" };
+  // Hunton: fractured carbonate, matrix 2–8%, secondary (vugs/fractures) adds 2–4%
+  // (Search & Discovery #480, 2019; NETL Hunton study)
+  if (f.includes("hunton")) return { min: 4, max: 12, rockType: "Fractured Limestone" };
+  // Arbuckle: dolomite, matrix φ 2–8% (USGS characterization)
+  if (f.includes("arbuckle")) return { min: 2, max: 8, rockType: "Dolomite" };
+  // Simpson: clean sandstone, φ 15–25% (OK mid-continent)
+  if (f.includes("simpson")) return { min: 15, max: 25, rockType: "Sandstone" };
+  // Wilcox: Gulf Coast sand, φ 18–28% at shallow depths
+  if (f.includes("wilcox")) return { min: 18, max: 28, rockType: "Sandstone" };
+  // Springer/Chester: silty sandstone, φ 8–15% (USGS Circular 90, 1989)
   if (f.includes("springer") || f.includes("chester")) return { min: 8, max: 15, rockType: "Siltstone/Sandstone" };
-  if (f.includes("mississippian") || f.includes("miss lime")) return { min: 10, max: 18, rockType: "Limestone" };
-  if (f.includes("morrow")) return { min: 12, max: 22, rockType: "Sandstone" };
-  if (f.includes("red fork") || f.includes("skinner")) return { min: 14, max: 24, rockType: "Sandstone" };
+  // Mississippian Lime: cherty limestone, φ 8–20% (KGS characterization)
+  if (f.includes("mississippian") || f.includes("miss lime")) return { min: 8, max: 20, rockType: "Cherty Limestone" };
+  // Morrow: fluvial-deltaic sand, φ 8–18% (USGS Bulletin 2146-I)
+  if (f.includes("morrow")) return { min: 8, max: 18, rockType: "Sandstone" };
+  // Red Fork/Skinner: mid-continent sand, φ 10–20%
+  if (f.includes("red fork") || f.includes("skinner")) return { min: 10, max: 20, rockType: "Sandstone" };
+  // Tonkawa/Cleveland: Pennsylvanian sand, φ 10–20%
   if (f.includes("tonkawa") || f.includes("cleveland")) return { min: 10, max: 20, rockType: "Sandstone" };
   // Default: mixed carbonate/clastic
-  return { min: 8, max: 16, rockType: "Mixed Carbonate" };
+  return { min: 6, max: 14, rockType: "Mixed Carbonate" };
 }
 
 // Arps decline rate: q(t) = qi / (1 + b * Di * t)^(1/b)
