@@ -169,25 +169,29 @@ const PilotCharts = ({ wells, getSptRating, analyses }: PilotChartsProps) => {
             <CardTitle className="text-sm">SPT Candidacy Distribution</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={240}>
+            <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
                   data={ratingDistribution}
                   cx="50%"
-                  cy="50%"
-                  innerRadius={50}
-                  outerRadius={90}
+                  cy="45%"
+                  innerRadius={45}
+                  outerRadius={80}
                   paddingAngle={3}
                   dataKey="value"
-                  label={({ name, value }) => `${name}: ${value}`}
-                  labelLine={false}
+                  label={({ name, value, x, y }) => (
+                    <text x={x} y={y} fill="#e2e8f0" fontSize={11} fontWeight={600} textAnchor={x > 200 ? "start" : "end"} dominantBaseline="central">
+                      {name}: {value}
+                    </text>
+                  )}
+                  labelLine={{ stroke: "#475569", strokeWidth: 1 }}
                 >
                   {ratingDistribution.map((entry, i) => (
                     <Cell key={i} fill={entry.color} stroke="transparent" />
                   ))}
                 </Pie>
                 <Tooltip contentStyle={CustomTooltipStyle} />
-                <Legend wrapperStyle={{ fontSize: "11px" }} />
+                <Legend wrapperStyle={{ fontSize: "11px", color: "#cbd5e1" }} />
               </PieChart>
             </ResponsiveContainer>
           </CardContent>
