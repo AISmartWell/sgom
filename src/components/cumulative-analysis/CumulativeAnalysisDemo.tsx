@@ -114,15 +114,23 @@ function deterministicValue(seed: number, index: number): number {
   return x - Math.floor(x); // 0..1
 }
 
+// Generalized Arps decline: q(t) = qi / (1 + b * Di * t)^(1/b)
+function arpsRate(qi: number, Di: number, b: number, t: number): number {
+  if (b < 0.001) return qi * Math.exp(-Di * t);
+  const denom = 1 + b * Di * t;
+  if (denom <= 0) return 0;
+  return qi / Math.pow(denom, 1 / b);
+}
+
 function generateProductionCurve(wellIndex: number = 0): ProductionPoint[] {
   const points: ProductionPoint[] = [];
   let cumOil = 0, cumGas = 0, cumWater = 0;
-  // Deterministic initial rate and decline based on well index
   const initialRate = 120 + deterministicValue(wellIndex, 0) * 80;
-  const decline = 0.03 + deterministicValue(wellIndex, 1) * 0.02;
+  const Di = 0.03 + deterministicValue(wellIndex, 1) * 0.02; // nominal decline
+  const b = 0.3 + deterministicValue(wellIndex, 2) * 0.5;    // Arps b-factor
 
   for (let m = 1; m <= 60; m++) {
-    const rate = initialRate * Math.exp(-decline * m);
+    const rate = arpsRate(initialRate, Di, b, m);
     const monthOil = rate * 30;
     const gasRatio = 0.4 + deterministicValue(wellIndex, m + 100) * 0.2;
     const monthGas = monthOil * gasRatio;
@@ -576,24 +584,31 @@ export const CumulativeAnalysisDemo = () => {
                 <div className="border border-destructive/20 rounded-lg p-4 bg-muted/30">
                   <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
                     <TrendingDown className="h-4 w-4 text-destructive" />
-                    Exponential Decline Rate
+                    Generalized Arps Decline Model
                   </h4>
                   <div className="space-y-3">
                     <div className="bg-background rounded p-3 font-mono text-sm space-y-2">
                       <div>
-                        <p className="text-muted-foreground mb-1">Production Rate:</p>
-                        <p className="text-primary font-semibold">q(t) = q<sub>0</sub> × e<sup>−D×t</sup></p>
+                        <p className="text-muted-foreground mb-1">Generalized Arps Equation:</p>
+                        <p className="text-primary font-semibold">q(t) = q<sub>i</sub> / (1 + b × D<sub>i</sub> × t)<sup>1/b</sup></p>
                       </div>
                       <div>
-                        <p className="text-muted-foreground mb-1">Annual Decline (%):</p>
-                        <p className="text-primary font-semibold">d (%) = (1 − e<sup>−D</sup>) × 100</p>
+                        <p className="text-muted-foreground mb-1">Special Cases:</p>
+                        <p className="text-xs">b = 0 → Exponential: q(t) = q<sub>i</sub> × e<sup>−D<sub>i</sub>×t</sup></p>
+                        <p className="text-xs">0 &lt; b &lt; 1 → Hyperbolic</p>
+                        <p className="text-xs">b = 1 → Harmonic: q(t) = q<sub>i</sub> / (1 + D<sub>i</sub> × t)</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground mb-1">Effective Decline (%):</p>
+                        <p className="text-primary font-semibold">d = 1 − (1 + b × D<sub>i</sub>)<sup>−1/b</sup></p>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-2 text-xs">
                       <div><span className="text-muted-foreground">q(t)</span> = Rate at time t</div>
-                      <div><span className="text-muted-foreground">q<sub>0</sub></span> = Initial rate (bbl/d)</div>
-                      <div><span className="text-muted-foreground">D</span> = Nominal decline (1/year)</div>
-                      <div><span className="text-muted-foreground">t</span> = Time (years)</div>
+                      <div><span className="text-muted-foreground">q<sub>i</sub></span> = Initial rate (bbl/d)</div>
+                      <div><span className="text-muted-foreground">D<sub>i</sub></span> = Nominal decline (1/month)</div>
+                      <div><span className="text-muted-foreground">b</span> = Arps exponent (0–1)</div>
+                      <div><span className="text-muted-foreground">t</span> = Time (months)</div>
                     </div>
                   </div>
                 </div>
