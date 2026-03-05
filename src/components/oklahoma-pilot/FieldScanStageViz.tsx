@@ -281,9 +281,22 @@ const FieldScanStageViz = ({ well, allWells }: FieldScanStageVizProps) => {
                 </div>
               </div>
             </div>
-            <div className="flex gap-3 text-[10px]">
-              <span>Avg Oil: <span className="font-medium text-foreground">{neighborStats.avgOil.toFixed(1)} bbl/d</span></span>
-              <span>Avg WC: <span className="font-medium text-foreground">{neighborStats.avgWC.toFixed(0)}%</span></span>
+            <div className="flex items-center justify-between">
+              <div className="flex gap-3 text-[10px]">
+                <span>Avg Oil: <span className="font-medium text-foreground">{neighborStats.avgOil.toFixed(1)} bbl/d</span></span>
+                <span>Avg WC: <span className="font-medium text-foreground">{neighborStats.avgWC.toFixed(0)}%</span></span>
+              </div>
+              <div className="flex items-center gap-1 text-[8px] text-muted-foreground">
+                <span>0</span>
+                <div className="flex h-2 rounded-sm overflow-hidden">
+                  <div className="w-3 bg-muted/20" />
+                  <div className="w-3 bg-emerald-500/20" />
+                  <div className="w-3 bg-emerald-500/40" />
+                  <div className="w-3 bg-amber-500/50" />
+                  <div className="w-3 bg-red-500/60" />
+                </div>
+                <span>Max</span>
+              </div>
             </div>
           </>
         ) : (
