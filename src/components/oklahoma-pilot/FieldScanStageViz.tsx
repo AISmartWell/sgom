@@ -235,22 +235,51 @@ const FieldScanStageViz = ({ well, allWells }: FieldScanStageVizProps) => {
         </div>
         {neighborStats ? (
           <>
-            <div className="grid grid-cols-4 gap-0.5">
-              {neighborStats.grid.map((row, ri) =>
-                row.map((cell, ci) => (
-                  <div
-                    key={`${ri}-${ci}`}
-                    className={`aspect-square rounded-sm ${getHeatColor(cell.intensity, cell.count)} flex items-center justify-center text-[9px] font-medium transition-colors`}
-                    title={`Oil: ${cell.oil}–${[5, 10, 20, 50][ci]} bbl/d | WC: ${cell.wc}–${[20, 40, 60, 100][ri]}% | ${cell.count} wells`}
-                  >
-                    {cell.count > 0 ? cell.count : ""}
+            <div className="flex">
+              {/* Y-axis label */}
+              <div className="flex items-center mr-1">
+                <span className="text-[9px] text-muted-foreground font-medium [writing-mode:vertical-lr] rotate-180">
+                  Water Cut %
+                </span>
+              </div>
+              <div className="flex-1">
+                {/* Y-axis tick labels + grid */}
+                <div className="grid grid-cols-[auto_1fr] gap-x-1">
+                  <div className="grid grid-rows-4 gap-0.5">
+                    {["0–20", "20–40", "40–60", "60–100"].map((label) => (
+                      <div key={label} className="flex items-center justify-end text-[8px] text-muted-foreground pr-0.5 aspect-square">
+                        {label}
+                      </div>
+                    ))}
                   </div>
-                ))
-              )}
-            </div>
-            <div className="flex items-center justify-between text-[9px] text-muted-foreground">
-              <span>Oil →  0–50 bbl/d</span>
-              <span>WC ↓  0–100%</span>
+                  <div className="grid grid-cols-4 grid-rows-4 gap-0.5">
+                    {neighborStats.grid.map((row, ri) =>
+                      row.map((cell, ci) => (
+                        <div
+                          key={`${ri}-${ci}`}
+                          className={`aspect-square rounded-sm ${getHeatColor(cell.intensity, cell.count)} flex items-center justify-center text-[9px] font-medium transition-colors`}
+                          title={`Oil: ${cell.oil}–${[5, 10, 20, 50][ci]} bbl/d | WC: ${cell.wc}–${[20, 40, 60, 100][ri]}% | ${cell.count} wells`}
+                        >
+                          {cell.count > 0 ? cell.count : ""}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                  {/* X-axis tick labels */}
+                  <div /> {/* empty cell for alignment */}
+                  <div className="grid grid-cols-4 gap-0.5 mt-0.5">
+                    {["0–5", "5–10", "10–20", "20–50"].map((label) => (
+                      <div key={label} className="text-[8px] text-muted-foreground text-center">
+                        {label}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                {/* X-axis label */}
+                <div className="text-center text-[9px] text-muted-foreground font-medium mt-1">
+                  Oil Production (bbl/d)
+                </div>
+              </div>
             </div>
             <div className="flex gap-3 text-[10px]">
               <span>Avg Oil: <span className="font-medium text-foreground">{neighborStats.avgOil.toFixed(1)} bbl/d</span></span>
