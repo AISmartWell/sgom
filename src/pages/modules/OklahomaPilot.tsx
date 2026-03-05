@@ -19,6 +19,12 @@ import PilotWellLog from "@/components/oklahoma-pilot/PilotWellLog";
 import WellSelectionTable from "@/components/oklahoma-pilot/WellSelectionTable";
 import PilotCharts from "@/components/oklahoma-pilot/PilotCharts";
 import FieldScanStageViz from "@/components/oklahoma-pilot/FieldScanStageViz";
+import ClassificationStageViz from "@/components/oklahoma-pilot/stage-viz/ClassificationStageViz";
+import CoreAnalysisStageViz from "@/components/oklahoma-pilot/stage-viz/CoreAnalysisStageViz";
+import CumulativeStageViz from "@/components/oklahoma-pilot/stage-viz/CumulativeStageViz";
+import SPTProjectionStageViz from "@/components/oklahoma-pilot/stage-viz/SPTProjectionStageViz";
+import EconomicStageViz from "@/components/oklahoma-pilot/stage-viz/EconomicStageViz";
+import GeophysicalStageViz from "@/components/oklahoma-pilot/stage-viz/GeophysicalStageViz";
 
 const MAX_ANALYSIS = 20;
 
@@ -686,6 +692,24 @@ const OklahomaPilot = () => {
                         {isDone && analysis?.stages.has("field_scan") && (
                           <FieldScanStageViz well={well} allWells={allWells} />
                         )}
+                        {isDone && analysis?.stages.has("classification") && (
+                          <ClassificationStageViz well={well} />
+                        )}
+                        {isDone && analysis?.stages.has("core_analysis") && (
+                          <CoreAnalysisStageViz well={well} />
+                        )}
+                        {isDone && analysis?.stages.has("cumulative") && (
+                          <CumulativeStageViz well={well} />
+                        )}
+                        {isDone && analysis?.stages.has("spt_projection") && (
+                          <SPTProjectionStageViz well={well} />
+                        )}
+                        {isDone && analysis?.stages.has("economic") && (
+                          <EconomicStageViz well={well} />
+                        )}
+                        {isDone && analysis?.stages.has("geophysical") && (
+                          <GeophysicalStageViz well={well} />
+                        )}
                         {isDone && (
                           <PilotWellLog
                             wellName={well.well_name || well.api_number || "Unknown"}
@@ -823,6 +847,24 @@ const OklahomaPilot = () => {
                               <p className="text-[10px] text-muted-foreground mt-1 border-t border-border/20 pt-1">{result.verdict}</p>
                               {stage.key === "field_scan" && (
                                 <FieldScanStageViz well={well} allWells={allWells} />
+                              )}
+                              {stage.key === "classification" && (
+                                <ClassificationStageViz well={well} />
+                              )}
+                              {stage.key === "core_analysis" && (
+                                <CoreAnalysisStageViz well={well} />
+                              )}
+                              {stage.key === "cumulative" && (
+                                <CumulativeStageViz well={well} />
+                              )}
+                              {stage.key === "spt_projection" && (
+                                <SPTProjectionStageViz well={well} />
+                              )}
+                              {stage.key === "economic" && (
+                                <EconomicStageViz well={well} />
+                              )}
+                              {stage.key === "geophysical" && (
+                                <GeophysicalStageViz well={well} />
                               )}
                             </div>
                           );
