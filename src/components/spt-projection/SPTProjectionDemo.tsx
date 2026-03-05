@@ -46,6 +46,37 @@ const DEMO_WELLS: WellProjection[] = [
   { id: "W-010", name: "Texas-5", waterCut: 38, currentProduction: 17, reserves: 1300, timelineYears: 23, state: "demo" },
 ];
 
+// Deterministic hash from string to get stable pseudo-random values
+function stableHash(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash + str.charCodeAt(i)) | 0;
+  }
+  return Math.abs(hash);
+}
+
+// Formation-based reserve multiplier (bbl per ft of depth)
+const FORMATION_RESERVE_FACTOR: Record<string, number> = {
+  "WOODFORD": 0.12,
+  "HUNTON": 0.22,
+  "MISSISSIPPIAN": 0.18,
+  "ARBUCKLE": 0.20,
+  "CHESTER": 0.16,
+  "MORROW": 0.14,
+  "WILCOX": 0.19,
+  "RED FORK": 0.17,
+  "TONKAWA": 0.15,
+};
+
+function getFormationFactor(formation: string | null): number {
+  if (!formation) return 0.15;
+  const upper = formation.toUpperCase();
+  for (const [key, factor] of Object.entries(FORMATION_RESERVE_FACTOR)) {
+    if (upper.includes(key)) return factor;
+  }
+  return 0.15;
+}
+
 function transformDbWell(w: {
   id: string;
   well_name: string | null;
@@ -54,18 +85,21 @@ function transformDbWell(w: {
   total_depth: number | null;
   spud_date: string | null;
   county: string | null;
+  formation: string | null;
 }): WellProjection {
-  const waterCut = w.water_cut ?? Math.round(20 + Math.random() * 60);
-  const production = w.production_oil ?? Math.round(5 + Math.random() * 20);
+  const h = stableHash(w.id);
+  const waterCut = w.water_cut ?? (20 + (h % 60));
+  const production = w.production_oil ?? (5 + (h % 20));
   const depth = w.total_depth ?? 5000;
-  // Estimate reserves from depth (rough proxy)
-  const reserves = Math.round(depth * 0.15 + Math.random() * 300);
-  // Estimate timeline from spud date
+  // Deterministic reserves: depth × formation factor + stable offset from id hash
+  const formationFactor = getFormationFactor(w.formation);
+  const reserves = Math.round(depth * formationFactor + (h % 200) + 100);
+  // Deterministic timeline from spud date
   let timelineYears = 15;
   if (w.spud_date) {
     const spudYear = new Date(w.spud_date).getFullYear();
     const yearsActive = new Date().getFullYear() - spudYear;
-    timelineYears = Math.max(5, 30 - yearsActive + Math.round(Math.random() * 5));
+    timelineYears = Math.max(5, 30 - yearsActive + (h % 5));
   }
 
   return {
@@ -90,7 +124,7 @@ const SPTProjectionDemo = () => {
     try {
       const { data, error } = await supabase
         .from("wells")
-        .select("id, well_name, water_cut, production_oil, total_depth, spud_date, county")
+        .select("id, well_name, water_cut, production_oil, total_depth, spud_date, county, formation")
         .limit(200);
 
       if (error) throw error;
