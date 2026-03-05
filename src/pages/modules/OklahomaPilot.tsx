@@ -18,6 +18,9 @@ import PilotWellsMap from "@/components/oklahoma-pilot/PilotWellsMap";
 import PilotWellLog from "@/components/oklahoma-pilot/PilotWellLog";
 import WellSelectionTable from "@/components/oklahoma-pilot/WellSelectionTable";
 import PilotCharts from "@/components/oklahoma-pilot/PilotCharts";
+import PilotAIProcessing from "@/components/oklahoma-pilot/PilotAIProcessing";
+import PilotStats from "@/components/oklahoma-pilot/PilotStats";
+import PilotHeader from "@/components/oklahoma-pilot/PilotHeader";
 import FieldScanStageViz from "@/components/oklahoma-pilot/FieldScanStageViz";
 import ClassificationStageViz from "@/components/oklahoma-pilot/stage-viz/ClassificationStageViz";
 import CoreAnalysisStageViz from "@/components/oklahoma-pilot/stage-viz/CoreAnalysisStageViz";
@@ -501,56 +504,25 @@ ${placemarks}
   };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
+    <div className="p-6 lg:p-8 max-w-[1600px] mx-auto">
       {/* Header */}
-      <div className="mb-8">
-        <Button variant="ghost" size="sm" onClick={() => navigate("/dashboard")} className="mb-2">
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Dashboard
-        </Button>
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <span className="text-3xl">🛢️</span>
-              <h1 className="text-3xl font-bold">Oklahoma Pilot</h1>
-              <Badge className="bg-success/20 text-success border-success/30">LIVE</Badge>
-            </div>
-            <p className="text-muted-foreground">
-              Loaded {allWells.length} Oklahoma wells → <span className="text-success font-medium">{sptCandidates.length} SPT candidates</span> identified (≤25 bbl/d, WC &lt;80%)
-            </p>
-          </div>
-          <div className="flex gap-2 flex-wrap">
-            <Button variant="outline" size="sm" onClick={handleExportCandidatesCSV}>
-              <FileSpreadsheet className="mr-2 h-4 w-4" /> {selectedIds.size > 0 ? `Export ${selectedIds.size} Selected` : `Export ${sptCandidates.length} Candidates`}
-            </Button>
-            <Button variant="outline" size="sm" onClick={handleExportKML}>
-              <MapPin className="mr-2 h-4 w-4" /> KML
-            </Button>
-            <Button variant="outline" size="sm" onClick={handleExportGeoJSON}>
-              <MapPin className="mr-2 h-4 w-4" /> GeoJSON
-            </Button>
-            {completedWells > 0 && (
-              <>
-                <Button variant="outline" size="sm" onClick={handleExportCSV}>
-                  <FileSpreadsheet className="mr-2 h-4 w-4" /> Analysis CSV
-                </Button>
-                <Button variant="outline" size="sm" onClick={handleExportPDF}>
-                  <Download className="mr-2 h-4 w-4" /> PDF
-                </Button>
-              </>
-            )}
-            <Button onClick={runBatchAnalysis} disabled={isRunning || selectedIds.size === 0}>
-              {isRunning ? (
-                <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Analyzing {currentWellIdx + 1}/{totalAnalyzing}...</>
-              ) : (
-                <><Play className="mr-2 h-4 w-4" />Analyze {selectedIds.size} Wells</>
-              )}
-            </Button>
-            <Button variant="outline" onClick={reset} disabled={isRunning}>
-              <RotateCcw className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      </div>
+      <PilotHeader
+        allWellsCount={allWells.length}
+        sptCandidatesCount={sptCandidates.length}
+        selectedCount={selectedIds.size}
+        completedWells={completedWells}
+        isRunning={isRunning}
+        currentWellIdx={currentWellIdx}
+        totalAnalyzing={totalAnalyzing}
+        onBack={() => navigate("/dashboard")}
+        onExportCSV={handleExportCandidatesCSV}
+        onExportKML={handleExportKML}
+        onExportGeoJSON={handleExportGeoJSON}
+        onExportAnalysisCSV={handleExportCSV}
+        onExportPDF={handleExportPDF}
+        onRunAnalysis={runBatchAnalysis}
+        onReset={reset}
+      />
 
       {/* Overall Progress */}
       {(isRunning || completedWells > 0) && (
@@ -579,91 +551,47 @@ ${placemarks}
         </div>
       )}
 
-      {/* Map + Stats */}
+      {/* Main layout: 3-column grid */}
       {!loading && allWells.length > 0 && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
-          <div className="lg:col-span-2">
-            <PilotWellsMap
-              wells={allWells}
-              selectedIds={selectedIds}
-              activeWellId={currentWellIdx >= 0 ? selectedWells[currentWellIdx]?.id : undefined}
-              onWellClick={isRunning ? undefined : toggleWell}
-              onPolygonSelect={isRunning ? undefined : selectByPolygon}
-            />
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 mb-8">
+          {/* Left: Map + AI Processing */}
+          <div className="xl:col-span-8 space-y-6">
+            {/* Map */}
+            <Card className="glass-card border-primary/20 overflow-hidden">
+              <CardContent className="p-0">
+                <PilotWellsMap
+                  wells={allWells}
+                  selectedIds={selectedIds}
+                  activeWellId={currentWellIdx >= 0 ? selectedWells[currentWellIdx]?.id : undefined}
+                  onWellClick={isRunning ? undefined : toggleWell}
+                  onPolygonSelect={isRunning ? undefined : selectByPolygon}
+                />
+              </CardContent>
+            </Card>
             {lastPolygonIds.length > 0 && !isRunning && (
-              <div className="flex items-center gap-2 mt-2">
+              <div className="flex items-center gap-2 -mt-4">
                 <Button size="sm" variant="outline" onClick={reselectLastPolygon} className="text-xs">
                   <MapPin className="h-3 w-3 mr-1" />
-                   Select all in area ({lastPolygonIds.length})
+                  Select all in area ({lastPolygonIds.length})
                 </Button>
-                <span className="text-[10px] text-muted-foreground">
-                  Re-apply last selection
-                </span>
+                <span className="text-[10px] text-muted-foreground">Re-apply last selection</span>
               </div>
             )}
+
+            {/* AI Processing Modules */}
+            <PilotAIProcessing />
           </div>
-          <div className="space-y-4">
-            <Card className="glass-card">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base">SPT Screening Results</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="p-3 bg-muted/30 rounded-lg text-center">
-                    <p className="text-2xl font-bold">{allWells.length}</p>
-                    <p className="text-xs text-muted-foreground">Total OK Wells</p>
-                  </div>
-                  <div className="p-3 bg-success/10 rounded-lg text-center">
-                    <p className="text-2xl font-bold text-success">{sptCandidates.length}</p>
-                    <p className="text-xs text-muted-foreground">SPT Candidates</p>
-                  </div>
-                  <div className="p-3 bg-emerald-500/10 rounded-lg text-center">
-                    <p className="text-2xl font-bold text-emerald-400">{excellentWells.length}</p>
-                    <p className="text-xs text-muted-foreground">Excellent</p>
-                  </div>
-                  <div className="p-3 bg-yellow-500/10 rounded-lg text-center">
-                    <p className="text-2xl font-bold text-yellow-400">{goodWells.length}</p>
-                    <p className="text-xs text-muted-foreground">Good</p>
-                  </div>
-                  <div className="p-3 bg-orange-500/10 rounded-lg text-center">
-                    <p className="text-2xl font-bold text-orange-400">{marginalWells.length}</p>
-                    <p className="text-xs text-muted-foreground">Marginal</p>
-                  </div>
-                  <div className="p-3 bg-destructive/10 rounded-lg text-center">
-                    <p className="text-2xl font-bold text-destructive">{nonCandidates.length}</p>
-                    <p className="text-xs text-muted-foreground">Not Suitable</p>
-                  </div>
-                </div>
-                <Separator className="my-3" />
-                <div className="text-xs text-muted-foreground space-y-1">
-                  <p><span className="text-emerald-400 font-medium">Excellent:</span> ≤15 bbl/d, WC 20–60%</p>
-                  <p><span className="text-yellow-400 font-medium">Good:</span> ≤25 bbl/d, WC 10–70%</p>
-                  <p><span className="text-orange-400 font-medium">Marginal:</span> ≤25 bbl/d, WC &lt;80%</p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="glass-card">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base">Candidates by County</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {Object.entries(
-                  sptCandidates.reduce<Record<string, number>>((acc, w) => {
-                    const c = w.county || "Unknown";
-                    acc[c] = (acc[c] || 0) + 1;
-                    return acc;
-                  }, {})
-                ).sort((a, b) => b[1] - a[1]).map(([county, count]) => (
-                  <div key={county} className="flex justify-between items-center py-1.5 text-sm">
-                    <span className="flex items-center gap-2">
-                      <MapPin className="h-3 w-3 text-primary" />
-                      {county}
-                    </span>
-                    <Badge variant="outline">{count}</Badge>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
+
+          {/* Right: Stats panel */}
+          <div className="xl:col-span-4">
+            <PilotStats
+              allWells={allWells}
+              sptCandidates={sptCandidates}
+              excellentWells={excellentWells}
+              goodWells={goodWells}
+              marginalWells={marginalWells}
+              nonCandidates={nonCandidates}
+            />
           </div>
         </div>
       )}
