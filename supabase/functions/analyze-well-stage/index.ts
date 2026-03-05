@@ -45,11 +45,9 @@ Evaluate whether this well is a candidate for SPT treatment.
 Assess based on water cut (<60% preferred), current production rate (>5 bbl/d), formation type, and depth.
 Provide an SPT Candidacy Score (0-100) and projected production increase after SPT treatment.`,
 
-  economic: `You are a petroleum economics AI. Perform an economic analysis of SPT treatment for this well.
-Estimate treatment cost ($25,000-$45,000 range based on depth and formation).
-Calculate projected additional revenue based on expected production uplift.
-Compute ROI (%) and payback period (months).
-Use oil price of $70/bbl for calculations.`,
+  economic: `You are a petroleum economics AI. You will receive pre-calculated economic metrics based on exact engineering formulas.
+Your job is to provide an expert verdict (one line with emoji) interpreting these numbers.
+Consider whether the investment is attractive, flag any risks, and assess overall viability of SPT treatment.`,
 
   geophysical: `You are a geophysical analysis AI. Assess the subsurface characteristics of this well.
 Evaluate the formation, estimate log-derived porosity and permeability.
@@ -102,6 +100,76 @@ Current Gas Production: ${wellData.production_gas != null ? `${wellData.producti
 Water Cut: ${wellData.water_cut != null ? `${wellData.water_cut}%` : "Unknown"}
 `;
 
+    // --- Deterministic economic calculations for stage "economic" ---
+    let economicMetrics: { label: string; value: string; color: string }[] | null = null;
+    let economicUserContent = `Analyze this well:\n${wellDescription}`;
+
+    if (stageKey === "economic") {
+      const OIL_PRICE = 72; // $/bbl WTI baseline
+      const OPEX_PER_BBL = 18; // $/bbl operating expenses
+      const currentProd = wellData.production_oil ?? 8;
+      const depth = wellData.total_depth ?? 5000;
+      const waterCut = wellData.water_cut ?? 30;
+
+      // CAPEX formula: base $25k + $2/ft depth + $5k if water_cut > 40%
+      const capex = 25000 + depth * 2 + (waterCut > 40 ? 5000 : 0);
+
+      // SPT uplift: 5-10× inflow increase → conservative estimate
+      // Target inflow 15-25 bbl/day; uplift depends on current production
+      const upliftFactor = waterCut < 30 ? 2.5 : waterCut < 50 ? 2.0 : 1.5;
+      const projectedProd = Math.min(currentProd * upliftFactor, 25);
+      const addedProd = Math.max(projectedProd - currentProd, 1);
+
+      // Revenue & profit
+      const dailyGrossRevenue = addedProd * OIL_PRICE;
+      const dailyOpex = addedProd * OPEX_PER_BBL;
+      const dailyNetProfit = dailyGrossRevenue - dailyOpex;
+      const annualRevenueUplift = dailyGrossRevenue * 365;
+      const annualNetProfit = dailyNetProfit * 365;
+
+      // ROI & Payback
+      const roi12Month = dailyNetProfit > 0 ? Math.round(((annualNetProfit - capex) / capex) * 100) : 0;
+      const paybackMonths = dailyNetProfit > 0 ? +((capex / (dailyNetProfit * 30.44)).toFixed(1)) : 999;
+
+      economicMetrics = [
+        {
+          label: "Estimated CAPEX",
+          value: `$${capex.toLocaleString()}`,
+          color: "",
+        },
+        {
+          label: "Annual Revenue Uplift",
+          value: `$${annualRevenueUplift.toLocaleString("en-US", { maximumFractionDigits: 0 })}`,
+          color: "text-success",
+        },
+        {
+          label: "ROI (12-Month)",
+          value: `${roi12Month}%`,
+          color: roi12Month > 100 ? "text-success" : roi12Month > 0 ? "text-warning" : "text-destructive",
+        },
+        {
+          label: "Payback Period",
+          value: `${paybackMonths} Months`,
+          color: paybackMonths < 6 ? "text-success" : paybackMonths < 12 ? "text-warning" : "text-destructive",
+        },
+      ];
+
+      // Provide calculated numbers to AI for verdict only
+      economicUserContent = `Here are the pre-calculated economic metrics for this well (exact formulas):
+- CAPEX: $${capex.toLocaleString()} (formula: $25k base + $2/ft × ${depth}ft depth${waterCut > 40 ? " + $5k high water cut premium" : ""})
+- Current Production: ${currentProd} bbl/d → Projected after SPT: ${projectedProd.toFixed(1)} bbl/d (uplift ×${upliftFactor})
+- Added Production: +${addedProd.toFixed(1)} bbl/d
+- Annual Revenue Uplift: $${annualRevenueUplift.toLocaleString("en-US", { maximumFractionDigits: 0 })}
+- Annual Net Profit: $${annualNetProfit.toLocaleString("en-US", { maximumFractionDigits: 0 })} (after OPEX $${OPEX_PER_BBL}/bbl)
+- 12-Month ROI: ${roi12Month}%
+- Payback Period: ${paybackMonths} months
+- Oil Price Used: $${OIL_PRICE}/bbl
+
+Well context:\n${wellDescription}
+
+Provide a one-line expert verdict with emoji.`;
+    }
+
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -112,7 +180,7 @@ Water Cut: ${wellData.water_cut != null ? `${wellData.water_cut}%` : "Unknown"}
         model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: prompt },
-          { role: "user", content: `Analyze this well:\n${wellDescription}` },
+          { role: "user", content: economicUserContent },
         ],
         tools: [
           {
@@ -199,13 +267,16 @@ Water Cut: ${wellData.water_cut != null ? `${wellData.water_cut}%` : "Unknown"}
       neutral: "",
     };
 
+    // For economic stage: use deterministic metrics, AI only for verdict
     const stageResult = {
       title: `${stageKey} Analysis Complete`,
-      metrics: (result.metrics || []).slice(0, 4).map((m: any) => ({
-        label: m.label,
-        value: m.value,
-        color: sentimentToColor[m.sentiment] || "",
-      })),
+      metrics: economicMetrics
+        ? economicMetrics
+        : (result.metrics || []).slice(0, 4).map((m: any) => ({
+            label: m.label,
+            value: m.value,
+            color: sentimentToColor[m.sentiment] || "",
+          })),
       verdict: result.verdict || "Analysis complete",
     };
 
