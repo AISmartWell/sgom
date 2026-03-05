@@ -17,16 +17,36 @@ interface Props {
   well: WellRecord;
 }
 
+// Deterministic hash for stable values per well
+function wellHash(oil: number, depth: number, salt: number): number {
+  const x = Math.sin((oil * 9301 + depth * 49297 + salt * 233) % 65521) * 49297;
+  return x - Math.floor(x);
+}
+
+// Generalized Arps decline: q(t) = qi / (1 + b * Di * t)^(1/b)
+// b=0 → exponential, 0<b<1 → hyperbolic, b=1 → harmonic
+function arpsRate(qi: number, Di: number, b: number, t: number): number {
+  if (b < 0.001) return qi * Math.exp(-Di * t);
+  const denom = 1 + b * Di * t;
+  if (denom <= 0) return 0;
+  return qi / Math.pow(denom, 1 / b);
+}
+
 const CumulativeStageViz = ({ well }: Props) => {
   const q0 = well.production_oil ?? 5;
-  const D = 0.02 + Math.random() * 0.03; // decline rate 2-5%/mo
+  const depth = well.total_depth ?? 3500;
+
+  // Deterministic parameters derived from well data
+  const Di = useMemo(() => 0.02 + wellHash(q0, depth, 1) * 0.03, [q0, depth]);
+  const b = useMemo(() => 0.3 + wellHash(q0, depth, 2) * 0.7, [q0, depth]);
+  const porosity = useMemo(() => 0.12 + wellHash(q0, depth, 3) * 0.08, [q0, depth]);
 
   const declineCurve = useMemo(() => {
     const points = [];
     let cumulative = 0;
     for (let m = 0; m <= 60; m++) {
-      const q = q0 * Math.exp(-D * m);
-      cumulative += q * 30; // barrels per month
+      const q = arpsRate(q0, Di, b, m);
+      cumulative += q * 30;
       points.push({
         month: m,
         rate: +q.toFixed(2),
@@ -34,12 +54,10 @@ const CumulativeStageViz = ({ well }: Props) => {
       });
     }
     return points;
-  }, [q0, D]);
+  }, [q0, Di, b]);
 
   const totalReserves = declineCurve[declineCurve.length - 1]?.cumulative ?? 0;
-  const depth = well.total_depth ?? 3500;
-  const porosity = 0.12 + Math.random() * 0.08;
-  const ioip = Math.round(depth * porosity * 7.758 * 0.5); // simplified volumetric
+  const ioip = Math.round(depth * porosity * 7.758 * 0.5);
 
   return (
     <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -47,7 +65,7 @@ const CumulativeStageViz = ({ well }: Props) => {
       <div className="sm:col-span-2 p-3 rounded-lg border border-border/40 bg-muted/10 space-y-2">
         <div className="flex items-center gap-2 text-xs font-semibold">
           <TrendingDown className="h-3.5 w-3.5 text-primary" />
-          Decline Curve Analysis (60-month forecast)
+          Arps Decline Curve (60-month, b={b.toFixed(2)})
         </div>
         <div className="h-[180px]">
           <ResponsiveContainer width="100%" height="100%">
@@ -90,8 +108,8 @@ const CumulativeStageViz = ({ well }: Props) => {
             <p className="text-[9px] text-muted-foreground">IOIP (bbl)</p>
           </div>
           <div className="p-2 bg-muted/20 rounded text-center">
-            <p className="text-lg font-bold">{(D * 100).toFixed(1)}%</p>
-            <p className="text-[9px] text-muted-foreground">Decline Rate/mo</p>
+            <p className="text-lg font-bold">{(Di * 100).toFixed(1)}%</p>
+            <p className="text-[9px] text-muted-foreground">Di (nominal/mo)</p>
           </div>
           <div className="p-2 bg-muted/20 rounded text-center">
             <p className="text-lg font-bold">{totalReserves > 0 ? ((totalReserves / ioip) * 100).toFixed(1) : 0}%</p>
@@ -113,23 +131,27 @@ const CumulativeStageViz = ({ well }: Props) => {
           </div>
           <div className="flex justify-between text-[10px]">
             <span className="text-muted-foreground">Rate @ 12 mo</span>
-            <span className="font-medium">{(q0 * Math.exp(-D * 12)).toFixed(1)} bbl/d</span>
+            <span className="font-medium">{arpsRate(q0, Di, b, 12).toFixed(1)} bbl/d</span>
           </div>
           <div className="flex justify-between text-[10px]">
             <span className="text-muted-foreground">Rate @ 36 mo</span>
-            <span className="font-medium">{(q0 * Math.exp(-D * 36)).toFixed(1)} bbl/d</span>
+            <span className="font-medium">{arpsRate(q0, Di, b, 36).toFixed(1)} bbl/d</span>
           </div>
           <div className="flex justify-between text-[10px]">
             <span className="text-muted-foreground">Rate @ 60 mo</span>
-            <span className="font-medium">{(q0 * Math.exp(-D * 60)).toFixed(1)} bbl/d</span>
+            <span className="font-medium">{arpsRate(q0, Di, b, 60).toFixed(1)} bbl/d</span>
+          </div>
+          <div className="flex justify-between text-[10px]">
+            <span className="text-muted-foreground">Arps b-factor</span>
+            <span className="font-medium">{b.toFixed(2)}</span>
           </div>
           <div className="flex justify-between text-[10px]">
             <span className="text-muted-foreground">Porosity (est.)</span>
             <span className="font-medium">{(porosity * 100).toFixed(1)}%</span>
           </div>
           <div className="pt-1 border-t border-border/20">
-            <Badge variant="outline" className={`text-[9px] ${D < 0.03 ? "text-success" : D < 0.04 ? "text-warning" : "text-destructive"}`}>
-              {D < 0.03 ? "Slow Decline" : D < 0.04 ? "Moderate Decline" : "Rapid Decline"}
+            <Badge variant="outline" className={`text-[9px] ${b > 0.7 ? "text-warning" : b > 0.5 ? "text-primary" : "text-success"}`}>
+              {b < 0.3 ? "Exponential" : b < 0.7 ? "Hyperbolic" : "Harmonic"} Decline
             </Badge>
           </div>
         </div>
