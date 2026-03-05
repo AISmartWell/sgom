@@ -30,6 +30,7 @@ interface PilotWellLogProps {
   waterCut: number | null;
   productionOil: number | null;
   formation: string | null;
+  defaultExpanded?: boolean;
 }
 
 /**
@@ -91,8 +92,8 @@ const generateWellLogData = (
   return { data, zones };
 };
 
-const PilotWellLog = ({ wellName, totalDepth, waterCut, productionOil, formation }: PilotWellLogProps) => {
-  const [expanded, setExpanded] = useState(false);
+const PilotWellLog = ({ wellName, totalDepth, waterCut, productionOil, formation, defaultExpanded = false }: PilotWellLogProps) => {
+  const [expanded, setExpanded] = useState(defaultExpanded);
 
   const depth = totalDepth || 3000 + Math.random() * 1000;
   const wc = waterCut ?? 30;
