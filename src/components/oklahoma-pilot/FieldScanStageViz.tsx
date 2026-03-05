@@ -74,12 +74,12 @@ const FieldScanStageViz = ({ well, allWells }: FieldScanStageVizProps) => {
     const depth = well.total_depth ?? 3000;
 
     return [
-      { axis: "Дебит нефти", value: normalize(oil, 0, 30), fullMark: 100 },
-      { axis: "Обводнённость", value: 100 - normalize(wc, 0, 100), fullMark: 100 }, // inverted — lower WC = better
-      { axis: "Глубина", value: normalize(depth, 1000, 8000), fullMark: 100 },
-      { axis: "Формация", value: well.formation ? 80 : 30, fullMark: 100 },
-      { axis: "Статус", value: well.status === "Active" ? 90 : 40, fullMark: 100 },
-      { axis: "Газ/Нефть", value: normalize(well.production_gas ?? 0, 0, 200), fullMark: 100 },
+      { axis: "Oil Rate", value: normalize(oil, 0, 30), fullMark: 100 },
+      { axis: "Water Cut", value: 100 - normalize(wc, 0, 100), fullMark: 100 },
+      { axis: "Depth", value: normalize(depth, 1000, 8000), fullMark: 100 },
+      { axis: "Formation", value: well.formation ? 80 : 30, fullMark: 100 },
+      { axis: "Status", value: well.status === "Active" ? 90 : 40, fullMark: 100 },
+      { axis: "GOR", value: normalize(well.production_gas ?? 0, 0, 200), fullMark: 100 },
     ];
   }, [well]);
 
@@ -137,24 +137,24 @@ const FieldScanStageViz = ({ well, allWells }: FieldScanStageVizProps) => {
         </div>
         <div className="grid grid-cols-2 gap-2 text-[11px]">
           <div>
-            <p className="text-muted-foreground">Площадь</p>
-            <p className="font-medium">{basin.area}</p>
-          </div>
-          <div>
-            <p className="text-muted-foreground">Ср. глубина</p>
-            <p className="font-medium">{basin.avgDepth}</p>
-          </div>
-          <div>
-            <p className="text-muted-foreground">Возраст</p>
-            <p className="font-medium">{basin.age}</p>
-          </div>
-          <div>
-            <p className="text-muted-foreground">Округ</p>
-            <p className="font-medium">{well.county || "—"}</p>
-          </div>
+            <p className="text-muted-foreground">Area</p>
+             <p className="font-medium">{basin.area}</p>
+           </div>
+           <div>
+             <p className="text-muted-foreground">Avg Depth</p>
+             <p className="font-medium">{basin.avgDepth}</p>
+           </div>
+           <div>
+             <p className="text-muted-foreground">Age</p>
+             <p className="font-medium">{basin.age}</p>
+           </div>
+           <div>
+             <p className="text-muted-foreground">County</p>
+             <p className="font-medium">{well.county || "—"}</p>
+           </div>
         </div>
         <div className="pt-1 border-t border-border/20">
-          <p className="text-[10px] text-muted-foreground mb-1">Типичные формации</p>
+          <p className="text-[10px] text-muted-foreground mb-1">Typical Formations</p>
           <div className="flex flex-wrap gap-1">
             {basin.formations.map((f) => (
               <Badge
@@ -177,7 +177,7 @@ const FieldScanStageViz = ({ well, allWells }: FieldScanStageVizProps) => {
       <div className="p-3 rounded-lg border border-border/40 bg-muted/10">
         <div className="flex items-center gap-2 text-xs font-semibold mb-1">
           <Activity className="h-3.5 w-3.5 text-primary" />
-          Профиль пригодности
+          Suitability Profile
         </div>
         <div className="h-[180px]">
           <ResponsiveContainer width="100%" height="100%">
@@ -186,7 +186,7 @@ const FieldScanStageViz = ({ well, allWells }: FieldScanStageVizProps) => {
               <PolarAngleAxis dataKey="axis" tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }} />
               <PolarRadiusAxis tick={false} domain={[0, 100]} axisLine={false} />
               <Radar
-                name="Скважина"
+                name="Well"
                 dataKey="value"
                 stroke="hsl(var(--primary))"
                 fill="hsl(var(--primary))"
@@ -210,7 +210,7 @@ const FieldScanStageViz = ({ well, allWells }: FieldScanStageVizProps) => {
       <div className="p-3 rounded-lg border border-border/40 bg-muted/10 space-y-2">
         <div className="flex items-center gap-2 text-xs font-semibold">
           <MapPin className="h-3.5 w-3.5 text-primary" />
-          Локация скважины
+          Well Location
         </div>
         {well.latitude && well.longitude ? (
           <div className="relative overflow-hidden rounded-md border border-border/30">
@@ -233,7 +233,7 @@ const FieldScanStageViz = ({ well, allWells }: FieldScanStageVizProps) => {
           </div>
         ) : (
           <div className="h-[140px] bg-muted/30 rounded-md flex items-center justify-center text-xs text-muted-foreground">
-            Координаты недоступны
+            Coordinates unavailable
           </div>
         )}
       </div>
@@ -242,10 +242,10 @@ const FieldScanStageViz = ({ well, allWells }: FieldScanStageVizProps) => {
       <div className="p-3 rounded-lg border border-border/40 bg-muted/10 space-y-2">
         <div className="flex items-center gap-2 text-xs font-semibold">
           <Thermometer className="h-3.5 w-3.5 text-primary" />
-          Тепловая карта округа
+          County Heatmap
           {neighborStats && (
             <span className="text-muted-foreground font-normal">
-              · {neighborStats.total} соседей
+              · {neighborStats.total} neighbors
             </span>
           )}
         </div>
@@ -269,13 +269,13 @@ const FieldScanStageViz = ({ well, allWells }: FieldScanStageVizProps) => {
               <span>WC ↓  0–100%</span>
             </div>
             <div className="flex gap-3 text-[10px]">
-              <span>Ср. дебит: <span className="font-medium text-foreground">{neighborStats.avgOil.toFixed(1)} bbl/d</span></span>
-              <span>Ср. WC: <span className="font-medium text-foreground">{neighborStats.avgWC.toFixed(0)}%</span></span>
+              <span>Avg Oil: <span className="font-medium text-foreground">{neighborStats.avgOil.toFixed(1)} bbl/d</span></span>
+              <span>Avg WC: <span className="font-medium text-foreground">{neighborStats.avgWC.toFixed(0)}%</span></span>
             </div>
           </>
         ) : (
           <div className="h-[120px] bg-muted/30 rounded-md flex items-center justify-center text-xs text-muted-foreground">
-            Нет данных о соседних скважинах
+            No neighbor well data available
           </div>
         )}
       </div>
