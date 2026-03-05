@@ -14,13 +14,52 @@ interface Props {
   well: WellRecord;
 }
 
-const FORMATION_PROPERTIES: Record<string, { lithology: string; porosity: string; permeability: string; color: string }> = {
-  woodford: { lithology: "Organic Shale", porosity: "3–8%", permeability: "0.001–0.1 mD", color: "bg-gray-600" },
-  hunton: { lithology: "Limestone/Dolomite", porosity: "5–15%", permeability: "1–50 mD", color: "bg-amber-700" },
-  mississippian: { lithology: "Limestone", porosity: "8–20%", permeability: "5–100 mD", color: "bg-blue-700" },
-  "red fork": { lithology: "Sandstone", porosity: "12–22%", permeability: "10–500 mD", color: "bg-yellow-700" },
-  chester: { lithology: "Limestone", porosity: "6–12%", permeability: "1–20 mD", color: "bg-cyan-700" },
-  morrow: { lithology: "Sandstone", porosity: "10–18%", permeability: "5–200 mD", color: "bg-orange-700" },
+interface FormationProps {
+  lithology: string;
+  phiMin: number;
+  phiMax: number;
+  kMin: number;
+  kMax: number;
+  color: string;
+}
+
+// Synced with analyze-well-stage edge function formation database
+const FORMATION_DB: Record<string, FormationProps> = {
+  // Oklahoma formations
+  woodford:      { lithology: "Organic Shale",        phiMin: 3,  phiMax: 8,  kMin: 0.000001, kMax: 0.01,   color: "bg-gray-600" },
+  hunton:        { lithology: "Limestone/Dolomite",   phiMin: 5,  phiMax: 15, kMin: 0.5,      kMax: 50,     color: "bg-amber-700" },
+  mississippian: { lithology: "Limestone",            phiMin: 8,  phiMax: 20, kMin: 1,        kMax: 100,    color: "bg-blue-700" },
+  "red fork":    { lithology: "Sandstone",            phiMin: 10, phiMax: 20, kMin: 5,        kMax: 300,    color: "bg-yellow-700" },
+  chester:       { lithology: "Limestone",            phiMin: 6,  phiMax: 14, kMin: 0.5,      kMax: 30,     color: "bg-cyan-700" },
+  morrow:        { lithology: "Sandstone",            phiMin: 8,  phiMax: 18, kMin: 1,        kMax: 150,    color: "bg-orange-700" },
+  tonkawa:       { lithology: "Sandstone",            phiMin: 10, phiMax: 20, kMin: 5,        kMax: 250,    color: "bg-yellow-600" },
+  simpson:       { lithology: "Sandstone/Limestone",  phiMin: 8,  phiMax: 18, kMin: 1,        kMax: 100,    color: "bg-lime-700" },
+  wilcox:        { lithology: "Sandstone",            phiMin: 20, phiMax: 35, kMin: 50,       kMax: 2000,   color: "bg-amber-500" },
+  arbuckle:      { lithology: "Dolomite",             phiMin: 3,  phiMax: 12, kMin: 0.1,      kMax: 20,     color: "bg-stone-600" },
+  // Permian Basin formations
+  wolfcamp:      { lithology: "Calcareous Mudstone",  phiMin: 3,  phiMax: 10, kMin: 0.0001,   kMax: 0.5,    color: "bg-slate-600" },
+  spraberry:     { lithology: "Silty Carbonate",      phiMin: 7,  phiMax: 14, kMin: 0.1,      kMax: 10,     color: "bg-indigo-700" },
+  "bone spring": { lithology: "Interbedded Limestone",phiMin: 4,  phiMax: 12, kMin: 0.001,    kMax: 1,      color: "bg-teal-700" },
+  delaware:      { lithology: "Turbidite Sandstone",  phiMin: 12, phiMax: 22, kMin: 1,        kMax: 200,    color: "bg-emerald-700" },
+  "san andres":  { lithology: "Dolomite",             phiMin: 5,  phiMax: 15, kMin: 0.5,      kMax: 50,     color: "bg-rose-700" },
+  dean:          { lithology: "Tight Sandstone",      phiMin: 5,  phiMax: 12, kMin: 0.01,     kMax: 5,      color: "bg-neutral-600" },
+  cline:         { lithology: "Organic Shale",        phiMin: 2,  phiMax: 8,  kMin: 0.00001,  kMax: 0.1,    color: "bg-zinc-700" },
+  avalon:        { lithology: "Siliceous Shale",      phiMin: 3,  phiMax: 10, kMin: 0.0001,   kMax: 0.5,    color: "bg-purple-700" },
+};
+
+const formatPermeability = (k: number): string => {
+  if (k < 0.001) return `${(k * 1000).toFixed(1)} µD`;
+  if (k < 0.1) return `${k.toFixed(4)} mD`;
+  if (k < 10) return `${k.toFixed(2)} mD`;
+  return `${Math.round(k)} mD`;
+};
+
+const lookupFormation = (formation: string): FormationProps | null => {
+  const f = (formation || "").toLowerCase();
+  for (const [key, props] of Object.entries(FORMATION_DB)) {
+    if (f.includes(key)) return props;
+  }
+  return null;
 };
 
 const GeophysicalStageViz = ({ well }: Props) => {
@@ -40,8 +79,7 @@ const GeophysicalStageViz = ({ well }: Props) => {
     return strips;
   }, [depth]);
 
-  const formationKey = (well.formation || "").toLowerCase().split(" ")[0];
-  const formProp = Object.entries(FORMATION_PROPERTIES).find(([k]) => formationKey.includes(k))?.[1];
+  const formProp = lookupFormation(well.formation || "");
 
   // Synthetic stratigraphic column
   const stratigraphicColumn = useMemo(() => {
@@ -158,11 +196,11 @@ const GeophysicalStageViz = ({ well }: Props) => {
               </div>
               <div className="p-2 bg-muted/20 rounded">
                 <p className="text-[9px] text-muted-foreground">Porosity Range</p>
-                <p className="text-xs font-medium">{formProp.porosity}</p>
+                <p className="text-xs font-medium">{formProp.phiMin}–{formProp.phiMax}%</p>
               </div>
               <div className="p-2 bg-muted/20 rounded">
                 <p className="text-[9px] text-muted-foreground">Permeability</p>
-                <p className="text-xs font-medium">{formProp.permeability}</p>
+                <p className="text-xs font-medium">{formatPermeability(formProp.kMin)} – {formatPermeability(formProp.kMax)}</p>
               </div>
             </div>
             <Badge variant="outline" className="text-[9px]">
