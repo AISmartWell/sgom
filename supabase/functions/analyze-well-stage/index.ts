@@ -114,10 +114,11 @@ Water Cut: ${wellData.water_cut != null ? `${wellData.water_cut}%` : "Unknown"}
       // CAPEX formula: base $25k + $2/ft depth + $5k if water_cut > 40%
       const capex = 25000 + depth * 2 + (waterCut > 40 ? 5000 : 0);
 
-      // SPT uplift: 5-10× inflow increase → conservative estimate
-      // Target inflow 15-25 bbl/day; uplift depends on current production
-      const upliftFactor = waterCut < 30 ? 2.5 : waterCut < 50 ? 2.0 : 1.5;
-      const projectedProd = Math.min(currentProd * upliftFactor, 25);
+      // Unified SPT formula: Projected = Current × multiplier + Treatment Effect, cap 25 bbl/d
+      // Multiplier: 2.0–2.5 based on water cut; Treatment Effect: 5–10 bbl/d
+      const multiplier = waterCut < 30 ? 2.5 : waterCut < 50 ? 2.0 : 2.0;
+      const treatmentEffect = waterCut < 30 ? 10 : waterCut < 50 ? 7.5 : 5;
+      const projectedProd = Math.min(currentProd * multiplier + treatmentEffect, 25);
       const addedProd = Math.max(projectedProd - currentProd, 1);
 
       // Revenue & profit
@@ -157,7 +158,7 @@ Water Cut: ${wellData.water_cut != null ? `${wellData.water_cut}%` : "Unknown"}
       // Provide calculated numbers to AI for verdict only
       economicUserContent = `Here are the pre-calculated economic metrics for this well (exact formulas):
 - CAPEX: $${capex.toLocaleString()} (formula: $25k base + $2/ft × ${depth}ft depth${waterCut > 40 ? " + $5k high water cut premium" : ""})
-- Current Production: ${currentProd} bbl/d → Projected after SPT: ${projectedProd.toFixed(1)} bbl/d (uplift ×${upliftFactor})
+- Current Production: ${currentProd} bbl/d → Projected after SPT: ${projectedProd.toFixed(1)} bbl/d (×${multiplier} + ${treatmentEffect} bbl/d treatment effect)
 - Added Production: +${addedProd.toFixed(1)} bbl/d
 - Annual Revenue Uplift: $${annualRevenueUplift.toLocaleString("en-US", { maximumFractionDigits: 0 })}
 - Annual Net Profit: $${annualNetProfit.toLocaleString("en-US", { maximumFractionDigits: 0 })} (after OPEX $${OPEX_PER_BBL}/bbl)
