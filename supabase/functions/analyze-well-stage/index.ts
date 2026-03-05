@@ -32,34 +32,49 @@ function wellHash(well: WellData, salt: number): number {
 }
 
 // Formation-based porosity ranges (industry-standard values)
-function formationPorosity(formation: string | null): { min: number; max: number; rockType: string } {
+// Rock-type permeability model parameters:
+// - kBase: base permeability at reference porosity (mD)
+// - kSlope: log10(k) increase per 1% porosity above reference
+// - kRef: reference porosity (%) for the model
+// This replaces the single Kozeny-Carman formula with rock-type-specific correlations
+// based on published core data (Nelson 1994, Ehrenberg & Nadeau 2005)
+interface FormationProps {
+  min: number;      // porosity min %
+  max: number;      // porosity max %
+  rockType: string;
+  kMin: number;     // typical k at min porosity (mD)
+  kMax: number;     // typical k at max porosity (mD)
+}
+
+function formationPorosity(formation: string | null): FormationProps {
   const f = (formation || "").toLowerCase();
-  // Porosity ranges based on published reservoir characterization studies:
-  // Woodford: matrix φ 0.8–6% (Frontiers Earth Sci 2022; ScienceDirect 2018)
-  if (f.includes("woodford")) return { min: 1, max: 6, rockType: "Organic Shale" };
-  // Barnett: matrix φ 4–6% (typical gas shale)
-  if (f.includes("barnett")) return { min: 3, max: 6, rockType: "Siliceous Shale" };
-  // Hunton: fractured carbonate, matrix 2–8%, secondary (vugs/fractures) adds 2–4%
-  // (Search & Discovery #480, 2019; NETL Hunton study)
-  if (f.includes("hunton")) return { min: 4, max: 12, rockType: "Fractured Limestone" };
-  // Arbuckle: dolomite, matrix φ 2–8% (USGS characterization)
-  if (f.includes("arbuckle")) return { min: 2, max: 8, rockType: "Dolomite" };
-  // Simpson: clean sandstone, φ 15–25% (OK mid-continent)
-  if (f.includes("simpson")) return { min: 15, max: 25, rockType: "Sandstone" };
-  // Wilcox: Gulf Coast sand, φ 18–28% at shallow depths
-  if (f.includes("wilcox")) return { min: 18, max: 28, rockType: "Sandstone" };
-  // Springer/Chester: silty sandstone, φ 8–15% (USGS Circular 90, 1989)
-  if (f.includes("springer") || f.includes("chester")) return { min: 8, max: 15, rockType: "Siltstone/Sandstone" };
-  // Mississippian Lime: cherty limestone, φ 8–20% (KGS characterization)
-  if (f.includes("mississippian") || f.includes("miss lime")) return { min: 8, max: 20, rockType: "Cherty Limestone" };
-  // Morrow: fluvial-deltaic sand, φ 8–18% (USGS Bulletin 2146-I)
-  if (f.includes("morrow")) return { min: 8, max: 18, rockType: "Sandstone" };
-  // Red Fork/Skinner: mid-continent sand, φ 10–20%
-  if (f.includes("red fork") || f.includes("skinner")) return { min: 10, max: 20, rockType: "Sandstone" };
-  // Tonkawa/Cleveland: Pennsylvanian sand, φ 10–20%
-  if (f.includes("tonkawa") || f.includes("cleveland")) return { min: 10, max: 20, rockType: "Sandstone" };
+  // Porosity & permeability ranges based on published reservoir characterization studies.
+  // k ranges: Shale 1e-6–0.01 mD, Tight carbonate 0.01–1 mD, Conventional sand 1–1000+ mD
+
+  // Woodford: matrix φ 0.8–6%, k ~ 1e-6–0.01 mD (nanodarcy shale)
+  if (f.includes("woodford")) return { min: 1, max: 6, rockType: "Organic Shale", kMin: 0.000001, kMax: 0.01 };
+  // Barnett: matrix φ 3–6%, k ~ 1e-5–0.01 mD
+  if (f.includes("barnett")) return { min: 3, max: 6, rockType: "Siliceous Shale", kMin: 0.00001, kMax: 0.01 };
+  // Hunton: fractured carbonate, k dominated by fractures 0.1–50 mD effective
+  if (f.includes("hunton")) return { min: 4, max: 12, rockType: "Fractured Limestone", kMin: 0.1, kMax: 50 };
+  // Arbuckle: dolomite, matrix k 0.01–5 mD
+  if (f.includes("arbuckle")) return { min: 2, max: 8, rockType: "Dolomite", kMin: 0.01, kMax: 5 };
+  // Simpson: clean sandstone, k 10–500 mD
+  if (f.includes("simpson")) return { min: 15, max: 25, rockType: "Sandstone", kMin: 10, kMax: 500 };
+  // Wilcox: Gulf Coast sand, k 50–2000 mD
+  if (f.includes("wilcox")) return { min: 18, max: 28, rockType: "Sandstone", kMin: 50, kMax: 2000 };
+  // Springer/Chester: tight sand/silt, k 0.1–10 mD
+  if (f.includes("springer") || f.includes("chester")) return { min: 8, max: 15, rockType: "Siltstone/Sandstone", kMin: 0.1, kMax: 10 };
+  // Mississippian Lime: cherty limestone, k 0.5–50 mD (high φ, poor connectivity)
+  if (f.includes("mississippian") || f.includes("miss lime")) return { min: 8, max: 20, rockType: "Cherty Limestone", kMin: 0.5, kMax: 50 };
+  // Morrow: fluvial-deltaic sand, k 1–200 mD
+  if (f.includes("morrow")) return { min: 8, max: 18, rockType: "Sandstone", kMin: 1, kMax: 200 };
+  // Red Fork/Skinner: mid-continent sand, k 5–300 mD
+  if (f.includes("red fork") || f.includes("skinner")) return { min: 10, max: 20, rockType: "Sandstone", kMin: 5, kMax: 300 };
+  // Tonkawa/Cleveland: Pennsylvanian sand, k 5–250 mD
+  if (f.includes("tonkawa") || f.includes("cleveland")) return { min: 10, max: 20, rockType: "Sandstone", kMin: 5, kMax: 250 };
   // Default: mixed carbonate/clastic
-  return { min: 6, max: 14, rockType: "Mixed Carbonate" };
+  return { min: 6, max: 14, rockType: "Mixed Carbonate", kMin: 0.5, kMax: 30 };
 }
 
 // Arps decline rate: q(t) = qi / (1 + b * Di * t)^(1/b)
@@ -139,18 +154,27 @@ function computeCoreAnalysis(well: WellData): { metrics: StageMetric[]; context:
   const fp = formationPorosity(well.formation);
   const h = wellHash(well, 20);
   const porosity = +(fp.min + h * (fp.max - fp.min)).toFixed(1);
-  // Permeability correlates with porosity via Kozeny-Carman approximation
-  const perm = +(Math.pow(10, (porosity - 5) / 6) * (0.8 + wellHash(well, 21) * 0.4)).toFixed(1);
+  // Rock-type-specific permeability: log-interpolate between kMin and kMax
+  // based on where porosity falls within the formation's φ range
+  const phiFraction = fp.max > fp.min ? (porosity - fp.min) / (fp.max - fp.min) : 0.5;
+  const logKMin = Math.log10(Math.max(fp.kMin, 1e-7));
+  const logKMax = Math.log10(Math.max(fp.kMax, 1e-6));
+  const logK = logKMin + phiFraction * (logKMax - logKMin);
+  // Add well-specific variation (±0.3 log units)
+  const kVariation = (wellHash(well, 21) - 0.5) * 0.6;
+  const perm = Math.pow(10, logK + kVariation);
+  // Format: use scientific notation for very low k (shales), decimal for conventional
+  const permStr = perm < 0.001 ? `${(perm * 1000).toFixed(2)} µD` : perm < 0.1 ? `${(perm * 1000).toFixed(1)} µD` : perm < 1 ? `${perm.toFixed(3)} mD` : perm < 100 ? `${perm.toFixed(1)} mD` : `${Math.round(perm)} mD`;
   const fracDensity = Math.round(1 + wellHash(well, 22) * 4); // 1-5 per ft
 
   return {
     metrics: [
       { label: "Rock Type", value: fp.rockType, color: "" },
       { label: "Porosity", value: `${porosity}%`, color: porosity > 15 ? "text-success" : porosity > 8 ? "text-warning" : "text-destructive" },
-      { label: "Permeability", value: `${perm} mD`, color: perm > 10 ? "text-success" : perm > 1 ? "text-warning" : "text-destructive" },
+      { label: "Permeability", value: permStr, color: perm > 10 ? "text-success" : perm > 1 ? "text-warning" : "text-destructive" },
       { label: "Fracture Density", value: `${fracDensity}/ft`, color: fracDensity > 3 ? "text-success" : "" },
     ],
-    context: `Rock: ${fp.rockType}, φ=${porosity}%, k=${perm} mD, Fractures: ${fracDensity}/ft (formation: ${well.formation || "Unknown"})`,
+    context: `Rock: ${fp.rockType}, φ=${porosity}%, k=${permStr}, Fractures: ${fracDensity}/ft (formation: ${well.formation || "Unknown"})`,
   };
 }
 
