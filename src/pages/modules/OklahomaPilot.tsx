@@ -286,6 +286,40 @@ const OklahomaPilot = () => {
         : 0)) / totalAnalyzing) * 100
     : 0;
 
+  const handleExportKML = () => {
+    const wellsToExport = selectedIds.size > 0
+      ? sptCandidates.filter(w => selectedIds.has(w.id))
+      : sptCandidates.filter(w => w.latitude != null && w.longitude != null);
+    const placemarks = wellsToExport
+      .filter(w => w.latitude != null && w.longitude != null)
+      .map(w => {
+        const rating = getSptRating(w);
+        const colorMap: Record<string, string> = { excellent: "ff00ff00", good: "ff00ffff", marginal: "ff0080ff", not_suitable: "ff808080" };
+        return `    <Placemark>
+      <name>${w.well_name || w.api_number || "Unknown"}</name>
+      <description>API: ${w.api_number || "—"}\nCounty: ${w.county || "—"}\nOil: ${w.production_oil ?? "—"} bbl/d\nWC: ${w.water_cut ?? "—"}%\nSPT: ${rating.toUpperCase()}</description>
+      <Style><IconStyle><color>${colorMap[rating] || "ff808080"}</color><scale>0.8</scale></IconStyle></Style>
+      <Point><coordinates>${w.longitude},${w.latitude},0</coordinates></Point>
+    </Placemark>`;
+      }).join("\n");
+    const kml = `<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>SPT Candidates — Oklahoma Pilot</name>
+    <description>Exported ${wellsToExport.length} wells on ${new Date().toLocaleDateString()}</description>
+${placemarks}
+  </Document>
+</kml>`;
+    const blob = new Blob([kml], { type: "application/vnd.google-earth.kml+xml" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `spt-candidates-${wellsToExport.length}wells.kml`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success(`Exported ${wellsToExport.length} wells to KML`);
+  };
+
   const handleExportCandidatesCSV = () => {
     const headers = ["Well Name", "API #", "County", "Formation", "Operator", "Oil (bbl/d)", "Gas (mcf/d)", "Water Cut (%)", "Total Depth (ft)", "SPT Rating", "Status"];
     const rows: string[][] = [headers];
@@ -450,9 +484,12 @@ const OklahomaPilot = () => {
               Loaded {allWells.length} Oklahoma wells → <span className="text-success font-medium">{sptCandidates.length} SPT candidates</span> identified (≤25 bbl/d, WC &lt;80%)
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <Button variant="outline" size="sm" onClick={handleExportCandidatesCSV}>
               <FileSpreadsheet className="mr-2 h-4 w-4" /> {selectedIds.size > 0 ? `Export ${selectedIds.size} Selected` : `Export ${sptCandidates.length} Candidates`}
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleExportKML}>
+              <MapPin className="mr-2 h-4 w-4" /> Export KML
             </Button>
             {completedWells > 0 && (
               <>
