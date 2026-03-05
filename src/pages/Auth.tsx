@@ -189,6 +189,11 @@ const Auth = () => {
                       "Sign In"
                     )}
                   </Button>
+                  <div className="text-center">
+                    <a href="/forgot-password" className="text-sm text-primary hover:underline">
+                      Forgot password?
+                    </a>
+                  </div>
                 </form>
               </TabsContent>
               
