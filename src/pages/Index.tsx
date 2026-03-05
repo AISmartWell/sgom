@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Droplets, ArrowRight, BarChart3, Target, Cpu, FileText, Zap, TrendingUp, Shield, Lightbulb, ChevronRight } from "lucide-react";
+import { Droplets, ArrowRight, BarChart3, Target, Cpu, FileText, Zap, TrendingUp, Shield, Lightbulb } from "lucide-react";
 import nvidiaInceptionBadgeBw from "@/assets/nvidia-inception-badge-bw.png";
 
 const features = [
@@ -189,14 +189,18 @@ const Index = () => {
               <div
                 key={index}
                 onClick={() => navigate(feature.path)}
-                className="glass-card-hover rounded-2xl p-7 group cursor-pointer"
+                className="glass-card-hover rounded-2xl p-7 group cursor-pointer relative overflow-hidden"
               >
-                <span className="text-4xl mb-5 block group-hover:scale-110 transition-transform duration-300 origin-left">{feature.emoji}</span>
-                <h3 className="text-lg font-bold mb-2 group-hover:text-primary transition-colors">{feature.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{feature.desc}</p>
-                <div className="mt-4 flex items-center text-primary/60 text-xs font-medium group-hover:text-primary transition-colors">
-                  <span>Explore module</span>
-                  <ChevronRight className="h-3 w-3 ml-1 group-hover:translate-x-1 transition-transform" />
+                {/* Hover glow overlay */}
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/0 via-primary/0 to-primary/0 group-hover:from-primary/5 group-hover:via-transparent group-hover:to-primary-glow/5 transition-all duration-500 pointer-events-none" />
+                <div className="relative z-10">
+                  <span className="text-4xl mb-5 block group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300 origin-left">{feature.emoji}</span>
+                  <h3 className="text-lg font-bold mb-2 group-hover:text-primary transition-colors duration-300">{feature.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{feature.desc}</p>
+                  <div className="mt-4 flex items-center text-primary/40 text-xs font-medium group-hover:text-primary transition-all duration-300">
+                    <span className="group-hover:mr-1 transition-all duration-300">Explore module</span>
+                    <ArrowRight className="h-3.5 w-3.5 ml-1 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                  </div>
                 </div>
               </div>
             ))}
