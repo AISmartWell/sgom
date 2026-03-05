@@ -773,6 +773,16 @@ const OklahomaPilot = () => {
                           );
                         })}
                       </div>
+
+                      {/* Well Log for PDF */}
+                      <PilotWellLog
+                        wellName={well.well_name || well.api_number || "Unknown"}
+                        totalDepth={well.total_depth}
+                        waterCut={well.water_cut}
+                        productionOil={well.production_oil}
+                        formation={well.formation}
+                        defaultExpanded
+                      />
                     </div>
                   );
                 })}
