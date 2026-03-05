@@ -8,13 +8,30 @@ import {
 } from "recharts";
 import { DollarSign, TrendingUp, Clock, Calculator, CheckCircle2 } from "lucide-react";
 
+// Generalized Arps decline: q(t) = qi / (1 + b * Di * t)^(1/b)
+function arpsRate(qi: number, Di: number, b: number, t: number): number {
+  if (b < 0.001) return qi * Math.exp(-Di * t);
+  const denom = 1 + b * Di * t;
+  if (denom <= 0) return 0;
+  return qi / Math.pow(denom, 1 / b);
+}
+
+// Cumulative production for Arps: Np(t) integral
+function arpsCumulative(qi: number, Di: number, b: number, months: number): number {
+  let cum = 0;
+  for (let m = 1; m <= months; m++) {
+    cum += arpsRate(qi, Di, b, m) * 30.44; // days per month
+  }
+  return cum;
+}
+
 const SPT_CANDIDATES = [
-  { id: "W-001", name: "Oklahoma-1", currentProd: 12, projectedInflow: 19, reserves: 850, timeline: 18 },
-  { id: "W-003", name: "Texas-1", currentProd: 15, projectedInflow: 21, reserves: 1200, timeline: 22 },
-  { id: "W-005", name: "Oklahoma-3", currentProd: 18, projectedInflow: 26, reserves: 1500, timeline: 25 },
-  { id: "W-007", name: "Oklahoma-4", currentProd: 16, projectedInflow: 22, reserves: 1100, timeline: 20 },
-  { id: "W-009", name: "Oklahoma-5", currentProd: 14, projectedInflow: 20, reserves: 950, timeline: 19 },
-  { id: "W-010", name: "Texas-5", currentProd: 17, projectedInflow: 24, reserves: 1300, timeline: 23 },
+  { id: "W-001", name: "Oklahoma-1", currentProd: 12, projectedInflow: 19, reserves: 850, timeline: 18, Di: 0.025, b: 0.5 },
+  { id: "W-003", name: "Texas-1", currentProd: 15, projectedInflow: 21, reserves: 1200, timeline: 22, Di: 0.020, b: 0.6 },
+  { id: "W-005", name: "Oklahoma-3", currentProd: 18, projectedInflow: 26, reserves: 1500, timeline: 25, Di: 0.030, b: 0.4 },
+  { id: "W-007", name: "Oklahoma-4", currentProd: 16, projectedInflow: 22, reserves: 1100, timeline: 20, Di: 0.022, b: 0.55 },
+  { id: "W-009", name: "Oklahoma-5", currentProd: 14, projectedInflow: 20, reserves: 950, timeline: 19, Di: 0.028, b: 0.45 },
+  { id: "W-010", name: "Texas-5", currentProd: 17, projectedInflow: 24, reserves: 1300, timeline: 23, Di: 0.018, b: 0.65 },
 ];
 
 const EconomicAnalysisDemo = () => {
@@ -24,18 +41,59 @@ const EconomicAnalysisDemo = () => {
 
   const economics = useMemo(() => {
     return SPT_CANDIDATES.map((well) => {
-      const addedProd = well.projectedInflow - well.currentProd;
-      const dailyRevenue = addedProd * oilPrice;
-      const dailyOpex = addedProd * opexPerBbl;
-      const dailyProfit = dailyRevenue - dailyOpex;
-      const annualGross = dailyRevenue * 365;
-      const annualNet = dailyProfit * 365;
-      const paybackDays = dailyProfit > 0 ? Math.ceil(treatmentCost / dailyProfit) : Infinity;
-      const paybackMonths = +(paybackDays / 30.44).toFixed(1);
-      const fiveYearROI = dailyProfit > 0 ? +(((annualNet * 5 - treatmentCost) / treatmentCost) * 100).toFixed(0) : 0;
-      const fullPeriodNet = annualNet * well.timeline - treatmentCost;
+      const addedProd = well.projectedInflow - well.currentProd; // initial added bbl/d after SPT
+      const timelineMonths = well.timeline * 12;
 
-      return { ...well, addedProd, dailyRevenue, dailyOpex, dailyProfit, annualGross, annualNet, paybackDays, paybackMonths, fiveYearROI, fullPeriodNet };
+      // Calculate total revenue & cost over full timeline using Arps decline on added production
+      let totalRevenue = 0;
+      let totalOpex = 0;
+      for (let m = 1; m <= timelineMonths; m++) {
+        const monthlyRate = arpsRate(addedProd, well.Di, well.b, m); // declining added production
+        const monthBarrels = monthlyRate * 30.44;
+        totalRevenue += monthBarrels * oilPrice;
+        totalOpex += monthBarrels * opexPerBbl;
+      }
+      const totalNet = totalRevenue - totalOpex - treatmentCost;
+
+      // Year 1 economics (with decline)
+      let year1Revenue = 0;
+      let year1Opex = 0;
+      for (let m = 1; m <= 12; m++) {
+        const monthlyRate = arpsRate(addedProd, well.Di, well.b, m);
+        const monthBarrels = monthlyRate * 30.44;
+        year1Revenue += monthBarrels * oilPrice;
+        year1Opex += monthBarrels * opexPerBbl;
+      }
+      const annualGross = year1Revenue;
+      const annualNet = year1Revenue - year1Opex;
+
+      // Payback: find month where cumulative net profit >= treatment cost
+      let cumProfit = 0;
+      let paybackMonths = Infinity;
+      for (let m = 1; m <= timelineMonths; m++) {
+        const monthlyRate = arpsRate(addedProd, well.Di, well.b, m);
+        const monthBarrels = monthlyRate * 30.44;
+        cumProfit += monthBarrels * (oilPrice - opexPerBbl);
+        if (cumProfit >= treatmentCost && paybackMonths === Infinity) {
+          paybackMonths = m;
+        }
+      }
+      paybackMonths = paybackMonths === Infinity ? 999 : paybackMonths;
+
+      // 5-year ROI with decline
+      let fiveYearNet = 0;
+      for (let m = 1; m <= 60; m++) {
+        const monthlyRate = arpsRate(addedProd, well.Di, well.b, m);
+        fiveYearNet += monthlyRate * 30.44 * (oilPrice - opexPerBbl);
+      }
+      const fiveYearROI = +((fiveYearNet - treatmentCost) / treatmentCost * 100).toFixed(0);
+
+      return {
+        ...well, addedProd, annualGross, annualNet,
+        paybackMonths: +(paybackMonths).toFixed(1),
+        fiveYearROI, fullPeriodNet: totalNet,
+        dailyProfit: addedProd * (oilPrice - opexPerBbl), // initial daily (for cumulative chart)
+      };
     });
   }, [oilPrice, treatmentCost, opexPerBbl]);
 
@@ -66,13 +124,19 @@ const EconomicAnalysisDemo = () => {
     for (let m = 0; m <= 60; m++) {
       const point: any = { month: m };
       economics.forEach((w) => {
-        const cumRevenue = w.dailyProfit * 30.44 * m - treatmentCost;
-        point[w.name] = Math.round(cumRevenue);
+        // Cumulative net profit using Arps decline
+        let cumProfit = -treatmentCost;
+        const candidate = SPT_CANDIDATES.find(c => c.id === w.id)!;
+        for (let mo = 1; mo <= m; mo++) {
+          const rate = arpsRate(w.addedProd, candidate.Di, candidate.b, mo);
+          cumProfit += rate * 30.44 * (oilPrice - opexPerBbl);
+        }
+        point[w.name] = Math.round(cumProfit);
       });
       months.push(point);
     }
     return months;
-  }, [economics, treatmentCost]);
+  }, [economics, treatmentCost, oilPrice, opexPerBbl]);
 
   const colors = ["hsl(var(--primary))", "#22c55e", "#f59e0b", "#8b5cf6", "#ec4899", "#06b6d4"];
 
@@ -217,7 +281,7 @@ const EconomicAnalysisDemo = () => {
                           <CheckCircle2 className="h-4 w-4 text-primary" />
                           {w.name}
                         </p>
-                        <p className="text-xs text-muted-foreground">Added production: +{w.addedProd} bbl/day</p>
+                        <p className="text-xs text-muted-foreground">Initial added: +{w.addedProd} bbl/d (Di={SPT_CANDIDATES.find(c=>c.id===w.id)?.Di}, b={SPT_CANDIDATES.find(c=>c.id===w.id)?.b})</p>
                       </div>
                       <Badge variant="default" className="bg-primary">ROI (5yr) {w.fiveYearROI}%</Badge>
                     </div>
@@ -253,18 +317,18 @@ const EconomicAnalysisDemo = () => {
 
       {/* Summary */}
       <Card className="border-primary/20 bg-primary/5">
-        <CardHeader><CardTitle className="text-sm">Stage 5 Summary</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="text-sm">Stage 6 Summary (Arps Decline Model)</CardTitle></CardHeader>
         <CardContent className="text-sm space-y-2">
           <p>
             Total investment: <span className="font-semibold">${(totals.totalInvestment / 1000).toFixed(0)}k</span> for {economics.length} wells.
             Average payback: <span className="font-semibold">{totals.avgPayback} months</span>.
           </p>
           <p>
-            Projected annual net profit: <span className="font-semibold">${(totals.totalAnnualNet / 1e6).toFixed(2)}M</span>.
-            Full operational period return: <span className="font-semibold">${(totals.totalFullPeriod / 1e6).toFixed(1)}M</span>.
+            Year 1 net profit (with decline): <span className="font-semibold">${(totals.totalAnnualNet / 1e6).toFixed(2)}M</span>.
+            Full period return: <span className="font-semibold">${(totals.totalFullPeriod / 1e6).toFixed(1)}M</span>.
           </p>
           <p className="text-xs text-muted-foreground font-mono mt-2">
-            Net Profit = (Added Production × Oil Price − OPEX) × 365 × Timeline − Treatment Cost
+            q(t) = q_added / (1 + b·Di·t)^(1/b) · Net = Σ[q(m)·30.44·(Price − OPEX)] − CAPEX
           </p>
         </CardContent>
       </Card>
