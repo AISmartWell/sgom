@@ -53,12 +53,13 @@ const COLORS = {
 };
 
 const CustomTooltipStyle = {
-  backgroundColor: "hsl(222.2 84% 4.9%)",
-  border: "1px solid hsl(217.2 32.6% 17.5%)",
+  backgroundColor: "hsl(220 20% 16%)",
+  border: "1px solid hsl(220 15% 30%)",
   borderRadius: "8px",
   padding: "8px 12px",
-  color: "#e2e8f0",
+  color: "#f1f5f9",
   fontSize: "12px",
+  boxShadow: "0 8px 24px -4px rgba(0,0,0,0.5)",
 };
 
 const PilotCharts = ({ wells, getSptRating, analyses }: PilotChartsProps) => {
@@ -257,10 +258,10 @@ const PilotCharts = ({ wells, getSptRating, analyses }: PilotChartsProps) => {
           <CardContent>
             <ResponsiveContainer width="100%" height={260}>
               <ScatterChart>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(217.2 32.6% 17.5%)" />
-                <XAxis type="number" dataKey="oil" name="Oil (bbl/d)" tick={{ fontSize: 11, fill: "#94a3b8" }} />
-                <YAxis type="number" dataKey="wc" name="WC (%)" tick={{ fontSize: 11, fill: "#94a3b8" }} />
-                <ZAxis range={[20, 60]} />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(220 15% 25%)" />
+                <XAxis type="number" dataKey="oil" name="Oil (bbl/d)" tick={{ fontSize: 11, fill: "#cbd5e1" }} />
+                <YAxis type="number" dataKey="wc" name="WC (%)" tick={{ fontSize: 11, fill: "#cbd5e1" }} />
+                <ZAxis range={[30, 70]} />
                 <Tooltip
                   contentStyle={CustomTooltipStyle}
                   formatter={(value: number, name: string) => [value.toFixed(1), name]}
@@ -272,10 +273,12 @@ const PilotCharts = ({ wells, getSptRating, analyses }: PilotChartsProps) => {
                     name={rating.charAt(0).toUpperCase() + rating.slice(1).replace("_", " ")}
                     data={scatterData.filter(d => d.rating === rating)}
                     fill={COLORS[rating as SptRating]}
-                    opacity={0.7}
+                    opacity={0.85}
+                    strokeWidth={1}
+                    stroke="rgba(255,255,255,0.15)"
                   />
                 ))}
-                <Legend wrapperStyle={{ fontSize: "11px" }} />
+                <Legend wrapperStyle={{ fontSize: "11px", color: "#cbd5e1" }} />
               </ScatterChart>
             </ResponsiveContainer>
           </CardContent>
