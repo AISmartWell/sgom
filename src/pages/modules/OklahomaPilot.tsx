@@ -286,6 +286,38 @@ const OklahomaPilot = () => {
         : 0)) / totalAnalyzing) * 100
     : 0;
 
+  const handleExportCandidatesCSV = () => {
+    const headers = ["Well Name", "API #", "County", "Formation", "Operator", "Oil (bbl/d)", "Gas (mcf/d)", "Water Cut (%)", "Total Depth (ft)", "SPT Rating", "Status"];
+    const rows: string[][] = [headers];
+    const wellsToExport = selectedIds.size > 0
+      ? sptCandidates.filter(w => selectedIds.has(w.id))
+      : sptCandidates;
+    wellsToExport.forEach((w) => {
+      rows.push([
+        w.well_name || "—",
+        w.api_number || "—",
+        w.county || "—",
+        w.formation || "—",
+        w.operator || "—",
+        String(w.production_oil ?? "—"),
+        String(w.production_gas ?? "—"),
+        String(w.water_cut ?? "—"),
+        String(w.total_depth ?? "—"),
+        getSptRating(w).replace("_", " ").toUpperCase(),
+        w.status || "—",
+      ]);
+    });
+    const csv = "\uFEFF" + rows.map((r) => r.map((c) => `"${c.replace(/"/g, '""')}"`).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `spt-candidates-${wellsToExport.length}wells-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success(`Exported ${wellsToExport.length} SPT candidates to CSV`);
+  };
+
   const handleExportCSV = () => {
     const rows: string[][] = [["Well Name", "API #", "County", "Operator", "Oil (bbl/d)", "Water Cut (%)", "Stage", "Metric", "Value", "Verdict"]];
     analyses.forEach((a) => {
@@ -419,10 +451,13 @@ const OklahomaPilot = () => {
             </p>
           </div>
           <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={handleExportCandidatesCSV}>
+              <FileSpreadsheet className="mr-2 h-4 w-4" /> {selectedIds.size > 0 ? `Export ${selectedIds.size} Selected` : `Export ${sptCandidates.length} Candidates`}
+            </Button>
             {completedWells > 0 && (
               <>
                 <Button variant="outline" size="sm" onClick={handleExportCSV}>
-                  <FileSpreadsheet className="mr-2 h-4 w-4" /> CSV
+                  <FileSpreadsheet className="mr-2 h-4 w-4" /> Analysis CSV
                 </Button>
                 <Button variant="outline" size="sm" onClick={handleExportPDF}>
                   <Download className="mr-2 h-4 w-4" /> PDF
