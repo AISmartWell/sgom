@@ -24,14 +24,14 @@ const SPTProjectionStageViz = ({ well }: Props) => {
   const wc = well.water_cut ?? 0;
   const depth = well.total_depth ?? 3500;
 
-  // SPT projected additional flow
-  const sptFlow = useMemo(() => {
-    const base = 15 + (25 - Math.min(oil, 25)) * 0.4;
-    const wcFactor = wc >= 20 && wc <= 60 ? 1.2 : wc < 20 ? 0.8 : 0.6;
-    return +(base * wcFactor).toFixed(1);
+  // Unified SPT formula: Projected = Current × multiplier + Treatment Effect, cap 25 bbl/d
+  const { sptFlow, totalProjected } = useMemo(() => {
+    const multiplier = wc < 30 ? 2.5 : wc < 50 ? 2.0 : 2.0;
+    const treatmentEffect = wc < 30 ? 10 : wc < 50 ? 7.5 : 5;
+    const projected = Math.min(oil * multiplier + treatmentEffect, 25);
+    const added = Math.max(projected - oil, 0);
+    return { sptFlow: +added.toFixed(1), totalProjected: +projected.toFixed(1) };
   }, [oil, wc]);
-
-  const totalProjected = +(oil + sptFlow).toFixed(1);
 
   // Scoring criteria
   const scores = useMemo(() => {
