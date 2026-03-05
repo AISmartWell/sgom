@@ -15,7 +15,7 @@ const FinancialCalculator = () => {
   const [landCost, setLandCost] = useState(320000);
   const [recoveryCost, setRecoveryCost] = useState(800000);
   const [wellCount, setWellCount] = useState(4);
-  const [productionIncrease, setProductionIncrease] = useState(120);
+  const [productionIncrease, setProductionIncrease] = useState(28);
   const [operatingCostPercent, setOperatingCostPercent] = useState(30);
 
   // Fetch current oil price on component mount
