@@ -485,10 +485,10 @@ const OklahomaPilot = () => {
               <div className="flex items-center gap-2 mt-2">
                 <Button size="sm" variant="outline" onClick={reselectLastPolygon} className="text-xs">
                   <MapPin className="h-3 w-3 mr-1" />
-                  Выбрать все в области ({lastPolygonIds.length})
+                   Select all in area ({lastPolygonIds.length})
                 </Button>
                 <span className="text-[10px] text-muted-foreground">
-                  Повторно применить последний выбор
+                  Re-apply last selection
                 </span>
               </div>
             )}
