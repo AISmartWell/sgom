@@ -1,8 +1,8 @@
 import { useState, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { MapPin, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { MapPin, ArrowUpDown, ArrowUp, ArrowDown, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface WellRecord {
   id: string;
@@ -40,6 +40,8 @@ const ratingConfig: Record<SptRating, { label: string; className: string }> = {
 
 const ratingOrder: Record<SptRating, number> = { excellent: 0, good: 1, marginal: 2, not_suitable: 3 };
 
+const ROWS_PER_PAGE = 25;
+
 const SortIcon = ({ active, dir }: { active: boolean; dir: SortDir }) => {
   if (!active) return <ArrowUpDown className="h-3 w-3 ml-1 opacity-40" />;
   return dir === "asc"
@@ -58,6 +60,7 @@ const WellSelectionTable = ({
 }: WellSelectionTableProps) => {
   const [sortKey, setSortKey] = useState<SortKey>(null);
   const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const [page, setPage] = useState(0);
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -66,6 +69,7 @@ const WellSelectionTable = ({
       setSortKey(key);
       setSortDir("asc");
     }
+    setPage(0);
   };
 
   const sortedWells = useMemo(() => {
@@ -85,6 +89,9 @@ const WellSelectionTable = ({
     });
   }, [wells, sortKey, sortDir, getSptRatingProp]);
 
+  const totalPages = Math.ceil(sortedWells.length / ROWS_PER_PAGE);
+  const pagedWells = sortedWells.slice(page * ROWS_PER_PAGE, (page + 1) * ROWS_PER_PAGE);
+
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
@@ -100,7 +107,7 @@ const WellSelectionTable = ({
           </button>
         </div>
       </div>
-      <ScrollArea className="max-h-[500px]">
+      <div className="overflow-auto max-h-[520px]">
         <table className="w-full text-xs">
           <thead className="sticky top-0 bg-background z-10">
             <tr className="border-b border-border/50">
@@ -141,7 +148,7 @@ const WellSelectionTable = ({
             </tr>
           </thead>
           <tbody>
-            {sortedWells.map((well) => {
+            {pagedWells.map((well) => {
               const isSelected = selectedIds.has(well.id);
               const wc = well.water_cut ?? 0;
               const rating = getSptRatingProp?.(well) ?? "not_suitable";
@@ -188,7 +195,59 @@ const WellSelectionTable = ({
             })}
           </tbody>
         </table>
-      </ScrollArea>
+      </div>
+
+      {/* Pagination */}
+      <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/30">
+        <p className="text-xs text-muted-foreground">
+          Showing {page * ROWS_PER_PAGE + 1}–{Math.min((page + 1) * ROWS_PER_PAGE, sortedWells.length)} of {sortedWells.length}
+        </p>
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 px-2 text-xs"
+            disabled={page === 0}
+            onClick={() => setPage(p => p - 1)}
+          >
+            <ChevronLeft className="h-3 w-3 mr-1" />
+            Prev
+          </Button>
+          {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+            let pageNum: number;
+            if (totalPages <= 7) {
+              pageNum = i;
+            } else if (page < 4) {
+              pageNum = i;
+            } else if (page > totalPages - 5) {
+              pageNum = totalPages - 7 + i;
+            } else {
+              pageNum = page - 3 + i;
+            }
+            return (
+              <Button
+                key={pageNum}
+                variant={pageNum === page ? "default" : "ghost"}
+                size="sm"
+                className="h-7 w-7 p-0 text-xs"
+                onClick={() => setPage(pageNum)}
+              >
+                {pageNum + 1}
+              </Button>
+            );
+          })}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 px-2 text-xs"
+            disabled={page >= totalPages - 1}
+            onClick={() => setPage(p => p + 1)}
+          >
+            Next
+            <ChevronRight className="h-3 w-3 ml-1" />
+          </Button>
+        </div>
+      </div>
     </div>
   );
 };
