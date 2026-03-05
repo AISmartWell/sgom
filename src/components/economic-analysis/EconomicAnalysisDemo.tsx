@@ -219,7 +219,7 @@ const EconomicAnalysisDemo = () => {
                         </p>
                         <p className="text-xs text-muted-foreground">Added production: +{w.addedProd} bbl/day</p>
                       </div>
-                      <Badge variant="default" className="bg-primary">ROI {w.fiveYearROI}%</Badge>
+                      <Badge variant="default" className="bg-primary">ROI (5yr) {w.fiveYearROI}%</Badge>
                     </div>
                     <div className="grid grid-cols-5 gap-4 text-sm">
                       <div>
