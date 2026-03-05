@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import WellMiniMap from "./WellMiniMap";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Layers, Activity, Thermometer } from "lucide-react";
@@ -67,6 +67,7 @@ const normalize = (val: number, min: number, max: number) =>
 
 const FieldScanStageViz = ({ well, allWells }: FieldScanStageVizProps) => {
   const basin = BASIN_DATA[well.state] || BASIN_DATA["OK"];
+  const [selectedCell, setSelectedCell] = useState<{ ri: number; ci: number } | null>(null);
 
   /* ── Radar chart data ──────────────────────────────────── */
   const radarData = useMemo(() => {
@@ -93,7 +94,7 @@ const FieldScanStageViz = ({ well, allWells }: FieldScanStageVizProps) => {
     if (countyWells.length === 0) return null;
 
     // Group into a 4×4 grid by oil/WC quartiles for visual heat
-    const grid: { oil: number; wc: number; count: number; intensity: number }[][] = [];
+    const grid: { oil: number; wc: number; count: number; intensity: number; wells: WellRecord[] }[][] = [];
     const oilBins = [0, 5, 10, 20, 50];
     const wcBins = [0, 20, 40, 60, 100];
 
@@ -110,6 +111,7 @@ const FieldScanStageViz = ({ well, allWells }: FieldScanStageVizProps) => {
           wc: wcBins[r],
           count: matches.length,
           intensity: Math.min(1, matches.length / Math.max(1, countyWells.length / 4)),
+          wells: matches,
         };
       }
     }
@@ -257,8 +259,13 @@ const FieldScanStageViz = ({ well, allWells }: FieldScanStageVizProps) => {
                       row.map((cell, ci) => (
                         <div
                           key={`${ri}-${ci}`}
-                          className={`aspect-square rounded-sm ${getHeatColor(cell.intensity, cell.count)} flex items-center justify-center text-[9px] font-medium transition-colors`}
+                          className={`aspect-square rounded-sm ${getHeatColor(cell.intensity, cell.count)} flex items-center justify-center text-[9px] font-medium transition-colors ${cell.count > 0 ? "cursor-pointer hover:ring-1 hover:ring-primary/50" : ""} ${selectedCell?.ri === ri && selectedCell?.ci === ci ? "ring-2 ring-primary" : ""}`}
                           title={`Oil: ${cell.oil}–${[5, 10, 20, 50][ci]} bbl/d | WC: ${cell.wc}–${[20, 40, 60, 100][ri]}% | ${cell.count} wells`}
+                          onClick={() => {
+                            if (cell.count > 0) {
+                              setSelectedCell(selectedCell?.ri === ri && selectedCell?.ci === ci ? null : { ri, ci });
+                            }
+                          }}
                         >
                           {cell.count > 0 ? cell.count : ""}
                         </div>
@@ -298,6 +305,41 @@ const FieldScanStageViz = ({ well, allWells }: FieldScanStageVizProps) => {
                 <span>Max</span>
               </div>
             </div>
+            {/* ── Selected cell detail panel ──────────── */}
+            {selectedCell && neighborStats.grid[selectedCell.ri]?.[selectedCell.ci] && (() => {
+              const cell = neighborStats.grid[selectedCell.ri][selectedCell.ci];
+              const oilLabels = ["0–5", "5–10", "10–20", "20–50"];
+              const wcLabels = ["0–20%", "20–40%", "40–60%", "60–100%"];
+              return (
+                <div className="p-2 rounded-md border border-primary/30 bg-primary/5 space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-semibold">
+                      Oil {oilLabels[selectedCell.ci]} bbl/d · WC {wcLabels[selectedCell.ri]}
+                    </span>
+                    <button
+                      onClick={() => setSelectedCell(null)}
+                      className="text-[9px] text-muted-foreground hover:text-foreground"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <div className="max-h-[100px] overflow-y-auto space-y-0.5">
+                    {cell.wells.slice(0, 20).map((w) => (
+                      <div key={w.id} className="flex items-center justify-between text-[9px] px-1 py-0.5 rounded bg-background/50">
+                        <span className="font-medium truncate max-w-[120px]">{w.well_name || w.api_number || w.id.slice(0, 8)}</span>
+                        <div className="flex gap-2 text-muted-foreground">
+                          <span>{(w.production_oil ?? 0).toFixed(1)} bbl</span>
+                          <span>{(w.water_cut ?? 0).toFixed(0)}% WC</span>
+                        </div>
+                      </div>
+                    ))}
+                    {cell.wells.length > 20 && (
+                      <p className="text-[8px] text-muted-foreground text-center">+{cell.wells.length - 20} more</p>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
           </>
         ) : (
           <div className="h-[120px] bg-muted/30 rounded-md flex items-center justify-center text-xs text-muted-foreground">
