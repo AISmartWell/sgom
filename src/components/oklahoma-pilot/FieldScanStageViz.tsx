@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import WellMiniMap from "./WellMiniMap";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Layers, Activity, Thermometer } from "lucide-react";
 import {
@@ -206,33 +207,16 @@ const FieldScanStageViz = ({ well, allWells }: FieldScanStageVizProps) => {
         </div>
       </div>
 
-      {/* ── 3. Mini-map placeholder (satellite thumbnail) ─ */}
+      {/* ── 3. Interactive Mini-map ─────────────────────── */}
       <div className="p-3 rounded-lg border border-border/40 bg-muted/10 space-y-2">
         <div className="flex items-center gap-2 text-xs font-semibold">
           <MapPin className="h-3.5 w-3.5 text-primary" />
           Well Location
         </div>
         {well.latitude && well.longitude ? (
-          <div className="relative overflow-hidden rounded-md border border-border/30">
-            <img
-              src={`https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=${
-                well.longitude - 0.05
-              },${well.latitude - 0.03},${well.longitude + 0.05},${
-                well.latitude + 0.03
-              }&size=400,220&format=jpg&f=image`}
-              alt={`Satellite view of ${well.well_name || "well"}`}
-              className="w-full h-[140px] object-cover"
-              loading="lazy"
-            />
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="w-4 h-4 rounded-full border-2 border-primary bg-primary/30 shadow-lg shadow-primary/40" />
-            </div>
-            <div className="absolute bottom-1 left-1 bg-background/80 backdrop-blur-sm rounded px-1.5 py-0.5 text-[9px] text-muted-foreground">
-              {well.latitude.toFixed(4)}°N, {well.longitude.toFixed(4)}°W
-            </div>
-          </div>
+          <WellMiniMap lat={well.latitude} lng={well.longitude} name={well.well_name} />
         ) : (
-          <div className="h-[140px] bg-muted/30 rounded-md flex items-center justify-center text-xs text-muted-foreground">
+          <div className="h-[160px] bg-muted/30 rounded-md flex items-center justify-center text-xs text-muted-foreground">
             Coordinates unavailable
           </div>
         )}
