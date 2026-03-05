@@ -286,6 +286,40 @@ const OklahomaPilot = () => {
         : 0)) / totalAnalyzing) * 100
     : 0;
 
+  const handleExportGeoJSON = () => {
+    const wellsToExport = selectedIds.size > 0
+      ? sptCandidates.filter(w => selectedIds.has(w.id))
+      : sptCandidates.filter(w => w.latitude != null && w.longitude != null);
+    const features = wellsToExport
+      .filter(w => w.latitude != null && w.longitude != null)
+      .map(w => ({
+        type: "Feature" as const,
+        geometry: { type: "Point" as const, coordinates: [w.longitude!, w.latitude!] },
+        properties: {
+          well_name: w.well_name || null,
+          api_number: w.api_number || null,
+          county: w.county || null,
+          formation: w.formation || null,
+          operator: w.operator || null,
+          production_oil_bpd: w.production_oil ?? null,
+          production_gas_mcfd: w.production_gas ?? null,
+          water_cut_pct: w.water_cut ?? null,
+          total_depth_ft: w.total_depth ?? null,
+          spt_rating: getSptRating(w),
+          status: w.status || null,
+        },
+      }));
+    const geojson = { type: "FeatureCollection", features };
+    const blob = new Blob([JSON.stringify(geojson, null, 2)], { type: "application/geo+json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `spt-candidates-${features.length}wells.geojson`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success(`Exported ${features.length} wells to GeoJSON`);
+  };
+
   const handleExportKML = () => {
     const wellsToExport = selectedIds.size > 0
       ? sptCandidates.filter(w => selectedIds.has(w.id))
@@ -489,7 +523,10 @@ ${placemarks}
               <FileSpreadsheet className="mr-2 h-4 w-4" /> {selectedIds.size > 0 ? `Export ${selectedIds.size} Selected` : `Export ${sptCandidates.length} Candidates`}
             </Button>
             <Button variant="outline" size="sm" onClick={handleExportKML}>
-              <MapPin className="mr-2 h-4 w-4" /> Export KML
+              <MapPin className="mr-2 h-4 w-4" /> KML
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleExportGeoJSON}>
+              <MapPin className="mr-2 h-4 w-4" /> GeoJSON
             </Button>
             {completedWells > 0 && (
               <>
