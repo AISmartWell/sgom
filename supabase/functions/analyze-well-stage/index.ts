@@ -73,6 +73,31 @@ function formationPorosity(formation: string | null): FormationProps {
   if (f.includes("red fork") || f.includes("skinner")) return { min: 10, max: 20, rockType: "Sandstone", kMin: 5, kMax: 300 };
   // Tonkawa/Cleveland: Pennsylvanian sand, k 5–250 mD
   if (f.includes("tonkawa") || f.includes("cleveland")) return { min: 10, max: 20, rockType: "Sandstone", kMin: 5, kMax: 250 };
+
+  // ── Permian Basin formations (Texas / New Mexico) ──────────────────────
+  // Wolfcamp: tight unconventional carbonate mudstone/shale, φ 3–10%, k 0.0001–0.5 mD
+  // Source: Kvale et al. 2020 (AAPG Memoir 118), EIA Permian Basin Assessment 2018
+  if (f.includes("wolfcamp")) return { min: 3, max: 10, rockType: "Calcareous Mudstone", kMin: 0.0001, kMax: 0.5 };
+  // Spraberry: silty carbonate/fine sand, φ 7–14%, k 0.1–10 mD (naturally fractured)
+  // Source: Tyler & Gholston 1988 (SPE 17243), Schechter et al. 1996
+  if (f.includes("spraberry")) return { min: 7, max: 14, rockType: "Silty Carbonate", kMin: 0.1, kMax: 10 };
+  // Bone Spring: interbedded limestone/shale, φ 4–12%, k 0.001–1 mD
+  // Source: Wentworth et al. 2018 (URTeC), Mack et al. 2019
+  if (f.includes("bone spring")) return { min: 4, max: 12, rockType: "Interbedded Limestone", kMin: 0.001, kMax: 1 };
+  // Delaware Sandstone: deep-water turbidite sand, φ 12–22%, k 1–200 mD
+  // Source: Dutton et al. 2005 (AAPG), Ruppel & Ward 2013
+  if (f.includes("delaware")) return { min: 12, max: 22, rockType: "Turbidite Sandstone", kMin: 1, kMax: 200 };
+  // San Andres: dolomite/limestone, φ 5–15%, k 0.5–50 mD
+  // Source: Kerans & Ruppel 1994, Ruppel & Cander 1988
+  if (f.includes("san andres") || f.includes("san andreas")) return { min: 5, max: 15, rockType: "Dolomite", kMin: 0.5, kMax: 50 };
+  // Dean: tight sand/silt, φ 5–12%, k 0.01–5 mD
+  // Source: Hamlin & Baumgardner 2012 (BEG Texas)
+  if (f.includes("dean")) return { min: 5, max: 12, rockType: "Tight Sandstone", kMin: 0.01, kMax: 5 };
+  // Cline (Wolfcamp D / Lower Penn shale): φ 2–8%, k 0.00001–0.1 mD
+  if (f.includes("cline")) return { min: 2, max: 8, rockType: "Organic Shale", kMin: 0.00001, kMax: 0.1 };
+  // Avalon Shale (Delaware Basin): φ 3–10%, k 0.0001–0.5 mD
+  if (f.includes("avalon")) return { min: 3, max: 10, rockType: "Siliceous Shale", kMin: 0.0001, kMax: 0.5 };
+
   // Default: mixed carbonate/clastic
   return { min: 6, max: 14, rockType: "Mixed Carbonate", kMin: 0.5, kMax: 30 };
 }
