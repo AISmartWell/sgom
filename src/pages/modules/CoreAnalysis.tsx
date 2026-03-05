@@ -27,6 +27,8 @@ import { SampleGallery } from "@/components/core-analysis/SampleGallery";
 import { AdvancedAnalysisPanel } from "@/components/core-analysis/AdvancedAnalysisPanel";
 import { AnalysisHistory } from "@/components/core-analysis/AnalysisHistory";
 import { CoreImageGallery } from "@/components/core-analysis/CoreImageGallery";
+import { ValidationPanel } from "@/components/core-analysis/ValidationPanel";
+import { DeviationReport } from "@/components/core-analysis/DeviationReport";
 
 const CoreAnalysis = () => {
   const navigate = useNavigate();
@@ -194,10 +196,14 @@ const CoreAnalysis = () => {
       </div>
 
       <Tabs defaultValue="analyze" className="space-y-6">
-        <TabsList className="grid w-full max-w-4xl grid-cols-6">
+        <TabsList className="grid w-full max-w-5xl grid-cols-7">
           <TabsTrigger value="analyze" className="gap-2">
             <Scan className="h-4 w-4" />
             Analysis
+          </TabsTrigger>
+          <TabsTrigger value="validation" className="gap-2">
+            <Mountain className="h-4 w-4" />
+            Validation
           </TabsTrigger>
           <TabsTrigger value="core-library" className="gap-2">
             <Database className="h-4 w-4" />
@@ -369,8 +375,11 @@ const CoreAnalysis = () => {
                 <Progress value={33} className="w-48 mt-4" />
               </div>
             ) : analysis ? (
-              <div className="prose prose-sm dark:prose-invert max-w-none overflow-auto max-h-[600px]">
-                <ReactMarkdown>{analysis}</ReactMarkdown>
+              <div className="space-y-0">
+                <div className="prose prose-sm dark:prose-invert max-w-none overflow-auto max-h-[500px]">
+                  <ReactMarkdown>{analysis}</ReactMarkdown>
+                </div>
+                <DeviationReport analysisText={analysis} />
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -384,6 +393,12 @@ const CoreAnalysis = () => {
             )}
           </CardContent>
         </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="validation">
+          <div className="max-w-6xl mx-auto">
+            <ValidationPanel />
           </div>
         </TabsContent>
 
@@ -429,8 +444,11 @@ const CoreAnalysis = () => {
                       )}
                     </Button>
                     {analysis && (
-                      <div className="prose prose-sm dark:prose-invert max-w-none overflow-auto max-h-[400px]">
-                        <ReactMarkdown>{analysis}</ReactMarkdown>
+                      <div className="space-y-0">
+                        <div className="prose prose-sm dark:prose-invert max-w-none overflow-auto max-h-[400px]">
+                          <ReactMarkdown>{analysis}</ReactMarkdown>
+                        </div>
+                        <DeviationReport analysisText={analysis} />
                       </div>
                     )}
                   </div>
