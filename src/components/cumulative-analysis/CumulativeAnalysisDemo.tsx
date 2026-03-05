@@ -108,16 +108,24 @@ const STAGES = [
   { label: "Generate Report", icon: CheckCircle2 },
 ];
 
-function generateProductionCurve(): ProductionPoint[] {
+// Deterministic hash for stable pseudo-random values per well
+function deterministicValue(seed: number, index: number): number {
+  const x = Math.sin(seed * 9301 + index * 49297) * 49297;
+  return x - Math.floor(x); // 0..1
+}
+
+function generateProductionCurve(wellIndex: number = 0): ProductionPoint[] {
   const points: ProductionPoint[] = [];
   let cumOil = 0, cumGas = 0, cumWater = 0;
-  const initialRate = 120 + Math.random() * 80;
-  const decline = 0.03 + Math.random() * 0.02;
+  // Deterministic initial rate and decline based on well index
+  const initialRate = 120 + deterministicValue(wellIndex, 0) * 80;
+  const decline = 0.03 + deterministicValue(wellIndex, 1) * 0.02;
 
   for (let m = 1; m <= 60; m++) {
     const rate = initialRate * Math.exp(-decline * m);
     const monthOil = rate * 30;
-    const monthGas = monthOil * (0.4 + Math.random() * 0.2);
+    const gasRatio = 0.4 + deterministicValue(wellIndex, m + 100) * 0.2;
+    const monthGas = monthOil * gasRatio;
     const monthWater = monthOil * (0.2 + m * 0.008);
     cumOil += monthOil;
     cumGas += monthGas;
