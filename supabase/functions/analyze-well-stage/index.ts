@@ -128,8 +128,9 @@ Water Cut: ${wellData.water_cut != null ? `${wellData.water_cut}%` : "Unknown"}
       const annualRevenueUplift = dailyGrossRevenue * 365;
       const annualNetProfit = dailyNetProfit * 365;
 
-      // ROI & Payback
-      const roi12Month = dailyNetProfit > 0 ? Math.round(((annualNetProfit - capex) / capex) * 100) : 0;
+      // ROI & Payback — standardized to 5-year across all modules
+      const fiveYearNetProfit = annualNetProfit * 5 - capex;
+      const roi5Year = capex > 0 ? Math.round((fiveYearNetProfit / capex) * 100) : 0;
       const paybackMonths = dailyNetProfit > 0 ? +((capex / (dailyNetProfit * 30.44)).toFixed(1)) : 999;
 
       economicMetrics = [
@@ -144,9 +145,9 @@ Water Cut: ${wellData.water_cut != null ? `${wellData.water_cut}%` : "Unknown"}
           color: "text-success",
         },
         {
-          label: "ROI (12-Month)",
-          value: `${roi12Month}%`,
-          color: roi12Month > 100 ? "text-success" : roi12Month > 0 ? "text-warning" : "text-destructive",
+          label: "ROI (5-Year)",
+          value: `${roi5Year}%`,
+          color: roi5Year > 200 ? "text-success" : roi5Year > 0 ? "text-warning" : "text-destructive",
         },
         {
           label: "Payback Period",
@@ -162,7 +163,7 @@ Water Cut: ${wellData.water_cut != null ? `${wellData.water_cut}%` : "Unknown"}
 - Added Production: +${addedProd.toFixed(1)} bbl/d
 - Annual Revenue Uplift: $${annualRevenueUplift.toLocaleString("en-US", { maximumFractionDigits: 0 })}
 - Annual Net Profit: $${annualNetProfit.toLocaleString("en-US", { maximumFractionDigits: 0 })} (after OPEX $${OPEX_PER_BBL}/bbl)
-- 12-Month ROI: ${roi12Month}%
+- 5-Year ROI: ${roi5Year}%
 - Payback Period: ${paybackMonths} months
 - Oil Price Used: $${OIL_PRICE}/bbl
 
