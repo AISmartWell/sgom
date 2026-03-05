@@ -18,6 +18,7 @@ import PilotWellsMap from "@/components/oklahoma-pilot/PilotWellsMap";
 import PilotWellLog from "@/components/oklahoma-pilot/PilotWellLog";
 import WellSelectionTable from "@/components/oklahoma-pilot/WellSelectionTable";
 import PilotCharts from "@/components/oklahoma-pilot/PilotCharts";
+import FieldScanStageViz from "@/components/oklahoma-pilot/FieldScanStageViz";
 
 const MAX_ANALYSIS = 20;
 
@@ -682,6 +683,9 @@ const OklahomaPilot = () => {
                           </div>
                         )}
 
+                        {isDone && analysis?.stages.has("field_scan") && (
+                          <FieldScanStageViz well={well} allWells={allWells} />
+                        )}
                         {isDone && (
                           <PilotWellLog
                             wellName={well.well_name || well.api_number || "Unknown"}
@@ -817,6 +821,9 @@ const OklahomaPilot = () => {
                                 ))}
                               </div>
                               <p className="text-[10px] text-muted-foreground mt-1 border-t border-border/20 pt-1">{result.verdict}</p>
+                              {stage.key === "field_scan" && (
+                                <FieldScanStageViz well={well} allWells={allWells} />
+                              )}
                             </div>
                           );
                         })}
