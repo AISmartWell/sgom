@@ -312,25 +312,73 @@ const OklahomaPilot = () => {
 
   const handleExportPDF = useCallback(async () => {
     if (!reportRef.current) return;
-    toast.info("Generating PDF...");
-    const canvas = await html2canvas(reportRef.current, {
-      scale: 2,
-      backgroundColor: "#0f172a",
-      useCORS: true,
-    });
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF("p", "mm", "a4");
-    const pdfW = pdf.internal.pageSize.getWidth();
-    const pdfH = (canvas.height * pdfW) / canvas.width;
-    let yOffset = 0;
-    const pageH = pdf.internal.pageSize.getHeight();
-    while (yOffset < pdfH) {
-      if (yOffset > 0) pdf.addPage();
-      pdf.addImage(imgData, "PNG", 0, -yOffset, pdfW, pdfH);
-      yOffset += pageH;
+    toast.info("Generating PDF — rendering charts…");
+
+    // Convert all SVG elements inside the report to inline canvases
+    // so html2canvas can capture Recharts graphs.
+    const container = reportRef.current;
+    const svgs = Array.from(container.querySelectorAll("svg"));
+    const restorations: (() => void)[] = [];
+
+    for (const svg of svgs) {
+      try {
+        const svgData = new XMLSerializer().serializeToString(svg);
+        const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+        const url = URL.createObjectURL(svgBlob);
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+
+        await new Promise<void>((resolve, reject) => {
+          img.onload = () => resolve();
+          img.onerror = () => reject();
+          img.src = url;
+        });
+
+        const c = document.createElement("canvas");
+        c.width = svg.clientWidth * 2;
+        c.height = svg.clientHeight * 2;
+        c.style.width = `${svg.clientWidth}px`;
+        c.style.height = `${svg.clientHeight}px`;
+        const ctx = c.getContext("2d")!;
+        ctx.scale(2, 2);
+        ctx.drawImage(img, 0, 0, svg.clientWidth, svg.clientHeight);
+        URL.revokeObjectURL(url);
+
+        const parent = svg.parentElement!;
+        parent.insertBefore(c, svg);
+        svg.style.display = "none";
+        restorations.push(() => {
+          svg.style.display = "";
+          parent.removeChild(c);
+        });
+      } catch {
+        // If conversion fails for a particular SVG, skip it
+      }
     }
-    pdf.save(`oklahoma-pilot-${selectedWells.length}wells-${new Date().toISOString().slice(0, 10)}.pdf`);
-    toast.success("PDF saved!");
+
+    try {
+      const canvas = await html2canvas(container, {
+        scale: 2,
+        backgroundColor: "#0f172a",
+        useCORS: true,
+      });
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pdfW = pdf.internal.pageSize.getWidth();
+      const pdfH = (canvas.height * pdfW) / canvas.width;
+      let yOffset = 0;
+      const pageH = pdf.internal.pageSize.getHeight();
+      while (yOffset < pdfH) {
+        if (yOffset > 0) pdf.addPage();
+        pdf.addImage(imgData, "PNG", 0, -yOffset, pdfW, pdfH);
+        yOffset += pageH;
+      }
+      pdf.save(`oklahoma-pilot-${selectedWells.length}wells-${new Date().toISOString().slice(0, 10)}.pdf`);
+      toast.success("PDF saved!");
+    } finally {
+      // Restore original SVGs
+      restorations.forEach((fn) => fn());
+    }
   }, [selectedWells]);
 
   const getSptScore = (a: WellAnalysis): string => {
