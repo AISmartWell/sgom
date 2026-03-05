@@ -25,13 +25,17 @@ const EconomicStageViz = ({ well }: Props) => {
 
   const economics = useMemo(() => {
     const capex = 25000 + depth * 2 + (wc > 40 ? 5000 : 0);
-    const sptGain = 15 + (25 - Math.min(oil, 25)) * 0.4 * (wc >= 20 && wc <= 60 ? 1.2 : 0.7);
-    const opexPerBbl = 12 + (wc > 50 ? 4 : 0);
+    // Unified SPT formula: Projected = Current × multiplier + Treatment Effect, cap 25
+    const multiplier = wc < 30 ? 2.5 : wc < 50 ? 2.0 : 2.0;
+    const treatmentEffect = wc < 30 ? 10 : wc < 50 ? 7.5 : 5;
+    const projectedProd = Math.min(oil * multiplier + treatmentEffect, 25);
+    const sptGain = Math.max(projectedProd - oil, 0);
+    const opexPerBbl = 18; // Unified OPEX: $18/bbl
     const dailyRevenue = sptGain * OIL_PRICE;
     const dailyCost = sptGain * opexPerBbl;
     const dailyProfit = dailyRevenue - dailyCost;
     const annualProfit = dailyProfit * 365;
-    const paybackMonths = dailyProfit > 0 ? capex / (dailyProfit * 30) : 999;
+    const paybackMonths = dailyProfit > 0 ? capex / (dailyProfit * 30.44) : 999;
     const fiveYearProfit = annualProfit * 5 - capex;
     const roi = capex > 0 ? (fiveYearProfit / capex) * 100 : 0;
     const npv = fiveYearProfit * 0.85; // simplified 10% discount
