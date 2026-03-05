@@ -4,12 +4,12 @@ import { Droplets, ArrowRight, BarChart3, Target, Cpu, FileText, Zap, TrendingUp
 import nvidiaInceptionBadgeBw from "@/assets/nvidia-inception-badge-bw.png";
 
 const features = [
-  { emoji: "📡", title: "Data Collection", desc: "Real-time well data from Oklahoma & Texas databases with IoT telemetry integration" },
-  { emoji: "🗺️", title: "Geological Analysis", desc: "AI-powered seismic interpretation & well log analysis with 3D modeling" },
-  { emoji: "🎯", title: "AI Well Selection", desc: "Machine learning-based well potential ranking with 94% accuracy" },
-  { emoji: "📊", title: "Reservoir Simulation", desc: "Dynamic reservoir modeling with production forecasting" },
-  { emoji: "💰", title: "Financial Forecast", desc: "ROI prediction & investment analysis before you drill" },
-  { emoji: "🔧", title: "SPT Treatment", desc: "Patented hydro-slotting technology for marginal well revival" },
+  { emoji: "📡", title: "Data Collection", desc: "Real-time well data from Oklahoma & Texas databases with IoT telemetry integration", path: "/dashboard/data-collection" },
+  { emoji: "🗺️", title: "Geological Analysis", desc: "AI-powered seismic interpretation & well log analysis with 3D modeling", path: "/dashboard/geological-analysis" },
+  { emoji: "🎯", title: "AI Well Selection", desc: "Machine learning-based well potential ranking with 94% accuracy", path: "/dashboard/well-selection" },
+  { emoji: "📊", title: "Reservoir Simulation", desc: "Dynamic reservoir modeling with production forecasting", path: "/dashboard/simulation" },
+  { emoji: "💰", title: "Financial Forecast", desc: "ROI prediction & investment analysis before you drill", path: "/dashboard/financial" },
+  { emoji: "🔧", title: "SPT Treatment", desc: "Patented hydro-slotting technology for marginal well revival", path: "/dashboard/spt-treatment" },
 ];
 
 const advantages = [
@@ -188,7 +188,8 @@ const Index = () => {
             {features.map((feature, index) => (
               <div
                 key={index}
-                className="glass-card-hover rounded-2xl p-7 group cursor-default"
+                onClick={() => navigate(feature.path)}
+                className="glass-card-hover rounded-2xl p-7 group cursor-pointer"
               >
                 <span className="text-4xl mb-5 block group-hover:scale-110 transition-transform duration-300 origin-left">{feature.emoji}</span>
                 <h3 className="text-lg font-bold mb-2 group-hover:text-primary transition-colors">{feature.title}</h3>
