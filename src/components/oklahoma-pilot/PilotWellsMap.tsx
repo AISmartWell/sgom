@@ -22,6 +22,7 @@ interface PilotWellsMapProps {
   wells: WellRecord[];
   selectedIds?: Set<string>;
   activeWellId?: string;
+  analyzedIds?: Set<string>;
   onWellClick?: (wellId: string) => void;
   onPolygonSelect?: (wellIds: string[]) => void;
 }
@@ -46,7 +47,7 @@ const isPointInPolygon = (point: [number, number], polygon: [number, number][]):
   return inside;
 };
 
-const PilotWellsMap = ({ wells, selectedIds, activeWellId, onWellClick, onPolygonSelect }: PilotWellsMapProps) => {
+const PilotWellsMap = ({ wells, selectedIds, activeWellId, analyzedIds, onWellClick, onPolygonSelect }: PilotWellsMapProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const markersRef = useRef<Map<string, L.CircleMarker>>(new Map());
@@ -108,10 +109,11 @@ const PilotWellsMap = ({ wells, selectedIds, activeWellId, onWellClick, onPolygo
         fillOpacity: 0.9,
       }).addTo(map);
 
+      const isAnalyzed = analyzedIds?.has(well.id) ?? false;
       marker.bindPopup(`
         <div style="font-family: system-ui; min-width: 180px;">
-          <div style="font-weight: 700; font-size: 13px; margin-bottom: 4px;">${well.well_name || "Unknown"}</div>
-          <div style="font-size: 11px; color: #888; margin-bottom: 6px;">API: ${well.api_number || "—"}</div>
+          <div style="font-weight: 700; font-size: 13px; margin-bottom: 4px;">${well.well_name || "Unknown"} ${isAnalyzed ? '✅' : ''}</div>
+          <div style="font-size: 11px; color: #888; margin-bottom: 6px;">API: ${well.api_number || "—"} ${isAnalyzed ? '<span style="color:#22c55e;font-weight:600;">Analyzed</span>' : ''}</div>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 11px;">
             <span style="color: #888;">Operator:</span><span>${well.operator || "—"}</span>
             <span style="color: #888;">County:</span><span>${well.county || "—"}</span>
