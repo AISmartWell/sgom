@@ -222,6 +222,8 @@ const OklahomaPilot = () => {
     selectedWells.forEach((w) => initial.set(w.id, { well: w, stages: new Map(), status: "pending" }));
     setAnalyses(initial);
 
+    const completedIds: string[] = [];
+
     for (let wi = 0; wi < selectedWells.length; wi++) {
       const well = selectedWells[wi];
       setCurrentWellIdx(wi);
@@ -234,6 +236,7 @@ const OklahomaPilot = () => {
       });
 
       let failed = false;
+      const stageResults: Record<string, StageResult> = {};
       for (let si = 0; si < STAGES.length; si++) {
         setCurrentStageIdx(si);
         setStageProgress(10);
@@ -247,6 +250,8 @@ const OklahomaPilot = () => {
           clearInterval(progressInterval);
           setStageProgress(100);
           await new Promise((r) => setTimeout(r, 200));
+
+          stageResults[STAGES[si].key] = result;
 
           setAnalyses((prev) => {
             const next = new Map(prev);
@@ -279,6 +284,7 @@ const OklahomaPilot = () => {
       }
 
       if (!failed) {
+        completedIds.push(well.id);
         setAnalyses((prev) => {
           const next = new Map(prev);
           const a = next.get(well.id)!;
@@ -288,11 +294,68 @@ const OklahomaPilot = () => {
       }
     }
 
+    // Save completed analyses to DB
+    if (completedIds.length > 0) {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        const { data: ucData } = await supabase.from("user_companies").select("company_id").limit(1);
+        const companyId = ucData?.[0]?.company_id;
+
+        if (user && companyId) {
+          const rows = completedIds.map(wellId => ({
+            well_id: wellId,
+            company_id: companyId,
+            user_id: user.id,
+            batch_number: currentBatch,
+            status: "completed",
+            stage_results: {} as Record<string, any>,
+          }));
+
+          await supabase.from("well_analyses").insert(rows);
+
+          // Update local analyzed set
+          setAnalyzedWellIds(prev => {
+            const next = new Set(prev);
+            completedIds.forEach(id => next.add(id));
+            return next;
+          });
+          setCurrentBatch(prev => prev + 1);
+        }
+      } catch (e) {
+        console.error("Failed to save analyses:", e);
+      }
+    }
+
     setIsRunning(false);
     setCurrentWellIdx(-1);
     setCurrentStageIdx(-1);
     toast.success("Batch analysis complete!");
-  }, [selectedWells]);
+  }, [selectedWells, currentBatch]);
+
+  // Auto-queue: select next batch of unanalyzed candidates
+  const selectNextBatch = useCallback(() => {
+    if (isRunning) return;
+    const unanalyzed = allWells.filter(w => isSptCandidate(w) && !analyzedWellIds.has(w.id));
+    const ranked = [...unanalyzed].sort((a, b) => {
+      const ratingOrder = { excellent: 0, good: 1, marginal: 2 };
+      const rA = ratingOrder[getSptRating(a)];
+      const rB = ratingOrder[getSptRating(b)];
+      if (rA !== rB) return rA - rB;
+      return (a.production_oil ?? 0) - (b.production_oil ?? 0);
+    });
+    const nextBatch = ranked.slice(0, MAX_ANALYSIS);
+    if (nextBatch.length === 0) {
+      toast.info("All SPT candidates have been analyzed!");
+      return;
+    }
+    setSelectedIds(new Set(nextBatch.map(w => w.id)));
+    setAnalyses(new Map());
+    toast.success(`Batch ${currentBatch}: ${nextBatch.length} unanalyzed wells queued`);
+  }, [isRunning, allWells, analyzedWellIds, currentBatch]);
+
+  const unanalyzedCount = useMemo(() => 
+    allWells.filter(w => isSptCandidate(w) && !analyzedWellIds.has(w.id)).length
+  , [allWells, analyzedWellIds]);
 
   const reset = () => {
     setCurrentWellIdx(-1);
