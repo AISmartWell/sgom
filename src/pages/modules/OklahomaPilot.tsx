@@ -735,6 +735,7 @@ ${placemarks}
               onSelectAll={selectTopN}
               onDeselectAll={deselectAll}
               maxSelection={MAX_ANALYSIS}
+              analyzedIds={analyzedWellIds}
               getSptRating={(w) => {
                 const oil = w.production_oil ?? 0;
                 const wc = w.water_cut ?? 0;
