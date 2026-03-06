@@ -24,13 +24,14 @@ const EconomicStageViz = ({ well }: Props) => {
   const depth = well.total_depth ?? 3500;
 
   const economics = useMemo(() => {
-    const capex = 25000 + depth * 2 + (wc > 40 ? 5000 : 0);
-    // Unified SPT formula: Projected = Current × multiplier + Treatment Effect, cap 25
-    const multiplier = wc < 30 ? 2.5 : wc < 50 ? 2.0 : 2.0;
-    const treatmentEffect = wc < 30 ? 10 : wc < 50 ? 7.5 : 5;
-    const projectedProd = Math.min(oil * multiplier + treatmentEffect, 25);
-    const sptGain = Math.max(projectedProd - oil, 0);
-    const opexPerBbl = 18; // Unified OPEX: $18/bbl
+    // Realistic CAPEX: base well cost + depth-dependent + water handling
+    const baseCost = 180000;
+    const depthCost = depth * 12;
+    const waterHandling = wc > 40 ? 25000 : 0;
+    const capex = baseCost + depthCost + waterHandling;
+    // SPT gain: conservative 3-7 bbl/d per well depending on water cut
+    const sptGain = wc < 30 ? 7 : wc < 50 ? 5 : wc < 70 ? 3 : 1.5;
+    const opexPerBbl = 18;
     const dailyRevenue = sptGain * OIL_PRICE;
     const dailyCost = sptGain * opexPerBbl;
     const dailyProfit = dailyRevenue - dailyCost;
