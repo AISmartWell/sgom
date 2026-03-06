@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { MapPin, ArrowUpDown, ArrowUp, ArrowDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { MapPin, ArrowUpDown, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, CheckCircle2 } from "lucide-react";
 
 interface WellRecord {
   id: string;
@@ -29,6 +29,7 @@ interface WellSelectionTableProps {
   onDeselectAll: () => void;
   maxSelection?: number;
   getSptRating?: (well: WellRecord) => SptRating;
+  analyzedIds?: Set<string>;
 }
 
 const ratingConfig: Record<SptRating, { label: string; className: string }> = {
@@ -57,6 +58,7 @@ const WellSelectionTable = ({
   onDeselectAll,
   maxSelection = 20,
   getSptRating: getSptRatingProp,
+  analyzedIds,
 }: WellSelectionTableProps) => {
   const [sortKey, setSortKey] = useState<SortKey>(null);
   const [sortDir, setSortDir] = useState<SortDir>("asc");
@@ -145,11 +147,13 @@ const WellSelectionTable = ({
               </th>
               <th className="p-2 text-right font-medium text-muted-foreground">Depth (ft)</th>
               <th className="p-2 text-left font-medium text-muted-foreground">Formation</th>
+              <th className="p-2 text-center font-medium text-muted-foreground">Status</th>
             </tr>
           </thead>
           <tbody>
             {pagedWells.map((well) => {
               const isSelected = selectedIds.has(well.id);
+              const isAnalyzed = analyzedIds?.has(well.id) ?? false;
               const wc = well.water_cut ?? 0;
               const rating = getSptRatingProp?.(well) ?? "not_suitable";
               const rc = ratingConfig[rating];
@@ -157,7 +161,7 @@ const WellSelectionTable = ({
                 <tr
                   key={well.id}
                   className={`border-b border-border/20 cursor-pointer transition-colors ${
-                    isSelected ? "bg-primary/5" : rating === "not_suitable" ? "opacity-50 hover:opacity-70" : "hover:bg-muted/30"
+                    isAnalyzed ? "bg-success/5 opacity-70" : isSelected ? "bg-primary/5" : rating === "not_suitable" ? "opacity-50 hover:opacity-70" : "hover:bg-muted/30"
                   }`}
                   onClick={() => onToggle(well.id)}
                 >
@@ -190,6 +194,14 @@ const WellSelectionTable = ({
                   </td>
                   <td className="p-2 text-right text-muted-foreground">{well.total_depth?.toFixed(0) ?? "—"}</td>
                   <td className="p-2 text-muted-foreground">{well.formation || "—"}</td>
+                  <td className="p-2 text-center">
+                    {isAnalyzed && (
+                      <Badge variant="outline" className="bg-success/10 text-success border-success/30 text-[9px] gap-1">
+                        <CheckCircle2 className="h-2.5 w-2.5" />
+                        Analyzed
+                      </Badge>
+                    )}
+                  </td>
                 </tr>
               );
             })}

@@ -22,6 +22,7 @@ interface PilotWellsMapProps {
   wells: WellRecord[];
   selectedIds?: Set<string>;
   activeWellId?: string;
+  analyzedIds?: Set<string>;
   onWellClick?: (wellId: string) => void;
   onPolygonSelect?: (wellIds: string[]) => void;
 }
@@ -46,7 +47,7 @@ const isPointInPolygon = (point: [number, number], polygon: [number, number][]):
   return inside;
 };
 
-const PilotWellsMap = ({ wells, selectedIds, activeWellId, onWellClick, onPolygonSelect }: PilotWellsMapProps) => {
+const PilotWellsMap = ({ wells, selectedIds, activeWellId, analyzedIds, onWellClick, onPolygonSelect }: PilotWellsMapProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const markersRef = useRef<Map<string, L.CircleMarker>>(new Map());
@@ -108,10 +109,11 @@ const PilotWellsMap = ({ wells, selectedIds, activeWellId, onWellClick, onPolygo
         fillOpacity: 0.9,
       }).addTo(map);
 
+      const isAnalyzed = analyzedIds?.has(well.id) ?? false;
       marker.bindPopup(`
         <div style="font-family: system-ui; min-width: 180px;">
-          <div style="font-weight: 700; font-size: 13px; margin-bottom: 4px;">${well.well_name || "Unknown"}</div>
-          <div style="font-size: 11px; color: #888; margin-bottom: 6px;">API: ${well.api_number || "—"}</div>
+          <div style="font-weight: 700; font-size: 13px; margin-bottom: 4px;">${well.well_name || "Unknown"} ${isAnalyzed ? '✅' : ''}</div>
+          <div style="font-size: 11px; color: #888; margin-bottom: 6px;">API: ${well.api_number || "—"} ${isAnalyzed ? '<span style="color:#22c55e;font-weight:600;">Analyzed</span>' : ''}</div>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 11px;">
             <span style="color: #888;">Operator:</span><span>${well.operator || "—"}</span>
             <span style="color: #888;">County:</span><span>${well.county || "—"}</span>
@@ -198,7 +200,7 @@ const PilotWellsMap = ({ wells, selectedIds, activeWellId, onWellClick, onPolygo
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wells]);
 
-  // Update marker styles when selection/active state changes (without recreating the map)
+  // Update marker styles when selection/active/analyzed state changes
   useEffect(() => {
     if (!mapInstanceRef.current) return;
 
@@ -209,18 +211,19 @@ const PilotWellsMap = ({ wells, selectedIds, activeWellId, onWellClick, onPolygo
       const color = getMarkerColor(well.water_cut);
       const isActive = wellId === activeWellId;
       const isSelected = selectedIds?.has(wellId) ?? true;
-      const radius = isActive ? 12 : isSelected ? 8 : 5;
-      const opacity = isSelected ? 0.9 : 0.35;
+      const isAnalyzed = analyzedIds?.has(wellId) ?? false;
+      const radius = isActive ? 12 : isSelected ? 8 : isAnalyzed ? 7 : 5;
+      const opacity = isSelected ? 0.9 : isAnalyzed ? 0.6 : 0.35;
 
       marker.setRadius(radius);
       marker.setStyle({
-        fillColor: color,
-        color: isActive ? "#ffffff" : isSelected ? color : "#6b7280",
-        weight: isActive ? 3 : isSelected ? 2 : 1,
+        fillColor: isAnalyzed && !isSelected ? "#22c55e" : color,
+        color: isActive ? "#ffffff" : isAnalyzed && !isSelected ? "#16a34a" : isSelected ? color : "#6b7280",
+        weight: isActive ? 3 : isAnalyzed ? 2.5 : isSelected ? 2 : 1,
         fillOpacity: opacity,
       });
     });
-  }, [wells, selectedIds, activeWellId]);
+  }, [wells, selectedIds, activeWellId, analyzedIds]);
 
   return (
     <Card className="glass-card border-primary/30">
@@ -246,10 +249,10 @@ const PilotWellsMap = ({ wells, selectedIds, activeWellId, onWellClick, onPolygo
             <span className="inline-block w-2.5 h-2.5 rounded-full bg-red-500" /> WC &gt; 70%
           </span>
           <span className="flex items-center gap-1">
-            <span className="inline-block w-2.5 h-2.5 rounded-full border border-muted-foreground opacity-40" /> Not selected
+            <span className="inline-block w-2.5 h-2.5 rounded-full border-2 border-green-600 bg-green-500/40" /> ✅ Analyzed
           </span>
           <span className="flex items-center gap-1">
-            <span className="inline-block w-3 h-3 rounded-full bg-primary" /> Selected
+            <span className="inline-block w-2.5 h-2.5 rounded-full border border-muted-foreground opacity-40" /> Not selected
           </span>
           <span className="ml-auto flex items-center gap-1 font-medium">
             🖊️ Polygon / ▭ Rectangle = area select

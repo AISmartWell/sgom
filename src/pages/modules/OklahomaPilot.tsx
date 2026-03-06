@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -11,6 +11,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   ArrowLeft, Play, RotateCcw, CheckCircle2, Loader2, Droplets,
   FileSpreadsheet, MapPin, AlertTriangle, TrendingUp, Download,
+  SkipForward,
 } from "lucide-react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
@@ -102,10 +103,13 @@ const OklahomaPilot = () => {
   const [currentWellIdx, setCurrentWellIdx] = useState(-1);
   const [currentStageIdx, setCurrentStageIdx] = useState(-1);
   const [stageProgress, setStageProgress] = useState(0);
+  const [analyzedWellIds, setAnalyzedWellIds] = useState<Set<string>>(new Set());
+  const [currentBatch, setCurrentBatch] = useState(1);
 
-  // Load ALL Oklahoma wells, then classify SPT candidates client-side
+  // Load ALL Oklahoma wells + previously analyzed well IDs
   useEffect(() => {
     const load = async () => {
+      // Load wells
       const { data, error } = await supabase
         .from("wells")
         .select("id, well_name, api_number, operator, county, state, formation, production_oil, production_gas, water_cut, total_depth, well_type, status, latitude, longitude")
@@ -116,10 +120,27 @@ const OklahomaPilot = () => {
         console.error("Failed to load wells:", error);
         toast.error("Failed to load wells");
       }
+
+      // Load previously analyzed well IDs
+      const { data: analysisData } = await supabase
+        .from("well_analyses")
+        .select("well_id, batch_number");
+
+      const alreadyAnalyzed = new Set<string>();
+      let maxBatch = 0;
+      if (analysisData) {
+        analysisData.forEach((a: any) => {
+          alreadyAnalyzed.add(a.well_id);
+          if (a.batch_number > maxBatch) maxBatch = a.batch_number;
+        });
+      }
+      setAnalyzedWellIds(alreadyAnalyzed);
+      setCurrentBatch(maxBatch + 1);
+
       if (data) {
         setAllWells(data);
-        // Auto-select top 10 SPT candidates (excellent first, then good)
-        const candidates = data.filter(isSptCandidate);
+        // Auto-select top 10 unanalyzed SPT candidates
+        const candidates = data.filter(w => isSptCandidate(w) && !alreadyAnalyzed.has(w.id));
         const ranked = [...candidates].sort((a, b) => {
           const ratingOrder = { excellent: 0, good: 1, marginal: 2 };
           const rA = ratingOrder[getSptRating(a)];
@@ -201,6 +222,8 @@ const OklahomaPilot = () => {
     selectedWells.forEach((w) => initial.set(w.id, { well: w, stages: new Map(), status: "pending" }));
     setAnalyses(initial);
 
+    const completedIds: string[] = [];
+
     for (let wi = 0; wi < selectedWells.length; wi++) {
       const well = selectedWells[wi];
       setCurrentWellIdx(wi);
@@ -213,6 +236,7 @@ const OklahomaPilot = () => {
       });
 
       let failed = false;
+      const stageResults: Record<string, StageResult> = {};
       for (let si = 0; si < STAGES.length; si++) {
         setCurrentStageIdx(si);
         setStageProgress(10);
@@ -226,6 +250,8 @@ const OklahomaPilot = () => {
           clearInterval(progressInterval);
           setStageProgress(100);
           await new Promise((r) => setTimeout(r, 200));
+
+          stageResults[STAGES[si].key] = result;
 
           setAnalyses((prev) => {
             const next = new Map(prev);
@@ -258,6 +284,7 @@ const OklahomaPilot = () => {
       }
 
       if (!failed) {
+        completedIds.push(well.id);
         setAnalyses((prev) => {
           const next = new Map(prev);
           const a = next.get(well.id)!;
@@ -267,11 +294,68 @@ const OklahomaPilot = () => {
       }
     }
 
+    // Save completed analyses to DB
+    if (completedIds.length > 0) {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        const { data: ucData } = await supabase.from("user_companies").select("company_id").limit(1);
+        const companyId = ucData?.[0]?.company_id;
+
+        if (user && companyId) {
+          const rows = completedIds.map(wellId => ({
+            well_id: wellId,
+            company_id: companyId,
+            user_id: user.id,
+            batch_number: currentBatch,
+            status: "completed",
+            stage_results: {} as Record<string, any>,
+          }));
+
+          await supabase.from("well_analyses").insert(rows);
+
+          // Update local analyzed set
+          setAnalyzedWellIds(prev => {
+            const next = new Set(prev);
+            completedIds.forEach(id => next.add(id));
+            return next;
+          });
+          setCurrentBatch(prev => prev + 1);
+        }
+      } catch (e) {
+        console.error("Failed to save analyses:", e);
+      }
+    }
+
     setIsRunning(false);
     setCurrentWellIdx(-1);
     setCurrentStageIdx(-1);
     toast.success("Batch analysis complete!");
-  }, [selectedWells]);
+  }, [selectedWells, currentBatch]);
+
+  // Auto-queue: select next batch of unanalyzed candidates
+  const selectNextBatch = useCallback(() => {
+    if (isRunning) return;
+    const unanalyzed = allWells.filter(w => isSptCandidate(w) && !analyzedWellIds.has(w.id));
+    const ranked = [...unanalyzed].sort((a, b) => {
+      const ratingOrder = { excellent: 0, good: 1, marginal: 2 };
+      const rA = ratingOrder[getSptRating(a)];
+      const rB = ratingOrder[getSptRating(b)];
+      if (rA !== rB) return rA - rB;
+      return (a.production_oil ?? 0) - (b.production_oil ?? 0);
+    });
+    const nextBatch = ranked.slice(0, MAX_ANALYSIS);
+    if (nextBatch.length === 0) {
+      toast.info("All SPT candidates have been analyzed!");
+      return;
+    }
+    setSelectedIds(new Set(nextBatch.map(w => w.id)));
+    setAnalyses(new Map());
+    toast.success(`Batch ${currentBatch}: ${nextBatch.length} unanalyzed wells queued`);
+  }, [isRunning, allWells, analyzedWellIds, currentBatch]);
+
+  const unanalyzedCount = useMemo(() => 
+    allWells.filter(w => isSptCandidate(w) && !analyzedWellIds.has(w.id)).length
+  , [allWells, analyzedWellIds]);
 
   const reset = () => {
     setCurrentWellIdx(-1);
@@ -524,12 +608,31 @@ ${placemarks}
         onReset={reset}
       />
 
+      {/* Batch Info Bar */}
+      {analyzedWellIds.size > 0 && (
+        <div className="mb-4 flex items-center gap-3 text-sm">
+          <Badge variant="outline" className="bg-success/10 text-success border-success/30 gap-1">
+            <CheckCircle2 className="h-3 w-3" />
+            {analyzedWellIds.size} wells analyzed
+          </Badge>
+          <span className="text-muted-foreground">
+            {unanalyzedCount} unanalyzed candidates remaining
+          </span>
+          {!isRunning && unanalyzedCount > 0 && (
+            <Button size="sm" variant="outline" onClick={selectNextBatch} className="ml-auto gap-1">
+              <SkipForward className="h-3.5 w-3.5" />
+              Next Batch ({Math.min(unanalyzedCount, MAX_ANALYSIS)})
+            </Button>
+          )}
+        </div>
+      )}
+
       {/* Overall Progress */}
       {(isRunning || completedWells > 0) && (
         <Card className="mb-6 glass-card border-primary/30">
           <CardContent className="pt-6">
             <div className="flex justify-between text-sm mb-2">
-              <span>Overall: {completedWells}/{totalAnalyzing} wells completed</span>
+              <span>Batch {currentBatch - (isRunning ? 0 : 1)}: {completedWells}/{totalAnalyzing} wells completed</span>
               <span className="font-medium">{Math.round(overallProgress)}%</span>
             </div>
             <Progress value={overallProgress} className="h-3" />
@@ -563,6 +666,7 @@ ${placemarks}
                   wells={allWells}
                   selectedIds={selectedIds}
                   activeWellId={currentWellIdx >= 0 ? selectedWells[currentWellIdx]?.id : undefined}
+                  analyzedIds={analyzedWellIds}
                   onWellClick={isRunning ? undefined : toggleWell}
                   onPolygonSelect={isRunning ? undefined : selectByPolygon}
                 />
@@ -631,6 +735,7 @@ ${placemarks}
               onSelectAll={selectTopN}
               onDeselectAll={deselectAll}
               maxSelection={MAX_ANALYSIS}
+              analyzedIds={analyzedWellIds}
               getSptRating={(w) => {
                 const oil = w.production_oil ?? 0;
                 const wc = w.water_cut ?? 0;
@@ -770,6 +875,16 @@ ${placemarks}
             </ScrollArea>
           </CardContent>
         </Card>
+      )}
+
+      {/* Next Batch CTA after analysis completes */}
+      {!isRunning && completedWells >= totalAnalyzing && totalAnalyzing > 0 && unanalyzedCount > 0 && (
+        <div className="my-6 flex justify-center">
+          <Button size="lg" onClick={selectNextBatch} className="gap-2">
+            <SkipForward className="h-4 w-4" />
+            Analyze Next Batch ({Math.min(unanalyzedCount, MAX_ANALYSIS)} wells)
+          </Button>
+        </div>
       )}
 
       {/* Combined Results */}
