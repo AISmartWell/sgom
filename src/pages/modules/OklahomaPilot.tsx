@@ -877,6 +877,16 @@ ${placemarks}
         </Card>
       )}
 
+      {/* Next Batch CTA after analysis completes */}
+      {!isRunning && completedWells >= totalAnalyzing && totalAnalyzing > 0 && unanalyzedCount > 0 && (
+        <div className="my-6 flex justify-center">
+          <Button size="lg" onClick={selectNextBatch} className="gap-2">
+            <SkipForward className="h-4 w-4" />
+            Analyze Next Batch ({Math.min(unanalyzedCount, MAX_ANALYSIS)} wells)
+          </Button>
+        </div>
+      )}
+
       {/* Combined Results */}
       {completedWells >= totalAnalyzing && totalAnalyzing > 0 && (
         <div ref={reportRef}>
