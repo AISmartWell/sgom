@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import {
-  BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, AreaChart,
+  BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, AreaChart, ReferenceLine,
 } from "recharts";
 import { DollarSign, TrendingUp, Clock, Calculator, CheckCircle2 } from "lucide-react";
 import { DEFAULT_OIL_PRICE, DEFAULT_OPEX_PER_BBL, DEFAULT_TREATMENT_COST } from "@/lib/economics-config";
@@ -139,6 +139,28 @@ const EconomicAnalysisDemo = () => {
     return months;
   }, [economics, treatmentCost, oilPrice, opexPerBbl]);
 
+  // Sensitivity analysis: ROI vs oil price ($40-$120)
+  const sensitivityData = useMemo(() => {
+    const prices = [];
+    for (let p = 40; p <= 120; p += 5) {
+      const point: any = { price: `$${p}` };
+      SPT_CANDIDATES.forEach((well) => {
+        const addedProd = well.projectedInflow - well.currentProd;
+        let fiveYearNet = 0;
+        for (let m = 1; m <= 60; m++) {
+          const rate = arpsRate(addedProd, well.Di, well.b, m);
+          fiveYearNet += rate * 30.44 * (p - opexPerBbl);
+        }
+        point[well.name] = +((fiveYearNet - treatmentCost) / treatmentCost * 100).toFixed(0);
+      });
+      // Portfolio average
+      const wellNames = SPT_CANDIDATES.map(w => w.name);
+      point["Avg"] = Math.round(wellNames.reduce((s, n) => s + point[n], 0) / wellNames.length);
+      prices.push(point);
+    }
+    return prices;
+  }, [treatmentCost, opexPerBbl]);
+
   const colors = ["hsl(var(--primary))", "#22c55e", "#f59e0b", "#8b5cf6", "#ec4899", "#06b6d4"];
 
   return (
@@ -202,8 +224,9 @@ const EconomicAnalysisDemo = () => {
 
       {/* Tabs */}
       <Tabs defaultValue="roi" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="roi">ROI & Payback</TabsTrigger>
+          <TabsTrigger value="sensitivity">Sensitivity</TabsTrigger>
           <TabsTrigger value="profit">Profit</TabsTrigger>
           <TabsTrigger value="cumulative">Cumulative</TabsTrigger>
           <TabsTrigger value="details">Well Details</TabsTrigger>
@@ -225,6 +248,34 @@ const EconomicAnalysisDemo = () => {
                   <Bar yAxisId="right" dataKey="fiveYearROI" fill="#22c55e" name="5-Year ROI %" />
                 </BarChart>
               </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="sensitivity">
+          <Card>
+            <CardHeader>
+              <CardTitle>Sensitivity Analysis — ROI vs Oil Price</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={400}>
+                <LineChart data={sensitivityData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="price" />
+                  <YAxis tickFormatter={(v) => `${v}%`} label={{ value: "5-Year ROI %", angle: -90, position: "insideLeft" }} />
+                  <Tooltip formatter={(v: number) => `${v}%`} />
+                  <Legend />
+                  <ReferenceLine y={0} stroke="hsl(var(--destructive))" strokeDasharray="4 4" label={{ value: "Break-even", position: "right", fill: "hsl(var(--destructive))" }} />
+                  <ReferenceLine x={`$${oilPrice}`} stroke="hsl(var(--primary))" strokeDasharray="4 4" label={{ value: "Current", position: "top", fill: "hsl(var(--primary))" }} />
+                  {SPT_CANDIDATES.map((w, i) => (
+                    <Line key={w.id} type="monotone" dataKey={w.name} stroke={colors[i]} strokeWidth={1.5} dot={false} opacity={0.5} />
+                  ))}
+                  <Line type="monotone" dataKey="Avg" stroke="hsl(var(--foreground))" strokeWidth={3} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+              <p className="text-xs text-muted-foreground mt-2">
+                Bold line = portfolio average. Dashed red = break-even. Dashed blue = current oil price.
+              </p>
             </CardContent>
           </Card>
         </TabsContent>
