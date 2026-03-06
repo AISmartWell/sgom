@@ -304,7 +304,7 @@ function computeEconomic(well: WellData): { metrics: StageMetric[]; context: str
   // Year 1 revenue (with decline)
   let annualRevenue = 0;
   for (let m = 1; m <= 12; m++) {
-    annualRevenue += arpsRate(addedProd, Di, b, m) * 30.44 * OIL_PRICE;
+    annualRevenue += arpsRate(sptGain, Di, b, m) * 30.44 * OIL_PRICE;
   }
 
   return {
@@ -314,7 +314,7 @@ function computeEconomic(well: WellData): { metrics: StageMetric[]; context: str
       { label: "ROI (5-Year)", value: `${roi5Year}%`, color: roi5Year > 200 ? "text-success" : roi5Year > 0 ? "text-warning" : "text-destructive" },
       { label: "Payback Period", value: `${paybackMonth} mo`, color: paybackMonth < 6 ? "text-success" : paybackMonth < 12 ? "text-warning" : "text-destructive" },
     ],
-    context: `CAPEX: $${capex.toLocaleString()}, Added: +${addedProd.toFixed(1)} bbl/d (Arps Di=${Di}, b=${b}), Year 1 Rev: $${Math.round(annualRevenue).toLocaleString()}, 5yr ROI: ${roi5Year}%, Payback: ${paybackMonth} mo`,
+    context: `CAPEX: $${capex.toLocaleString()}, SPT Gain: +${sptGain} bbl/d (Arps Di=${Di}, b=${b}), Year 1 Rev: $${Math.round(annualRevenue).toLocaleString()}, 5yr ROI: ${roi5Year}%, Payback: ${paybackMonth} mo`,
   };
 }
 
