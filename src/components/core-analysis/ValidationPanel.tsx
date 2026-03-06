@@ -109,10 +109,10 @@ function statusIcon(status: string) {
 
 function statusBadge(status: string) {
   switch (status) {
-    case "in-range": return <Badge variant="outline" className="text-success border-success/30 text-[10px]">В диапазоне</Badge>;
-    case "near": return <Badge variant="outline" className="text-warning border-warning/30 text-[10px]">Близко</Badge>;
-    case "out": return <Badge variant="outline" className="text-destructive border-destructive/30 text-[10px]">Отклонение</Badge>;
-    default: return <Badge variant="outline" className="text-muted-foreground text-[10px]">Нет данных</Badge>;
+    case "in-range": return <Badge variant="outline" className="text-success border-success/30 text-[10px]">In Range</Badge>;
+    case "near": return <Badge variant="outline" className="text-warning border-warning/30 text-[10px]">Near</Badge>;
+    case "out": return <Badge variant="outline" className="text-destructive border-destructive/30 text-[10px]">Deviation</Badge>;
+    default: return <Badge variant="outline" className="text-muted-foreground text-[10px]">No Data</Badge>;
   }
 }
 
@@ -211,26 +211,26 @@ export const ValidationPanel = () => {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="glass-card">
           <CardContent className="pt-4 pb-3 px-4">
-            <p className="text-xs text-muted-foreground">Всего анализов</p>
+            <p className="text-xs text-muted-foreground">Total Analyses</p>
             <p className="text-2xl font-bold">{stats.total}</p>
           </CardContent>
         </Card>
         <Card className="glass-card">
           <CardContent className="pt-4 pb-3 px-4">
-            <p className="text-xs text-muted-foreground">Совпало с формациями</p>
+            <p className="text-xs text-muted-foreground">Matched Formations</p>
             <p className="text-2xl font-bold">{stats.matched}</p>
             <Progress value={matchRate} className="h-1.5 mt-1" />
           </CardContent>
         </Card>
         <Card className="glass-card">
           <CardContent className="pt-4 pb-3 px-4">
-            <p className="text-xs text-muted-foreground">В диапазоне</p>
+            <p className="text-xs text-muted-foreground">In Range</p>
             <p className="text-2xl font-bold text-success">{stats.inRange}</p>
           </CardContent>
         </Card>
         <Card className="glass-card">
           <CardContent className="pt-4 pb-3 px-4">
-            <p className="text-xs text-muted-foreground">Точность модели</p>
+            <p className="text-xs text-muted-foreground">Model Accuracy</p>
             <p className="text-2xl font-bold">{accuracyRate}%</p>
             <Progress value={accuracyRate} className="h-1.5 mt-1" />
           </CardContent>
@@ -244,15 +244,15 @@ export const ValidationPanel = () => {
             <div>
               <CardTitle className="flex items-center gap-2">
                 <BarChart3 className="h-5 w-5" />
-                Валидация: расчёт vs факт
+                Validation: Calculated vs Actual
               </CardTitle>
               <CardDescription>
-                Сравнение ИИ-анализа керна с эталонными диапазонами по формациям
+                Comparing AI core analysis with reference formation ranges
               </CardDescription>
             </div>
             <Button variant="outline" size="sm" onClick={fetchAndValidate} disabled={loading}>
               <RefreshCw className={`h-4 w-4 mr-1 ${loading ? "animate-spin" : ""}`} />
-              Обновить
+              Refresh
             </Button>
           </div>
         </CardHeader>
@@ -264,8 +264,8 @@ export const ValidationPanel = () => {
           ) : results.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               <BarChart3 className="h-10 w-10 mx-auto mb-3 opacity-50" />
-              <p>Нет данных для валидации</p>
-              <p className="text-sm mt-1">Проведите анализ керна — результаты появятся здесь</p>
+              <p>No validation data available</p>
+              <p className="text-sm mt-1">Run a core analysis — results will appear here</p>
             </div>
           ) : (
             <ScrollArea className="max-h-[500px]">
@@ -273,13 +273,13 @@ export const ValidationPanel = () => {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-border text-left">
-                      <th className="pb-2 pr-3 font-medium text-muted-foreground">Образец</th>
-                      <th className="pb-2 pr-3 font-medium text-muted-foreground">Формация</th>
-                      <th className="pb-2 pr-3 font-medium text-muted-foreground text-center">φ ИИ</th>
-                      <th className="pb-2 pr-3 font-medium text-muted-foreground text-center">φ эталон</th>
+                      <th className="pb-2 pr-3 font-medium text-muted-foreground">Sample</th>
+                      <th className="pb-2 pr-3 font-medium text-muted-foreground">Formation</th>
+                      <th className="pb-2 pr-3 font-medium text-muted-foreground text-center">φ AI</th>
+                      <th className="pb-2 pr-3 font-medium text-muted-foreground text-center">φ Ref</th>
                       <th className="pb-2 pr-3 font-medium text-muted-foreground text-center">φ</th>
-                      <th className="pb-2 pr-3 font-medium text-muted-foreground text-center">k ИИ</th>
-                      <th className="pb-2 pr-3 font-medium text-muted-foreground text-center">k эталон</th>
+                      <th className="pb-2 pr-3 font-medium text-muted-foreground text-center">k AI</th>
+                      <th className="pb-2 pr-3 font-medium text-muted-foreground text-center">k Ref</th>
                       <th className="pb-2 font-medium text-muted-foreground text-center">k</th>
                     </tr>
                   </thead>
@@ -333,9 +333,9 @@ export const ValidationPanel = () => {
 
       {/* Legend */}
       <div className="flex items-center gap-4 text-xs text-muted-foreground">
-        <div className="flex items-center gap-1"><CheckCircle2 className="h-3 w-3 text-success" /> В диапазоне</div>
-        <div className="flex items-center gap-1"><AlertTriangle className="h-3 w-3 text-warning" /> Близко (±15%)</div>
-        <div className="flex items-center gap-1"><XCircle className="h-3 w-3 text-destructive" /> Отклонение</div>
+        <div className="flex items-center gap-1"><CheckCircle2 className="h-3 w-3 text-success" /> In Range</div>
+        <div className="flex items-center gap-1"><AlertTriangle className="h-3 w-3 text-warning" /> Near (±15%)</div>
+        <div className="flex items-center gap-1"><XCircle className="h-3 w-3 text-destructive" /> Deviation</div>
       </div>
     </div>
   );
