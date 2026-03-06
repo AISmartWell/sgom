@@ -7,7 +7,7 @@ import {
 } from "recharts";
 import {
   DEFAULT_OIL_PRICE, DEFAULT_OPEX_PER_BBL, DEFAULT_TREATMENT_COST,
-  sptGainByWaterCut, ROI_THRESHOLDS,
+  sptGainByWaterCut, ROI_THRESHOLDS, ARPS_DEFAULTS, arpsRate, calcFiveYearROI,
 } from "@/lib/economics-config";
 
 interface WellRecord {
@@ -21,30 +21,54 @@ interface Props {
 }
 
 const EconomicStageViz = ({ well }: Props) => {
-  const oil = well.production_oil ?? 5;
   const wc = well.water_cut ?? 30;
-  const depth = well.total_depth ?? 3500;
 
   const economics = useMemo(() => {
     const capex = DEFAULT_TREATMENT_COST;
     const sptGain = sptGainByWaterCut(wc);
-    const opexPerBbl = DEFAULT_OPEX_PER_BBL;
-    const dailyRevenue = sptGain * DEFAULT_OIL_PRICE;
-    const dailyCost = sptGain * opexPerBbl;
-    const dailyProfit = dailyRevenue - dailyCost;
-    const annualProfit = dailyProfit * 365;
-    const paybackMonths = dailyProfit > 0 ? capex / (dailyProfit * 30.44) : 999;
-    const fiveYearProfit = annualProfit * 5 - capex;
-    const roi = capex > 0 ? (fiveYearProfit / capex) * 100 : 0;
-    const npv = fiveYearProfit * 0.85;
+    const opex = DEFAULT_OPEX_PER_BBL;
+    const oilPrice = DEFAULT_OIL_PRICE;
 
-    return { capex, sptGain, opexPerBbl, dailyRevenue, dailyCost, dailyProfit, annualProfit, paybackMonths, fiveYearProfit, roi, npv };
+    // Unified Arps-based calculation
+    const { roi, fiveYearNet, paybackMonths } = calcFiveYearROI(
+      sptGain, oilPrice, opex, capex, ARPS_DEFAULTS.Di, ARPS_DEFAULTS.b
+    );
+
+    // Initial daily values (month 1) for display
+    const initialRate = arpsRate(sptGain, ARPS_DEFAULTS.Di, ARPS_DEFAULTS.b, 1);
+    const dailyRevenue = initialRate * oilPrice;
+    const dailyCost = initialRate * opex;
+    const dailyProfit = dailyRevenue - dailyCost;
+
+    // Annual profit (year 1 with decline)
+    let annualProfit = 0;
+    for (let m = 1; m <= 12; m++) {
+      const rate = arpsRate(sptGain, ARPS_DEFAULTS.Di, ARPS_DEFAULTS.b, m);
+      annualProfit += rate * 30.44 * (oilPrice - opex);
+    }
+
+    // 5-year revenue and opex for waterfall chart
+    let totalRevenue5yr = 0;
+    let totalOpex5yr = 0;
+    for (let m = 1; m <= 60; m++) {
+      const rate = arpsRate(sptGain, ARPS_DEFAULTS.Di, ARPS_DEFAULTS.b, m);
+      totalRevenue5yr += rate * 30.44 * oilPrice;
+      totalOpex5yr += rate * 30.44 * opex;
+    }
+
+    const npv = fiveYearNet * 0.85; // simplified NPV proxy
+
+    return {
+      capex, sptGain, dailyRevenue, dailyCost, dailyProfit,
+      annualProfit, paybackMonths, fiveYearProfit: fiveYearNet - capex,
+      roi, npv, totalRevenue5yr, totalOpex5yr,
+    };
   }, [wc]);
 
   // Waterfall data
   const waterfallData = useMemo(() => [
-    { name: "Revenue\n(5yr)", value: economics.dailyRevenue * 365 * 5, fill: "positive" },
-    { name: "OPEX\n(5yr)", value: -(economics.dailyCost * 365 * 5), fill: "negative" },
+    { name: "Revenue\n(5yr)", value: economics.totalRevenue5yr, fill: "positive" },
+    { name: "OPEX\n(5yr)", value: -economics.totalOpex5yr, fill: "negative" },
     { name: "CAPEX", value: -economics.capex, fill: "negative" },
     { name: "Net\nProfit", value: economics.fiveYearProfit, fill: economics.fiveYearProfit > 0 ? "positive" : "negative" },
   ], [economics]);
@@ -58,7 +82,7 @@ const EconomicStageViz = ({ well }: Props) => {
       <div className="sm:col-span-2 p-3 rounded-lg border border-border/40 bg-muted/10 space-y-2">
         <div className="flex items-center gap-2 text-xs font-semibold">
           <DollarSign className="h-3.5 w-3.5 text-primary" />
-          5-Year Economic Projection (@ ${DEFAULT_OIL_PRICE}/bbl)
+          5-Year Economic Projection (@ ${DEFAULT_OIL_PRICE}/bbl, Arps Decline)
         </div>
         <div className="h-[160px]">
           <ResponsiveContainer width="100%" height="100%">
@@ -111,7 +135,7 @@ const EconomicStageViz = ({ well }: Props) => {
           </div>
           <div className="p-2 bg-muted/20 rounded text-center">
             <p className="text-lg font-bold">${(economics.annualProfit / 1000).toFixed(0)}K</p>
-            <p className="text-[9px] text-muted-foreground">Annual Profit</p>
+            <p className="text-[9px] text-muted-foreground">Annual Profit (Y1)</p>
           </div>
         </div>
         <Badge variant="outline" className={`text-[9px] ${roiColor}`}>{roiRating} Investment</Badge>
@@ -129,27 +153,31 @@ const EconomicStageViz = ({ well }: Props) => {
             style={{ width: `${Math.min((economics.paybackMonths / 24) * 100, 100)}%` }}
           />
           <div className="absolute inset-0 flex items-center justify-center text-[10px] font-bold">
-            {economics.paybackMonths < 999 ? `${economics.paybackMonths.toFixed(1)} months` : "N/A"}
+            {economics.paybackMonths < 999 ? `${economics.paybackMonths} months` : "N/A"}
           </div>
         </div>
         <div className="space-y-1 text-[10px]">
           <div className="flex justify-between">
-            <span className="text-muted-foreground">SPT Gain</span>
+            <span className="text-muted-foreground">SPT Gain (initial)</span>
             <span className="font-medium">+{economics.sptGain.toFixed(1)} bbl/d</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Daily Revenue</span>
+            <span className="text-muted-foreground">Daily Revenue (M1)</span>
             <span className="font-medium text-success">${economics.dailyRevenue.toFixed(0)}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Daily OPEX</span>
+            <span className="text-muted-foreground">Daily OPEX (M1)</span>
             <span className="font-medium text-destructive">-${economics.dailyCost.toFixed(0)}</span>
           </div>
           <div className="flex justify-between border-t border-border/20 pt-1">
-            <span className="text-muted-foreground">Daily Profit</span>
+            <span className="text-muted-foreground">Daily Profit (M1)</span>
             <span className={`font-bold ${economics.dailyProfit > 0 ? "text-success" : "text-destructive"}`}>
               ${economics.dailyProfit.toFixed(0)}
             </span>
+          </div>
+          <div className="flex justify-between text-[9px] text-muted-foreground/70 italic">
+            <span>Model</span>
+            <span>Arps (Di={ARPS_DEFAULTS.Di}, b={ARPS_DEFAULTS.b})</span>
           </div>
         </div>
       </div>

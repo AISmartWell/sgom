@@ -7,15 +7,9 @@ import {
   BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, AreaChart, ReferenceLine,
 } from "recharts";
 import { DollarSign, TrendingUp, Clock, Calculator, CheckCircle2 } from "lucide-react";
-import { DEFAULT_OIL_PRICE, DEFAULT_OPEX_PER_BBL, DEFAULT_TREATMENT_COST } from "@/lib/economics-config";
-
-// Generalized Arps decline: q(t) = qi / (1 + b * Di * t)^(1/b)
-function arpsRate(qi: number, Di: number, b: number, t: number): number {
-  if (b < 0.001) return qi * Math.exp(-Di * t);
-  const denom = 1 + b * Di * t;
-  if (denom <= 0) return 0;
-  return qi / Math.pow(denom, 1 / b);
-}
+import {
+  DEFAULT_OIL_PRICE, DEFAULT_OPEX_PER_BBL, DEFAULT_TREATMENT_COST, arpsRate,
+} from "@/lib/economics-config";
 
 // Cumulative production for Arps: Np(t) integral
 function arpsCumulative(qi: number, Di: number, b: number, months: number): number {
