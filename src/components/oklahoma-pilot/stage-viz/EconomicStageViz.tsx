@@ -5,6 +5,10 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, ReferenceLine, Cell,
 } from "recharts";
+import {
+  DEFAULT_OIL_PRICE, DEFAULT_OPEX_PER_BBL, DEFAULT_TREATMENT_COST,
+  sptGainByWaterCut, ROI_THRESHOLDS,
+} from "@/lib/economics-config";
 
 interface WellRecord {
   production_oil: number | null;
@@ -16,33 +20,26 @@ interface Props {
   well: WellRecord;
 }
 
-const OIL_PRICE = 72;
-
 const EconomicStageViz = ({ well }: Props) => {
   const oil = well.production_oil ?? 5;
   const wc = well.water_cut ?? 30;
   const depth = well.total_depth ?? 3500;
 
   const economics = useMemo(() => {
-    // Realistic CAPEX: base well cost + depth-dependent + water handling
-    const baseCost = 180000;
-    const depthCost = depth * 12;
-    const waterHandling = wc > 40 ? 25000 : 0;
-    const capex = baseCost + depthCost + waterHandling;
-    // SPT gain: conservative 3-7 bbl/d per well depending on water cut
-    const sptGain = wc < 30 ? 7 : wc < 50 ? 5 : wc < 70 ? 3 : 1.5;
-    const opexPerBbl = 18;
-    const dailyRevenue = sptGain * OIL_PRICE;
+    const capex = DEFAULT_TREATMENT_COST;
+    const sptGain = sptGainByWaterCut(wc);
+    const opexPerBbl = DEFAULT_OPEX_PER_BBL;
+    const dailyRevenue = sptGain * DEFAULT_OIL_PRICE;
     const dailyCost = sptGain * opexPerBbl;
     const dailyProfit = dailyRevenue - dailyCost;
     const annualProfit = dailyProfit * 365;
     const paybackMonths = dailyProfit > 0 ? capex / (dailyProfit * 30.44) : 999;
     const fiveYearProfit = annualProfit * 5 - capex;
     const roi = capex > 0 ? (fiveYearProfit / capex) * 100 : 0;
-    const npv = fiveYearProfit * 0.85; // simplified 10% discount
+    const npv = fiveYearProfit * 0.85;
 
     return { capex, sptGain, opexPerBbl, dailyRevenue, dailyCost, dailyProfit, annualProfit, paybackMonths, fiveYearProfit, roi, npv };
-  }, [oil, wc, depth]);
+  }, [wc]);
 
   // Waterfall data
   const waterfallData = useMemo(() => [
@@ -52,8 +49,8 @@ const EconomicStageViz = ({ well }: Props) => {
     { name: "Net\nProfit", value: economics.fiveYearProfit, fill: economics.fiveYearProfit > 0 ? "positive" : "negative" },
   ], [economics]);
 
-  const roiRating = economics.roi >= 200 ? "Strong" : economics.roi >= 100 ? "Good" : economics.roi >= 0 ? "Marginal" : "Negative";
-  const roiColor = economics.roi >= 200 ? "text-success" : economics.roi >= 100 ? "text-warning" : "text-destructive";
+  const roiRating = economics.roi >= ROI_THRESHOLDS.strong ? "Strong" : economics.roi >= ROI_THRESHOLDS.good ? "Good" : economics.roi >= 0 ? "Marginal" : "Negative";
+  const roiColor = economics.roi >= ROI_THRESHOLDS.strong ? "text-success" : economics.roi >= ROI_THRESHOLDS.good ? "text-warning" : "text-destructive";
 
   return (
     <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -61,7 +58,7 @@ const EconomicStageViz = ({ well }: Props) => {
       <div className="sm:col-span-2 p-3 rounded-lg border border-border/40 bg-muted/10 space-y-2">
         <div className="flex items-center gap-2 text-xs font-semibold">
           <DollarSign className="h-3.5 w-3.5 text-primary" />
-          5-Year Economic Projection (@ ${OIL_PRICE}/bbl)
+          5-Year Economic Projection (@ ${DEFAULT_OIL_PRICE}/bbl)
         </div>
         <div className="h-[160px]">
           <ResponsiveContainer width="100%" height="100%">

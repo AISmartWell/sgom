@@ -7,16 +7,17 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { DollarSign, TrendingUp, Calendar, BarChart3, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DEFAULT_OIL_PRICE, FINANCIAL_DEFAULTS } from "@/lib/economics-config";
 
 const FinancialCalculator = () => {
   // Input state
-  const [oilPrice, setOilPrice] = useState(77.36);
+  const [oilPrice, setOilPrice] = useState(DEFAULT_OIL_PRICE);
   const [isLoadingPrice, setIsLoadingPrice] = useState(false);
-  const [landCost, setLandCost] = useState(320000);
-  const [recoveryCost, setRecoveryCost] = useState(800000);
-  const [wellCount, setWellCount] = useState(4);
-  const [productionIncrease, setProductionIncrease] = useState(28);
-  const [operatingCostPercent, setOperatingCostPercent] = useState(30);
+  const [landCost, setLandCost] = useState(FINANCIAL_DEFAULTS.landCost);
+  const [recoveryCost, setRecoveryCost] = useState(FINANCIAL_DEFAULTS.recoveryCost);
+  const [wellCount, setWellCount] = useState(FINANCIAL_DEFAULTS.wellCount);
+  const [productionIncrease, setProductionIncrease] = useState(FINANCIAL_DEFAULTS.productionIncrease);
+  const [operatingCostPercent, setOperatingCostPercent] = useState(FINANCIAL_DEFAULTS.operatingCostPercent);
 
   // Fetch current oil price on component mount
   useEffect(() => {
