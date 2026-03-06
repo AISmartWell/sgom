@@ -608,12 +608,31 @@ ${placemarks}
         onReset={reset}
       />
 
+      {/* Batch Info Bar */}
+      {analyzedWellIds.size > 0 && (
+        <div className="mb-4 flex items-center gap-3 text-sm">
+          <Badge variant="outline" className="bg-success/10 text-success border-success/30 gap-1">
+            <CheckCircle2 className="h-3 w-3" />
+            {analyzedWellIds.size} wells analyzed
+          </Badge>
+          <span className="text-muted-foreground">
+            {unanalyzedCount} unanalyzed candidates remaining
+          </span>
+          {!isRunning && unanalyzedCount > 0 && (
+            <Button size="sm" variant="outline" onClick={selectNextBatch} className="ml-auto gap-1">
+              <SkipForward className="h-3.5 w-3.5" />
+              Next Batch ({Math.min(unanalyzedCount, MAX_ANALYSIS)})
+            </Button>
+          )}
+        </div>
+      )}
+
       {/* Overall Progress */}
       {(isRunning || completedWells > 0) && (
         <Card className="mb-6 glass-card border-primary/30">
           <CardContent className="pt-6">
             <div className="flex justify-between text-sm mb-2">
-              <span>Overall: {completedWells}/{totalAnalyzing} wells completed</span>
+              <span>Batch {currentBatch - (isRunning ? 0 : 1)}: {completedWells}/{totalAnalyzing} wells completed</span>
               <span className="font-medium">{Math.round(overallProgress)}%</span>
             </div>
             <Progress value={overallProgress} className="h-3" />
@@ -647,6 +666,7 @@ ${placemarks}
                   wells={allWells}
                   selectedIds={selectedIds}
                   activeWellId={currentWellIdx >= 0 ? selectedWells[currentWellIdx]?.id : undefined}
+                  analyzedIds={analyzedWellIds}
                   onWellClick={isRunning ? undefined : toggleWell}
                   onPolygonSelect={isRunning ? undefined : selectByPolygon}
                 />
