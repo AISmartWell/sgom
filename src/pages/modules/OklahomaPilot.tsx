@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -11,6 +11,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   ArrowLeft, Play, RotateCcw, CheckCircle2, Loader2, Droplets,
   FileSpreadsheet, MapPin, AlertTriangle, TrendingUp, Download,
+  SkipForward,
 } from "lucide-react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
@@ -102,10 +103,13 @@ const OklahomaPilot = () => {
   const [currentWellIdx, setCurrentWellIdx] = useState(-1);
   const [currentStageIdx, setCurrentStageIdx] = useState(-1);
   const [stageProgress, setStageProgress] = useState(0);
+  const [analyzedWellIds, setAnalyzedWellIds] = useState<Set<string>>(new Set());
+  const [currentBatch, setCurrentBatch] = useState(1);
 
-  // Load ALL Oklahoma wells, then classify SPT candidates client-side
+  // Load ALL Oklahoma wells + previously analyzed well IDs
   useEffect(() => {
     const load = async () => {
+      // Load wells
       const { data, error } = await supabase
         .from("wells")
         .select("id, well_name, api_number, operator, county, state, formation, production_oil, production_gas, water_cut, total_depth, well_type, status, latitude, longitude")
@@ -116,10 +120,27 @@ const OklahomaPilot = () => {
         console.error("Failed to load wells:", error);
         toast.error("Failed to load wells");
       }
+
+      // Load previously analyzed well IDs
+      const { data: analysisData } = await supabase
+        .from("well_analyses")
+        .select("well_id, batch_number");
+
+      const alreadyAnalyzed = new Set<string>();
+      let maxBatch = 0;
+      if (analysisData) {
+        analysisData.forEach((a: any) => {
+          alreadyAnalyzed.add(a.well_id);
+          if (a.batch_number > maxBatch) maxBatch = a.batch_number;
+        });
+      }
+      setAnalyzedWellIds(alreadyAnalyzed);
+      setCurrentBatch(maxBatch + 1);
+
       if (data) {
         setAllWells(data);
-        // Auto-select top 10 SPT candidates (excellent first, then good)
-        const candidates = data.filter(isSptCandidate);
+        // Auto-select top 10 unanalyzed SPT candidates
+        const candidates = data.filter(w => isSptCandidate(w) && !alreadyAnalyzed.has(w.id));
         const ranked = [...candidates].sort((a, b) => {
           const ratingOrder = { excellent: 0, good: 1, marginal: 2 };
           const rA = ratingOrder[getSptRating(a)];
