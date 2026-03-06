@@ -200,7 +200,7 @@ const PilotWellsMap = ({ wells, selectedIds, activeWellId, analyzedIds, onWellCl
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wells]);
 
-  // Update marker styles when selection/active state changes (without recreating the map)
+  // Update marker styles when selection/active/analyzed state changes
   useEffect(() => {
     if (!mapInstanceRef.current) return;
 
@@ -211,18 +211,19 @@ const PilotWellsMap = ({ wells, selectedIds, activeWellId, analyzedIds, onWellCl
       const color = getMarkerColor(well.water_cut);
       const isActive = wellId === activeWellId;
       const isSelected = selectedIds?.has(wellId) ?? true;
-      const radius = isActive ? 12 : isSelected ? 8 : 5;
-      const opacity = isSelected ? 0.9 : 0.35;
+      const isAnalyzed = analyzedIds?.has(wellId) ?? false;
+      const radius = isActive ? 12 : isSelected ? 8 : isAnalyzed ? 7 : 5;
+      const opacity = isSelected ? 0.9 : isAnalyzed ? 0.6 : 0.35;
 
       marker.setRadius(radius);
       marker.setStyle({
-        fillColor: color,
-        color: isActive ? "#ffffff" : isSelected ? color : "#6b7280",
-        weight: isActive ? 3 : isSelected ? 2 : 1,
+        fillColor: isAnalyzed && !isSelected ? "#22c55e" : color,
+        color: isActive ? "#ffffff" : isAnalyzed && !isSelected ? "#16a34a" : isSelected ? color : "#6b7280",
+        weight: isActive ? 3 : isAnalyzed ? 2.5 : isSelected ? 2 : 1,
         fillOpacity: opacity,
       });
     });
-  }, [wells, selectedIds, activeWellId]);
+  }, [wells, selectedIds, activeWellId, analyzedIds]);
 
   return (
     <Card className="glass-card border-primary/30">
