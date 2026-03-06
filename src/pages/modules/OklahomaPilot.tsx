@@ -23,6 +23,7 @@ import PilotAIProcessing from "@/components/oklahoma-pilot/PilotAIProcessing";
 import PilotStats from "@/components/oklahoma-pilot/PilotStats";
 import PilotHeader from "@/components/oklahoma-pilot/PilotHeader";
 import FieldScanStageViz from "@/components/oklahoma-pilot/FieldScanStageViz";
+import AnalyzedWellsTable from "@/components/oklahoma-pilot/AnalyzedWellsTable";
 import ClassificationStageViz from "@/components/oklahoma-pilot/stage-viz/ClassificationStageViz";
 import CoreAnalysisStageViz from "@/components/oklahoma-pilot/stage-viz/CoreAnalysisStageViz";
 import CumulativeStageViz from "@/components/oklahoma-pilot/stage-viz/CumulativeStageViz";
