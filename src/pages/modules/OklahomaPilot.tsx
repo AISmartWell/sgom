@@ -628,6 +628,13 @@ ${placemarks}
         </div>
       )}
 
+      {/* Analyzed Wells History */}
+      {analyzedWellIds.size > 0 && !isRunning && analyses.size === 0 && (
+        <div className="mb-6">
+          <AnalyzedWellsTable />
+        </div>
+      )}
+
       {/* Overall Progress */}
       {(isRunning || completedWells > 0) && (
         <Card className="mb-6 glass-card border-primary/30">
