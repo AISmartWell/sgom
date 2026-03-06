@@ -7,6 +7,7 @@ import {
   BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, AreaChart,
 } from "recharts";
 import { DollarSign, TrendingUp, Clock, Calculator, CheckCircle2 } from "lucide-react";
+import { DEFAULT_OIL_PRICE, DEFAULT_OPEX_PER_BBL, DEFAULT_TREATMENT_COST } from "@/lib/economics-config";
 
 // Generalized Arps decline: q(t) = qi / (1 + b * Di * t)^(1/b)
 function arpsRate(qi: number, Di: number, b: number, t: number): number {
@@ -35,9 +36,9 @@ const SPT_CANDIDATES = [
 ];
 
 const EconomicAnalysisDemo = () => {
-  const [oilPrice, setOilPrice] = useState(72);
-  const [treatmentCost, setTreatmentCost] = useState(85000);
-  const [opexPerBbl, setOpexPerBbl] = useState(18);
+  const [oilPrice, setOilPrice] = useState(DEFAULT_OIL_PRICE);
+  const [treatmentCost, setTreatmentCost] = useState(DEFAULT_TREATMENT_COST);
+  const [opexPerBbl, setOpexPerBbl] = useState(DEFAULT_OPEX_PER_BBL);
 
   const economics = useMemo(() => {
     return SPT_CANDIDATES.map((well) => {
