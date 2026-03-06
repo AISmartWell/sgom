@@ -225,6 +225,54 @@ export type Database = {
           },
         ]
       }
+      well_analyses: {
+        Row: {
+          batch_number: number
+          company_id: string
+          created_at: string
+          id: string
+          stage_results: Json | null
+          status: string
+          user_id: string
+          well_id: string
+        }
+        Insert: {
+          batch_number?: number
+          company_id: string
+          created_at?: string
+          id?: string
+          stage_results?: Json | null
+          status?: string
+          user_id: string
+          well_id: string
+        }
+        Update: {
+          batch_number?: number
+          company_id?: string
+          created_at?: string
+          id?: string
+          stage_results?: Json | null
+          status?: string
+          user_id?: string
+          well_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "well_analyses_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "well_analyses_well_id_fkey"
+            columns: ["well_id"]
+            isOneToOne: false
+            referencedRelation: "wells"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       wells: {
         Row: {
           api_number: string | null
