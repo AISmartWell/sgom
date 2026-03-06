@@ -249,10 +249,10 @@ const PilotWellsMap = ({ wells, selectedIds, activeWellId, analyzedIds, onWellCl
             <span className="inline-block w-2.5 h-2.5 rounded-full bg-red-500" /> WC &gt; 70%
           </span>
           <span className="flex items-center gap-1">
-            <span className="inline-block w-2.5 h-2.5 rounded-full border border-muted-foreground opacity-40" /> Not selected
+            <span className="inline-block w-2.5 h-2.5 rounded-full border-2 border-green-600 bg-green-500/40" /> ✅ Analyzed
           </span>
           <span className="flex items-center gap-1">
-            <span className="inline-block w-3 h-3 rounded-full bg-primary" /> Selected
+            <span className="inline-block w-2.5 h-2.5 rounded-full border border-muted-foreground opacity-40" /> Not selected
           </span>
           <span className="ml-auto flex items-center gap-1 font-medium">
             🖊️ Polygon / ▭ Rectangle = area select
