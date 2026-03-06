@@ -72,9 +72,9 @@ export const DeviationReport = ({ analysisText }: DeviationReportProps) => {
   };
 
   const label = (s: string | null) => {
-    if (s === "in-range") return "В диапазоне";
-    if (s === "near") return "Близко";
-    if (s === "out") return "Отклонение";
+    if (s === "in-range") return "In Range";
+    if (s === "near") return "Near";
+    if (s === "out") return "Deviation";
     return "";
   };
 
@@ -88,7 +88,7 @@ export const DeviationReport = ({ analysisText }: DeviationReportProps) => {
     <Card className={`border ${borderClass} mt-4`}>
       <CardContent className="pt-3 pb-3 px-4 space-y-2">
         <div className="flex items-center gap-2">
-          <Badge variant="outline" className="text-[10px]">Валидация</Badge>
+          <Badge variant="outline" className="text-[10px]">Validation</Badge>
           <span className="text-xs text-muted-foreground">{ref.lithology}</span>
         </div>
         <div className="grid grid-cols-2 gap-3 text-xs">
