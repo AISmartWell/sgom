@@ -40,8 +40,44 @@ export const ROI_THRESHOLDS = {
   // <100% → "Marginal", <0% → "Negative"
 };
 
-// ── Arps decline defaults (EconomicAnalysisDemo) ───────────────────
+// ── Arps decline defaults ───────────────────────────────────────────
 export const ARPS_DEFAULTS = {
   Di: 0.025,
   b: 0.5,
 };
+
+// ── Arps decline functions (shared across all economic modules) ─────
+/** Generalized Arps decline: q(t) = qi / (1 + b·Di·t)^(1/b) */
+export function arpsRate(qi: number, Di: number, b: number, t: number): number {
+  if (b < 0.001) return qi * Math.exp(-Di * t);
+  const denom = 1 + b * Di * t;
+  if (denom <= 0) return 0;
+  return qi / Math.pow(denom, 1 / b);
+}
+
+/** 5-Year ROI with Arps decline: (cumNetProfit - capex) / capex * 100 */
+export function calcFiveYearROI(
+  addedProdBPD: number,
+  oilPrice: number,
+  opex: number,
+  capex: number,
+  Di: number = ARPS_DEFAULTS.Di,
+  b: number = ARPS_DEFAULTS.b,
+): { roi: number; fiveYearNet: number; paybackMonths: number } {
+  let fiveYearNet = 0;
+  let cumProfit = 0;
+  let paybackMonths = Infinity;
+
+  for (let m = 1; m <= 60; m++) {
+    const monthlyRate = arpsRate(addedProdBPD, Di, b, m);
+    const monthProfit = monthlyRate * 30.44 * (oilPrice - opex);
+    fiveYearNet += monthProfit;
+    cumProfit += monthProfit;
+    if (cumProfit >= capex && paybackMonths === Infinity) {
+      paybackMonths = m;
+    }
+  }
+
+  const roi = capex > 0 ? ((fiveYearNet - capex) / capex) * 100 : 0;
+  return { roi, fiveYearNet, paybackMonths: paybackMonths === Infinity ? 999 : paybackMonths };
+}
