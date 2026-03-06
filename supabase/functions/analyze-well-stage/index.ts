@@ -274,17 +274,16 @@ function computeSptProjection(well: WellData): { metrics: StageMetric[]; context
 }
 
 function computeEconomic(well: WellData): { metrics: StageMetric[]; context: string } {
-  const OIL_PRICE = 72;
-  const OPEX_PER_BBL = 18;
+  const OIL_PRICE = 72;   // synced with economics-config DEFAULT_OIL_PRICE
+  const OPEX_PER_BBL = 18; // synced with economics-config DEFAULT_OPEX_PER_BBL
+  const TREATMENT_COST = 85000; // synced with economics-config DEFAULT_TREATMENT_COST
   const currentProd = well.production_oil ?? 8;
-  const depth = well.total_depth ?? 5000;
   const waterCut = well.water_cut ?? 30;
 
-  const capex = 25000 + depth * 2 + (waterCut > 40 ? 5000 : 0);
-  const multiplier = waterCut < 30 ? 2.5 : waterCut < 50 ? 2.0 : 2.0;
-  const treatmentEffect = waterCut < 30 ? 10 : waterCut < 50 ? 7.5 : 5;
-  const projectedProd = Math.min(currentProd * multiplier + treatmentEffect, 25);
-  const addedProd = Math.max(projectedProd - currentProd, 1);
+  const capex = TREATMENT_COST;
+
+  // SPT gain by water-cut bracket (synced with sptGainByWaterCut)
+  const sptGain = waterCut < 30 ? 7 : waterCut < 50 ? 5 : waterCut < 70 ? 3 : 1.5;
 
   // Use Arps decline for revenue calculation
   const Di = 0.025;
@@ -293,14 +292,14 @@ function computeEconomic(well: WellData): { metrics: StageMetric[]; context: str
   let paybackMonth = 999;
   let cumProfit = 0;
   for (let m = 1; m <= 60; m++) {
-    const rate = arpsRate(addedProd, Di, b, m);
+    const rate = arpsRate(sptGain, Di, b, m);
     const monthProfit = rate * 30.44 * (OIL_PRICE - OPEX_PER_BBL);
     cumProfit += monthProfit;
     fiveYearNet += monthProfit;
     if (cumProfit >= capex && paybackMonth === 999) paybackMonth = m;
   }
-  fiveYearNet -= capex;
-  const roi5Year = capex > 0 ? Math.round((fiveYearNet / capex) * 100) : 0;
+  // ROI = (cumNetProfit - capex) / capex * 100  — standard formula
+  const roi5Year = capex > 0 ? Math.round(((fiveYearNet - capex) / capex) * 100) : 0;
 
   // Year 1 revenue (with decline)
   let annualRevenue = 0;
