@@ -843,7 +843,7 @@ ${placemarks}
                           <FieldScanStageViz well={well} allWells={allWells} />
                         )}
                         {isDone && analysis?.stages.has("classification") && (
-                          <ClassificationStageViz well={well} />
+                          <ClassificationStageViz well={well} allWells={allWells} />
                         )}
                         {isDone && analysis?.stages.has("core_analysis") && (
                           <CoreAnalysisStageViz well={well} />
