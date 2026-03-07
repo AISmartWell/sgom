@@ -1,6 +1,8 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Database, FileCheck, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Database, FileCheck, AlertCircle, CheckCircle2, Lightbulb, Sparkles } from "lucide-react";
+import { toast } from "sonner";
 
 interface WellRecord {
   id: string;
@@ -22,6 +24,7 @@ interface WellRecord {
 
 interface Props {
   well: WellRecord;
+  allWells?: WellRecord[];
 }
 
 const DATA_FIELDS = [
@@ -42,7 +45,48 @@ const DATA_FIELDS = [
 
 const CATEGORIES = ["Identity", "Location", "Geology", "Production", "Operations"] as const;
 
-const ClassificationStageViz = ({ well }: Props) => {
+type FieldKey = typeof DATA_FIELDS[number]["key"];
+
+/** Find the most common non-null value for a field among sibling wells */
+function findSuggestion(
+  field: FieldKey,
+  currentWell: WellRecord,
+  siblings: WellRecord[]
+): { value: string | number; source: string; confidence: number } | null {
+  if (siblings.length === 0) return null;
+
+  const values = siblings
+    .map((w) => w[field as keyof WellRecord])
+    .filter((v) => v !== null && v !== undefined && v !== "");
+
+  if (values.length === 0) return null;
+
+  // For numeric fields, use median
+  if (typeof values[0] === "number") {
+    const nums = (values as number[]).sort((a, b) => a - b);
+    const median = nums[Math.floor(nums.length / 2)];
+    const confidence = Math.min(95, Math.round((nums.length / siblings.length) * 100));
+    return { value: Math.round(median * 100) / 100, source: `median of ${nums.length} wells`, confidence };
+  }
+
+  // For string fields, use mode (most frequent)
+  const freq = new Map<string, number>();
+  for (const v of values) {
+    const s = String(v);
+    freq.set(s, (freq.get(s) || 0) + 1);
+  }
+  let best = "";
+  let bestCount = 0;
+  for (const [val, count] of freq) {
+    if (count > bestCount) { best = val; bestCount = count; }
+  }
+  const confidence = Math.min(95, Math.round((bestCount / siblings.length) * 100));
+  return { value: best, source: `${bestCount}/${siblings.length} wells`, confidence };
+}
+
+const ClassificationStageViz = ({ well, allWells = [] }: Props) => {
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
   const fieldStatus = useMemo(() => {
     return DATA_FIELDS.map((f) => {
       const val = well[f.key as keyof WellRecord];
@@ -64,6 +108,36 @@ const ClassificationStageViz = ({ well }: Props) => {
     });
   }, [fieldStatus]);
 
+  // Find sibling wells (same county or same formation)
+  const siblingWells = useMemo(() => {
+    if (!allWells.length) return [];
+    return allWells.filter((w) => {
+      if (w.id === well.id) return false;
+      const sameCounty = well.county && w.county && w.county === well.county;
+      const sameFormation = well.formation && w.formation && w.formation === well.formation;
+      return sameCounty || sameFormation;
+    });
+  }, [well, allWells]);
+
+  // Generate suggestions for missing fields
+  const suggestions = useMemo(() => {
+    if (!siblingWells.length) return [];
+    const missingFields = fieldStatus.filter((f) => !f.present);
+    return missingFields
+      .map((f) => {
+        const suggestion = findSuggestion(f.key, well, siblingWells);
+        if (!suggestion) return null;
+        return { field: f, ...suggestion };
+      })
+      .filter(Boolean) as Array<{
+        field: typeof fieldStatus[number];
+        value: string | number;
+        source: string;
+        confidence: number;
+      }>;
+  }, [fieldStatus, siblingWells, well]);
+
+  const missingCount = fieldStatus.filter((f) => !f.present).length;
   const qualityRating = completeness >= 85 ? "High" : completeness >= 60 ? "Medium" : "Low";
   const qualityColor = completeness >= 85 ? "text-success" : completeness >= 60 ? "text-warning" : "text-destructive";
 
@@ -150,6 +224,109 @@ const ClassificationStageViz = ({ well }: Props) => {
           ))}
         </div>
       </div>
+
+      {/* Auto-Suggestions Panel */}
+      {suggestions.length > 0 && (
+        <div className="sm:col-span-2 p-3 rounded-lg border border-primary/30 bg-primary/5 space-y-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-xs font-semibold text-primary">
+              <Lightbulb className="h-3.5 w-3.5" />
+              AI Auto-Fill Suggestions
+              <Badge variant="outline" className="text-[9px] border-primary/40 text-primary">
+                {suggestions.length} field{suggestions.length > 1 ? "s" : ""}
+              </Badge>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 text-[10px] px-2 text-primary hover:text-primary"
+              onClick={() => setShowSuggestions(!showSuggestions)}
+            >
+              {showSuggestions ? "Hide" : "Show"} Details
+            </Button>
+          </div>
+
+          <p className="text-[10px] text-muted-foreground">
+            Based on {siblingWells.length} wells in {well.county ? `${well.county} County` : "the same area"}
+            {well.formation ? ` / ${well.formation} formation` : ""}
+          </p>
+
+          {showSuggestions && (
+            <div className="space-y-1.5 mt-1">
+              {suggestions.map((s) => (
+                <div
+                  key={s.field.key}
+                  className="flex items-center justify-between p-2 rounded-md bg-background/60 border border-border/30"
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Sparkles className="h-3 w-3 text-primary shrink-0" />
+                    <div className="min-w-0">
+                      <span className="text-[10px] font-medium text-foreground">{s.field.label}</span>
+                      <span className="text-[10px] text-muted-foreground ml-1.5">→</span>
+                      <span className="text-[10px] font-semibold text-primary ml-1.5 truncate">
+                        {typeof s.value === "number" ? s.value.toLocaleString() : s.value}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <div className="text-right">
+                      <div className="text-[9px] text-muted-foreground">{s.source}</div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-10 h-1 bg-muted/40 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full ${
+                              s.confidence >= 70 ? "bg-success" : s.confidence >= 40 ? "bg-warning" : "bg-destructive"
+                            }`}
+                            style={{ width: `${s.confidence}%` }}
+                          />
+                        </div>
+                        <span className="text-[8px] text-muted-foreground">{s.confidence}%</span>
+                      </div>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-5 text-[9px] px-1.5 border-primary/30 text-primary hover:bg-primary/10"
+                      onClick={() => {
+                        toast.success(`Suggested ${s.field.label}: ${s.value}`, {
+                          description: "Value queued for review before applying to database",
+                        });
+                      }}
+                    >
+                      Apply
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {!showSuggestions && (
+            <div className="flex flex-wrap gap-1.5 mt-1">
+              {suggestions.map((s) => (
+                <Badge
+                  key={s.field.key}
+                  variant="outline"
+                  className="text-[9px] border-primary/30 bg-primary/5 text-primary cursor-pointer hover:bg-primary/15 transition-colors"
+                  onClick={() => setShowSuggestions(true)}
+                >
+                  {s.field.label}: {typeof s.value === "number" ? s.value.toLocaleString() : s.value}
+                  <span className="ml-1 opacity-60">{s.confidence}%</span>
+                </Badge>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* No suggestions available */}
+      {missingCount > 0 && suggestions.length === 0 && siblingWells.length === 0 && allWells.length > 0 && (
+        <div className="sm:col-span-2 p-2 rounded-lg border border-border/30 bg-muted/5">
+          <p className="text-[10px] text-muted-foreground text-center">
+            No similar wells found in {well.county || "this"} county for auto-fill suggestions
+          </p>
+        </div>
+      )}
     </div>
   );
 };
