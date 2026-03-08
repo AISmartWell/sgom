@@ -43,6 +43,12 @@ const menuItems = [
     icon: LayoutDashboard,
     href: "/dashboard",
   },
+  {
+    title: "Analysis Guide",
+    icon: Presentation,
+    href: "/dashboard/analysis-guide",
+    badge: "📖",
+  },
   // ── Stages 1–6 + EOR ──
   {
     title: "Field Scanning",
