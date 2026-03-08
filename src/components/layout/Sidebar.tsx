@@ -49,6 +49,12 @@ const menuItems = [
     href: "/dashboard/analysis-guide",
     badge: "📖",
   },
+  {
+    title: "Formation Codes",
+    icon: Database,
+    href: "/dashboard/formation-codes",
+    badge: "🔍",
+  },
   // ── Stages 1–6 + EOR ──
   {
     title: "Field Scanning",

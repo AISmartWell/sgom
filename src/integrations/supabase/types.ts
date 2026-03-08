@@ -142,6 +142,51 @@ export type Database = {
           },
         ]
       }
+      formation_codes: {
+        Row: {
+          basin: string | null
+          code: string
+          county_fips: string | null
+          county_name: string | null
+          created_at: string
+          description: string | null
+          formation: string | null
+          id: string
+          source: string | null
+          state_code: string
+          state_name: string
+          well_type: string | null
+        }
+        Insert: {
+          basin?: string | null
+          code: string
+          county_fips?: string | null
+          county_name?: string | null
+          created_at?: string
+          description?: string | null
+          formation?: string | null
+          id?: string
+          source?: string | null
+          state_code: string
+          state_name: string
+          well_type?: string | null
+        }
+        Update: {
+          basin?: string | null
+          code?: string
+          county_fips?: string | null
+          county_name?: string | null
+          created_at?: string
+          description?: string | null
+          formation?: string | null
+          id?: string
+          source?: string | null
+          state_code?: string
+          state_name?: string
+          well_type?: string | null
+        }
+        Relationships: []
+      }
       user_companies: {
         Row: {
           company_id: string
