@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import ProductionHistoryUpload from "@/components/production-history/ProductionHistoryUpload";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,8 +12,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   ArrowLeft, Play, RotateCcw, CheckCircle2, Loader2, Droplets,
   FileSpreadsheet, MapPin, AlertTriangle, TrendingUp, Download,
-  SkipForward,
+  SkipForward, ChevronDown, ChevronRight,
 } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import PilotWellsMap from "@/components/oklahoma-pilot/PilotWellsMap";
@@ -106,6 +108,23 @@ const OklahomaPilot = () => {
   const [stageProgress, setStageProgress] = useState(0);
   const [analyzedWellIds, setAnalyzedWellIds] = useState<Set<string>>(new Set());
   const [currentBatch, setCurrentBatch] = useState(1);
+  const [companyId, setCompanyId] = useState<string | null>(null);
+  const [prodHistoryOpen, setProdHistoryOpen] = useState(false);
+
+  // Fetch company ID for production history upload
+  useEffect(() => {
+    const fetchCompany = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await supabase
+        .from("user_companies")
+        .select("company_id")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (data) setCompanyId(data.company_id);
+    };
+    fetchCompany();
+  }, []);
 
   // Load ALL Oklahoma wells + previously analyzed well IDs
   useEffect(() => {
@@ -724,6 +743,29 @@ ${placemarks}
             analyses={analyses}
           />
         </div>
+      )}
+
+      {/* Production History Upload (collapsible) */}
+      {!loading && allWells.length > 0 && (
+        <Collapsible open={prodHistoryOpen} onOpenChange={setProdHistoryOpen} className="mb-8">
+          <Card className="glass-card border-primary/20">
+            <CollapsibleTrigger asChild>
+              <CardHeader className="cursor-pointer hover:bg-muted/10 transition-colors">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  {prodHistoryOpen ? <ChevronDown className="h-5 w-5 text-primary" /> : <ChevronRight className="h-5 w-5 text-primary" />}
+                  <FileSpreadsheet className="h-5 w-5 text-primary" />
+                  Production History Upload
+                  <Badge variant="outline" className="ml-2 text-[10px]">CSV</Badge>
+                </CardTitle>
+              </CardHeader>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <CardContent>
+                <ProductionHistoryUpload companyId={companyId} />
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
       )}
 
       {/* Well Selection Table */}
