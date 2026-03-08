@@ -125,7 +125,6 @@ const OklahomaPilot = () => {
     };
     fetchCompany();
   }, []);
-  const [currentBatch, setCurrentBatch] = useState(1);
 
   // Load ALL Oklahoma wells + previously analyzed well IDs
   useEffect(() => {
