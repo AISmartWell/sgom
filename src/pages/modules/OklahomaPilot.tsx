@@ -1061,7 +1061,10 @@ ${placemarks}
                                 <CoreAnalysisStageViz well={well} />
                               )}
                               {stage.key === "cumulative" && (
-                                <CumulativeStageViz well={well} />
+                                <>
+                                  <CumulativeStageViz well={well} />
+                                  <ProductionHistoryChart wellId={well.id} wellName={well.well_name || well.api_number || undefined} />
+                                </>
                               )}
                               {stage.key === "spt_projection" && (
                                 <SPTProjectionStageViz well={well} />
