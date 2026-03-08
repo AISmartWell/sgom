@@ -108,6 +108,24 @@ const OklahomaPilot = () => {
   const [stageProgress, setStageProgress] = useState(0);
   const [analyzedWellIds, setAnalyzedWellIds] = useState<Set<string>>(new Set());
   const [currentBatch, setCurrentBatch] = useState(1);
+  const [companyId, setCompanyId] = useState<string | null>(null);
+  const [prodHistoryOpen, setProdHistoryOpen] = useState(false);
+
+  // Fetch company ID for production history upload
+  useEffect(() => {
+    const fetchCompany = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await supabase
+        .from("user_companies")
+        .select("company_id")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (data) setCompanyId(data.company_id);
+    };
+    fetchCompany();
+  }, []);
+  const [currentBatch, setCurrentBatch] = useState(1);
 
   // Load ALL Oklahoma wells + previously analyzed well IDs
   useEffect(() => {
