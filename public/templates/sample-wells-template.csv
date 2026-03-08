@@ -1,0 +1,21 @@
+api_number,well_name,operator,state,county,formation,well_type,status,latitude,longitude,total_depth,production_oil,production_gas,water_cut,spud_date,completion_date
+35-019-24680,Smith #1-24,Devon Energy,OK,Canadian,Woodford,OIL,ACTIVE,35.4672,-97.5124,12500,45,120,28,2019-06-15,2019-09-20
+35-019-24681,Johnson #2-13,Continental Resources,OK,Canadian,Woodford,OIL,ACTIVE,35.4701,-97.5089,11800,62,95,35,2020-01-10,2020-04-18
+35-017-31205,Baker Ranch #1,Chesapeake Energy,OK,Caddo,Hunton,OIL AND GAS,ACTIVE,35.1834,-98.3721,8200,28,340,42,2018-03-22,2018-07-05
+35-017-31206,Baker Ranch #2,Chesapeake Energy,OK,Caddo,Hunton,GAS,ACTIVE,35.1856,-98.3698,8450,12,510,51,2018-09-14,2018-12-20
+35-039-10542,Eagle Creek #1-14,Sandridge Energy,OK,Garvin,Mississippian,OIL,ACTIVE,34.7512,-97.1834,6200,85,45,18,2017-11-08,2018-02-15
+35-039-10543,Eagle Creek #2-14,Sandridge Energy,OK,Garvin,Mississippian,OIL,ACTIVE,34.7534,-97.1801,6350,72,52,22,2018-05-20,2018-08-30
+35-051-20891,Pioneer Unit #3,Cimarex Energy,OK,Grady,Red Fork,OIL,ACTIVE,35.0245,-97.9567,9800,38,180,55,2019-04-12,2019-08-01
+35-051-20892,Pioneer Unit #4,Cimarex Energy,OK,Grady,Red Fork,OIL,INACTIVE,35.0268,-97.9534,9650,15,90,68,2017-02-28,2017-06-15
+35-073-44210,Kingfisher Deep #1,Marathon Oil,OK,Kingfisher,Morrow,OIL AND GAS,ACTIVE,35.8912,-97.9423,10200,55,275,30,2020-07-05,2020-10-22
+35-073-44211,Kingfisher Deep #2,Marathon Oil,OK,Kingfisher,Morrow,OIL AND GAS,ACTIVE,35.8934,-97.9401,10450,48,310,33,2020-11-18,2021-02-28
+35-015-55012,Blaine County #1-8,Unit Petroleum,OK,Blaine,Tonkawa,OIL,ACTIVE,35.9123,-98.4567,7500,92,60,12,2016-08-10,2016-11-25
+35-015-55013,Blaine County #2-8,Unit Petroleum,OK,Blaine,Tonkawa,OIL,ACTIVE,35.9145,-98.4534,7650,78,55,16,2017-03-15,2017-06-28
+42-383-40123,Wolfcamp A #1H,Pioneer Natural Resources,TX,Ward,Wolfcamp,OIL,ACTIVE,31.4523,-103.1234,14200,120,350,25,2021-01-20,2021-06-15
+42-383-40124,Wolfcamp A #2H,Pioneer Natural Resources,TX,Ward,Wolfcamp,OIL,ACTIVE,31.4545,-103.1212,14500,105,320,28,2021-04-10,2021-09-05
+42-301-28567,Spraberry Trend #5,Diamondback Energy,TX,Loving,Spraberry,OIL,ACTIVE,31.7234,-103.5678,11200,65,180,38,2020-06-22,2020-10-15
+42-103-19834,Bone Spring #3H,Concho Resources,TX,Crane,Bone Spring,OIL,ACTIVE,31.3912,-102.8456,12800,88,240,31,2021-08-05,2021-12-18
+35-027-60100,Chester Sand #1,Newpark Resources,OK,Cleveland,Chester,OIL,INACTIVE,35.2134,-97.2345,7200,22,85,62,2015-04-18,2015-08-10
+35-027-60101,Chester Sand #2,Newpark Resources,OK,Cleveland,Chester,OIL,PLUGGED,35.2156,-97.2312,7050,5,30,78,2014-01-22,2014-05-15
+35-109-72345,Wilcox Deep #1,Chaparral Energy,OK,Pontotoc,Wilcox,OIL,ACTIVE,34.7823,-96.6789,5800,110,40,15,2019-10-01,2020-01-20
+35-109-72346,Wilcox Deep #2,Chaparral Energy,OK,Pontotoc,Wilcox,OIL,ACTIVE,34.7845,-96.6756,5650,95,35,19,2020-03-15,2020-06-30
