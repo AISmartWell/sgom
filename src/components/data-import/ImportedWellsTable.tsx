@@ -38,7 +38,7 @@ export const ImportedWellsTable = ({ refreshTrigger }: ImportedWellsTableProps) 
 
     let query = supabase
       .from("wells")
-      .select("id, api_number, well_name, operator, state, county, formation, status, source, production_oil, production_gas, created_at")
+      .select("id, api_number, well_name, operator, state, county, formation, status, source, production_oil, production_gas, water_cut, well_type, latitude, longitude, total_depth, spud_date, completion_date, created_at")
       .order("created_at", { ascending: false });
 
     let countQuery = supabase
