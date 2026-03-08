@@ -43,7 +43,7 @@ export const WellDetailDialog = ({ well, open, onOpenChange }: WellDetailDialogP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-2xl max-h-[85vh]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-lg">
             <Fuel className="h-5 w-5 text-primary" />
@@ -51,34 +51,41 @@ export const WellDetailDialog = ({ well, open, onOpenChange }: WellDetailDialogP
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-1">
-          <div className="flex gap-2 mb-4">
-            <Badge variant="outline">{well.well_type || "Unknown type"}</Badge>
-            <Badge className={
-              well.status === "ACTIVE" ? "bg-success/20 text-success border-success/30" :
-              well.status === "PLUGGED" ? "bg-muted text-muted-foreground" :
-              "bg-warning/20 text-warning border-warning/30"
-            }>
-              {well.status || "Unknown"}
-            </Badge>
+        <ScrollArea className="max-h-[70vh] pr-3">
+          <div className="space-y-1">
+            <div className="flex gap-2 mb-4">
+              <Badge variant="outline">{well.well_type || "Unknown type"}</Badge>
+              <Badge className={
+                well.status === "ACTIVE" ? "bg-success/20 text-success border-success/30" :
+                well.status === "PLUGGED" ? "bg-muted text-muted-foreground" :
+                "bg-warning/20 text-warning border-warning/30"
+              }>
+                {well.status || "Unknown"}
+              </Badge>
+            </div>
+
+            <InfoRow icon={Hash} label="API Number" value={<span className="font-mono">{well.api_number}</span>} />
+            <InfoRow icon={Building2} label="Operator" value={well.operator} />
+            <InfoRow icon={MapPin} label="Location" value={`${well.county || "—"}, ${well.state}`} />
+            <InfoRow icon={MapPin} label="Coordinates" value={
+              well.latitude && well.longitude
+                ? `${well.latitude.toFixed(5)}, ${well.longitude.toFixed(5)}`
+                : null
+            } />
+            <InfoRow icon={Layers} label="Formation" value={well.formation} />
+            <InfoRow icon={Layers} label="Total Depth" value={well.total_depth ? `${well.total_depth.toLocaleString()} ft` : null} />
+            <InfoRow icon={Droplets} label="Oil Production" value={well.production_oil ? `${well.production_oil.toLocaleString()} bbl` : null} />
+            <InfoRow icon={Fuel} label="Gas Production" value={well.production_gas ? `${well.production_gas.toLocaleString()} mcf` : null} />
+            <InfoRow icon={Droplets} label="Water Cut" value={well.water_cut ? `${(well.water_cut * 100).toFixed(1)}%` : null} />
+            <InfoRow icon={Calendar} label="Spud Date" value={well.spud_date} />
+            <InfoRow icon={Calendar} label="Completion Date" value={well.completion_date} />
           </div>
 
-          <InfoRow icon={Hash} label="API Number" value={<span className="font-mono">{well.api_number}</span>} />
-          <InfoRow icon={Building2} label="Operator" value={well.operator} />
-          <InfoRow icon={MapPin} label="Location" value={`${well.county || "—"}, ${well.state}`} />
-          <InfoRow icon={MapPin} label="Coordinates" value={
-            well.latitude && well.longitude
-              ? `${well.latitude.toFixed(5)}, ${well.longitude.toFixed(5)}`
-              : null
-          } />
-          <InfoRow icon={Layers} label="Formation" value={well.formation} />
-          <InfoRow icon={Layers} label="Total Depth" value={well.total_depth ? `${well.total_depth.toLocaleString()} ft` : null} />
-          <InfoRow icon={Droplets} label="Oil Production" value={well.production_oil ? `${well.production_oil.toLocaleString()} bbl` : null} />
-          <InfoRow icon={Fuel} label="Gas Production" value={well.production_gas ? `${well.production_gas.toLocaleString()} mcf` : null} />
-          <InfoRow icon={Droplets} label="Water Cut" value={well.water_cut ? `${(well.water_cut * 100).toFixed(1)}%` : null} />
-          <InfoRow icon={Calendar} label="Spud Date" value={well.spud_date} />
-          <InfoRow icon={Calendar} label="Completion Date" value={well.completion_date} />
-        </div>
+          {/* Production History Chart */}
+          <div className="mt-4 pt-4 border-t border-border/40">
+            <ProductionHistoryChart wellId={well.id} wellName={well.well_name || undefined} />
+          </div>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
