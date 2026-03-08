@@ -124,7 +124,7 @@ export const ImportedWellsTable = ({ refreshTrigger }: ImportedWellsTableProps) 
                   <span>Oil (bbl)</span>
                 </div>
                 {wells.map((well) => (
-                  <div key={well.id} className="grid grid-cols-7 gap-2 text-xs px-2 py-2 rounded hover:bg-muted/30 border-b border-border/20">
+                  <div key={well.id} className="grid grid-cols-7 gap-2 text-xs px-2 py-2 rounded hover:bg-muted/30 border-b border-border/20 cursor-pointer transition-colors" onClick={() => { setSelectedWell(well); setDialogOpen(true); }}>
                     <span className="font-mono truncate">{well.api_number || "—"}</span>
                     <span className="truncate">{well.well_name || "—"}</span>
                     <span className="truncate">{well.operator || "—"}</span>
