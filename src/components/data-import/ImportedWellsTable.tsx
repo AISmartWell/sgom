@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { Database, RefreshCw, Loader2, Search } from "lucide-react";
+import { WellDetailDialog } from "@/components/data-collection/WellDetailDialog";
 
 interface ImportedWellsTableProps {
   refreshTrigger: number;
@@ -18,6 +19,8 @@ export const ImportedWellsTable = ({ refreshTrigger }: ImportedWellsTableProps) 
   const [page, setPage] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [selectedWell, setSelectedWell] = useState<any | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const PAGE_SIZE = 20;
 
   useEffect(() => {
@@ -35,7 +38,7 @@ export const ImportedWellsTable = ({ refreshTrigger }: ImportedWellsTableProps) 
 
     let query = supabase
       .from("wells")
-      .select("id, api_number, well_name, operator, state, county, formation, status, source, production_oil, production_gas, created_at")
+      .select("id, api_number, well_name, operator, state, county, formation, status, source, production_oil, production_gas, water_cut, well_type, latitude, longitude, total_depth, spud_date, completion_date, created_at")
       .order("created_at", { ascending: false });
 
     let countQuery = supabase
@@ -66,6 +69,7 @@ export const ImportedWellsTable = ({ refreshTrigger }: ImportedWellsTableProps) 
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
   return (
+    <>
     <Card className="glass-card border-primary/30">
       <CardHeader>
         <div className="flex items-center justify-between">
@@ -121,7 +125,7 @@ export const ImportedWellsTable = ({ refreshTrigger }: ImportedWellsTableProps) 
                   <span>Oil (bbl)</span>
                 </div>
                 {wells.map((well) => (
-                  <div key={well.id} className="grid grid-cols-7 gap-2 text-xs px-2 py-2 rounded hover:bg-muted/30 border-b border-border/20">
+                  <div key={well.id} className="grid grid-cols-7 gap-2 text-xs px-2 py-2 rounded hover:bg-muted/30 border-b border-border/20 cursor-pointer transition-colors" onClick={() => { setSelectedWell(well); setDialogOpen(true); }}>
                     <span className="font-mono truncate">{well.api_number || "—"}</span>
                     <span className="truncate">{well.well_name || "—"}</span>
                     <span className="truncate">{well.operator || "—"}</span>
@@ -171,5 +175,12 @@ export const ImportedWellsTable = ({ refreshTrigger }: ImportedWellsTableProps) 
         )}
       </CardContent>
     </Card>
+
+    <WellDetailDialog
+      well={selectedWell}
+      open={dialogOpen}
+      onOpenChange={setDialogOpen}
+    />
+    </>
   );
 };
