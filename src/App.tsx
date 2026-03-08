@@ -37,6 +37,7 @@ import Automation from "./pages/modules/Automation";
 import OklahomaPilot from "./pages/modules/OklahomaPilot";
 import AnalysisGuide from "./pages/modules/AnalysisGuide";
 import FormationCodesReference from "./pages/modules/FormationCodesReference";
+import ProductionHistory from "./pages/modules/ProductionHistory";
 import NvidiaInception from "./pages/NvidiaInception";
 import NvidiaShowcase from "./pages/NvidiaShowcase";
 import AWSActivate from "./pages/AWSActivate";
@@ -99,6 +100,7 @@ const App = () => (
              <Route path="oklahoma-pilot" element={<OklahomaPilot />} />
              <Route path="analysis-guide" element={<AnalysisGuide />} />
              <Route path="formation-codes" element={<FormationCodesReference />} />
+             <Route path="production-history" element={<ProductionHistory />} />
           </Route>
            <Route path="/nvidia-inception" element={<NvidiaInception />} />
            <Route path="/nvidia-showcase" element={<NvidiaShowcase />} />
