@@ -32,6 +32,7 @@ import CumulativeStageViz from "@/components/oklahoma-pilot/stage-viz/Cumulative
 import SPTProjectionStageViz from "@/components/oklahoma-pilot/stage-viz/SPTProjectionStageViz";
 import EconomicStageViz from "@/components/oklahoma-pilot/stage-viz/EconomicStageViz";
 import GeophysicalStageViz from "@/components/oklahoma-pilot/stage-viz/GeophysicalStageViz";
+import ProductionHistoryChart from "@/components/production-history/ProductionHistoryChart";
 
 const MAX_ANALYSIS = 20;
 
@@ -891,7 +892,10 @@ ${placemarks}
                           <CoreAnalysisStageViz well={well} />
                         )}
                         {isDone && analysis?.stages.has("cumulative") && (
-                          <CumulativeStageViz well={well} />
+                          <>
+                            <CumulativeStageViz well={well} />
+                            <ProductionHistoryChart wellId={well.id} wellName={well.well_name || well.api_number || undefined} />
+                          </>
                         )}
                         {isDone && analysis?.stages.has("spt_projection") && (
                           <SPTProjectionStageViz well={well} />
@@ -1057,7 +1061,10 @@ ${placemarks}
                                 <CoreAnalysisStageViz well={well} />
                               )}
                               {stage.key === "cumulative" && (
-                                <CumulativeStageViz well={well} />
+                                <>
+                                  <CumulativeStageViz well={well} />
+                                  <ProductionHistoryChart wellId={well.id} wellName={well.well_name || well.api_number || undefined} />
+                                </>
                               )}
                               {stage.key === "spt_projection" && (
                                 <SPTProjectionStageViz well={well} />
