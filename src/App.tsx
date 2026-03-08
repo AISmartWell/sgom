@@ -102,6 +102,7 @@ const App = () => (
              <Route path="analysis-guide" element={<AnalysisGuide />} />
              <Route path="formation-codes" element={<FormationCodesReference />} />
              <Route path="production-history" element={<ProductionHistory />} />
+             <Route path="reserves-map" element={<ReservesMapPage />} />
           </Route>
            <Route path="/nvidia-inception" element={<NvidiaInception />} />
            <Route path="/nvidia-showcase" element={<NvidiaShowcase />} />
