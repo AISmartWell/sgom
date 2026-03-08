@@ -1,6 +1,8 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { MapPin, Droplets, Fuel, Layers, Calendar, Building2, Hash } from "lucide-react";
+import ProductionHistoryChart from "@/components/production-history/ProductionHistoryChart";
 
 interface WellRecord {
   id: string;
