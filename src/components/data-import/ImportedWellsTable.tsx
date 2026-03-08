@@ -69,6 +69,7 @@ export const ImportedWellsTable = ({ refreshTrigger }: ImportedWellsTableProps) 
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
   return (
+    <>
     <Card className="glass-card border-primary/30">
       <CardHeader>
         <div className="flex items-center justify-between">
