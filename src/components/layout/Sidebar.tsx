@@ -55,6 +55,12 @@ const menuItems = [
     href: "/dashboard/formation-codes",
     badge: "🔍",
   },
+  {
+    title: "Production History",
+    icon: TrendingDown,
+    href: "/dashboard/production-history",
+    badge: "📊",
+  },
   // ── Stages 1–6 + EOR ──
   {
     title: "Field Scanning",
