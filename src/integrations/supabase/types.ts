@@ -187,6 +187,57 @@ export type Database = {
         }
         Relationships: []
       }
+      production_history: {
+        Row: {
+          company_id: string
+          created_at: string
+          days_on: number | null
+          gas_mcf: number | null
+          id: string
+          oil_bbl: number | null
+          production_month: string
+          water_bbl: number | null
+          well_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          days_on?: number | null
+          gas_mcf?: number | null
+          id?: string
+          oil_bbl?: number | null
+          production_month: string
+          water_bbl?: number | null
+          well_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          days_on?: number | null
+          gas_mcf?: number | null
+          id?: string
+          oil_bbl?: number | null
+          production_month?: string
+          water_bbl?: number | null
+          well_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "production_history_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_history_well_id_fkey"
+            columns: ["well_id"]
+            isOneToOne: false
+            referencedRelation: "wells"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_companies: {
         Row: {
           company_id: string
