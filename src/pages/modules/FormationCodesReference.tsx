@@ -8,7 +8,7 @@ import { Search, Database, MapPin, Layers, Fuel } from "lucide-react";
 import { useFormationCodes, useLookupCode } from "@/hooks/useFormationCodes";
 
 const STATE_TABS = [
-  { code: "", label: "Все штаты" },
+  { code: "", label: "All States" },
   { code: "KS", label: "Kansas" },
   { code: "OK", label: "Oklahoma" },
   { code: "TX", label: "Texas" },
@@ -35,10 +35,10 @@ const FormationCodesReference = () => {
       <div>
         <h1 className="text-3xl font-bold flex items-center gap-3">
           <Database className="h-8 w-8 text-primary" />
-          Справочник кодов KDOR / API
+          KDOR / API Code Reference
         </h1>
         <p className="text-muted-foreground mt-1">
-          Мульти-штатовый справочник: Kansas (KDOR), Oklahoma (OCC), Texas (RRC)
+          Multi-state reference: Kansas (KDOR), Oklahoma (OCC), Texas (RRC)
         </p>
       </div>
 
@@ -47,23 +47,23 @@ const FormationCodesReference = () => {
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <Search className="h-5 w-5 text-primary" />
-            Быстрый поиск по коду
+            Quick Code Lookup
           </CardTitle>
           <CardDescription>
-            Введите API-номер скважины (например: 15-019, 35-073, 42-383) для декодирования
+            Enter an API number (e.g. 15-019, 35-073, 42-383) to decode state, county, and formation
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex gap-3 items-end">
             <div className="flex-1">
               <Input
-                placeholder="Введите код, например 15-019 или 42-383..."
+                placeholder="Enter code, e.g. 15-019 or 42-383..."
                 value={lookupInput}
                 onChange={(e) => setLookupInput(e.target.value)}
                 className="font-mono"
               />
             </div>
-            <Button variant="outline" onClick={() => setLookupInput("")}>Очистить</Button>
+            <Button variant="outline" onClick={() => setLookupInput("")}>Clear</Button>
           </div>
 
           {lookupResult && (
@@ -75,30 +75,30 @@ const FormationCodesReference = () => {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm mt-2">
                 <div className="flex items-center gap-2">
                   <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <span><strong>Штат:</strong> {lookupResult.state_name} ({lookupResult.state_code})</span>
+                  <span><strong>State:</strong> {lookupResult.state_name} ({lookupResult.state_code})</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <span><strong>Округ:</strong> {lookupResult.county_name}</span>
+                  <span><strong>County:</strong> {lookupResult.county_name}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Fuel className="h-4 w-4 text-muted-foreground" />
-                  <span><strong>Тип:</strong> {lookupResult.well_type}</span>
+                  <span><strong>Type:</strong> {lookupResult.well_type}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Layers className="h-4 w-4 text-muted-foreground" />
-                  <span><strong>Формация:</strong> {lookupResult.formation}</span>
+                  <span><strong>Formation:</strong> {lookupResult.formation}</span>
                 </div>
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                Бассейн: {lookupResult.basin} · Источник: {lookupResult.source}
+                Basin: {lookupResult.basin} · Source: {lookupResult.source}
               </p>
             </div>
           )}
 
           {lookupInput && !lookupResult && (
             <p className="mt-3 text-sm text-muted-foreground">
-              Код не найден. Попробуйте формат: SS-CCC (например: 15-019)
+              Code not found. Try format: SS-CCC (e.g. 15-019)
             </p>
           )}
         </CardContent>
@@ -144,7 +144,7 @@ const FormationCodesReference = () => {
             </div>
             <div className="w-full md:w-72">
               <Input
-                placeholder="Поиск по округу, формации, бассейну..."
+                placeholder="Search by county, formation, basin..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="h-9"
@@ -154,19 +154,19 @@ const FormationCodesReference = () => {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <p className="text-muted-foreground text-center py-8">Загрузка справочника...</p>
+            <p className="text-muted-foreground text-center py-8">Loading reference data...</p>
           ) : (
             <ScrollArea className="h-[500px]">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b bg-muted/30 sticky top-0">
-                    <th className="px-3 py-2 text-left">Код</th>
-                    <th className="px-3 py-2 text-left">Штат</th>
-                    <th className="px-3 py-2 text-left">Округ</th>
-                    <th className="px-3 py-2 text-left">Тип</th>
-                    <th className="px-3 py-2 text-left">Формация</th>
-                    <th className="px-3 py-2 text-left">Бассейн</th>
-                    <th className="px-3 py-2 text-left">Источник</th>
+                    <th className="px-3 py-2 text-left">Code</th>
+                    <th className="px-3 py-2 text-left">State</th>
+                    <th className="px-3 py-2 text-left">County</th>
+                    <th className="px-3 py-2 text-left">Type</th>
+                    <th className="px-3 py-2 text-left">Formation</th>
+                    <th className="px-3 py-2 text-left">Basin</th>
+                    <th className="px-3 py-2 text-left">Source</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -194,7 +194,7 @@ const FormationCodesReference = () => {
                 </tbody>
               </table>
               {codes.length === 0 && (
-                <p className="text-center text-muted-foreground py-8">Нет результатов</p>
+                <p className="text-center text-muted-foreground py-8">No results found</p>
               )}
             </ScrollArea>
           )}
