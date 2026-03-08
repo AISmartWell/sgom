@@ -35,6 +35,7 @@ import DataImport from "./pages/modules/DataImport";
 import DataSecurity from "./pages/modules/DataSecurity";
 import Automation from "./pages/modules/Automation";
 import OklahomaPilot from "./pages/modules/OklahomaPilot";
+import AnalysisGuide from "./pages/modules/AnalysisGuide";
 import NvidiaInception from "./pages/NvidiaInception";
 import NvidiaShowcase from "./pages/NvidiaShowcase";
 import AWSActivate from "./pages/AWSActivate";
@@ -95,6 +96,7 @@ const App = () => (
              <Route path="data-security" element={<DataSecurity />} />
              <Route path="automation" element={<Automation />} />
              <Route path="oklahoma-pilot" element={<OklahomaPilot />} />
+             <Route path="analysis-guide" element={<AnalysisGuide />} />
           </Route>
            <Route path="/nvidia-inception" element={<NvidiaInception />} />
            <Route path="/nvidia-showcase" element={<NvidiaShowcase />} />
