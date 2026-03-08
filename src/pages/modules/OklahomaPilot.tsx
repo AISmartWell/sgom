@@ -745,6 +745,29 @@ ${placemarks}
         </div>
       )}
 
+      {/* Production History Upload (collapsible) */}
+      {!loading && allWells.length > 0 && (
+        <Collapsible open={prodHistoryOpen} onOpenChange={setProdHistoryOpen} className="mb-8">
+          <Card className="glass-card border-primary/20">
+            <CollapsibleTrigger asChild>
+              <CardHeader className="cursor-pointer hover:bg-muted/10 transition-colors">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  {prodHistoryOpen ? <ChevronDown className="h-5 w-5 text-primary" /> : <ChevronRight className="h-5 w-5 text-primary" />}
+                  <FileSpreadsheet className="h-5 w-5 text-primary" />
+                  Production History Upload
+                  <Badge variant="outline" className="ml-2 text-[10px]">CSV</Badge>
+                </CardTitle>
+              </CardHeader>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <CardContent>
+                <ProductionHistoryUpload companyId={companyId} />
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
+      )}
+
       {/* Well Selection Table */}
       {!loading && allWells.length > 0 && !isRunning && analyses.size === 0 && (
         <Card className="glass-card border-primary/30 mb-8">
