@@ -12,8 +12,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   ArrowLeft, Play, RotateCcw, CheckCircle2, Loader2, Droplets,
   FileSpreadsheet, MapPin, AlertTriangle, TrendingUp, Download,
-  SkipForward,
+  SkipForward, ChevronDown, ChevronRight,
 } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import PilotWellsMap from "@/components/oklahoma-pilot/PilotWellsMap";
