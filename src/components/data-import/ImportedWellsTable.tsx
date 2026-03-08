@@ -174,5 +174,12 @@ export const ImportedWellsTable = ({ refreshTrigger }: ImportedWellsTableProps) 
         )}
       </CardContent>
     </Card>
+
+    <WellDetailDialog
+      well={selectedWell}
+      open={dialogOpen}
+      onOpenChange={setDialogOpen}
+    />
+    </>
   );
 };
