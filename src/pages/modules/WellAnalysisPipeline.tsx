@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { StageVisualization } from "@/components/pipeline/StageVisualization";
 import FieldScanMap from "@/components/pipeline/FieldScanMap";
+import GeophysicalStageViz from "@/components/oklahoma-pilot/stage-viz/GeophysicalStageViz";
+import CumulativeStageViz from "@/components/oklahoma-pilot/stage-viz/CumulativeStageViz";
 import PipelineReport from "@/components/pipeline/PipelineReport";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
