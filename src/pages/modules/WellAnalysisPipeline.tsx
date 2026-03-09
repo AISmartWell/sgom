@@ -369,6 +369,15 @@ const WellAnalysisPipeline = () => {
                   <Badge variant={isComplete ? "default" : "outline"} className={isComplete ? "bg-success/20 text-success border-success/30" : ""}>
                     {stage.badge}
                   </Badge>
+                  {isComplete && result?.dataSource && (
+                    <Badge variant="outline" className={
+                      result.dataSource.includes("REAL") ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 text-[10px]" :
+                      result.dataSource.includes("FORMATION") ? "bg-blue-500/10 text-blue-400 border-blue-500/30 text-[10px]" :
+                      "bg-amber-500/10 text-amber-400 border-amber-500/30 text-[10px]"
+                    }>
+                      {result.dataSource}
+                    </Badge>
+                  )}
                   {isActive && (
                     <span className="text-xs text-muted-foreground">{Math.round(stageProgress)}%</span>
                   )}
