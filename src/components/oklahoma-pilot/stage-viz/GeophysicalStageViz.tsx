@@ -169,9 +169,9 @@ const GeophysicalStageViz = ({ well }: Props) => {
         <div className="flex gap-1 h-[220px]">
           {/* SVG Log Track renderer */}
           {([
-            { key: "gr" as const, label: "GR (API)", color: "hsl(var(--chart-3))", minV: 0, maxV: 150, unit: "API" },
-            { key: "res" as const, label: "Res (Ωm)", color: "hsl(var(--chart-1))", minV: 0, maxV: 60, unit: "Ωm" },
-            { key: "por" as const, label: "φ (%)", color: "hsl(var(--chart-5))", minV: 0, maxV: 30, unit: "%" },
+            { key: "gr" as const, label: "GR (API)", color: "#22d3ee", minV: 0, maxV: 150, unit: "API" },
+            { key: "res" as const, label: "Res (Ωm)", color: "#f97316", minV: 0, maxV: 60, unit: "Ωm" },
+            { key: "por" as const, label: "φ (%)", color: "#a78bfa", minV: 0, maxV: 30, unit: "%" },
           ] as const).map((track) => {
             const vals = logStrips.map((s) => s[track.key]);
             const trackMin = Math.min(track.minV, ...vals);
@@ -180,43 +180,43 @@ const GeophysicalStageViz = ({ well }: Props) => {
             const w = 100;
             const h = 200;
             const points = logStrips.map((s, i) => {
-              const x = ((s[track.key] - trackMin) / range) * (w - 4) + 2;
-              const y = (i / Math.max(logStrips.length - 1, 1)) * (h - 4) + 2;
+              const x = ((s[track.key] - trackMin) / range) * (w - 8) + 4;
+              const y = (i / Math.max(logStrips.length - 1, 1)) * (h - 8) + 4;
               return `${x},${y}`;
             });
-            const fillPoints = [`2,2`, ...points, `2,${h - 2}`].join(" ");
+            const fillPoints = [`4,4`, ...points, `4,${h - 4}`].join(" ");
             return (
-              <div key={track.key} className="flex-1 flex flex-col bg-muted/20 rounded overflow-hidden">
-                <p className="text-[7px] text-center text-muted-foreground py-0.5 shrink-0">{track.label}</p>
+              <div key={track.key} className="flex-1 flex flex-col bg-background/80 rounded overflow-hidden border border-border/30">
+                <p className="text-[8px] text-center text-foreground/70 py-0.5 shrink-0 font-medium">{track.label}</p>
                 <svg viewBox={`0 0 ${w} ${h}`} className="flex-1 w-full" preserveAspectRatio="none">
                   {/* Grid lines */}
                   {[0.25, 0.5, 0.75].map((f) => (
                     <line key={f} x1={f * w} y1={0} x2={f * w} y2={h}
-                      stroke="hsl(var(--border))" strokeWidth="0.5" strokeDasharray="2,2" opacity={0.3} />
+                      stroke="currentColor" strokeWidth="0.5" strokeDasharray="3,3" opacity={0.15} className="text-foreground" />
                   ))}
                   {/* Fill area */}
-                  <polygon points={fillPoints} fill={track.color} opacity={0.15} />
+                  <polygon points={fillPoints} fill={track.color} opacity={0.25} />
                   {/* Curve line */}
                   <polyline
                     points={points.join(" ")}
                     fill="none"
                     stroke={track.color}
-                    strokeWidth="1.5"
+                    strokeWidth="2"
                     strokeLinejoin="round"
                     vectorEffect="non-scaling-stroke"
                   />
                   {/* Data points */}
                   {logStrips.map((s, i) => {
-                    const x = ((s[track.key] - trackMin) / range) * (w - 4) + 2;
-                    const y = (i / Math.max(logStrips.length - 1, 1)) * (h - 4) + 2;
+                    const x = ((s[track.key] - trackMin) / range) * (w - 8) + 4;
+                    const y = (i / Math.max(logStrips.length - 1, 1)) * (h - 8) + 4;
                     return (
-                      <circle key={i} cx={x} cy={y} r="1.5" fill={track.color} opacity={0.8}>
+                      <circle key={i} cx={x} cy={y} r="2.5" fill={track.color} stroke="hsl(var(--background))" strokeWidth="0.5">
                         <title>{`${s.depth} ft — ${track.label}: ${s[track.key]} ${track.unit}`}</title>
                       </circle>
                     );
                   })}
                 </svg>
-                <div className="flex justify-between text-[6px] text-muted-foreground px-1 py-0.5 shrink-0">
+                <div className="flex justify-between text-[7px] text-foreground/60 px-1 py-0.5 shrink-0">
                   <span>{Math.round(trackMin)}</span>
                   <span>{Math.round(trackMax)}</span>
                 </div>
