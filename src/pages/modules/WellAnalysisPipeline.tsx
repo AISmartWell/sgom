@@ -185,9 +185,41 @@ const WellAnalysisPipeline = () => {
       }
     }
 
+    // Save analysis results to database
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: uc } = await supabase
+          .from("user_companies")
+          .select("company_id")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        if (uc) {
+          const stageResults: Record<string, StageResult> = {};
+          const finalStages = new Map(completedStages);
+          // Need to get final state after loop
+          for (const stage of STAGES) {
+            const r = finalStages.get(stage.key);
+            if (r) stageResults[stage.key] = r;
+          }
+          // Also include the last stage we just completed
+          await supabase.from("well_analyses").insert({
+            well_id: selectedWell.id,
+            company_id: uc.company_id,
+            user_id: user.id,
+            stage_results: stageResults as any,
+            status: "completed",
+          });
+        }
+      }
+    } catch (err) {
+      console.error("Failed to save analysis:", err);
+    }
+
     setCurrentStageIdx(STAGES.length);
     setIsRunning(false);
     setStageProgress(100);
+    toast.success("Analysis complete! Results saved to Analysis Reports.");
   }, [selectedWell, analyzeStage]);
 
   const reset = () => {
