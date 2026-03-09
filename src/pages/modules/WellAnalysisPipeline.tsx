@@ -406,7 +406,7 @@ const WellAnalysisPipeline = () => {
                       </div>
                     ))}
                   </div>
-                  <p className="text-sm font-medium">{result.verdict}</p>
+                  <div className="text-sm font-medium whitespace-pre-wrap leading-relaxed">{result.verdict}</div>
                 </CardContent>
               )}
             </Card>
