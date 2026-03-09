@@ -242,8 +242,8 @@ export const CSVUpload = ({ companyId, onImportComplete }: CSVUploadProps) => {
             onDrop={onDrop}
           >
             <Upload className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
-            <p className="text-sm font-medium">Drag & drop your CSV file here</p>
-            <p className="text-xs text-muted-foreground mt-1">or click to browse</p>
+            <p className="text-sm font-medium">Drag & drop your CSV or Excel file here</p>
+            <p className="text-xs text-muted-foreground mt-1">Supports .csv, .xlsx, .xls</p>
             <input
               type="file"
               accept=".csv,.txt,.xlsx,.xls"
