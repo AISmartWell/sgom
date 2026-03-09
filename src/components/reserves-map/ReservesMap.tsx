@@ -3,7 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from "react-leaflet";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Map, BarChart3, Droplets } from "lucide-react";
+import { Loader2, Map, Download } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { FORMATION_DB } from "@/lib/formation-db";
 import "leaflet/dist/leaflet.css";
 
