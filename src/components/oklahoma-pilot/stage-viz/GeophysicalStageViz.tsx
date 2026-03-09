@@ -1,8 +1,10 @@
 import { useMemo } from "react";
-import { Waves, Layers, Activity } from "lucide-react";
+import { Waves, Layers, Activity, Database } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useWellLogs } from "@/hooks/useWellLogs";
 
 interface WellRecord {
+  id?: string;
   formation: string | null;
   total_depth: number | null;
   production_oil: number | null;
@@ -23,9 +25,7 @@ interface FormationProps {
   color: string;
 }
 
-// Synced with analyze-well-stage edge function formation database
 const FORMATION_DB: Record<string, FormationProps> = {
-  // Oklahoma formations
   woodford:      { lithology: "Organic Shale",        phiMin: 3,  phiMax: 8,  kMin: 0.000001, kMax: 0.01,   color: "bg-gray-600" },
   hunton:        { lithology: "Limestone/Dolomite",   phiMin: 5,  phiMax: 15, kMin: 0.5,      kMax: 50,     color: "bg-amber-700" },
   mississippian: { lithology: "Limestone",            phiMin: 8,  phiMax: 20, kMin: 1,        kMax: 100,    color: "bg-blue-700" },
@@ -36,7 +36,6 @@ const FORMATION_DB: Record<string, FormationProps> = {
   simpson:       { lithology: "Sandstone/Limestone",  phiMin: 8,  phiMax: 18, kMin: 1,        kMax: 100,    color: "bg-lime-700" },
   wilcox:        { lithology: "Sandstone",            phiMin: 20, phiMax: 35, kMin: 50,       kMax: 2000,   color: "bg-amber-500" },
   arbuckle:      { lithology: "Dolomite",             phiMin: 3,  phiMax: 12, kMin: 0.1,      kMax: 20,     color: "bg-stone-600" },
-  // Permian Basin formations
   wolfcamp:      { lithology: "Calcareous Mudstone",  phiMin: 3,  phiMax: 10, kMin: 0.0001,   kMax: 0.5,    color: "bg-slate-600" },
   spraberry:     { lithology: "Silty Carbonate",      phiMin: 7,  phiMax: 14, kMin: 0.1,      kMax: 10,     color: "bg-indigo-700" },
   "bone spring": { lithology: "Interbedded Limestone",phiMin: 4,  phiMax: 12, kMin: 0.001,    kMax: 1,      color: "bg-teal-700" },
@@ -45,6 +44,12 @@ const FORMATION_DB: Record<string, FormationProps> = {
   dean:          { lithology: "Tight Sandstone",      phiMin: 5,  phiMax: 12, kMin: 0.01,     kMax: 5,      color: "bg-neutral-600" },
   cline:         { lithology: "Organic Shale",        phiMin: 2,  phiMax: 8,  kMin: 0.00001,  kMax: 0.1,    color: "bg-zinc-700" },
   avalon:        { lithology: "Siliceous Shale",      phiMin: 3,  phiMax: 10, kMin: 0.0001,   kMax: 0.5,    color: "bg-purple-700" },
+  // East Texas formations
+  rodessa:       { lithology: "Limestone/Dolomite",   phiMin: 8,  phiMax: 22, kMin: 0.5,      kMax: 80,     color: "bg-amber-600" },
+  "james lime":  { lithology: "Limestone",            phiMin: 6,  phiMax: 18, kMin: 0.1,      kMax: 50,     color: "bg-sky-700" },
+  "upper carlisle": { lithology: "Limestone",         phiMin: 5,  phiMax: 15, kMin: 0.2,      kMax: 40,     color: "bg-cyan-600" },
+  travis_peak:   { lithology: "Tight Sandstone",      phiMin: 4,  phiMax: 12, kMin: 0.01,     kMax: 5,      color: "bg-orange-600" },
+  cotton_valley: { lithology: "Tight Sandstone",      phiMin: 3,  phiMax: 10, kMin: 0.001,    kMax: 2,      color: "bg-red-800" },
 };
 
 const formatPermeability = (k: number): string => {
@@ -64,26 +69,56 @@ const lookupFormation = (formation: string): FormationProps | null => {
 
 const GeophysicalStageViz = ({ well }: Props) => {
   const depth = well.total_depth ?? 3500;
+  const { data: realLogs, isLoading, hasRealData } = useWellLogs(well.id);
 
-  // Generate synthetic log strips
+  // Build log strips from real data or synthetic
   const logStrips = useMemo(() => {
+    if (hasRealData && realLogs) {
+      return realLogs.map((p) => ({
+        depth: Math.round(p.measured_depth),
+        gr: p.gamma_ray ?? 50,
+        res: p.resistivity ?? 5,
+        por: p.porosity ?? 5,
+      }));
+    }
+    // Synthetic fallback
     const segments = 20;
     const strips = [];
     for (let i = 0; i < segments; i++) {
       const d = (depth / segments) * i;
-      const gr = 40 + Math.sin(i * 0.7) * 30 + Math.random() * 20; // Gamma Ray
-      const res = 5 + Math.cos(i * 0.5) * 15 + Math.random() * 10; // Resistivity
-      const por = 8 + Math.sin(i * 0.3 + 1) * 8 + Math.random() * 4; // Porosity
+      const gr = 40 + Math.sin(i * 0.7) * 30 + Math.random() * 20;
+      const res = 5 + Math.cos(i * 0.5) * 15 + Math.random() * 10;
+      const por = 8 + Math.sin(i * 0.3 + 1) * 8 + Math.random() * 4;
       strips.push({ depth: Math.round(d), gr: +gr.toFixed(1), res: +res.toFixed(1), por: +por.toFixed(1) });
     }
     return strips;
-  }, [depth]);
+  }, [hasRealData, realLogs, depth]);
 
   const formProp = lookupFormation(well.formation || "");
 
-  // Synthetic stratigraphic column
+  // Build stratigraphic column — real data uses actual depth markers
   const stratigraphicColumn = useMemo(() => {
-    const layers = [
+    if (hasRealData && realLogs && realLogs.length > 3) {
+      // Detect pay zone from porosity peak
+      const maxPor = Math.max(...realLogs.map((p) => p.porosity ?? 0));
+      const payIdx = realLogs.findIndex((p) => (p.porosity ?? 0) === maxPor);
+      const payTop = payIdx > 0 ? realLogs[Math.max(0, payIdx - 1)].measured_depth : realLogs[payIdx].measured_depth;
+      const payBot = payIdx < realLogs.length - 1 ? realLogs[Math.min(realLogs.length - 1, payIdx + 1)].measured_depth : realLogs[payIdx].measured_depth;
+      
+      const layers = [];
+      if (payTop > 500) {
+        layers.push({ name: "Overburden", from: 0, to: Math.round(payTop * 0.3), color: "bg-amber-400/60" });
+        layers.push({ name: "Shale/Marl", from: Math.round(payTop * 0.3), to: Math.round(payTop * 0.7), color: "bg-gray-500/60" });
+        layers.push({ name: "Transition", from: Math.round(payTop * 0.7), to: Math.round(payTop), color: "bg-blue-600/60" });
+      }
+      layers.push({ name: well.formation || "Target Zone", from: Math.round(payTop), to: Math.round(payBot), color: "bg-success/50" });
+      if (payBot < depth) {
+        layers.push({ name: "Sub-pay", from: Math.round(payBot), to: Math.round(depth), color: "bg-red-900/60" });
+      }
+      return layers;
+    }
+    // Synthetic fallback
+    return [
       { name: "Surface/Alluvium", from: 0, to: Math.round(depth * 0.05), color: "bg-amber-400/60" },
       { name: "Shale (cap)", from: Math.round(depth * 0.05), to: Math.round(depth * 0.2), color: "bg-gray-500/60" },
       { name: "Limestone", from: Math.round(depth * 0.2), to: Math.round(depth * 0.45), color: "bg-blue-600/60" },
@@ -91,16 +126,45 @@ const GeophysicalStageViz = ({ well }: Props) => {
       { name: "Sandstone", from: Math.round(depth * 0.65), to: Math.round(depth * 0.85), color: "bg-yellow-600/60" },
       { name: "Basement", from: Math.round(depth * 0.85), to: depth, color: "bg-red-900/60" },
     ];
-    return layers;
-  }, [depth, well.formation]);
+  }, [hasRealData, realLogs, depth, well.formation]);
+
+  // Compute real log stats for properties panel
+  const logStats = useMemo(() => {
+    if (!hasRealData || !realLogs) return null;
+    const porosities = realLogs.map((p) => p.porosity ?? 0).filter(Boolean);
+    const resistivities = realLogs.map((p) => p.resistivity ?? 0).filter(Boolean);
+    const gammas = realLogs.map((p) => p.gamma_ray ?? 0).filter(Boolean);
+    return {
+      avgPorosity: porosities.reduce((a, b) => a + b, 0) / porosities.length,
+      maxPorosity: Math.max(...porosities),
+      avgResistivity: resistivities.reduce((a, b) => a + b, 0) / resistivities.length,
+      maxResistivity: Math.max(...resistivities),
+      avgGR: gammas.reduce((a, b) => a + b, 0) / gammas.length,
+      depthRange: `${realLogs[0].measured_depth}–${realLogs[realLogs.length - 1].measured_depth}`,
+      pointCount: realLogs.length,
+    };
+  }, [hasRealData, realLogs]);
 
   return (
     <div className="mt-2 grid grid-cols-1 sm:grid-cols-3 gap-3">
       {/* Mini Well Log */}
       <div className="p-3 rounded-lg border border-border/40 bg-muted/10 space-y-2">
-        <div className="flex items-center gap-2 text-xs font-semibold">
+        <div className="flex items-center gap-2 text-xs font-semibold flex-wrap">
           <Activity className="h-3.5 w-3.5 text-primary" />
-          Synthetic Log Preview
+          {hasRealData ? (
+            <>
+              Well Log ({logStrips.length} pts)
+              <Badge variant="outline" className="text-[9px] text-success border-success/30">
+                <Database className="h-2.5 w-2.5 mr-0.5" />REAL DATA
+              </Badge>
+            </>
+          ) : (
+            <>
+              Synthetic Log Preview
+              <Badge variant="outline" className="text-[9px] text-warning border-warning/30">SYNTHETIC</Badge>
+            </>
+          )}
+          {isLoading && <span className="text-muted-foreground animate-pulse text-[9px]">Loading...</span>}
         </div>
         <div className="flex gap-0.5 h-[200px]">
           {/* GR Track */}
@@ -150,8 +214,8 @@ const GeophysicalStageViz = ({ well }: Props) => {
           </div>
         </div>
         <div className="flex justify-between text-[8px] text-muted-foreground">
-          <span>0 ft</span>
-          <span>{depth.toLocaleString()} ft</span>
+          <span>{hasRealData && realLogs ? `${realLogs[0].measured_depth} ft` : "0 ft"}</span>
+          <span>{hasRealData && realLogs ? `${realLogs[realLogs.length - 1].measured_depth} ft` : `${depth.toLocaleString()} ft`}</span>
         </div>
       </div>
 
@@ -163,7 +227,8 @@ const GeophysicalStageViz = ({ well }: Props) => {
         </div>
         <div className="space-y-0.5">
           {stratigraphicColumn.map((layer, i) => {
-            const heightPct = ((layer.to - layer.from) / depth) * 100;
+            const totalDepth = stratigraphicColumn[stratigraphicColumn.length - 1]?.to || depth;
+            const heightPct = ((layer.to - layer.from) / totalDepth) * 100;
             const isTarget = layer.name === (well.formation || "Target Zone");
             return (
               <div
@@ -185,9 +250,31 @@ const GeophysicalStageViz = ({ well }: Props) => {
       <div className="p-3 rounded-lg border border-border/40 bg-muted/10 space-y-2">
         <div className="flex items-center gap-2 text-xs font-semibold">
           <Waves className="h-3.5 w-3.5 text-primary" />
-          Formation Properties
+          {hasRealData ? "Log Statistics" : "Formation Properties"}
         </div>
-        {formProp ? (
+        {hasRealData && logStats ? (
+          <div className="space-y-1.5">
+            <div className="p-2 bg-muted/20 rounded">
+              <p className="text-[9px] text-muted-foreground">Avg Porosity</p>
+              <p className="text-xs font-medium">{logStats.avgPorosity.toFixed(1)}% (max {logStats.maxPorosity.toFixed(1)}%)</p>
+            </div>
+            <div className="p-2 bg-muted/20 rounded">
+              <p className="text-[9px] text-muted-foreground">Avg Resistivity</p>
+              <p className="text-xs font-medium">{logStats.avgResistivity.toFixed(1)} Ωm (max {logStats.maxResistivity.toFixed(1)})</p>
+            </div>
+            <div className="p-2 bg-muted/20 rounded">
+              <p className="text-[9px] text-muted-foreground">Avg Gamma Ray</p>
+              <p className="text-xs font-medium">{logStats.avgGR.toFixed(1)} API</p>
+            </div>
+            <div className="p-2 bg-muted/20 rounded">
+              <p className="text-[9px] text-muted-foreground">Depth Range</p>
+              <p className="text-xs font-medium">{logStats.depthRange} ft ({logStats.pointCount} points)</p>
+            </div>
+            <Badge variant="outline" className="text-[9px]">
+              {well.formation || "Unknown"}
+            </Badge>
+          </div>
+        ) : formProp ? (
           <div className="space-y-2">
             <div className="grid grid-cols-1 gap-1.5">
               <div className="p-2 bg-muted/20 rounded">
