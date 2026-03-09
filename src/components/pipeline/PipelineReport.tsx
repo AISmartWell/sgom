@@ -256,6 +256,14 @@ const PipelineReport = ({ well, stages, completedStages }: PipelineReportProps) 
             })}
           </div>
 
+          {/* Evidence & Confidence */}
+          <Separator />
+          <EvidenceConfidenceSection
+            well={well}
+            stages={stages}
+            completedStages={completedStages}
+          />
+
           {/* Overall Project Statistics */}
           <Separator />
           <div className="p-4 rounded-lg bg-muted/20 border border-border/50 space-y-3 print:break-inside-avoid">
