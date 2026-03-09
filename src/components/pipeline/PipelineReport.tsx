@@ -17,6 +17,7 @@ import {
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { EvidenceConfidenceSection } from "./EvidenceConfidenceSection";
+import { BacktestingModule } from "./BacktestingModule";
 
 interface StageResult {
   title: string;
@@ -264,6 +265,10 @@ const PipelineReport = ({ well, stages, completedStages }: PipelineReportProps) 
             stages={stages}
             completedStages={completedStages}
           />
+
+          {/* Backtesting Module */}
+          <Separator />
+          <BacktestingModule well={well} completedStages={completedStages} />
 
           {/* Overall Project Statistics */}
           <Separator />
