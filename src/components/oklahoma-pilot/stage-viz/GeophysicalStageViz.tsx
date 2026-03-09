@@ -166,54 +166,65 @@ const GeophysicalStageViz = ({ well }: Props) => {
           )}
           {isLoading && <span className="text-muted-foreground animate-pulse text-[9px]">Loading...</span>}
         </div>
-        <div className="flex gap-0.5 h-[200px]">
-          {/* GR Track */}
-          <div className="flex-1 flex flex-col justify-between relative bg-muted/20 rounded overflow-hidden">
-            <p className="text-[7px] text-center text-muted-foreground p-0.5">GR (API)</p>
-            {logStrips.map((s, i) => (
-              <div
-                key={i}
-                className="flex-1"
-                style={{
-                  backgroundColor: `hsl(${120 - s.gr}, 60%, ${30 + s.gr * 0.3}%)`,
-                  opacity: 0.7,
-                }}
-                title={`${s.depth}ft — GR: ${s.gr} API`}
-              />
-            ))}
-          </div>
-          {/* Resistivity Track */}
-          <div className="flex-1 flex flex-col justify-between relative bg-muted/20 rounded overflow-hidden">
-            <p className="text-[7px] text-center text-muted-foreground p-0.5">Res (Ωm)</p>
-            {logStrips.map((s, i) => (
-              <div
-                key={i}
-                className="flex-1"
-                style={{
-                  backgroundColor: `hsl(200, ${Math.min(s.res * 3, 80)}%, ${20 + s.res}%)`,
-                  opacity: 0.7,
-                }}
-                title={`${s.depth}ft — Res: ${s.res} Ωm`}
-              />
-            ))}
-          </div>
-          {/* Porosity Track */}
-          <div className="flex-1 flex flex-col justify-between relative bg-muted/20 rounded overflow-hidden">
-            <p className="text-[7px] text-center text-muted-foreground p-0.5">φ (%)</p>
-            {logStrips.map((s, i) => (
-              <div
-                key={i}
-                className="flex-1"
-                style={{
-                  backgroundColor: `hsl(280, ${Math.min(s.por * 4, 80)}%, ${20 + s.por * 2}%)`,
-                  opacity: 0.7,
-                }}
-                title={`${s.depth}ft — Porosity: ${s.por}%`}
-              />
-            ))}
-          </div>
+        <div className="flex gap-1 h-[220px]">
+          {/* SVG Log Track renderer */}
+          {([
+            { key: "gr" as const, label: "GR (API)", color: "hsl(var(--chart-3))", minV: 0, maxV: 150, unit: "API" },
+            { key: "res" as const, label: "Res (Ωm)", color: "hsl(var(--chart-1))", minV: 0, maxV: 60, unit: "Ωm" },
+            { key: "por" as const, label: "φ (%)", color: "hsl(var(--chart-5))", minV: 0, maxV: 30, unit: "%" },
+          ] as const).map((track) => {
+            const vals = logStrips.map((s) => s[track.key]);
+            const trackMin = Math.min(track.minV, ...vals);
+            const trackMax = Math.max(track.maxV, ...vals);
+            const range = trackMax - trackMin || 1;
+            const w = 100;
+            const h = 200;
+            const points = logStrips.map((s, i) => {
+              const x = ((s[track.key] - trackMin) / range) * (w - 4) + 2;
+              const y = (i / Math.max(logStrips.length - 1, 1)) * (h - 4) + 2;
+              return `${x},${y}`;
+            });
+            const fillPoints = [`2,2`, ...points, `2,${h - 2}`].join(" ");
+            return (
+              <div key={track.key} className="flex-1 flex flex-col bg-muted/20 rounded overflow-hidden">
+                <p className="text-[7px] text-center text-muted-foreground py-0.5 shrink-0">{track.label}</p>
+                <svg viewBox={`0 0 ${w} ${h}`} className="flex-1 w-full" preserveAspectRatio="none">
+                  {/* Grid lines */}
+                  {[0.25, 0.5, 0.75].map((f) => (
+                    <line key={f} x1={f * w} y1={0} x2={f * w} y2={h}
+                      stroke="hsl(var(--border))" strokeWidth="0.5" strokeDasharray="2,2" opacity={0.3} />
+                  ))}
+                  {/* Fill area */}
+                  <polygon points={fillPoints} fill={track.color} opacity={0.15} />
+                  {/* Curve line */}
+                  <polyline
+                    points={points.join(" ")}
+                    fill="none"
+                    stroke={track.color}
+                    strokeWidth="1.5"
+                    strokeLinejoin="round"
+                    vectorEffect="non-scaling-stroke"
+                  />
+                  {/* Data points */}
+                  {logStrips.map((s, i) => {
+                    const x = ((s[track.key] - trackMin) / range) * (w - 4) + 2;
+                    const y = (i / Math.max(logStrips.length - 1, 1)) * (h - 4) + 2;
+                    return (
+                      <circle key={i} cx={x} cy={y} r="1.5" fill={track.color} opacity={0.8}>
+                        <title>{`${s.depth} ft — ${track.label}: ${s[track.key]} ${track.unit}`}</title>
+                      </circle>
+                    );
+                  })}
+                </svg>
+                <div className="flex justify-between text-[6px] text-muted-foreground px-1 py-0.5 shrink-0">
+                  <span>{Math.round(trackMin)}</span>
+                  <span>{Math.round(trackMax)}</span>
+                </div>
+              </div>
+            );
+          })}
         </div>
-        <div className="flex justify-between text-[8px] text-muted-foreground">
+        <div className="flex justify-between text-[8px] text-muted-foreground mt-1">
           <span>{hasRealData && realLogs ? `${realLogs[0].measured_depth} ft` : "0 ft"}</span>
           <span>{hasRealData && realLogs ? `${realLogs[realLogs.length - 1].measured_depth} ft` : `${depth.toLocaleString()} ft`}</span>
         </div>
