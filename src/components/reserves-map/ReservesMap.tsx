@@ -3,7 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from "react-leaflet";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Map, BarChart3, Droplets } from "lucide-react";
+import { Loader2, Map, Download } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { FORMATION_DB } from "@/lib/formation-db";
 import "leaflet/dist/leaflet.css";
 
@@ -79,6 +80,21 @@ const ReservesMap = () => {
   const [wells, setWells] = useState<WellWithReserves[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const exportCSV = () => {
+    if (wells.length === 0) return;
+    const header = "Well Name,API,IOIP (STB),Cumulative (bbl),Remaining (STB),RF%";
+    const rows = wells.map(w =>
+      `"${w.well_name || "Unknown"}","${w.api_number || "N/A"}",${w.ioip},${w.cumulativeOil},${w.remainingReserves},${w.recoveryFactor.toFixed(2)}`
+    );
+    const blob = new Blob([header + "\n" + rows.join("\n")], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "reserves-export.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   useEffect(() => {
     async function load() {
       setLoading(true);
@@ -153,6 +169,11 @@ const ReservesMap = () => {
               </CardDescription>
             </div>
             <Badge variant="outline" className="ml-auto">{wells.length} wells</Badge>
+            {wells.length > 0 && (
+              <Button variant="outline" size="sm" onClick={exportCSV} className="gap-1.5">
+                <Download className="h-4 w-4" /> CSV
+              </Button>
+            )}
           </div>
         </CardHeader>
         <CardContent>
