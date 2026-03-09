@@ -54,6 +54,7 @@ interface StageResult {
   title: string;
   metrics: { label: string; value: string; color?: string }[];
   verdict: string;
+  dataSource?: string;
 }
 
 const STAGES = [
