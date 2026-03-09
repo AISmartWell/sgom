@@ -61,6 +61,12 @@ const menuItems = [
     href: "/dashboard/production-history",
     badge: "📊",
   },
+  {
+    title: "Reserves Map",
+    icon: Map,
+    href: "/dashboard/reserves-map",
+    badge: "🗺️",
+  },
   // ── Stages 1–6 + EOR ──
   {
     title: "Field Scanning",
