@@ -135,6 +135,8 @@ const GeophysicalStageViz = ({ well }: Props) => {
         hasRealData={hasRealData}
         isLoading={isLoading}
         formation={well.formation}
+        wellName={well.well_name}
+        apiNumber={well.api_number}
       />
 
       {/* Stats row below */}
