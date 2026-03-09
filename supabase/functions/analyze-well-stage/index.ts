@@ -654,7 +654,7 @@ serve(async (req) => {
 
     const wellDescription = `Well: ${wellData.well_name || wellData.api_number || "Unknown"}, ${wellData.county || "Unknown"} County, ${wellData.state}, Formation: ${wellData.formation || "Unknown"}, Depth: ${wellData.total_depth ?? "N/A"} ft, Oil: ${wellData.production_oil ?? "N/A"} bbl/d, Gas: ${wellData.production_gas ?? "N/A"} MCF/d, WC: ${wellData.water_cut ?? "N/A"}%`;
 
-    const userContent = `Pre-calculated metrics for ${stageKey} stage:\n${computed.context}\n\nWell: ${wellDescription}\n\nProvide your ONE-LINE expert verdict with emoji prefix only. Do NOT output any numbers — they are already calculated above.`;
+    const userContent = `Pre-calculated metrics for ${stageKey} stage:\n${computed.context}\n\nWell: ${wellDescription}\n\nProvide your DETAILED expert assessment based on the data above. Be specific, reference the actual numbers, and give actionable insights. Write 4-8 sentences.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -663,12 +663,12 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: verdictPrompt },
           { role: "user", content: userContent },
         ],
-        max_tokens: 100,
+        max_tokens: 500,
       }),
     });
 
