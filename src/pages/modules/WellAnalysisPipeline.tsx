@@ -151,12 +151,13 @@ const WellAnalysisPipeline = () => {
     setCurrentStageIdx(0);
     setStageProgress(0);
 
+    const allResults: Record<string, StageResult> = {};
+
     for (let i = 0; i < STAGES.length; i++) {
       setCurrentStageIdx(i);
-      setStageProgress(10); // Show initial progress
+      setStageProgress(10);
 
       try {
-        // Start AI analysis and show indeterminate progress
         const progressInterval = setInterval(() => {
           setStageProgress((prev) => Math.min(prev + 3, 90));
         }, 200);
@@ -166,9 +167,9 @@ const WellAnalysisPipeline = () => {
         clearInterval(progressInterval);
         setStageProgress(100);
 
-        // Brief pause to show 100%
         await new Promise((r) => setTimeout(r, 300));
 
+        allResults[STAGES[i].key] = result;
         setCompletedStages((prev) => new Map(prev).set(STAGES[i].key, result));
       } catch (err: any) {
         console.error(`Stage ${STAGES[i].key} failed:`, err);
@@ -185,9 +186,33 @@ const WellAnalysisPipeline = () => {
       }
     }
 
+    // Save analysis results to database
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: uc } = await supabase
+          .from("user_companies")
+          .select("company_id")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        if (uc) {
+          await supabase.from("well_analyses").insert({
+            well_id: selectedWell.id,
+            company_id: uc.company_id,
+            user_id: user.id,
+            stage_results: allResults as any,
+            status: "completed",
+          });
+        }
+      }
+    } catch (err) {
+      console.error("Failed to save analysis:", err);
+    }
+
     setCurrentStageIdx(STAGES.length);
     setIsRunning(false);
     setStageProgress(100);
+    toast.success("Analysis complete! Results saved to Analysis Reports.");
   }, [selectedWell, analyzeStage]);
 
   const reset = () => {

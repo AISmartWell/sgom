@@ -44,6 +44,12 @@ const menuItems = [
     href: "/dashboard",
   },
   {
+    title: "Analysis Reports",
+    icon: FileText,
+    href: "/dashboard/analysis-reports",
+    badge: "📋",
+  },
+  {
     title: "Analysis Guide",
     icon: Presentation,
     href: "/dashboard/analysis-guide",
