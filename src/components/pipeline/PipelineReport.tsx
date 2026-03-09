@@ -266,6 +266,10 @@ const PipelineReport = ({ well, stages, completedStages }: PipelineReportProps) 
             completedStages={completedStages}
           />
 
+          {/* Backtesting Module */}
+          <Separator />
+          <BacktestingModule well={well} completedStages={completedStages} />
+
           {/* Overall Project Statistics */}
           <Separator />
           <div className="p-4 rounded-lg bg-muted/20 border border-border/50 space-y-3 print:break-inside-avoid">
