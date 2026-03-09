@@ -89,6 +89,35 @@ const CompositeWellLog = ({
     setHoverPoint(null); setHoverY(null);
   }, []);
 
+  /* Fill polygon for porosity (left fill) */
+  const porFillPoints = useMemo(() => {
+    if (!chartData || logStrips.length === 0) return "";
+    const { depthMin: dMin, depthRange: dRange, porMax: pMax } = chartData;
+    const yFD = (d: number) => PAD_T + ((d - dMin) / dRange) * plotH;
+    const pts = logStrips.map((s) => {
+      const x = TRACK_3_X + (s.por / pMax) * TRACK_3_W;
+      return `${x},${yFD(s.depth)}`;
+    });
+    const topLeft = `${TRACK_3_X},${yFD(logStrips[0].depth)}`;
+    const botLeft = `${TRACK_3_X},${yFD(logStrips[logStrips.length - 1].depth)}`;
+    return [topLeft, ...pts, botLeft].join(" ");
+  }, [logStrips, chartData]);
+
+  /* Formation zones for right column */
+  const formationZones = useMemo(() => {
+    if (!chartData || !payZone) return [];
+    const { depthMin: dMin, depthMax: dMax, depthRange: dRange } = chartData;
+    const zones: { top: number; bottom: number; label: string; color: string }[] = [];
+    if (payZone.top > dMin + dRange * 0.05) {
+      zones.push({ top: dMin, bottom: payZone.top, label: "Overburden", color: "#e8e0d0" });
+    }
+    zones.push({ top: payZone.top, bottom: payZone.bottom, label: payZone.label, color: "#ffe0a0" });
+    if (payZone.bottom < dMax - dRange * 0.05) {
+      zones.push({ top: payZone.bottom, bottom: dMax, label: "Sub-pay", color: "#d0d8e8" });
+    }
+    return zones;
+  }, [payZone, chartData]);
+
   if (!chartData) return null;
 
   const { depthMin, depthMax, depthRange, grMax, resMax, porMax } = chartData;
@@ -110,18 +139,6 @@ const CompositeWellLog = ({
       const y = yForDepth(s.depth);
       return `${x},${y}`;
     }).join(" ");
-
-  /* Fill polygon for porosity (left fill) */
-  const porFillPoints = useMemo(() => {
-    if (!chartData || logStrips.length === 0) return "";
-    const pts = logStrips.map((s) => {
-      const x = TRACK_3_X + (s.por / porMax) * TRACK_3_W;
-      return `${x},${yForDepth(s.depth)}`;
-    });
-    const topLeft = `${TRACK_3_X},${yForDepth(logStrips[0].depth)}`;
-    const botLeft = `${TRACK_3_X},${yForDepth(logStrips[logStrips.length - 1].depth)}`;
-    return [topLeft, ...pts, botLeft].join(" ");
-  }, [logStrips, chartData, porMax]);
 
   /* Pay zone Y coords */
   const payY1 = payZone ? yForDepth(payZone.top) : 0;
@@ -146,20 +163,6 @@ const CompositeWellLog = ({
     }
     return lines;
   };
-
-  /* Formation zones for right column */
-  const formationZones = useMemo(() => {
-    if (!payZone) return [];
-    const zones = [];
-    if (payZone.top > depthMin + depthRange * 0.05) {
-      zones.push({ top: depthMin, bottom: payZone.top, label: "Overburden", color: "#e8e0d0" });
-    }
-    zones.push({ top: payZone.top, bottom: payZone.bottom, label: payZone.label, color: "#ffe0a0" });
-    if (payZone.bottom < depthMax - depthRange * 0.05) {
-      zones.push({ top: payZone.bottom, bottom: depthMax, label: "Sub-pay", color: "#d0d8e8" });
-    }
-    return zones;
-  }, [payZone, depthMin, depthMax, depthRange]);
 
   return (
     <div className="space-y-2">
