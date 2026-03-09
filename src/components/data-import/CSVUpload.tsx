@@ -246,7 +246,7 @@ export const CSVUpload = ({ companyId, onImportComplete }: CSVUploadProps) => {
             <p className="text-xs text-muted-foreground mt-1">or click to browse</p>
             <input
               type="file"
-              accept=".csv,.txt"
+              accept=".csv,.txt,.xlsx,.xls"
               className="absolute inset-0 opacity-0 cursor-pointer"
               onChange={onFileChange}
               style={{ position: "relative", marginTop: "8px" }}
