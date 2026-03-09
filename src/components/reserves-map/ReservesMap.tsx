@@ -169,6 +169,11 @@ const ReservesMap = () => {
               </CardDescription>
             </div>
             <Badge variant="outline" className="ml-auto">{wells.length} wells</Badge>
+            {wells.length > 0 && (
+              <Button variant="outline" size="sm" onClick={exportCSV} className="gap-1.5">
+                <Download className="h-4 w-4" /> CSV
+              </Button>
+            )}
           </div>
         </CardHeader>
         <CardContent>
