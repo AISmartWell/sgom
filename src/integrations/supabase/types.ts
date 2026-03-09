@@ -369,6 +369,69 @@ export type Database = {
           },
         ]
       }
+      well_logs: {
+        Row: {
+          company_id: string
+          created_at: string
+          density: number | null
+          gamma_ray: number | null
+          id: string
+          measured_depth: number
+          neutron_porosity: number | null
+          porosity: number | null
+          resistivity: number | null
+          source: string
+          sp: number | null
+          water_saturation: number | null
+          well_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          density?: number | null
+          gamma_ray?: number | null
+          id?: string
+          measured_depth: number
+          neutron_porosity?: number | null
+          porosity?: number | null
+          resistivity?: number | null
+          source?: string
+          sp?: number | null
+          water_saturation?: number | null
+          well_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          density?: number | null
+          gamma_ray?: number | null
+          id?: string
+          measured_depth?: number
+          neutron_porosity?: number | null
+          porosity?: number | null
+          resistivity?: number | null
+          source?: string
+          sp?: number | null
+          water_saturation?: number | null
+          well_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "well_logs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "well_logs_well_id_fkey"
+            columns: ["well_id"]
+            isOneToOne: false
+            referencedRelation: "wells"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       wells: {
         Row: {
           api_number: string | null
