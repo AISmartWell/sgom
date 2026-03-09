@@ -80,6 +80,21 @@ const ReservesMap = () => {
   const [wells, setWells] = useState<WellWithReserves[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const exportCSV = () => {
+    if (wells.length === 0) return;
+    const header = "Well Name,API,IOIP (STB),Cumulative (bbl),Remaining (STB),RF%";
+    const rows = wells.map(w =>
+      `"${w.well_name || "Unknown"}","${w.api_number || "N/A"}",${w.ioip},${w.cumulativeOil},${w.remainingReserves},${w.recoveryFactor.toFixed(2)}`
+    );
+    const blob = new Blob([header + "\n" + rows.join("\n")], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "reserves-export.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   useEffect(() => {
     async function load() {
       setLoading(true);
