@@ -267,19 +267,19 @@ export const BacktestingModule = ({ well, completedStages }: Props) => {
       <div className="p-4 rounded-lg bg-muted/10 border border-border/50">
         <div className="flex items-center gap-2 mb-3">
           <Target className="h-4 w-4 text-muted-foreground" />
-          <h4 className="text-sm font-semibold">Monthly Prediction Error (%)</h4>
+          <h4 className="text-sm font-semibold">Точность прогноза по месяцам (%)</h4>
         </div>
         <ResponsiveContainer width="100%" height={180}>
-          <BarChart data={backtestData.merged} margin={{ top: 5, right: 20, bottom: 5, left: 10 }}>
+          <BarChart data={backtestData.merged.map(d => ({ ...d, accuracy: +(100 - (d.error as number)).toFixed(1) }))} margin={{ top: 5, right: 20, bottom: 5, left: 10 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
             <XAxis dataKey="month" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
-            <YAxis tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} unit="%" />
+            <YAxis tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} unit="%" domain={[0, 100]} />
             <Tooltip
               contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
               labelFormatter={(v) => `Month ${v}`}
             />
-            <ReferenceLine y={10} stroke="#10b981" strokeDasharray="3 3" label={{ value: "10% threshold", fontSize: 10, fill: "#10b981" }} />
-            <Bar dataKey="error" name="Error %" fill="hsl(var(--primary))" opacity={0.7} radius={[2, 2, 0, 0]} />
+            <ReferenceLine y={90} stroke="#10b981" strokeDasharray="3 3" label={{ value: "90% target", fontSize: 10, fill: "#10b981" }} />
+            <Bar dataKey="accuracy" name="Accuracy %" fill="hsl(var(--primary))" opacity={0.7} radius={[2, 2, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>
