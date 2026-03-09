@@ -355,6 +355,14 @@ const WellAnalysisPipeline = () => {
                   {/* Mini-visualization */}
                   <StageVisualization stageKey={stage.key} metrics={result.metrics} />
                   
+                  {/* Detailed stage visualizations when real data exists */}
+                  {stage.key === "geophysical" && selectedWell && (
+                    <GeophysicalStageViz well={selectedWell} />
+                  )}
+                  {stage.key === "cumulative" && selectedWell && (
+                    <CumulativeStageViz well={selectedWell} />
+                  )}
+                  
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
                     {result.metrics.map((m) => (
                       <div key={m.label} className="text-sm">
