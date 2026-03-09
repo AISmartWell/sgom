@@ -6,6 +6,8 @@ import CompositeWellLog from "./CompositeWellLog";
 
 interface WellRecord {
   id?: string;
+  well_name?: string | null;
+  api_number?: string | null;
   formation: string | null;
   total_depth: number | null;
   production_oil: number | null;
@@ -133,6 +135,8 @@ const GeophysicalStageViz = ({ well }: Props) => {
         hasRealData={hasRealData}
         isLoading={isLoading}
         formation={well.formation}
+        wellName={well.well_name}
+        apiNumber={well.api_number}
       />
 
       {/* Stats row below */}
