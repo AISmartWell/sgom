@@ -6,6 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Upload, FileSpreadsheet, CheckCircle2, AlertCircle, Loader2, X } from "lucide-react";
+import * as XLSX from "xlsx";
 
 interface ParsedWell {
   api_number: string;
@@ -95,27 +96,51 @@ export const CSVUpload = ({ companyId, onImportComplete }: CSVUploadProps) => {
     return { data: wells, errors: parseErrors };
   };
 
+  const parseExcel = (buffer: ArrayBuffer): { data: ParsedWell[]; errors: string[] } => {
+    try {
+      const workbook = XLSX.read(buffer, { type: "array" });
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+      const csvText = XLSX.utils.sheet_to_csv(sheet);
+      return parseCSV(csvText);
+    } catch {
+      return { data: [], errors: ["Failed to parse Excel file"] };
+    }
+  };
+
   const handleFile = (f: File) => {
     setFile(f);
     setUploadResult(null);
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const text = e.target?.result as string;
-      const { data, errors: parseErrors } = parseCSV(text);
-      setParsedData(data);
-      setErrors(parseErrors);
-    };
-    reader.readAsText(f);
+
+    if (f.name.endsWith(".xlsx") || f.name.endsWith(".xls")) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const buffer = e.target?.result as ArrayBuffer;
+        const { data, errors: parseErrors } = parseExcel(buffer);
+        setParsedData(data);
+        setErrors(parseErrors);
+      };
+      reader.readAsArrayBuffer(f);
+    } else {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const text = e.target?.result as string;
+        const { data, errors: parseErrors } = parseCSV(text);
+        setParsedData(data);
+        setErrors(parseErrors);
+      };
+      reader.readAsText(f);
+    }
   };
 
   const onDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDragOver(false);
     const f = e.dataTransfer.files[0];
-    if (f && (f.name.endsWith(".csv") || f.name.endsWith(".txt"))) {
+    if (f && (f.name.endsWith(".csv") || f.name.endsWith(".txt") || f.name.endsWith(".xlsx") || f.name.endsWith(".xls"))) {
       handleFile(f);
     } else {
-      toast.error("Please upload a CSV file");
+      toast.error("Please upload a CSV or Excel file");
     }
   }, []);
 
@@ -217,11 +242,11 @@ export const CSVUpload = ({ companyId, onImportComplete }: CSVUploadProps) => {
             onDrop={onDrop}
           >
             <Upload className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
-            <p className="text-sm font-medium">Drag & drop your CSV file here</p>
-            <p className="text-xs text-muted-foreground mt-1">or click to browse</p>
+            <p className="text-sm font-medium">Drag & drop your CSV or Excel file here</p>
+            <p className="text-xs text-muted-foreground mt-1">Supports .csv, .xlsx, .xls</p>
             <input
               type="file"
-              accept=".csv,.txt"
+              accept=".csv,.txt,.xlsx,.xls"
               className="absolute inset-0 opacity-0 cursor-pointer"
               onChange={onFileChange}
               style={{ position: "relative", marginTop: "8px" }}
