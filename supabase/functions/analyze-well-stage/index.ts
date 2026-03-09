@@ -489,16 +489,83 @@ function computeEor(well: WellData, prodHistory: ProductionRecord[], wellLogs: W
   };
 }
 
-// Stage prompts — AI only provides expert verdict
+// Stage prompts — AI provides DETAILED expert analysis
 const STAGE_VERDICTS: Record<string, string> = {
-  field_scan: `You are an oil & gas field reconnaissance expert. Given the pre-calculated field data below, provide a ONE-LINE expert verdict with an emoji prefix (✅, ⚠️, ❌, 🚀). Assess field favorability. Do NOT invent numbers.`,
-  classification: `You are a petroleum data quality analyst. Given the pre-calculated data quality metrics below, provide a ONE-LINE expert verdict with an emoji prefix. Assess readiness for analysis. Do NOT invent numbers.`,
-  core_analysis: `You are a petrophysical expert. Given the pre-calculated core properties below (derived from formation-specific industry ranges), provide a ONE-LINE expert verdict with an emoji prefix. Assess reservoir quality for SPT treatment. Do NOT invent numbers.`,
-  cumulative: `You are a production decline analysis expert. Given the pre-calculated decline metrics below, provide a ONE-LINE expert verdict with an emoji prefix. Assess remaining value and decline severity. Do NOT invent numbers.`,
-  spt_projection: `You are an SPT (Slot Perforation Technology, Patent US 8,863,823) expert for Maxxwell Production. Given the pre-calculated SPT projection metrics below, provide a ONE-LINE expert verdict with an emoji prefix. Assess candidacy for SPT treatment. Do NOT invent numbers.`,
-  economic: `You are a petroleum economics expert. Given the pre-calculated economic metrics below, provide a ONE-LINE expert verdict with an emoji prefix. Assess investment attractiveness. Do NOT invent numbers.`,
-  geophysical: `You are a geophysical log interpretation expert. Given the pre-calculated log-derived properties below, provide a ONE-LINE expert verdict with an emoji prefix. Assess formation suitability for EOR. Do NOT invent numbers.`,
-  eor: `You are an EOR recommendation expert specializing in SPT (Slot Perforation Technology, Patent US 8,863,823) by Maxxwell Production. Given the pre-calculated overall assessment below, provide a ONE-LINE expert verdict with an emoji prefix. Recommend whether to proceed with SPT. Do NOT recommend other EOR methods. Do NOT invent numbers.`,
+  field_scan: `You are a senior petroleum geologist conducting field reconnaissance. Given the pre-calculated field data below, write a DETAILED expert assessment (4-6 sentences). Include:
+1. Basin characterization and regional geological context
+2. Depth classification implications for drilling/completion costs
+3. Structural position assessment based on available coordinates
+4. Specific risks and opportunities for this field location
+5. Comparison to analogous producing fields in the basin
+Use emoji prefix (✅, ⚠️, ❌, 🚀). Reference the actual data provided. Do NOT invent numbers not in the data.`,
+
+  classification: `You are a petroleum data engineer specializing in data quality assessment. Given the pre-calculated data quality metrics below, write a DETAILED expert assessment (4-6 sentences). Include:
+1. Specific gaps in the dataset and their impact on analysis reliability
+2. GOR analysis — what it indicates about reservoir drive mechanism (solution gas, gas cap, water drive)
+3. Data anomaly interpretation and potential causes
+4. Recommendations for additional data acquisition (specific log types, tests needed)
+5. Confidence level for each subsequent analysis stage based on available data
+Use emoji prefix. Reference the actual data provided. Do NOT invent numbers.`,
+
+  core_analysis: `You are a petrophysicist with 20+ years experience in core analysis. Given the pre-calculated core/formation properties below, write a DETAILED expert assessment (5-7 sentences). Include:
+1. Rock type characterization — depositional environment, diagenetic history
+2. Porosity assessment — primary vs secondary porosity, vugular/intergranular/fracture types
+3. Permeability analysis — flow unit quality, k/φ ratio interpretation, anisotropy expectations
+4. Fracture network assessment — natural fracture density implications for stimulation
+5. Reservoir quality classification (excellent/good/moderate/poor/tight) with justification
+6. Specific implications for SPT slot perforation effectiveness in this rock type
+Use emoji prefix. Reference the actual data provided. Do NOT invent numbers.`,
+
+  cumulative: `You are a reservoir engineer specializing in production decline analysis. Given the pre-calculated decline metrics below, write a DETAILED expert assessment (5-7 sentences). Include:
+1. Decline curve characterization — hyperbolic vs exponential behavior, b-factor interpretation
+2. Production history interpretation — initial flush production, stabilization period, current phase
+3. EUR confidence assessment — sensitivity to decline parameters
+4. Recovery factor comparison to industry benchmarks for this formation type
+5. Remaining reserves estimate and economic limit rate
+6. Specific observations about production anomalies (workovers, shut-ins, interference)
+7. Water cut trend and its implications for remaining oil mobility
+Use emoji prefix. Reference the actual data provided. Do NOT invent numbers.`,
+
+  spt_projection: `You are an SPT (Slot Perforation Technology, Patent US 8,863,823) specialist at Maxxwell Production. Given the pre-calculated SPT projection metrics below, write a DETAILED expert assessment (5-7 sentences). Include:
+1. SPT candidacy scoring breakdown — which parameters drive the score up/down
+2. Mechanism of action — how slot perforations will improve inflow in this specific formation
+3. Expected near-wellbore skin reduction and its production impact
+4. Water cut management — how SPT addresses water coning/channeling in this well
+5. Uplift factor justification based on analogous SPT treatments in similar formations
+6. Risk factors specific to this well (depth, formation competence, completion type)
+7. Recommended slot configuration (length, orientation, density) for this formation
+Use emoji prefix. Reference the actual data provided. Do NOT invent numbers.`,
+
+  economic: `You are a petroleum economist conducting investment analysis. Given the pre-calculated economic metrics below, write a DETAILED expert assessment (5-7 sentences). Include:
+1. Capital efficiency analysis — CAPEX per incremental barrel
+2. Revenue projection breakdown — oil vs gas contribution, price sensitivity
+3. Operating cost structure — lifting costs, water disposal, workover reserves
+4. ROI comparison to industry benchmarks for SPT/EOR treatments (typically 150-400%)
+5. Payback period risk assessment — sensitivity to oil price decline ($50, $60, $72 scenarios)
+6. NPV consideration at 10% discount rate
+7. Go/no-go recommendation with specific conditions or contingencies
+Use emoji prefix. Reference the actual data provided. Do NOT invent numbers.`,
+
+  geophysical: `You are a senior petrophysicist interpreting well log data. Given the pre-calculated log-derived properties below, write a DETAILED expert assessment (5-7 sentences). Include:
+1. Log quality assessment — curve consistency, environmental corrections needed
+2. Lithology interpretation from GR response — sand/shale/carbonate discrimination
+3. Porosity system characterization — effective vs total porosity, clay-bound water
+4. Fluid contact identification — OWC/GWC indicators from resistivity/porosity crossplot
+5. Net pay determination — cutoff criteria applied (φ, Sw, Vshale thresholds)
+6. Hydrocarbon saturation calculation methodology (Archie vs Simandoux)
+7. Formation evaluation summary — movable hydrocarbon volume, producibility index
+Use emoji prefix. Reference the actual data provided. Do NOT invent numbers.`,
+
+  eor: `You are the Chief Reservoir Engineer at Maxxwell Production making a final EOR recommendation. Given the pre-calculated overall assessment below, write a DETAILED expert recommendation (6-8 sentences). Include:
+1. Integrated assessment — synthesize field scan, core, production, geophysical, and economic findings
+2. SPT treatment recommendation — GO / CONDITIONAL GO / NO-GO with specific justification
+3. Expected production improvement — incremental daily rate and cumulative over 5 years
+4. Risk matrix — technical risks (formation damage, mechanical failure) and mitigation
+5. Implementation timeline — mobilization, treatment execution, monitoring plan
+6. Success criteria — what metrics to track post-treatment (IP rate, WC trend, decline rate)
+7. Comparison to alternative interventions and why SPT is preferred (or not)
+8. Final confidence level (High/Medium/Low) with key uncertainties identified
+Use emoji prefix. Reference the actual data provided. Do NOT invent numbers. Do NOT recommend other EOR methods unless SPT is clearly unsuitable.`,
 };
 
 serve(async (req) => {
@@ -587,7 +654,7 @@ serve(async (req) => {
 
     const wellDescription = `Well: ${wellData.well_name || wellData.api_number || "Unknown"}, ${wellData.county || "Unknown"} County, ${wellData.state}, Formation: ${wellData.formation || "Unknown"}, Depth: ${wellData.total_depth ?? "N/A"} ft, Oil: ${wellData.production_oil ?? "N/A"} bbl/d, Gas: ${wellData.production_gas ?? "N/A"} MCF/d, WC: ${wellData.water_cut ?? "N/A"}%`;
 
-    const userContent = `Pre-calculated metrics for ${stageKey} stage:\n${computed.context}\n\nWell: ${wellDescription}\n\nProvide your ONE-LINE expert verdict with emoji prefix only. Do NOT output any numbers — they are already calculated above.`;
+    const userContent = `Pre-calculated metrics for ${stageKey} stage:\n${computed.context}\n\nWell: ${wellDescription}\n\nProvide your DETAILED expert assessment based on the data above. Be specific, reference the actual numbers, and give actionable insights. Write 4-8 sentences.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -596,12 +663,12 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: verdictPrompt },
           { role: "user", content: userContent },
         ],
-        max_tokens: 100,
+        max_tokens: 500,
       }),
     });
 
