@@ -1,7 +1,8 @@
 import { useMemo } from "react";
-import { Waves, Layers, Activity, Database } from "lucide-react";
+import { Waves, Layers } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useWellLogs } from "@/hooks/useWellLogs";
+import CompositeWellLog from "./CompositeWellLog";
 
 interface WellRecord {
   id?: string;
@@ -44,7 +45,6 @@ const FORMATION_DB: Record<string, FormationProps> = {
   dean:          { lithology: "Tight Sandstone",      phiMin: 5,  phiMax: 12, kMin: 0.01,     kMax: 5,      color: "bg-neutral-600" },
   cline:         { lithology: "Organic Shale",        phiMin: 2,  phiMax: 8,  kMin: 0.00001,  kMax: 0.1,    color: "bg-zinc-700" },
   avalon:        { lithology: "Siliceous Shale",      phiMin: 3,  phiMax: 10, kMin: 0.0001,   kMax: 0.5,    color: "bg-purple-700" },
-  // East Texas formations
   rodessa:       { lithology: "Limestone/Dolomite",   phiMin: 8,  phiMax: 22, kMin: 0.5,      kMax: 80,     color: "bg-amber-600" },
   "james lime":  { lithology: "Limestone",            phiMin: 6,  phiMax: 18, kMin: 0.1,      kMax: 50,     color: "bg-sky-700" },
   "upper carlisle": { lithology: "Limestone",         phiMin: 5,  phiMax: 15, kMin: 0.2,      kMax: 40,     color: "bg-cyan-600" },
@@ -71,7 +71,6 @@ const GeophysicalStageViz = ({ well }: Props) => {
   const depth = well.total_depth ?? 3500;
   const { data: realLogs, isLoading, hasRealData } = useWellLogs(well.id);
 
-  // Build log strips from real data or synthetic
   const logStrips = useMemo(() => {
     if (hasRealData && realLogs) {
       return realLogs.map((p) => ({
@@ -81,11 +80,10 @@ const GeophysicalStageViz = ({ well }: Props) => {
         por: p.porosity ?? 5,
       }));
     }
-    // Synthetic fallback
-    const segments = 20;
+    const segments = 30;
     const strips = [];
     for (let i = 0; i < segments; i++) {
-      const d = (depth / segments) * i;
+      const d = (depth / segments) * i + depth * 0.3;
       const gr = 40 + Math.sin(i * 0.7) * 30 + Math.random() * 20;
       const res = 5 + Math.cos(i * 0.5) * 15 + Math.random() * 10;
       const por = 8 + Math.sin(i * 0.3 + 1) * 8 + Math.random() * 4;
@@ -94,41 +92,22 @@ const GeophysicalStageViz = ({ well }: Props) => {
     return strips;
   }, [hasRealData, realLogs, depth]);
 
+  const payZone = useMemo(() => {
+    if (logStrips.length < 3) return undefined;
+    const maxPor = Math.max(...logStrips.map((s) => s.por));
+    const payIdx = logStrips.findIndex((s) => s.por === maxPor);
+    const margin = Math.max(2, Math.floor(logStrips.length * 0.1));
+    const topIdx = Math.max(0, payIdx - margin);
+    const botIdx = Math.min(logStrips.length - 1, payIdx + margin);
+    return {
+      top: logStrips[topIdx].depth,
+      bottom: logStrips[botIdx].depth,
+      label: well.formation || "Pay Zone",
+    };
+  }, [logStrips, well.formation]);
+
   const formProp = lookupFormation(well.formation || "");
 
-  // Build stratigraphic column — real data uses actual depth markers
-  const stratigraphicColumn = useMemo(() => {
-    if (hasRealData && realLogs && realLogs.length > 3) {
-      // Detect pay zone from porosity peak
-      const maxPor = Math.max(...realLogs.map((p) => p.porosity ?? 0));
-      const payIdx = realLogs.findIndex((p) => (p.porosity ?? 0) === maxPor);
-      const payTop = payIdx > 0 ? realLogs[Math.max(0, payIdx - 1)].measured_depth : realLogs[payIdx].measured_depth;
-      const payBot = payIdx < realLogs.length - 1 ? realLogs[Math.min(realLogs.length - 1, payIdx + 1)].measured_depth : realLogs[payIdx].measured_depth;
-      
-      const layers = [];
-      if (payTop > 500) {
-        layers.push({ name: "Overburden", from: 0, to: Math.round(payTop * 0.3), color: "bg-amber-400/60" });
-        layers.push({ name: "Shale/Marl", from: Math.round(payTop * 0.3), to: Math.round(payTop * 0.7), color: "bg-gray-500/60" });
-        layers.push({ name: "Transition", from: Math.round(payTop * 0.7), to: Math.round(payTop), color: "bg-blue-600/60" });
-      }
-      layers.push({ name: well.formation || "Target Zone", from: Math.round(payTop), to: Math.round(payBot), color: "bg-success/50" });
-      if (payBot < depth) {
-        layers.push({ name: "Sub-pay", from: Math.round(payBot), to: Math.round(depth), color: "bg-red-900/60" });
-      }
-      return layers;
-    }
-    // Synthetic fallback
-    return [
-      { name: "Surface/Alluvium", from: 0, to: Math.round(depth * 0.05), color: "bg-amber-400/60" },
-      { name: "Shale (cap)", from: Math.round(depth * 0.05), to: Math.round(depth * 0.2), color: "bg-gray-500/60" },
-      { name: "Limestone", from: Math.round(depth * 0.2), to: Math.round(depth * 0.45), color: "bg-blue-600/60" },
-      { name: well.formation || "Target Zone", from: Math.round(depth * 0.45), to: Math.round(depth * 0.65), color: "bg-success/50" },
-      { name: "Sandstone", from: Math.round(depth * 0.65), to: Math.round(depth * 0.85), color: "bg-yellow-600/60" },
-      { name: "Basement", from: Math.round(depth * 0.85), to: depth, color: "bg-red-900/60" },
-    ];
-  }, [hasRealData, realLogs, depth, well.formation]);
-
-  // Compute real log stats for properties panel
   const logStats = useMemo(() => {
     if (!hasRealData || !realLogs) return null;
     const porosities = realLogs.map((p) => p.porosity ?? 0).filter(Boolean);
@@ -146,181 +125,133 @@ const GeophysicalStageViz = ({ well }: Props) => {
   }, [hasRealData, realLogs]);
 
   return (
-    <div className="mt-2 grid grid-cols-1 sm:grid-cols-3 gap-3">
-      {/* Mini Well Log */}
-      <div className="p-3 rounded-lg border border-border/40 bg-muted/10 space-y-2">
-        <div className="flex items-center gap-2 text-xs font-semibold flex-wrap">
-          <Activity className="h-3.5 w-3.5 text-primary" />
-          {hasRealData ? (
-            <>
-              Well Log ({logStrips.length} pts)
-              <Badge variant="outline" className="text-[9px] text-success border-success/30">
-                <Database className="h-2.5 w-2.5 mr-0.5" />REAL DATA
-              </Badge>
-            </>
-          ) : (
-            <>
-              Synthetic Log Preview
-              <Badge variant="outline" className="text-[9px] text-warning border-warning/30">SYNTHETIC</Badge>
-            </>
-          )}
-          {isLoading && <span className="text-muted-foreground animate-pulse text-[9px]">Loading...</span>}
+    <div className="mt-2 space-y-3">
+      {/* Composite Well Log — full width */}
+      <CompositeWellLog
+        logStrips={logStrips}
+        payZone={payZone}
+        hasRealData={hasRealData}
+        isLoading={isLoading}
+        formation={well.formation}
+      />
+
+      {/* Stats row below */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {/* Stratigraphic Column */}
+        <div className="p-3 rounded-lg border border-border/40 bg-muted/10 space-y-2">
+          <div className="flex items-center gap-2 text-xs font-semibold">
+            <Layers className="h-3.5 w-3.5 text-primary" />
+            Stratigraphic Column
+          </div>
+          <div className="space-y-0.5">
+            {(() => {
+              const column = hasRealData && realLogs && realLogs.length > 3
+                ? (() => {
+                    const maxPor = Math.max(...realLogs.map((p) => p.porosity ?? 0));
+                    const payIdx = realLogs.findIndex((p) => (p.porosity ?? 0) === maxPor);
+                    const payTop = payIdx > 0 ? realLogs[Math.max(0, payIdx - 1)].measured_depth : realLogs[payIdx].measured_depth;
+                    const payBot = payIdx < realLogs.length - 1 ? realLogs[Math.min(realLogs.length - 1, payIdx + 1)].measured_depth : realLogs[payIdx].measured_depth;
+                    const layers = [];
+                    if (payTop > 500) {
+                      layers.push({ name: "Overburden", from: 0, to: Math.round(payTop * 0.3), color: "bg-amber-400/60" });
+                      layers.push({ name: "Shale/Marl", from: Math.round(payTop * 0.3), to: Math.round(payTop * 0.7), color: "bg-gray-500/60" });
+                      layers.push({ name: "Transition", from: Math.round(payTop * 0.7), to: Math.round(payTop), color: "bg-blue-600/60" });
+                    }
+                    layers.push({ name: well.formation || "Target Zone", from: Math.round(payTop), to: Math.round(payBot), color: "bg-success/50" });
+                    if (payBot < depth) layers.push({ name: "Sub-pay", from: Math.round(payBot), to: Math.round(depth), color: "bg-red-900/60" });
+                    return layers;
+                  })()
+                : [
+                    { name: "Surface/Alluvium", from: 0, to: Math.round(depth * 0.05), color: "bg-amber-400/60" },
+                    { name: "Shale (cap)", from: Math.round(depth * 0.05), to: Math.round(depth * 0.2), color: "bg-gray-500/60" },
+                    { name: "Limestone", from: Math.round(depth * 0.2), to: Math.round(depth * 0.45), color: "bg-blue-600/60" },
+                    { name: well.formation || "Target Zone", from: Math.round(depth * 0.45), to: Math.round(depth * 0.65), color: "bg-success/50" },
+                    { name: "Sandstone", from: Math.round(depth * 0.65), to: Math.round(depth * 0.85), color: "bg-yellow-600/60" },
+                    { name: "Basement", from: Math.round(depth * 0.85), to: depth, color: "bg-red-900/60" },
+                  ];
+
+              const totalDepth = column[column.length - 1]?.to || depth;
+              return column.map((layer, i) => {
+                const heightPct = ((layer.to - layer.from) / totalDepth) * 100;
+                const isTarget = layer.name === (well.formation || "Target Zone");
+                return (
+                  <div
+                    key={i}
+                    className={`${layer.color} rounded px-2 py-1 flex justify-between items-center text-[9px] ${isTarget ? "ring-1 ring-success" : ""}`}
+                    style={{ minHeight: `${Math.max(heightPct * 1.8, 18)}px` }}
+                  >
+                    <span className={`font-medium ${isTarget ? "text-success" : ""}`}>
+                      {isTarget ? "🎯 " : ""}{layer.name}
+                    </span>
+                    <span className="text-muted-foreground">{layer.from.toLocaleString()}–{layer.to.toLocaleString()} ft</span>
+                  </div>
+                );
+              });
+            })()}
+          </div>
         </div>
-        <div className="flex gap-1 h-[220px]">
-          {/* SVG Log Track renderer */}
-          {([
-            { key: "gr" as const, label: "GR (API)", color: "#22d3ee", minV: 0, maxV: 150, unit: "API" },
-            { key: "res" as const, label: "Res (Ωm)", color: "#f97316", minV: 0, maxV: 60, unit: "Ωm" },
-            { key: "por" as const, label: "φ (%)", color: "#a78bfa", minV: 0, maxV: 30, unit: "%" },
-          ] as const).map((track) => {
-            const vals = logStrips.map((s) => s[track.key]);
-            const trackMin = Math.min(track.minV, ...vals);
-            const trackMax = Math.max(track.maxV, ...vals);
-            const range = trackMax - trackMin || 1;
-            const w = 100;
-            const h = 200;
-            const points = logStrips.map((s, i) => {
-              const x = ((s[track.key] - trackMin) / range) * (w - 8) + 4;
-              const y = (i / Math.max(logStrips.length - 1, 1)) * (h - 8) + 4;
-              return `${x},${y}`;
-            });
-            const fillPoints = [`4,4`, ...points, `4,${h - 4}`].join(" ");
-            return (
-              <div key={track.key} className="flex-1 flex flex-col bg-background/80 rounded overflow-hidden border border-border/30">
-                <p className="text-[8px] text-center text-foreground/70 py-0.5 shrink-0 font-medium">{track.label}</p>
-                <svg viewBox={`0 0 ${w} ${h}`} className="flex-1 w-full" preserveAspectRatio="none">
-                  {/* Grid lines */}
-                  {[0.25, 0.5, 0.75].map((f) => (
-                    <line key={f} x1={f * w} y1={0} x2={f * w} y2={h}
-                      stroke="currentColor" strokeWidth="0.5" strokeDasharray="3,3" opacity={0.15} className="text-foreground" />
-                  ))}
-                  {/* Fill area */}
-                  <polygon points={fillPoints} fill={track.color} opacity={0.25} />
-                  {/* Curve line */}
-                  <polyline
-                    points={points.join(" ")}
-                    fill="none"
-                    stroke={track.color}
-                    strokeWidth="2"
-                    strokeLinejoin="round"
-                    vectorEffect="non-scaling-stroke"
-                  />
-                  {/* Data points */}
-                  {logStrips.map((s, i) => {
-                    const x = ((s[track.key] - trackMin) / range) * (w - 8) + 4;
-                    const y = (i / Math.max(logStrips.length - 1, 1)) * (h - 8) + 4;
-                    return (
-                      <circle key={i} cx={x} cy={y} r="2.5" fill={track.color} stroke="hsl(var(--background))" strokeWidth="0.5">
-                        <title>{`${s.depth} ft — ${track.label}: ${s[track.key]} ${track.unit}`}</title>
-                      </circle>
-                    );
-                  })}
-                </svg>
-                <div className="flex justify-between text-[7px] text-foreground/60 px-1 py-0.5 shrink-0">
-                  <span>{Math.round(trackMin)}</span>
-                  <span>{Math.round(trackMax)}</span>
+
+        {/* Formation Properties / Log Stats */}
+        <div className="p-3 rounded-lg border border-border/40 bg-muted/10 space-y-2">
+          <div className="flex items-center gap-2 text-xs font-semibold">
+            <Waves className="h-3.5 w-3.5 text-primary" />
+            {hasRealData ? "Log Statistics" : "Formation Properties"}
+          </div>
+          {hasRealData && logStats ? (
+            <div className="space-y-1.5">
+              <div className="p-2 bg-muted/20 rounded">
+                <p className="text-[9px] text-muted-foreground">Avg Porosity</p>
+                <p className="text-xs font-medium">{logStats.avgPorosity.toFixed(1)}% (max {logStats.maxPorosity.toFixed(1)}%)</p>
+              </div>
+              <div className="p-2 bg-muted/20 rounded">
+                <p className="text-[9px] text-muted-foreground">Avg Resistivity</p>
+                <p className="text-xs font-medium">{logStats.avgResistivity.toFixed(1)} Ωm (max {logStats.maxResistivity.toFixed(1)})</p>
+              </div>
+              <div className="p-2 bg-muted/20 rounded">
+                <p className="text-[9px] text-muted-foreground">Avg Gamma Ray</p>
+                <p className="text-xs font-medium">{logStats.avgGR.toFixed(1)} API</p>
+              </div>
+              <div className="p-2 bg-muted/20 rounded">
+                <p className="text-[9px] text-muted-foreground">Depth Range</p>
+                <p className="text-xs font-medium">{logStats.depthRange} ft ({logStats.pointCount} points)</p>
+              </div>
+              <Badge variant="outline" className="text-[9px]">{well.formation || "Unknown"}</Badge>
+            </div>
+          ) : formProp ? (
+            <div className="space-y-2">
+              <div className="grid grid-cols-1 gap-1.5">
+                <div className="p-2 bg-muted/20 rounded">
+                  <p className="text-[9px] text-muted-foreground">Lithology</p>
+                  <p className="text-xs font-medium">{formProp.lithology}</p>
+                </div>
+                <div className="p-2 bg-muted/20 rounded">
+                  <p className="text-[9px] text-muted-foreground">Porosity Range</p>
+                  <p className="text-xs font-medium">{formProp.phiMin}–{formProp.phiMax}%</p>
+                </div>
+                <div className="p-2 bg-muted/20 rounded">
+                  <p className="text-[9px] text-muted-foreground">Permeability</p>
+                  <p className="text-xs font-medium">{formatPermeability(formProp.kMin)} – {formatPermeability(formProp.kMax)}</p>
                 </div>
               </div>
-            );
-          })}
-        </div>
-        <div className="flex justify-between text-[8px] text-muted-foreground mt-1">
-          <span>{hasRealData && realLogs ? `${realLogs[0].measured_depth} ft` : "0 ft"}</span>
-          <span>{hasRealData && realLogs ? `${realLogs[realLogs.length - 1].measured_depth} ft` : `${depth.toLocaleString()} ft`}</span>
-        </div>
-      </div>
-
-      {/* Stratigraphic Column */}
-      <div className="p-3 rounded-lg border border-border/40 bg-muted/10 space-y-2">
-        <div className="flex items-center gap-2 text-xs font-semibold">
-          <Layers className="h-3.5 w-3.5 text-primary" />
-          Stratigraphic Column
-        </div>
-        <div className="space-y-0.5">
-          {stratigraphicColumn.map((layer, i) => {
-            const totalDepth = stratigraphicColumn[stratigraphicColumn.length - 1]?.to || depth;
-            const heightPct = ((layer.to - layer.from) / totalDepth) * 100;
-            const isTarget = layer.name === (well.formation || "Target Zone");
-            return (
-              <div
-                key={i}
-                className={`${layer.color} rounded px-2 py-1 flex justify-between items-center text-[9px] ${isTarget ? "ring-1 ring-success" : ""}`}
-                style={{ minHeight: `${Math.max(heightPct * 1.8, 18)}px` }}
-              >
-                <span className={`font-medium ${isTarget ? "text-success" : ""}`}>
-                  {isTarget ? "🎯 " : ""}{layer.name}
-                </span>
-                <span className="text-muted-foreground">{layer.from.toLocaleString()}–{layer.to.toLocaleString()} ft</span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Formation Properties */}
-      <div className="p-3 rounded-lg border border-border/40 bg-muted/10 space-y-2">
-        <div className="flex items-center gap-2 text-xs font-semibold">
-          <Waves className="h-3.5 w-3.5 text-primary" />
-          {hasRealData ? "Log Statistics" : "Formation Properties"}
-        </div>
-        {hasRealData && logStats ? (
-          <div className="space-y-1.5">
-            <div className="p-2 bg-muted/20 rounded">
-              <p className="text-[9px] text-muted-foreground">Avg Porosity</p>
-              <p className="text-xs font-medium">{logStats.avgPorosity.toFixed(1)}% (max {logStats.maxPorosity.toFixed(1)}%)</p>
+              <Badge variant="outline" className="text-[9px]">{well.formation || "Unknown"}</Badge>
             </div>
-            <div className="p-2 bg-muted/20 rounded">
-              <p className="text-[9px] text-muted-foreground">Avg Resistivity</p>
-              <p className="text-xs font-medium">{logStats.avgResistivity.toFixed(1)} Ωm (max {logStats.maxResistivity.toFixed(1)})</p>
-            </div>
-            <div className="p-2 bg-muted/20 rounded">
-              <p className="text-[9px] text-muted-foreground">Avg Gamma Ray</p>
-              <p className="text-xs font-medium">{logStats.avgGR.toFixed(1)} API</p>
-            </div>
-            <div className="p-2 bg-muted/20 rounded">
-              <p className="text-[9px] text-muted-foreground">Depth Range</p>
-              <p className="text-xs font-medium">{logStats.depthRange} ft ({logStats.pointCount} points)</p>
-            </div>
-            <Badge variant="outline" className="text-[9px]">
-              {well.formation || "Unknown"}
-            </Badge>
-          </div>
-        ) : formProp ? (
-          <div className="space-y-2">
-            <div className="grid grid-cols-1 gap-1.5">
+          ) : (
+            <div className="space-y-2">
               <div className="p-2 bg-muted/20 rounded">
-                <p className="text-[9px] text-muted-foreground">Lithology</p>
-                <p className="text-xs font-medium">{formProp.lithology}</p>
+                <p className="text-[9px] text-muted-foreground">Formation</p>
+                <p className="text-xs font-medium">{well.formation || "Not specified"}</p>
               </div>
               <div className="p-2 bg-muted/20 rounded">
-                <p className="text-[9px] text-muted-foreground">Porosity Range</p>
-                <p className="text-xs font-medium">{formProp.phiMin}–{formProp.phiMax}%</p>
+                <p className="text-[9px] text-muted-foreground">Total Depth</p>
+                <p className="text-xs font-medium">{depth.toLocaleString()} ft</p>
               </div>
               <div className="p-2 bg-muted/20 rounded">
-                <p className="text-[9px] text-muted-foreground">Permeability</p>
-                <p className="text-xs font-medium">{formatPermeability(formProp.kMin)} – {formatPermeability(formProp.kMax)}</p>
+                <p className="text-[9px] text-muted-foreground">Well Type</p>
+                <p className="text-xs font-medium">{well.well_type || "Oil"}</p>
               </div>
             </div>
-            <Badge variant="outline" className="text-[9px]">
-              {well.formation || "Unknown"}
-            </Badge>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            <div className="p-2 bg-muted/20 rounded">
-              <p className="text-[9px] text-muted-foreground">Formation</p>
-              <p className="text-xs font-medium">{well.formation || "Not specified"}</p>
-            </div>
-            <div className="p-2 bg-muted/20 rounded">
-              <p className="text-[9px] text-muted-foreground">Total Depth</p>
-              <p className="text-xs font-medium">{depth.toLocaleString()} ft</p>
-            </div>
-            <div className="p-2 bg-muted/20 rounded">
-              <p className="text-[9px] text-muted-foreground">Well Type</p>
-              <p className="text-xs font-medium">{well.well_type || "Oil"}</p>
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
