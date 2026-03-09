@@ -16,11 +16,13 @@ import {
 } from "lucide-react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import { EvidenceConfidenceSection } from "./EvidenceConfidenceSection";
 
 interface StageResult {
   title: string;
   metrics: { label: string; value: string; color?: string }[];
   verdict: string;
+  dataSource?: string;
 }
 
 interface WellRecord {
@@ -254,6 +256,14 @@ const PipelineReport = ({ well, stages, completedStages }: PipelineReportProps) 
               );
             })}
           </div>
+
+          {/* Evidence & Confidence */}
+          <Separator />
+          <EvidenceConfidenceSection
+            well={well}
+            stages={stages}
+            completedStages={completedStages}
+          />
 
           {/* Overall Project Statistics */}
           <Separator />
