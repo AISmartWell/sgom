@@ -151,12 +151,13 @@ const WellAnalysisPipeline = () => {
     setCurrentStageIdx(0);
     setStageProgress(0);
 
+    const allResults: Record<string, StageResult> = {};
+
     for (let i = 0; i < STAGES.length; i++) {
       setCurrentStageIdx(i);
-      setStageProgress(10); // Show initial progress
+      setStageProgress(10);
 
       try {
-        // Start AI analysis and show indeterminate progress
         const progressInterval = setInterval(() => {
           setStageProgress((prev) => Math.min(prev + 3, 90));
         }, 200);
@@ -166,9 +167,9 @@ const WellAnalysisPipeline = () => {
         clearInterval(progressInterval);
         setStageProgress(100);
 
-        // Brief pause to show 100%
         await new Promise((r) => setTimeout(r, 300));
 
+        allResults[STAGES[i].key] = result;
         setCompletedStages((prev) => new Map(prev).set(STAGES[i].key, result));
       } catch (err: any) {
         console.error(`Stage ${STAGES[i].key} failed:`, err);
@@ -195,19 +196,11 @@ const WellAnalysisPipeline = () => {
           .eq("user_id", user.id)
           .maybeSingle();
         if (uc) {
-          const stageResults: Record<string, StageResult> = {};
-          const finalStages = new Map(completedStages);
-          // Need to get final state after loop
-          for (const stage of STAGES) {
-            const r = finalStages.get(stage.key);
-            if (r) stageResults[stage.key] = r;
-          }
-          // Also include the last stage we just completed
           await supabase.from("well_analyses").insert({
             well_id: selectedWell.id,
             company_id: uc.company_id,
             user_id: user.id,
-            stage_results: stageResults as any,
+            stage_results: allResults as any,
             status: "completed",
           });
         }
