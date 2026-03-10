@@ -84,7 +84,7 @@ const AnalysisReports = () => {
         .from("well_analyses")
         .select(`
           id, well_id, created_at, status, batch_number, stage_results,
-          wells!inner(well_name, api_number, county, state, formation, operator, production_oil, water_cut)
+          wells!inner(well_name, api_number, county, state, formation, operator, production_oil, water_cut, total_depth, well_type)
         `)
         .order("created_at", { ascending: false })
         .range(page * ROWS_PER_PAGE, (page + 1) * ROWS_PER_PAGE - 1);
