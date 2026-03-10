@@ -109,6 +109,8 @@ const AnalysisReports = () => {
             operator: row.wells?.operator,
             production_oil: row.wells?.production_oil,
             water_cut: row.wells?.water_cut,
+            total_depth: row.wells?.total_depth,
+            well_type: row.wells?.well_type,
           }))
         );
       }
