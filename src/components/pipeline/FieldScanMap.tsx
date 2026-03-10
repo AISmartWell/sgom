@@ -269,7 +269,7 @@ const FieldScanMap = ({ wells, loading, onWellSelected }: FieldScanMapProps) => 
           {/* Region label */}
           <div className="absolute top-3 left-3 bg-background/80 backdrop-blur-sm rounded-lg px-3 py-1.5 z-20">
             <span className="text-xs font-medium text-primary">
-              {wells[0]?.state === "TX" ? "Permian Basin" : "Anadarko Basin"}
+              {STATE_BASIN_LABELS[wells[0]?.state] || wells[0]?.state || "Field Area"}
             </span>
             <span className="text-[10px] text-muted-foreground ml-2">
               {wells.length} wells loaded
