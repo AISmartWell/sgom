@@ -11,9 +11,11 @@ type Msg = { role: "user" | "assistant"; content: string };
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/spt-chat`;
 
 const QUICK_PROMPTS = [
+  "Which of my wells are currently productive and active?",
+  "Compare my top 5 wells by production and water cut",
   "Which wells are best suited for SPT treatment?",
+  "Which wells are marginal and need workover?",
   "Interpret well logs for the Arbuckle formation",
-  "What are the petrophysical properties of Mississippian Limestone?",
   "Calculate ROI for my wells",
 ];
 
