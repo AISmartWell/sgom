@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import GeophysicalStageViz from "@/components/oklahoma-pilot/stage-viz/GeophysicalStageViz";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -50,6 +51,8 @@ interface AnalysisRecord {
   operator: string | null;
   production_oil: number | null;
   water_cut: number | null;
+  total_depth: number | null;
+  well_type: string | null;
 }
 
 const STAGE_META: { key: string; label: string; icon: React.ElementType; badge: string }[] = [
@@ -81,7 +84,7 @@ const AnalysisReports = () => {
         .from("well_analyses")
         .select(`
           id, well_id, created_at, status, batch_number, stage_results,
-          wells!inner(well_name, api_number, county, state, formation, operator, production_oil, water_cut)
+          wells!inner(well_name, api_number, county, state, formation, operator, production_oil, water_cut, total_depth, well_type)
         `)
         .order("created_at", { ascending: false })
         .range(page * ROWS_PER_PAGE, (page + 1) * ROWS_PER_PAGE - 1);
@@ -106,6 +109,8 @@ const AnalysisReports = () => {
             operator: row.wells?.operator,
             production_oil: row.wells?.production_oil,
             water_cut: row.wells?.water_cut,
+            total_depth: row.wells?.total_depth,
+            well_type: row.wells?.well_type,
           }))
         );
       }
@@ -334,6 +339,22 @@ const AnalysisReports = () => {
                               </div>
 
                               <p className="text-xs text-muted-foreground leading-relaxed">{result.verdict}</p>
+
+                              {/* Well Log visualization for geophysical stage */}
+                              {sm.key === "geophysical" && (
+                                <GeophysicalStageViz
+                                  well={{
+                                    id: a.well_id,
+                                    well_name: a.well_name,
+                                    api_number: a.api_number,
+                                    formation: a.formation,
+                                    total_depth: a.total_depth,
+                                    production_oil: a.production_oil,
+                                    water_cut: a.water_cut,
+                                    well_type: a.well_type,
+                                  }}
+                                />
+                              )}
                             </div>
                           );
                         })}
