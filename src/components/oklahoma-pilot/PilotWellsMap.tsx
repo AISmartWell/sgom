@@ -18,6 +18,16 @@ interface WellRecord {
   status: string | null;
 }
 
+const STATE_LABELS: Record<string, string> = {
+  OK: "Oklahoma",
+  TX: "Texas",
+  KS: "Kansas",
+  NM: "New Mexico",
+  CO: "Colorado",
+  ND: "North Dakota",
+  WY: "Wyoming",
+};
+
 interface PilotWellsMapProps {
   wells: WellRecord[];
   selectedIds?: Set<string>;
@@ -25,6 +35,7 @@ interface PilotWellsMapProps {
   analyzedIds?: Set<string>;
   onWellClick?: (wellId: string) => void;
   onPolygonSelect?: (wellIds: string[]) => void;
+  selectedState?: string;
 }
 
 const getMarkerColor = (waterCut: number | null): string => {
@@ -47,7 +58,7 @@ const isPointInPolygon = (point: [number, number], polygon: [number, number][]):
   return inside;
 };
 
-const PilotWellsMap = ({ wells, selectedIds, activeWellId, analyzedIds, onWellClick, onPolygonSelect }: PilotWellsMapProps) => {
+const PilotWellsMap = ({ wells, selectedIds, activeWellId, analyzedIds, onWellClick, onPolygonSelect, selectedState }: PilotWellsMapProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const markersRef = useRef<Map<string, L.CircleMarker>>(new Map());
@@ -230,7 +241,7 @@ const PilotWellsMap = ({ wells, selectedIds, activeWellId, analyzedIds, onWellCl
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
           <MapPin className="h-4 w-4 text-primary" />
-          Oklahoma Wells ({wells.length})
+          {STATE_LABELS[selectedState || "OK"] || selectedState} Wells ({wells.length})
         </CardTitle>
         <p className="text-[11px] text-muted-foreground mt-1">
           🖊️ Draw a polygon or rectangle on the map to select wells in an area
