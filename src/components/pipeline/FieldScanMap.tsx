@@ -31,6 +31,15 @@ interface FieldScanMapProps {
 
 type ScanPhase = "idle" | "scanning" | "analyzing" | "results";
 
+const STATE_BASIN_LABELS: Record<string, string> = {
+  OK: "Anadarko Basin",
+  TX: "Permian Basin",
+  NM: "Delaware Basin",
+  KS: "Hugoton Basin",
+  CO: "Denver-Julesburg Basin",
+  ND: "Williston Basin",
+  WY: "Powder River Basin",
+};
 interface ScannedWell {
   well: WellRecord;
   x: number;
