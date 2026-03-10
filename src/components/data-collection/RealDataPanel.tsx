@@ -111,7 +111,7 @@ export const RealDataPanel = () => {
   };
 
   const loadWells = async () => {
-    let query = supabase.from("wells").select("id, api_number, well_name, operator, well_type, status, county, state, latitude, longitude, formation, total_depth, production_oil, production_gas, water_cut, spud_date, completion_date").order("api_number", { ascending: false }).limit(50);
+    let query = supabase.from("wells").select("id, api_number, well_name, operator, well_type, status, county, state, latitude, longitude, formation, total_depth, production_oil, production_gas, water_cut, spud_date, completion_date, company_id").order("api_number", { ascending: false }).limit(50);
     if (selectedCounty !== "ALL") {
       query = query.eq("county", selectedCounty);
     }
