@@ -915,10 +915,8 @@ ${placemarks}
                         )}
                         {isDone && (
                           <PilotWellLog
+                            wellId={well.id}
                             wellName={well.well_name || well.api_number || "Unknown"}
-                            totalDepth={well.total_depth}
-                            waterCut={well.water_cut}
-                            productionOil={well.production_oil}
                             formation={well.formation}
                           />
                         )}
