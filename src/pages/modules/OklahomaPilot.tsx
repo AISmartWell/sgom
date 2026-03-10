@@ -452,7 +452,7 @@ const OklahomaPilot = () => {
     const kml = `<?xml version="1.0" encoding="UTF-8"?>
 <kml xmlns="http://www.opengis.net/kml/2.2">
   <Document>
-    <name>SPT Candidates — Oklahoma Pilot</name>
+    <name>SPT Candidates — Well Screening Pilot (${pilotState})</name>
     <description>Exported ${wellsToExport.length} wells on ${new Date().toLocaleDateString()}</description>
 ${placemarks}
   </Document>
