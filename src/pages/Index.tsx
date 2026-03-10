@@ -3,13 +3,24 @@ import { Button } from "@/components/ui/button";
 import { Droplets, ArrowRight, BarChart3, Target, Cpu, FileText, Zap, TrendingUp, Shield, Lightbulb } from "lucide-react";
 import nvidiaInceptionBadgeBw from "@/assets/nvidia-inception-badge-bw.png";
 
-const features = [
-  { emoji: "📡", title: "Data Collection", desc: "Real-time well data from Oklahoma & Texas databases with IoT telemetry integration", path: "/dashboard/data-collection" },
-  { emoji: "🗺️", title: "Geological Analysis", desc: "AI-powered seismic interpretation & well log analysis with 3D modeling", path: "/dashboard/geological-analysis" },
-  { emoji: "🎯", title: "AI Well Selection", desc: "Machine learning-based well potential ranking with 94% accuracy", path: "/dashboard/well-selection" },
-  { emoji: "📊", title: "Reservoir Simulation", desc: "Dynamic reservoir modeling with production forecasting", path: "/dashboard/simulation" },
-  { emoji: "💰", title: "Financial Forecast", desc: "ROI prediction & investment analysis before you drill", path: "/dashboard/financial" },
-  { emoji: "🔧", title: "SPT Treatment", desc: "Patented hydro-slotting technology for marginal well revival", path: "/dashboard/spt-treatment" },
+const pipelineStages = [
+  { emoji: "🛰️", stage: 1, title: "Field Scanning", desc: "Automated satellite imagery analysis & well detection across oil fields with weekly scan cycles", path: "/dashboard/field-scanning" },
+  { emoji: "📂", stage: 2, title: "Data Classification", desc: "AI-driven well data categorization, filtering & quality scoring from 5+ state databases", path: "/dashboard/data-classification" },
+  { emoji: "📈", stage: 3, title: "Cumulative Analysis", desc: "Production decline curve modeling, reserve estimation & depletion trend analysis", path: "/dashboard/cumulative-analysis" },
+  { emoji: "🚀", stage: 4, title: "SPT Projection", desc: "AI well ranking & inflow performance projection for SPT treatment candidates", path: "/dashboard/spt-projection" },
+  { emoji: "💵", stage: 5, title: "Economic Analysis", desc: "ROI calculation, payback period modeling & profit projection per well candidate", path: "/dashboard/economic-analysis" },
+  { emoji: "📊", stage: 6, title: "Geophysical Expertise", desc: "Well log interpretation, formation evaluation & pay zone detection with petrophysics", path: "/dashboard/geophysical" },
+  { emoji: "🔬", stage: 7, title: "Core Analysis", desc: "Computer vision rock analysis powered by NVIDIA — porosity, permeability, fractures", path: "/dashboard/core-analysis" },
+  { emoji: "🧠", stage: 8, title: "EOR Optimization", desc: "Final treatment recommendations combining all stages into actionable field reports", path: "/dashboard/eor-optimization" },
+];
+
+const additionalModules = [
+  { emoji: "📡", title: "Data Collection & Import", desc: "Integration with OCC, Texas RRC & KGS databases. CSV/Excel upload, manual entry & ArcGIS API", path: "/dashboard/data-collection" },
+  { emoji: "🗺️", title: "Geological Analysis", desc: "AI seismic interpretation, 3D geological modeling & cross-section visualization", path: "/dashboard/geological-analysis" },
+  { emoji: "🎯", title: "AI Well Selection", desc: "ML-based well ranking by production potential with 94% accuracy", path: "/dashboard/well-selection" },
+  { emoji: "💰", title: "Financial Forecast", desc: "Investment ROI calculator, scenario modeling & project-level financial analysis", path: "/dashboard/financial" },
+  { emoji: "🔧", title: "SPT Treatment", desc: "Patented hydro-slotting technology (US 8,863,823) for marginal well revival — 5-10x production boost", path: "/dashboard/spt-treatment" },
+  { emoji: "⚙️", title: "Automation Center", desc: "Alert monitoring, auto-linking triggers & full pipeline automation with real-time status", path: "/dashboard/automation" },
 ];
 
 const advantages = [
