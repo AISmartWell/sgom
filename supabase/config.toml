@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.fetch-wells]
 verify_jwt = false
+
+[functions.spt-chat]
+verify_jwt = false
