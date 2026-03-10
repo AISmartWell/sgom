@@ -51,6 +51,8 @@ interface AnalysisRecord {
   operator: string | null;
   production_oil: number | null;
   water_cut: number | null;
+  total_depth: number | null;
+  well_type: string | null;
 }
 
 const STAGE_META: { key: string; label: string; icon: React.ElementType; badge: string }[] = [
