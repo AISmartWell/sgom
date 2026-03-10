@@ -176,7 +176,6 @@ const SPTChatWidget = () => {
                 <p className="text-sm text-muted-foreground text-center">
                   Ask a question about your wells and SPT technology
                 </p>
-                </p>
                 <div className="space-y-2">
                   {QUICK_PROMPTS.map((q) => (
                     <button
