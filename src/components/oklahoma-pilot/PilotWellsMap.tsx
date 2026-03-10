@@ -241,7 +241,7 @@ const PilotWellsMap = ({ wells, selectedIds, activeWellId, analyzedIds, onWellCl
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
           <MapPin className="h-4 w-4 text-primary" />
-          Oklahoma Wells ({wells.length})
+          {STATE_LABELS[selectedState || "OK"] || selectedState} Wells ({wells.length})
         </CardTitle>
         <p className="text-[11px] text-muted-foreground mt-1">
           🖊️ Draw a polygon or rectangle on the map to select wells in an area
