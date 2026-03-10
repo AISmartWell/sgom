@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MapPin, Droplets, Fuel, Layers, Calendar, Building2, Hash } from "lucide-react";
 import ProductionHistoryChart from "@/components/production-history/ProductionHistoryChart";
+import { NearbyWellsSearch } from "./NearbyWellsSearch";
 
 interface WellRecord {
   id: string;
@@ -22,6 +23,7 @@ interface WellRecord {
   water_cut: number | null;
   spud_date: string | null;
   completion_date: string | null;
+  company_id?: string;
 }
 
 interface WellDetailDialogProps {
@@ -80,6 +82,18 @@ export const WellDetailDialog = ({ well, open, onOpenChange }: WellDetailDialogP
             <InfoRow icon={Calendar} label="Spud Date" value={well.spud_date} />
             <InfoRow icon={Calendar} label="Completion Date" value={well.completion_date} />
           </div>
+
+          {/* Nearby Wells Search - only for TX wells with coordinates */}
+          {well.state === "TX" && well.latitude && well.longitude && well.company_id && (
+            <div className="mt-4 pt-4 border-t border-border/40">
+              <NearbyWellsSearch
+                latitude={well.latitude}
+                longitude={well.longitude}
+                wellName={well.well_name || "Unknown"}
+                companyId={well.company_id}
+              />
+            </div>
+          )}
 
           {/* Production History Chart */}
           <div className="mt-4 pt-4 border-t border-border/40">
