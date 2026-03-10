@@ -267,7 +267,7 @@ export const BacktestingModule = ({ well, completedStages }: Props) => {
       <div className="p-4 rounded-lg bg-muted/10 border border-border/50">
         <div className="flex items-center gap-2 mb-3">
           <Target className="h-4 w-4 text-muted-foreground" />
-          <h4 className="text-sm font-semibold">Точность прогноза по месяцам (%)</h4>
+          <h4 className="text-sm font-semibold">Forecast Accuracy by Month (%)</h4>
         </div>
         <ResponsiveContainer width="100%" height={180}>
           <BarChart data={backtestData.merged.map(d => ({ ...d, accuracy: +(100 - (d.error as number)).toFixed(1) }))} margin={{ top: 5, right: 20, bottom: 5, left: 10 }}>
