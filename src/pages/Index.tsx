@@ -3,13 +3,24 @@ import { Button } from "@/components/ui/button";
 import { Droplets, ArrowRight, BarChart3, Target, Cpu, FileText, Zap, TrendingUp, Shield, Lightbulb } from "lucide-react";
 import nvidiaInceptionBadgeBw from "@/assets/nvidia-inception-badge-bw.png";
 
-const features = [
-  { emoji: "📡", title: "Data Collection", desc: "Real-time well data from Oklahoma & Texas databases with IoT telemetry integration", path: "/dashboard/data-collection" },
-  { emoji: "🗺️", title: "Geological Analysis", desc: "AI-powered seismic interpretation & well log analysis with 3D modeling", path: "/dashboard/geological-analysis" },
-  { emoji: "🎯", title: "AI Well Selection", desc: "Machine learning-based well potential ranking with 94% accuracy", path: "/dashboard/well-selection" },
-  { emoji: "📊", title: "Reservoir Simulation", desc: "Dynamic reservoir modeling with production forecasting", path: "/dashboard/simulation" },
-  { emoji: "💰", title: "Financial Forecast", desc: "ROI prediction & investment analysis before you drill", path: "/dashboard/financial" },
-  { emoji: "🔧", title: "SPT Treatment", desc: "Patented hydro-slotting technology for marginal well revival", path: "/dashboard/spt-treatment" },
+const pipelineStages = [
+  { emoji: "🛰️", stage: 1, title: "Field Scanning", desc: "Automated satellite imagery analysis & well detection across oil fields with weekly scan cycles", path: "/dashboard/field-scanning" },
+  { emoji: "📂", stage: 2, title: "Data Classification", desc: "AI-driven well data categorization, filtering & quality scoring from 5+ state databases", path: "/dashboard/data-classification" },
+  { emoji: "📈", stage: 3, title: "Cumulative Analysis", desc: "Production decline curve modeling, reserve estimation & depletion trend analysis", path: "/dashboard/cumulative-analysis" },
+  { emoji: "🚀", stage: 4, title: "SPT Projection", desc: "AI well ranking & inflow performance projection for SPT treatment candidates", path: "/dashboard/spt-projection" },
+  { emoji: "💵", stage: 5, title: "Economic Analysis", desc: "ROI calculation, payback period modeling & profit projection per well candidate", path: "/dashboard/economic-analysis" },
+  { emoji: "📊", stage: 6, title: "Geophysical Expertise", desc: "Well log interpretation, formation evaluation & pay zone detection with petrophysics", path: "/dashboard/geophysical" },
+  { emoji: "🔬", stage: 7, title: "Core Analysis", desc: "Computer vision rock analysis powered by NVIDIA — porosity, permeability, fractures", path: "/dashboard/core-analysis" },
+  { emoji: "🧠", stage: 8, title: "EOR Optimization", desc: "Final treatment recommendations combining all stages into actionable field reports", path: "/dashboard/eor-optimization" },
+];
+
+const additionalModules = [
+  { emoji: "📡", title: "Data Collection & Import", desc: "Integration with OCC, Texas RRC & KGS databases. CSV/Excel upload, manual entry & ArcGIS API", path: "/dashboard/data-collection" },
+  { emoji: "🗺️", title: "Geological Analysis", desc: "AI seismic interpretation, 3D geological modeling & cross-section visualization", path: "/dashboard/geological-analysis" },
+  { emoji: "🎯", title: "AI Well Selection", desc: "ML-based well ranking by production potential with 94% accuracy", path: "/dashboard/well-selection" },
+  { emoji: "💰", title: "Financial Forecast", desc: "Investment ROI calculator, scenario modeling & project-level financial analysis", path: "/dashboard/financial" },
+  { emoji: "🔧", title: "SPT Treatment", desc: "Patented hydro-slotting technology (US 8,863,823) for marginal well revival — 5-10x production boost", path: "/dashboard/spt-treatment" },
+  { emoji: "⚙️", title: "Automation Center", desc: "Alert monitoring, auto-linking triggers & full pipeline automation with real-time status", path: "/dashboard/automation" },
 ];
 
 const advantages = [
@@ -172,26 +183,63 @@ const Index = () => {
         </div>
       </div>
 
-      {/* ===== FEATURES ===== */}
+      {/* ===== 8-STAGE PIPELINE ===== */}
       <section className="relative py-28 px-6">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/[0.02] to-transparent" />
         <div className="relative max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <span className="text-primary font-semibold text-sm tracking-widest uppercase">Platform Modules</span>
-            <h2 className="text-4xl md:text-5xl font-bold mt-3 mb-4">SGOM Platform</h2>
+            <span className="text-primary font-semibold text-sm tracking-widest uppercase">8-Stage AI Pipeline</span>
+            <h2 className="text-4xl md:text-5xl font-bold mt-3 mb-4">Core Analysis Engine</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-              Complete cycle of oil production analysis and optimization powered by artificial intelligence
+              End-to-end automated well screening — from satellite field scanning to final EOR treatment recommendations
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+            {pipelineStages.map((stage, index) => (
+              <div
+                key={index}
+                onClick={() => navigate(stage.path)}
+                className="glass-card-hover rounded-2xl p-6 group cursor-pointer relative overflow-hidden"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/0 via-primary/0 to-primary/0 group-hover:from-primary/5 group-hover:via-transparent group-hover:to-primary-glow/5 transition-all duration-500 pointer-events-none" />
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="text-3xl group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300">{stage.emoji}</span>
+                    <span className="text-xs font-bold text-primary/60 bg-primary/10 px-2 py-0.5 rounded-full">Stage {stage.stage}</span>
+                  </div>
+                  <h3 className="text-base font-bold mb-2 group-hover:text-primary transition-colors duration-300">{stage.title}</h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{stage.desc}</p>
+                  <div className="mt-3 flex items-center text-primary/40 text-xs font-medium group-hover:text-primary transition-all duration-300">
+                    <span className="group-hover:mr-1 transition-all duration-300">Explore</span>
+                    <ArrowRight className="h-3 w-3 ml-1 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== ADDITIONAL MODULES ===== */}
+      <section className="relative py-28 px-6 border-t border-border/50">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-accent/[0.02] to-transparent" />
+        <div className="relative max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <span className="text-primary font-semibold text-sm tracking-widest uppercase">Platform Modules</span>
+            <h2 className="text-4xl md:text-5xl font-bold mt-3 mb-4">Extended Capabilities</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
+              Specialized tools for data management, geological modeling, financial planning & operational automation
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {features.map((feature, index) => (
+            {additionalModules.map((feature, index) => (
               <div
                 key={index}
                 onClick={() => navigate(feature.path)}
                 className="glass-card-hover rounded-2xl p-7 group cursor-pointer relative overflow-hidden"
               >
-                {/* Hover glow overlay */}
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/0 via-primary/0 to-primary/0 group-hover:from-primary/5 group-hover:via-transparent group-hover:to-primary-glow/5 transition-all duration-500 pointer-events-none" />
                 <div className="relative z-10">
                   <span className="text-4xl mb-5 block group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300 origin-left">{feature.emoji}</span>
