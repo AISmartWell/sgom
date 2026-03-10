@@ -249,7 +249,7 @@ const SPTChatWidget = () => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Спросите про SPT..."
+                placeholder="Ask about SPT..."
                 className="min-h-[40px] max-h-[100px] resize-none text-sm"
                 rows={1}
               />
