@@ -11,10 +11,10 @@ type Msg = { role: "user" | "assistant"; content: string };
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/spt-chat`;
 
 const QUICK_PROMPTS = [
-  "Какие скважины лучше всего подходят для SPT?",
-  "Интерпретируй каротаж для формации Arbuckle",
-  "Какие петрофизические свойства у Mississippian Limestone?",
-  "Рассчитай ROI для моих скважин",
+  "Which wells are best suited for SPT treatment?",
+  "Interpret well logs for the Arbuckle formation",
+  "What are the petrophysical properties of Mississippian Limestone?",
+  "Calculate ROI for my wells",
 ];
 
 const SPTChatWidget = () => {
@@ -44,7 +44,7 @@ const SPTChatWidget = () => {
       });
 
       if (!resp.ok) {
-        const err = await resp.json().catch(() => ({ error: "Ошибка сервера" }));
+        const err = await resp.json().catch(() => ({ error: "Server error" }));
         throw new Error(err.error || `HTTP ${resp.status}`);
       }
       if (!resp.body) throw new Error("No stream body");
@@ -130,7 +130,7 @@ const SPTChatWidget = () => {
         <button
           onClick={() => setOpen(true)}
           className="fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center"
-          aria-label="Открыть чат"
+          aria-label="Open chat"
         >
           <MessageCircle className="h-6 w-6" />
         </button>
@@ -144,7 +144,7 @@ const SPTChatWidget = () => {
             <div className="flex items-center gap-2">
               <Bot className="h-5 w-5 text-primary" />
               <div>
-                <p className="text-sm font-semibold">SPT Консультант</p>
+                <p className="text-sm font-semibold">SPT Consultant</p>
                 <p className="text-[10px] text-muted-foreground">AI Smart Well & Maxxwell Production</p>
               </div>
             </div>
@@ -154,7 +154,7 @@ const SPTChatWidget = () => {
                 size="icon"
                 className="h-7 w-7"
                 onClick={() => setMessages([])}
-                title="Очистить"
+                title="Clear chat"
               >
                 <Trash2 className="h-3.5 w-3.5" />
               </Button>
@@ -174,7 +174,7 @@ const SPTChatWidget = () => {
             {messages.length === 0 ? (
               <div className="space-y-3 mt-4">
                 <p className="text-sm text-muted-foreground text-center">
-                  Задайте вопрос о ваших скважинах и технологии SPT
+                  Ask a question about your wells and SPT technology
                 </p>
                 <div className="space-y-2">
                   {QUICK_PROMPTS.map((q) => (
@@ -248,7 +248,7 @@ const SPTChatWidget = () => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Спросите про SPT..."
+                placeholder="Ask about SPT..."
                 className="min-h-[40px] max-h-[100px] resize-none text-sm"
                 rows={1}
               />
