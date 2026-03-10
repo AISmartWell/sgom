@@ -46,13 +46,20 @@ const PERMIAN_BASIN_COUNTIES_BBOX = {
   "ALL": { xmin: -106.9, ymin: 25.8, xmax: -93.2, ymax: 36.5 },
 };
 
+// Helper: build bounding box from center + radius in miles
+function bboxFromRadius(lat: number, lng: number, radiusMiles: number) {
+  const latDeg = radiusMiles / 69.0;
+  const lngDeg = radiusMiles / (69.0 * Math.cos((lat * Math.PI) / 180));
+  return { xmin: lng - lngDeg, ymin: lat - latDeg, xmax: lng + lngDeg, ymax: lat + latDeg };
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { region = "PERMIAN", limit = 200, company_id } = await req.json();
+    const { region = "PERMIAN", limit = 200, company_id, latitude, longitude, radius_miles } = await req.json();
 
     if (!company_id) {
       return new Response(
@@ -61,7 +68,13 @@ serve(async (req) => {
       );
     }
 
-    const bbox = PERMIAN_BASIN_COUNTIES_BBOX[region as keyof typeof PERMIAN_BASIN_COUNTIES_BBOX] || PERMIAN_BASIN_COUNTIES_BBOX.PERMIAN;
+    // Determine bounding box: radius search or region
+    let bbox;
+    if (latitude && longitude && radius_miles) {
+      bbox = bboxFromRadius(latitude, longitude, radius_miles);
+    } else {
+      bbox = PERMIAN_BASIN_COUNTIES_BBOX[region as keyof typeof PERMIAN_BASIN_COUNTIES_BBOX] || PERMIAN_BASIN_COUNTIES_BBOX.PERMIAN;
+    }
 
     // Query wells with spatial filter (bounding box)
     const params = new URLSearchParams({
