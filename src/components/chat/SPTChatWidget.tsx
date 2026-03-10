@@ -174,7 +174,8 @@ const SPTChatWidget = () => {
             {messages.length === 0 ? (
               <div className="space-y-3 mt-4">
                 <p className="text-sm text-muted-foreground text-center">
-                  Задайте вопрос о ваших скважинах и технологии SPT
+                  Ask a question about your wells and SPT technology
+                </p>
                 </p>
                 <div className="space-y-2">
                   {QUICK_PROMPTS.map((q) => (
