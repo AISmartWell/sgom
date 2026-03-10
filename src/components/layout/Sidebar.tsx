@@ -117,7 +117,7 @@ const menuItems = [
     badge: "🧠",
   },
   {
-    title: "Oklahoma Pilot",
+    title: "Well Screening Pilot",
     icon: Map,
     href: "/dashboard/oklahoma-pilot",
     badge: "🛢️",
