@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { StageVisualization } from "@/components/pipeline/StageVisualization";
+import WellLocationMap from "@/components/pipeline/WellLocationMap";
 import FieldScanMap from "@/components/pipeline/FieldScanMap";
 import GeophysicalStageViz from "@/components/oklahoma-pilot/stage-viz/GeophysicalStageViz";
 import CumulativeStageViz from "@/components/oklahoma-pilot/stage-viz/CumulativeStageViz";
@@ -319,11 +320,22 @@ const WellAnalysisPipeline = () => {
 
           {/* Well summary */}
           {selectedWell && (
-            <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 p-3 bg-muted/50 rounded-lg text-sm">
-              <div><span className="text-muted-foreground">Operator:</span> <span className="font-medium">{selectedWell.operator || "—"}</span></div>
-              <div><span className="text-muted-foreground">Oil:</span> <span className="font-medium">{selectedWell.production_oil?.toFixed(1) ?? "—"} bbl/d</span></div>
-              <div><span className="text-muted-foreground">Gas:</span> <span className="font-medium">{selectedWell.production_gas?.toFixed(0) ?? "—"} MCF/d</span></div>
-              <div><span className="text-muted-foreground">Water Cut:</span> <span className="font-medium">{selectedWell.water_cut?.toFixed(1) ?? "—"}%</span></div>
+            <div className="mt-4 space-y-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3 bg-muted/50 rounded-lg text-sm">
+                <div><span className="text-muted-foreground">Operator:</span> <span className="font-medium">{selectedWell.operator || "—"}</span></div>
+                <div><span className="text-muted-foreground">Oil:</span> <span className="font-medium">{selectedWell.production_oil?.toFixed(1) ?? "—"} bbl/d</span></div>
+                <div><span className="text-muted-foreground">Gas:</span> <span className="font-medium">{selectedWell.production_gas?.toFixed(0) ?? "—"} MCF/d</span></div>
+                <div><span className="text-muted-foreground">Water Cut:</span> <span className="font-medium">{selectedWell.water_cut?.toFixed(1) ?? "—"}%</span></div>
+              </div>
+              {selectedWell.latitude && selectedWell.longitude && (
+                <WellLocationMap
+                  latitude={selectedWell.latitude}
+                  longitude={selectedWell.longitude}
+                  wellName={selectedWell.well_name || selectedWell.api_number || "Well"}
+                  formation={selectedWell.formation}
+                  status={selectedWell.status}
+                />
+              )}
             </div>
           )}
         </CardContent>
