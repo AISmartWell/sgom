@@ -144,7 +144,7 @@ const SPTChatWidget = () => {
             <div className="flex items-center gap-2">
               <Bot className="h-5 w-5 text-primary" />
               <div>
-                <p className="text-sm font-semibold">SPT Консультант</p>
+                <p className="text-sm font-semibold">SPT Consultant</p>
                 <p className="text-[10px] text-muted-foreground">AI Smart Well & Maxxwell Production</p>
               </div>
             </div>
