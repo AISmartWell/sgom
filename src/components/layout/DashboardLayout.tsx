@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Sidebar from "./Sidebar";
+import SPTChatWidget from "@/components/chat/SPTChatWidget";
 import { Loader2 } from "lucide-react";
 
 const DashboardLayout = () => {
@@ -49,6 +50,7 @@ const DashboardLayout = () => {
       <main className="flex-1 overflow-auto">
         <Outlet />
       </main>
+      <SPTChatWidget />
     </div>
   );
 };
