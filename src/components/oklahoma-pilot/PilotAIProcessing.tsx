@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SeismicVisualization from "@/components/geological/SeismicVisualization";
-import WellLogVisualization from "@/components/geological/WellLogVisualization";
 import Geological3DModel from "@/components/geological/Geological3DModel";
 
 const PilotAIProcessing = () => {
@@ -18,18 +17,13 @@ const PilotAIProcessing = () => {
       </CardHeader>
       <CardContent>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-4">
+          <TabsList className="grid w-full grid-cols-2 mb-4">
             <TabsTrigger value="seismic">🎯 Seismic</TabsTrigger>
-            <TabsTrigger value="welllog">📊 Well Log</TabsTrigger>
             <TabsTrigger value="3d">🧊 3D Model</TabsTrigger>
           </TabsList>
 
           <TabsContent value="seismic" className="mt-0">
             <SeismicVisualization />
-          </TabsContent>
-
-          <TabsContent value="welllog" className="mt-0">
-            <WellLogVisualization />
           </TabsContent>
 
           <TabsContent value="3d" className="mt-0">
