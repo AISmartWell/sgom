@@ -174,6 +174,21 @@ const AnalyzedWellsTable = () => {
                         {row.status === "completed" ? "Done" : row.status}
                       </Badge>
                     </td>
+                    <td className="p-2 text-center">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                        onClick={() => handleDelete(row.id)}
+                        disabled={deleting === row.id}
+                      >
+                        {deleting === row.id ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-3.5 w-3.5" />
+                        )}
+                      </Button>
+                    </td>
                   </tr>
                 );
               })}
