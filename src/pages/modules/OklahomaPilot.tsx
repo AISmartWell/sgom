@@ -111,6 +111,7 @@ const OklahomaPilot = () => {
   const [currentBatch, setCurrentBatch] = useState(1);
   const [companyId, setCompanyId] = useState<string | null>(null);
   const [prodHistoryOpen, setProdHistoryOpen] = useState(false);
+  const [pilotState, setPilotState] = useState("OK");
 
   // Fetch company ID for production history upload
   useEffect(() => {
