@@ -58,7 +58,7 @@ const isPointInPolygon = (point: [number, number], polygon: [number, number][]):
   return inside;
 };
 
-const PilotWellsMap = ({ wells, selectedIds, activeWellId, analyzedIds, onWellClick, onPolygonSelect }: PilotWellsMapProps) => {
+const PilotWellsMap = ({ wells, selectedIds, activeWellId, analyzedIds, onWellClick, onPolygonSelect, selectedState }: PilotWellsMapProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const markersRef = useRef<Map<string, L.CircleMarker>>(new Map());
