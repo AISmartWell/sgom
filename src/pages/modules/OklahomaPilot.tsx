@@ -624,6 +624,8 @@ ${placemarks}
         isRunning={isRunning}
         currentWellIdx={currentWellIdx}
         totalAnalyzing={totalAnalyzing}
+        selectedState={pilotState}
+        onStateChange={setPilotState}
         onBack={() => navigate("/dashboard")}
         onExportCSV={handleExportCandidatesCSV}
         onExportKML={handleExportKML}
