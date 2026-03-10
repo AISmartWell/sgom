@@ -134,6 +134,7 @@ const AnalyzedWellsTable = () => {
                 <th className="p-2 text-center font-medium text-muted-foreground">Batch</th>
                 <th className="p-2 text-left font-medium text-muted-foreground">Analyzed</th>
                 <th className="p-2 text-center font-medium text-muted-foreground">Status</th>
+                <th className="p-2 text-center font-medium text-muted-foreground"></th>
               </tr>
             </thead>
             <tbody>
