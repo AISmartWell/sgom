@@ -128,14 +128,18 @@ const OklahomaPilot = () => {
     fetchCompany();
   }, []);
 
-  // Load ALL Oklahoma wells + previously analyzed well IDs
+  // Load wells for selected state + previously analyzed well IDs
   useEffect(() => {
     const load = async () => {
+      setLoading(true);
+      setAllWells([]);
+      setSelectedIds(new Set());
+      setAnalyses(new Map());
       // Load wells
       const { data, error } = await supabase
         .from("wells")
         .select("id, well_name, api_number, operator, county, state, formation, production_oil, production_gas, water_cut, total_depth, well_type, status, latitude, longitude")
-        .eq("state", "OK")
+        .eq("state", pilotState)
         .order("production_oil", { ascending: true })
         .limit(500);
       if (error) {
