@@ -180,7 +180,7 @@ const OklahomaPilot = () => {
       setLoading(false);
     };
     load();
-  }, []);
+  }, [pilotState]);
 
   const sptCandidates = allWells.filter(isSptCandidate);
   const excellentWells = sptCandidates.filter(w => getSptRating(w) === "excellent");
