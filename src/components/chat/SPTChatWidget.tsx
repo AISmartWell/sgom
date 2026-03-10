@@ -44,7 +44,7 @@ const SPTChatWidget = () => {
       });
 
       if (!resp.ok) {
-        const err = await resp.json().catch(() => ({ error: "Ошибка сервера" }));
+        const err = await resp.json().catch(() => ({ error: "Server error" }));
         throw new Error(err.error || `HTTP ${resp.status}`);
       }
       if (!resp.body) throw new Error("No stream body");
