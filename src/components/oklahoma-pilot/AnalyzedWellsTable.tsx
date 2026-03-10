@@ -3,8 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, CheckCircle2, Calendar, ChevronLeft, ChevronRight, History } from "lucide-react";
-
+import { Loader2, CheckCircle2, Calendar, ChevronLeft, ChevronRight, History, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 interface AnalyzedWellRow {
   id: string;
   well_id: string;
@@ -26,6 +26,7 @@ const AnalyzedWellsTable = () => {
   const [rows, setRows] = useState<AnalyzedWellRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
+  const [deleting, setDeleting] = useState<string | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -63,6 +64,23 @@ const AnalyzedWellsTable = () => {
     };
     load();
   }, []);
+
+  const handleDelete = async (id: string) => {
+    setDeleting(id);
+    try {
+      const { error } = await supabase
+        .from("well_analyses")
+        .delete()
+        .eq("id", id);
+      if (error) throw error;
+      setRows((prev) => prev.filter((r) => r.id !== id));
+      toast.success("Analysis deleted");
+    } catch {
+      toast.error("Failed to delete");
+    } finally {
+      setDeleting(null);
+    }
+  };
 
   const getSptRating = (wc: number | null, oil: number | null) => {
     const o = oil ?? 0;
@@ -116,6 +134,7 @@ const AnalyzedWellsTable = () => {
                 <th className="p-2 text-center font-medium text-muted-foreground">Batch</th>
                 <th className="p-2 text-left font-medium text-muted-foreground">Analyzed</th>
                 <th className="p-2 text-center font-medium text-muted-foreground">Status</th>
+                <th className="p-2 text-center font-medium text-muted-foreground"></th>
               </tr>
             </thead>
             <tbody>
@@ -154,6 +173,21 @@ const AnalyzedWellsTable = () => {
                         <CheckCircle2 className="h-2.5 w-2.5" />
                         {row.status === "completed" ? "Done" : row.status}
                       </Badge>
+                    </td>
+                    <td className="p-2 text-center">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                        onClick={() => handleDelete(row.id)}
+                        disabled={deleting === row.id}
+                      >
+                        {deleting === row.id ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-3.5 w-3.5" />
+                        )}
+                      </Button>
                     </td>
                   </tr>
                 );
