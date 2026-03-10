@@ -525,7 +525,7 @@ ${placemarks}
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `oklahoma-pilot-${selectedWells.length}wells-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `well-screening-${pilotState}-${selectedWells.length}wells-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };
