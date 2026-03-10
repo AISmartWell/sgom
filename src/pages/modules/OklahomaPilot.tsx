@@ -955,7 +955,7 @@ ${placemarks}
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <TrendingUp className="h-5 w-5 text-success" />
-                Oklahoma Pilot — Combined Results
+                Well Screening Pilot ({pilotState}) — Combined Results
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
