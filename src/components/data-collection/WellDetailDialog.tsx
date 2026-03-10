@@ -83,14 +83,15 @@ export const WellDetailDialog = ({ well, open, onOpenChange }: WellDetailDialogP
             <InfoRow icon={Calendar} label="Completion Date" value={well.completion_date} />
           </div>
 
-          {/* Nearby Wells Search - only for TX wells with coordinates */}
-          {well.state === "TX" && well.latitude && well.longitude && well.company_id && (
+          {/* Nearby Wells Search - for any state with coordinates */}
+          {well.latitude && well.longitude && well.company_id && (
             <div className="mt-4 pt-4 border-t border-border/40">
               <NearbyWellsSearch
                 latitude={well.latitude}
                 longitude={well.longitude}
                 wellName={well.well_name || "Unknown"}
                 companyId={well.company_id}
+                state={well.state}
               />
             </div>
           )}
