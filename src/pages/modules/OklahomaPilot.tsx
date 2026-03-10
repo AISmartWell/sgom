@@ -593,7 +593,7 @@ ${placemarks}
         pdf.addImage(imgData, "PNG", 0, -yOffset, pdfW, pdfH);
         yOffset += pageH;
       }
-      pdf.save(`oklahoma-pilot-${selectedWells.length}wells-${new Date().toISOString().slice(0, 10)}.pdf`);
+      pdf.save(`well-screening-${pilotState}-${selectedWells.length}wells-${new Date().toISOString().slice(0, 10)}.pdf`);
       toast.success("PDF saved!");
     } finally {
       // Restore original SVGs
