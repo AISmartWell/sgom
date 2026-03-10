@@ -1,0 +1,2 @@
+UPDATE wells SET latitude = 38.3672, longitude = -97.0751 WHERE id = '4798f872-98db-4d8d-b565-868dcae2de0a' AND well_name = 'VOGEL 2';
+UPDATE wells SET latitude = 38.3688, longitude = -97.0739 WHERE id = '12479219-c299-4f24-ad72-1a6dfca8182f' AND well_name = 'VOGEL 4';
