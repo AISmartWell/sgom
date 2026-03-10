@@ -65,6 +65,23 @@ const AnalyzedWellsTable = () => {
     load();
   }, []);
 
+  const handleDelete = async (id: string) => {
+    setDeleting(id);
+    try {
+      const { error } = await supabase
+        .from("well_analyses")
+        .delete()
+        .eq("id", id);
+      if (error) throw error;
+      setRows((prev) => prev.filter((r) => r.id !== id));
+      toast.success("Analysis deleted");
+    } catch {
+      toast.error("Failed to delete");
+    } finally {
+      setDeleting(null);
+    }
+  };
+
   const getSptRating = (wc: number | null, oil: number | null) => {
     const o = oil ?? 0;
     const w = wc ?? 0;
