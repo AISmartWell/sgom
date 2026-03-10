@@ -18,6 +18,16 @@ interface WellRecord {
   status: string | null;
 }
 
+const STATE_LABELS: Record<string, string> = {
+  OK: "Oklahoma",
+  TX: "Texas",
+  KS: "Kansas",
+  NM: "New Mexico",
+  CO: "Colorado",
+  ND: "North Dakota",
+  WY: "Wyoming",
+};
+
 interface PilotWellsMapProps {
   wells: WellRecord[];
   selectedIds?: Set<string>;
@@ -25,6 +35,7 @@ interface PilotWellsMapProps {
   analyzedIds?: Set<string>;
   onWellClick?: (wellId: string) => void;
   onPolygonSelect?: (wellIds: string[]) => void;
+  selectedState?: string;
 }
 
 const getMarkerColor = (waterCut: number | null): string => {

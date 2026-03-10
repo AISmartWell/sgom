@@ -704,6 +704,7 @@ ${placemarks}
                   analyzedIds={analyzedWellIds}
                   onWellClick={isRunning ? undefined : toggleWell}
                   onPolygonSelect={isRunning ? undefined : selectByPolygon}
+                  selectedState={pilotState}
                 />
               </CardContent>
             </Card>
