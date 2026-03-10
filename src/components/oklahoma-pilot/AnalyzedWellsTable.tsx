@@ -26,6 +26,7 @@ const AnalyzedWellsTable = () => {
   const [rows, setRows] = useState<AnalyzedWellRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
+  const [deleting, setDeleting] = useState<string | null>(null);
 
   useEffect(() => {
     const load = async () => {
