@@ -339,7 +339,22 @@ const AnalysisReports = () => {
                               </div>
 
                               <p className="text-xs text-muted-foreground leading-relaxed">{result.verdict}</p>
-                            </div>
+
+                              {/* Well Log visualization for geophysical stage */}
+                              {sm.key === "geophysical" && (
+                                <GeophysicalStageViz
+                                  well={{
+                                    id: a.well_id,
+                                    well_name: a.well_name,
+                                    api_number: a.api_number,
+                                    formation: a.formation,
+                                    total_depth: a.total_depth,
+                                    production_oil: a.production_oil,
+                                    water_cut: a.water_cut,
+                                    well_type: a.well_type,
+                                  }}
+                                />
+                              )}
                           );
                         })}
                       </div>
