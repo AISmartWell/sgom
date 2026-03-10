@@ -1,6 +1,5 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Activity, ChevronDown, ChevronUp, Target, Zap } from "lucide-react";
 import {
   ComposedChart,
@@ -13,6 +12,7 @@ import {
   ResponsiveContainer,
   ReferenceArea,
 } from "recharts";
+import { useWellLogs } from "@/hooks/useWellLogs";
 
 interface PayZone {
   top: number;
@@ -25,88 +25,110 @@ interface PayZone {
 }
 
 interface PilotWellLogProps {
+  wellId: string;
   wellName: string;
-  totalDepth: number | null;
-  waterCut: number | null;
-  productionOil: number | null;
   formation: string | null;
   defaultExpanded?: boolean;
 }
 
 /**
- * Generates synthetic well log data & pay zones based on actual well parameters.
- * SPT technicians use this to identify perforation targets.
+ * Detects pay zones from real well log data based on GR/porosity/resistivity cutoffs.
  */
-const generateWellLogData = (
-  totalDepth: number,
-  waterCut: number,
-  productionOil: number
-) => {
-  const baseDepth = Math.max(1500, totalDepth - 600);
-  const numPoints = 60;
-  const step = 600 / numPoints;
+const detectPayZones = (
+  data: { depth: number; gammaRay: number; resistivity: number; porosity: number; waterSat: number }[]
+): PayZone[] => {
+  if (data.length < 3) return [];
 
-  // Generate 2–4 pay zones dynamically based on well parameters
-  const zoneCount = productionOil > 15 ? 2 : waterCut > 50 ? 3 : 4;
   const zones: PayZone[] = [];
-  const zoneSpacing = 600 / (zoneCount + 1);
+  let inZone = false;
+  let zoneStart = 0;
+  let zonePoints: typeof data = [];
+  let zoneIndex = 0;
 
-  for (let z = 0; z < zoneCount; z++) {
-    const center = baseDepth + zoneSpacing * (z + 1);
-    const thickness = 15 + Math.random() * 35;
-    const isWater = z === zoneCount - 1 && waterCut > 40;
-    const isMissed = z === zoneCount - 2 && productionOil < 10;
+  for (const pt of data) {
+    const isPayLike = pt.gammaRay < 60 && pt.porosity > 8 && pt.resistivity > 10;
+
+    if (isPayLike && !inZone) {
+      inZone = true;
+      zoneStart = pt.depth;
+      zonePoints = [pt];
+    } else if (isPayLike && inZone) {
+      zonePoints.push(pt);
+    } else if (!isPayLike && inZone) {
+      // Close zone
+      if (zonePoints.length >= 2) {
+        const avgPor = zonePoints.reduce((s, p) => s + p.porosity, 0) / zonePoints.length;
+        const avgSw = zonePoints.reduce((s, p) => s + p.waterSat, 0) / zonePoints.length;
+        const avgRes = zonePoints.reduce((s, p) => s + p.resistivity, 0) / zonePoints.length;
+        // Estimate permeability from porosity (Timur equation approximation)
+        const k = Math.pow(10, (avgPor - 5) / 5) * 10;
+
+        const isWater = avgSw > 60;
+        const isMissed = avgSw > 35 && avgSw <= 60;
+
+        zones.push({
+          top: zoneStart,
+          bottom: zonePoints[zonePoints.length - 1].depth,
+          name: `Zone ${String.fromCharCode(65 + zoneIndex)}${isWater ? " — Water" : isMissed ? " — Missed Pay" : " — Pay"}`,
+          porosity: avgPor,
+          sw: avgSw,
+          permeability: Math.max(1, k),
+          status: isWater ? "water" : isMissed ? "missed" : "productive",
+        });
+        zoneIndex++;
+      }
+      inZone = false;
+      zonePoints = [];
+    }
+  }
+
+  // Close trailing zone
+  if (inZone && zonePoints.length >= 2) {
+    const avgPor = zonePoints.reduce((s, p) => s + p.porosity, 0) / zonePoints.length;
+    const avgSw = zonePoints.reduce((s, p) => s + p.waterSat, 0) / zonePoints.length;
+    const k = Math.pow(10, (avgPor - 5) / 5) * 10;
+    const isWater = avgSw > 60;
+    const isMissed = avgSw > 35 && avgSw <= 60;
 
     zones.push({
-      top: Math.round(center - thickness / 2),
-      bottom: Math.round(center + thickness / 2),
-      name: `Zone ${String.fromCharCode(65 + z)}${isMissed ? " — Missed Pay" : isWater ? " — Water" : " — Pay"}`,
-      porosity: isWater ? 18 + Math.random() * 5 : 12 + Math.random() * 14,
-      sw: isWater ? 70 + Math.random() * 20 : isMissed ? 30 + Math.random() * 15 : 15 + Math.random() * 25,
-      permeability: isWater ? 150 + Math.random() * 100 : 50 + Math.random() * 300,
+      top: zoneStart,
+      bottom: zonePoints[zonePoints.length - 1].depth,
+      name: `Zone ${String.fromCharCode(65 + zoneIndex)}${isWater ? " — Water" : isMissed ? " — Missed Pay" : " — Pay"}`,
+      porosity: avgPor,
+      sw: avgSw,
+      permeability: Math.max(1, k),
       status: isWater ? "water" : isMissed ? "missed" : "productive",
     });
   }
 
-  const data = [];
-  for (let i = 0; i < numPoints; i++) {
-    const depth = Math.round(baseDepth + i * step);
-
-    const inZone = zones.find((z) => depth >= z.top && depth <= z.bottom);
-    const isWater = inZone?.status === "water";
-
-    const baseGR = inZone ? 20 + Math.random() * 15 : 75 + Math.random() * 25;
-    const baseRes = isWater ? 2 + Math.random() * 3 : inZone ? 40 + Math.random() * 40 : 3 + Math.random() * 4;
-    const basePor = inZone ? inZone.porosity + (Math.random() * 4 - 2) : 4 + Math.random() * 5;
-    const baseSw = inZone ? inZone.sw + (Math.random() * 10 - 5) : 90 + Math.random() * 10;
-
-    data.push({
-      depth,
-      gammaRay: Math.max(0, baseGR),
-      resistivity: Math.max(0.5, baseRes),
-      porosity: Math.max(0, Math.min(40, basePor)),
-      waterSat: Math.max(0, Math.min(100, baseSw)),
-    });
-  }
-
-  return { data, zones };
+  return zones;
 };
 
-const PilotWellLog = ({ wellName, totalDepth, waterCut, productionOil, formation, defaultExpanded = false }: PilotWellLogProps) => {
+const PilotWellLog = ({ wellId, wellName, formation, defaultExpanded = false }: PilotWellLogProps) => {
   const [expanded, setExpanded] = useState(defaultExpanded);
+  const { data: rawLogs, isLoading, hasRealData } = useWellLogs(wellId);
 
-  const depth = totalDepth || 3000 + Math.random() * 1000;
-  const wc = waterCut ?? 30;
-  const oil = productionOil ?? 10;
+  // No real data — don't render
+  if (!hasRealData && !isLoading) return null;
+  if (isLoading) {
+    return (
+      <div className="mt-3 border border-border/50 rounded-lg p-3 text-xs text-muted-foreground flex items-center gap-2">
+        <Activity className="h-3.5 w-3.5 animate-spin text-primary" />
+        Loading well log data…
+      </div>
+    );
+  }
 
-  const { data, zones } = useMemo(
-    () => generateWellLogData(depth, wc, oil),
-    [depth, wc, oil]
-  );
+  // Map real data
+  const chartData = (rawLogs || []).map((pt) => ({
+    depth: pt.measured_depth,
+    gammaRay: pt.gamma_ray ?? 0,
+    resistivity: pt.resistivity ?? 0,
+    porosity: pt.porosity ?? 0,
+    waterSat: pt.water_saturation ?? 100,
+  }));
 
-  const productiveZones = zones.filter((z) => z.status === "productive");
-  const missedZones = zones.filter((z) => z.status === "missed");
-  const waterZones = zones.filter((z) => z.status === "water");
+  const zones = detectPayZones(chartData);
 
   const totalPayThickness = zones
     .filter((z) => z.status !== "water")
@@ -134,14 +156,12 @@ const PilotWellLog = ({ wellName, totalDepth, waterCut, productionOil, formation
         <div className="flex items-center gap-2 text-xs">
           <Activity className="h-3.5 w-3.5 text-primary" />
           <span className="font-medium">Well Log</span>
+          <Badge variant="outline" className="text-[9px] h-4 text-success border-success/50">
+            REAL DATA
+          </Badge>
           <span className="text-muted-foreground">
             {zones.length} zones · {totalPayThickness.toFixed(0)}ft pay
           </span>
-          {missedZones.length > 0 && (
-            <Badge variant="outline" className="text-[9px] h-4 text-warning border-warning/50">
-              {missedZones.length} missed
-            </Badge>
-          )}
           {bestZone && (
             <Badge variant="outline" className="text-[9px] h-4 text-success border-success/50">
               Best: {bestZone.permeability.toFixed(0)} mD
@@ -159,7 +179,7 @@ const PilotWellLog = ({ wellName, totalDepth, waterCut, productionOil, formation
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart
                 layout="vertical"
-                data={data}
+                data={chartData}
                 margin={{ top: 5, right: 15, left: 45, bottom: 5 }}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.2} />
@@ -220,46 +240,48 @@ const PilotWellLog = ({ wellName, totalDepth, waterCut, productionOil, formation
           </div>
 
           {/* Zones table */}
-          <div className="space-y-1.5">
-            <p className="text-xs font-medium flex items-center gap-1">
-              <Target className="h-3.5 w-3.5 text-primary" />
-              Formation Zones — SPT Target Assessment
-            </p>
-            {zones.map((zone) => (
-              <div
-                key={zone.name}
-                className={`flex items-center justify-between p-2 rounded text-[11px] border ${
-                  zone.status === "productive"
-                    ? "border-success/30 bg-success/5"
-                    : zone.status === "missed"
-                    ? "border-warning/30 bg-warning/5"
-                    : "border-primary/30 bg-primary/5"
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <Badge
-                    variant="outline"
-                    className={`text-[9px] h-4 ${
-                      zone.status === "productive"
-                        ? "text-success border-success/50"
-                        : zone.status === "missed"
-                        ? "text-warning border-warning/50"
-                        : "text-primary border-primary/50"
-                    }`}
-                  >
-                    {zone.status === "productive" ? "✅ Pay" : zone.status === "missed" ? "⚠️ Missed" : "💧 Water"}
-                  </Badge>
-                  <span className="font-medium">{zone.name}</span>
+          {zones.length > 0 && (
+            <div className="space-y-1.5">
+              <p className="text-xs font-medium flex items-center gap-1">
+                <Target className="h-3.5 w-3.5 text-primary" />
+                Formation Zones — SPT Target Assessment
+              </p>
+              {zones.map((zone) => (
+                <div
+                  key={zone.name}
+                  className={`flex items-center justify-between p-2 rounded text-[11px] border ${
+                    zone.status === "productive"
+                      ? "border-success/30 bg-success/5"
+                      : zone.status === "missed"
+                      ? "border-warning/30 bg-warning/5"
+                      : "border-primary/30 bg-primary/5"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Badge
+                      variant="outline"
+                      className={`text-[9px] h-4 ${
+                        zone.status === "productive"
+                          ? "text-success border-success/50"
+                          : zone.status === "missed"
+                          ? "text-warning border-warning/50"
+                          : "text-primary border-primary/50"
+                      }`}
+                    >
+                      {zone.status === "productive" ? "✅ Pay" : zone.status === "missed" ? "⚠️ Missed" : "💧 Water"}
+                    </Badge>
+                    <span className="font-medium">{zone.name}</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-muted-foreground">
+                    <span>{zone.top}–{zone.bottom}ft</span>
+                    <span>φ {zone.porosity.toFixed(1)}%</span>
+                    <span>Sw {zone.sw.toFixed(0)}%</span>
+                    <span className="font-medium text-foreground">{zone.permeability.toFixed(0)} mD</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-3 text-muted-foreground">
-                  <span>{zone.top}–{zone.bottom}ft</span>
-                  <span>φ {zone.porosity.toFixed(1)}%</span>
-                  <span>Sw {zone.sw.toFixed(0)}%</span>
-                  <span className="font-medium text-foreground">{zone.permeability.toFixed(0)} mD</span>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
           {/* SPT recommendation */}
           {bestZone && (
