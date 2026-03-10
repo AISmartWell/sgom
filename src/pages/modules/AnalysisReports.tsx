@@ -356,6 +356,7 @@ const AnalysisReports = () => {
                                 />
                               )}
                             </div>
+                          );
                         })}
                       </div>
                     ) : (
