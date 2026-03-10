@@ -1,9 +1,20 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   ArrowLeft, Play, RotateCcw, Loader2,
   FileSpreadsheet, MapPin, Download,
 } from "lucide-react";
+
+const SUPPORTED_STATES = [
+  { code: "OK", label: "Oklahoma" },
+  { code: "TX", label: "Texas" },
+  { code: "KS", label: "Kansas" },
+  { code: "NM", label: "New Mexico" },
+  { code: "CO", label: "Colorado" },
+  { code: "ND", label: "North Dakota" },
+  { code: "WY", label: "Wyoming" },
+];
 
 interface PilotHeaderProps {
   allWellsCount: number;
@@ -13,6 +24,8 @@ interface PilotHeaderProps {
   isRunning: boolean;
   currentWellIdx: number;
   totalAnalyzing: number;
+  selectedState: string;
+  onStateChange: (state: string) => void;
   onBack: () => void;
   onExportCSV: () => void;
   onExportKML: () => void;
@@ -31,6 +44,8 @@ const PilotHeader = ({
   isRunning,
   currentWellIdx,
   totalAnalyzing,
+  selectedState,
+  onStateChange,
   onBack,
   onExportCSV,
   onExportKML,
@@ -40,6 +55,8 @@ const PilotHeader = ({
   onRunAnalysis,
   onReset,
 }: PilotHeaderProps) => {
+  const stateLabel = SUPPORTED_STATES.find(s => s.code === selectedState)?.label || selectedState;
+
   return (
     <div className="mb-6">
       <Button variant="ghost" size="sm" onClick={onBack} className="mb-2">
@@ -50,11 +67,23 @@ const PilotHeader = ({
       <div className="flex items-start justify-between flex-wrap gap-4">
         <div>
           <div className="flex items-center gap-3 mb-1">
-            <h1 className="text-3xl font-bold tracking-tight">Oklahoma Pilot</h1>
+            <h1 className="text-3xl font-bold tracking-tight">Well Screening Pilot</h1>
+            <Select value={selectedState} onValueChange={onStateChange} disabled={isRunning}>
+              <SelectTrigger className="w-[160px] h-8 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {SUPPORTED_STATES.map((s) => (
+                  <SelectItem key={s.code} value={s.code}>
+                    {s.label} ({s.code})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <Badge className="bg-success/20 text-success border-success/30 text-xs">LIVE</Badge>
           </div>
           <p className="text-sm text-muted-foreground">
-            {allWellsCount} wells loaded → <span className="text-success font-medium">{sptCandidatesCount} SPT candidates</span> (≤25 bbl/d, WC &lt;80%)
+            {allWellsCount} {stateLabel} wells loaded → <span className="text-success font-medium">{sptCandidatesCount} SPT candidates</span> (≤25 bbl/d, WC &lt;80%)
           </p>
         </div>
 
