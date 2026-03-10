@@ -12,8 +12,9 @@ const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/spt-chat`;
 
 const QUICK_PROMPTS = [
   "Какие скважины лучше всего подходят для SPT?",
+  "Интерпретируй каротаж для формации Arbuckle",
+  "Какие петрофизические свойства у Mississippian Limestone?",
   "Рассчитай ROI для моих скважин",
-  "Объясни методологию SPT Candidacy Score",
 ];
 
 const SPTChatWidget = () => {
