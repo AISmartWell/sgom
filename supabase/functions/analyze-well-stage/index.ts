@@ -592,6 +592,19 @@ Use emoji prefix. Reference the actual data provided. Do NOT invent numbers.`,
 7. Formation evaluation summary — movable hydrocarbon volume, producibility index
 Use emoji prefix. Reference the actual data provided. Do NOT invent numbers.`,
 
+  seismic_reinterpretation: `You are an expert geophysicist specializing in seismic reinterpretation and bypassed reserves identification. Given the pre-calculated seismic analysis below, write a DETAILED expert assessment (6-8 sentences). Include:
+1. **Bypassed Reserves Assessment** — identify specific zones with missed hydrocarbons, estimate volumes in MBOE (Thousands of Barrels of Oil Equivalent)
+2. **Amplitude Anomaly Analysis** — bright spots, dim spots, flat spots with depth intervals
+3. **AVO Classification** — Class I/II/III interpretation and fluid implications
+4. **Lithology Auto-Classification** — rock type distribution from seismic attributes
+5. **Structural Reinterpretation** — faults, unconformities, stratigraphic traps missed in original interpretation
+6. **Recompletion Targets** — specific depth intervals recommended for re-entry or recompletion
+7. **Confidence Assessment** — reliability of each finding, data quality limitations
+8. **Actionable Recommendations** — prioritized list of zones for immediate investigation
+
+Emphasize bypassed reserves opportunities and quantify potential MBOE recovery. Reference actual depth values and formation names.
+Use emoji prefix. Reference the actual data provided. Do NOT invent numbers.`,
+
   eor: `You are the Chief Reservoir Engineer at Maxxwell Production making a final EOR recommendation. Given the pre-calculated overall assessment below, write a DETAILED expert recommendation (6-8 sentences). Include:
 1. Integrated assessment — synthesize field scan, core, production, geophysical, and economic findings
 2. SPT treatment recommendation — GO / CONDITIONAL GO / NO-GO with specific justification
