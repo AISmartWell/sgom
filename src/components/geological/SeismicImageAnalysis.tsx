@@ -107,24 +107,33 @@ const SeismicImageAnalysis = ({ selectedWell }: SeismicImageAnalysisProps) => {
       <CardContent className="space-y-4">
         {/* Upload area */}
         {!imagePreview ? (
-          <div
-            className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors hover:border-primary/50"
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={handleDrop}
-            onClick={() => fileRef.current?.click()}
-          >
-            <input
-              ref={fileRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
+          <div className="space-y-4">
+            <div
+              className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors hover:border-primary/50"
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={handleDrop}
+              onClick={() => fileRef.current?.click()}
+            >
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
+              />
+              <ImageIcon className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
+              <p className="text-sm font-medium">Upload 2D Seismic Section Image</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                PNG, JPG, TIFF — drag & drop or click to browse
+              </p>
+            </div>
+            <SeismicSampleGallery
+              onSelectSample={(dataUrl, name) => {
+                setImagePreview(dataUrl);
+                setFileName(name);
+                setResult(null);
+              }}
             />
-            <ImageIcon className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
-            <p className="text-sm font-medium">Upload 2D Seismic Section Image</p>
-            <p className="text-xs text-muted-foreground mt-1">
-              PNG, JPG, TIFF — drag & drop or click to browse
-            </p>
           </div>
         ) : (
           <div className="space-y-3">
