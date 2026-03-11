@@ -297,6 +297,25 @@ export const StageVisualization = ({ stageKey, metrics }: StageVisualizationProp
       );
     }
 
+    case "seismic_reinterpretation": {
+      const zones = parseNum(metrics[0]?.value || "3");
+      const highPot = parseNum(metrics[1]?.value || "1");
+      const anomalies = parseNum(metrics[2]?.value || "3");
+      const missed = metrics[3]?.value || "20–40%";
+      return (
+        <div className="flex items-center gap-5 p-3 bg-muted/30 rounded-lg animate-fade-in">
+          <GaugeArc value={zones} max={6} color="hsl(var(--primary))" label="Bypass Zones" />
+          <div className="flex-1 space-y-1.5">
+            <AnimatedBar value={highPot} max={zones || 1} color="hsl(var(--success))" label={`High Potential: ${highPot}`} />
+            <AnimatedBar value={anomalies} max={5} color="hsl(var(--warning))" label={`Anomalies: ${anomalies}`} />
+            <div className="text-[10px] text-muted-foreground">
+              Estimated missed reserves: <span className="font-medium text-destructive">{missed}</span>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     case "eor": {
       const score = parseNum(metrics[0]?.value || "80");
       const uplift = parseNum(metrics[3]?.value || "3");
