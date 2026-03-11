@@ -25,6 +25,7 @@ const SeismicVisualization = () => {
   const [analysisReport, setAnalysisReport] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [uploadedData, setUploadedData] = useState<SeismicTrace[] | null>(null);
+  const [selectedWell, setSelectedWell] = useState<SelectedWell | null>(null);
 
   // Generate synthetic seismic trace data
   const syntheticData = useMemo(() => {
