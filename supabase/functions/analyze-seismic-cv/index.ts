@@ -5,9 +5,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
-const NVIDIA_NIM_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
-const VL_MODEL = 'nvidia/nemotron-nano-12b-v2-vl';
-
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
@@ -21,11 +18,6 @@ serve(async (req) => {
         JSON.stringify({ error: 'Seismic image is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
-    }
-
-    const NVIDIA_API_KEY = Deno.env.get('NVIDIA_API_KEY');
-    if (!NVIDIA_API_KEY) {
-      throw new Error('NVIDIA_API_KEY is not configured');
     }
 
     let systemPrompt: string;
@@ -119,59 +111,90 @@ Return a JSON object with this exact structure:
       ? imageBase64
       : `data:image/jpeg;base64,${imageBase64}`;
 
-    const response = await fetch(NVIDIA_NIM_URL, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${NVIDIA_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: VL_MODEL,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          {
-            role: 'user',
-            content: [
-              {
-                type: 'text',
-                text: `Analyze this 2D seismic section image. Mode: ${analysisMode || 'full'}.${wellInfo} Return ONLY valid JSON.`
-              },
-              {
-                type: 'image_url',
-                image_url: { url: imageUrl }
-              }
-            ]
-          }
-        ],
-        max_tokens: 3000,
-        temperature: 0.15,
-      }),
-    });
+    // Try NVIDIA NIM first, fall back to Lovable AI (Gemini)
+    const NVIDIA_API_KEY = Deno.env.get('NVIDIA_API_KEY');
+    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('NVIDIA NIM error:', response.status, errorText);
+    let content: string;
+    let modelUsed: string;
 
-      if (response.status === 401 || response.status === 403) {
-        return new Response(
-          JSON.stringify({ error: 'NVIDIA API key is invalid or expired.' }),
-          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+    if (NVIDIA_API_KEY) {
+      // Use NVIDIA NIM
+      const response = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${NVIDIA_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'nvidia/nemotron-nano-12b-v2-vl',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            {
+              role: 'user',
+              content: [
+                { type: 'text', text: `Analyze this 2D seismic section image. Mode: ${analysisMode || 'full'}.${wellInfo} Return ONLY valid JSON.` },
+                { type: 'image_url', image_url: { url: imageUrl } }
+              ]
+            }
+          ],
+          max_tokens: 3000,
+          temperature: 0.15,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('NVIDIA NIM error:', response.status, errorText);
+        throw new Error(`NVIDIA NIM error: ${response.status}`);
       }
-      if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ error: 'NVIDIA API rate limit exceeded. Try again later.' }),
-          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+
+      const data = await response.json();
+      content = data.choices?.[0]?.message?.content || '';
+      modelUsed = 'nvidia/nemotron-nano-12b-v2-vl';
+
+    } else if (LOVABLE_API_KEY) {
+      // Fallback: Lovable AI with Gemini (multimodal)
+      const geminiModel = 'google/gemini-2.5-flash';
+      const response = await fetch('https://lovable.dev/api/chat', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: geminiModel,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            {
+              role: 'user',
+              content: [
+                { type: 'text', text: `Analyze this 2D seismic section image. Mode: ${analysisMode || 'full'}.${wellInfo} Return ONLY valid JSON, no markdown formatting.` },
+                { type: 'image_url', image_url: { url: imageUrl } }
+              ]
+            }
+          ],
+          max_tokens: 3000,
+          temperature: 0.15,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Lovable AI error:', response.status, errorText);
+        throw new Error(`AI analysis failed: ${response.status}`);
       }
-      throw new Error(`NVIDIA NIM error: ${response.status}`);
+
+      const data = await response.json();
+      content = data.choices?.[0]?.message?.content || '';
+      modelUsed = geminiModel;
+
+    } else {
+      throw new Error('No AI provider configured. Please add NVIDIA_API_KEY or LOVABLE_API_KEY.');
     }
 
-    const data = await response.json();
-    const content = data.choices?.[0]?.message?.content;
-
     if (!content) {
-      throw new Error('No analysis returned from NVIDIA NIM');
+      throw new Error('No analysis returned from AI model');
     }
 
     let parsedResult;
@@ -179,13 +202,23 @@ Return a JSON object with this exact structure:
       const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/) || [null, content];
       parsedResult = JSON.parse(jsonMatch[1].trim());
     } catch {
-      parsedResult = { raw_analysis: content };
+      // Try to find JSON object in the content
+      const braceMatch = content.match(/\{[\s\S]*\}/);
+      if (braceMatch) {
+        try {
+          parsedResult = JSON.parse(braceMatch[0]);
+        } catch {
+          parsedResult = { raw_analysis: content };
+        }
+      } else {
+        parsedResult = { raw_analysis: content };
+      }
     }
 
     return new Response(
       JSON.stringify({
         analysis: parsedResult,
-        model: VL_MODEL,
+        model: modelUsed,
         analysisMode: analysisMode || 'full',
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
