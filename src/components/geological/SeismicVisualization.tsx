@@ -233,6 +233,9 @@ const SeismicVisualization = () => {
         <AnomalyDetector data={seismicData} />
       </div>
 
+      {/* Seismic Image CV Analysis */}
+      <SeismicImageAnalysis selectedWell={selectedWell} />
+
       {/* Bypassed Reserves Panel */}
       <BypassedReservesPanel isFromAI={!!analysisReport} />
 
