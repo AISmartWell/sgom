@@ -21,6 +21,7 @@ import AutoClassificationPanel from "./AutoClassificationPanel";
 import BypassedReservesPanel from "./BypassedReservesPanel";
 import WellSelector, { type SelectedWell } from "./WellSelector";
 import SeismicImageAnalysis from "./SeismicImageAnalysis";
+import { SeismicAnalysisHistory } from "./SeismicAnalysisHistory";
 
 const SeismicVisualization = () => {
   const [analysisReport, setAnalysisReport] = useState<string | null>(null);
