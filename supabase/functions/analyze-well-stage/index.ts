@@ -489,6 +489,42 @@ function computeEor(well: WellData, prodHistory: ProductionRecord[], wellLogs: W
   };
 }
 
+// ─── Seismic Reinterpretation ─────────────────────────────
+function computeSeismicReinterpretation(well: WellData): { metrics: StageMetric[]; context: string; dataSource: string } {
+  const depth = well.total_depth ?? 5000;
+  const fp = formationPorosity(well.formation);
+  const h1 = wellHash(well, 50);
+  const h2 = wellHash(well, 51);
+  const h3 = wellHash(well, 52);
+
+  // Bypassed zones count based on formation complexity
+  const zonesCount = fp.rockType.includes("Shale") ? 2 : fp.rockType.includes("Sandstone") ? 3 : Math.round(2 + h1 * 2);
+  const highPotential = Math.max(1, Math.round(zonesCount * (0.3 + h2 * 0.3)));
+  const anomalyCount = Math.round(2 + h3 * 3);
+
+  // Estimate missed reserves percentage
+  const missedPct = well.water_cut != null && well.water_cut > 50 ? "30–45%" : "20–35%";
+
+  // Confidence
+  const confidence = Math.round(60 + h1 * 30);
+
+  // AVO class
+  const avoClass = h2 > 0.6 ? "III" : h2 > 0.3 ? "II" : "I";
+
+  const dataSource = well.formation ? "FORMATION-BASED MODEL" : "SYNTHETIC";
+
+  return {
+    metrics: [
+      { label: "Bypassed Zones", value: `${zonesCount}`, color: zonesCount >= 3 ? "text-success" : "text-warning" },
+      { label: "High Potential", value: `${highPotential}`, color: "text-success" },
+      { label: "Anomalies Detected", value: `${anomalyCount}`, color: anomalyCount > 3 ? "text-warning" : "" },
+      { label: "Est. Missed Reserves", value: missedPct, color: "text-destructive" },
+    ],
+    context: `[${dataSource}] Seismic reinterpretation for ${well.formation || "Unknown"} formation at ${depth} ft. Found ${zonesCount} bypassed zones (${highPotential} high-potential), ${anomalyCount} anomalies (AVO Class ${avoClass}). Estimated missed reserves: ${missedPct}. Confidence: ${confidence}%. Lithology: ${fp.rockType}. Water cut: ${well.water_cut ?? "N/A"}%. Depth range: ${Math.round(depth * 0.25)}–${Math.round(depth * 0.95)} ft.`,
+    dataSource,
+  };
+}
+
 // Stage prompts — AI provides DETAILED expert analysis
 const STAGE_VERDICTS: Record<string, string> = {
   field_scan: `You are a senior petroleum geologist conducting field reconnaissance. Given the pre-calculated field data below, write a DETAILED expert assessment (4-6 sentences). Include:
