@@ -237,6 +237,9 @@ const SeismicVisualization = () => {
       {/* Seismic Image CV Analysis */}
       <SeismicImageAnalysis selectedWell={selectedWell} />
 
+      {/* Seismic Analysis History */}
+      <SeismicAnalysisHistory />
+
       {/* Bypassed Reserves Panel */}
       <BypassedReservesPanel isFromAI={!!analysisReport} />
 
