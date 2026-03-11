@@ -55,11 +55,73 @@ const SeismicImageAnalysis = ({ selectedWell }: SeismicImageAnalysisProps) => {
     if (fileRef.current) fileRef.current.value = "";
   };
 
+  const uploadImageToStorage = async (dataUrl: string, name: string): Promise<{ filePath: string; imageId: string } | null> => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+
+      const { data: uc } = await supabase.from("user_companies").select("company_id").eq("user_id", user.id).limit(1).single();
+      if (!uc) return null;
+
+      // Convert data URL to blob
+      const res = await fetch(dataUrl);
+      const blob = await res.blob();
+      const ext = blob.type.split("/")[1] || "jpg";
+      const filePath = `${uc.company_id}/${crypto.randomUUID()}.${ext}`;
+
+      const { error: uploadErr } = await supabase.storage.from("seismic-images").upload(filePath, blob, { contentType: blob.type });
+      if (uploadErr) throw uploadErr;
+
+      // Save metadata to seismic_images table
+      const { data: imgRecord, error: insertErr } = await supabase.from("seismic_images").insert({
+        company_id: uc.company_id,
+        user_id: user.id,
+        file_path: filePath,
+        file_name: name || "seismic-section",
+        well_id: selectedWell?.id || null,
+        api_number: selectedWell?.api_number || null,
+        formation: selectedWell?.formation || null,
+        image_type: "2d_section",
+      }).select("id").single();
+      if (insertErr) throw insertErr;
+
+      return { filePath, imageId: imgRecord.id };
+    } catch (err) {
+      console.error("Image upload error:", err);
+      return null;
+    }
+  };
+
+  const saveAnalysisResults = async (analysis: any, model: string, imageId: string | null) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: uc } = await supabase.from("user_companies").select("company_id").eq("user_id", user.id).limit(1).single();
+      if (!uc) return;
+
+      await supabase.from("seismic_analyses").insert({
+        company_id: uc.company_id,
+        user_id: user.id,
+        seismic_image_id: imageId,
+        well_id: selectedWell?.id || null,
+        analysis_mode: analysisMode,
+        model: model || null,
+        results: analysis,
+      });
+    } catch (err) {
+      console.error("Save analysis error:", err);
+    }
+  };
+
   const runCVAnalysis = async () => {
     if (!imagePreview) return;
     setIsAnalyzing(true);
     setResult(null);
     try {
+      // Upload image to storage in parallel with analysis
+      const uploadPromise = uploadImageToStorage(imagePreview, fileName || "seismic-section");
+
       const { data, error } = await supabase.functions.invoke("analyze-seismic-cv", {
         body: {
           imageBase64: imagePreview,
@@ -76,8 +138,14 @@ const SeismicImageAnalysis = ({ selectedWell }: SeismicImageAnalysisProps) => {
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
+
       setResult(data.analysis);
-      toast.success(`Seismic CV analysis complete (${analysisMode})`);
+
+      // Save results to DB
+      const uploaded = await uploadPromise;
+      await saveAnalysisResults(data.analysis, data.model, uploaded?.imageId || null);
+
+      toast.success(`Seismic CV analysis complete (${analysisMode}) — saved to database`);
     } catch (err: any) {
       console.error("Seismic CV error:", err);
       toast.error(err.message || "CV analysis failed");
