@@ -81,7 +81,11 @@ Be specific with depth values and provide quantitative assessments where possibl
 
     const horizonSummary = horizons.map((h: any) => `${h.name} at ${h.depth}m`).join(', ');
 
-    const userPrompt = `Analyze this seismic section data with ${seismicData.length} traces.
+    const wellContext = well
+      ? `\n\nWell Context:\n- Name: ${well.name || 'Unknown'}\n- API: ${well.api || 'N/A'}\n- Formation: ${well.formation || 'Unknown'}\n- Total Depth: ${well.depth || 'Unknown'} ft\n- Location: ${well.county || ''}, ${well.state || ''}\n- Operator: ${well.operator || 'Unknown'}\n- Current Oil Production: ${well.oil || 'Unknown'} bbl/d\n- Water Cut: ${well.waterCut || 'Unknown'}%\n- Status: ${well.status || 'Unknown'}\n\nTailor the analysis to this specific well's formation, depth, and production characteristics. Reference the well by name in your report.`
+      : '';
+
+    const userPrompt = `Analyze this seismic section data with ${seismicData.length} traces.${wellContext}
 
 Horizon picks: ${horizonSummary}
 
@@ -94,7 +98,7 @@ Seismic attributes summary:
 - Interval Velocity: 2.4 km/s
 - AVO Gradient: 0.12
 
-Provide a comprehensive seismic interpretation report.`;
+Provide a comprehensive seismic interpretation report${well ? ` specifically for well ${well.name || well.api}` : ''}.`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
