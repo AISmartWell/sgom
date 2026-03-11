@@ -111,6 +111,9 @@ const SeismicVisualization = () => {
 
   return (
     <div className="space-y-4">
+      {/* Well Selector */}
+      <WellSelector selectedWell={selectedWell} onSelect={(w) => { setSelectedWell(w); setAnalysisReport(null); }} />
+
       {/* Upload Section */}
       <SeismicDataUpload
         onDataLoaded={(data) => { setUploadedData(data); setAnalysisReport(null); }}
