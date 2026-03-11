@@ -20,6 +20,7 @@ import AnomalyDetector from "./AnomalyDetector";
 import AutoClassificationPanel from "./AutoClassificationPanel";
 import BypassedReservesPanel from "./BypassedReservesPanel";
 import WellSelector, { type SelectedWell } from "./WellSelector";
+import SeismicImageAnalysis from "./SeismicImageAnalysis";
 
 const SeismicVisualization = () => {
   const [analysisReport, setAnalysisReport] = useState<string | null>(null);
@@ -231,6 +232,9 @@ const SeismicVisualization = () => {
         <AutoClassificationPanel data={seismicData} />
         <AnomalyDetector data={seismicData} />
       </div>
+
+      {/* Seismic Image CV Analysis */}
+      <SeismicImageAnalysis selectedWell={selectedWell} />
 
       {/* Bypassed Reserves Panel */}
       <BypassedReservesPanel isFromAI={!!analysisReport} />
