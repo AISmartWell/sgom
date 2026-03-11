@@ -11,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { seismicData, horizons } = await req.json();
+    const { seismicData, horizons, well } = await req.json();
 
     if (!seismicData || !Array.isArray(seismicData)) {
       return new Response(
