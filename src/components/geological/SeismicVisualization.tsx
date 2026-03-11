@@ -16,6 +16,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
 import SeismicDataUpload, { type SeismicTrace } from "./SeismicDataUpload";
+import AnomalyDetector from "./AnomalyDetector";
+import AutoClassificationPanel from "./AutoClassificationPanel";
+import BypassedReservesPanel from "./BypassedReservesPanel";
 
 const SeismicVisualization = () => {
   const [analysisReport, setAnalysisReport] = useState<string | null>(null);
