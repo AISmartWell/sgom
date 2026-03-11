@@ -32,6 +32,7 @@ import {
   Loader2,
   Droplets,
   Microscope,
+  Waves,
 } from "lucide-react";
 
 interface WellRecord {
