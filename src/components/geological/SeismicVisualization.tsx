@@ -209,6 +209,15 @@ const SeismicVisualization = () => {
         </div>
       </div>
 
+      {/* Auto-Classification & Anomaly Detection */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <AutoClassificationPanel data={seismicData} />
+        <AnomalyDetector data={seismicData} />
+      </div>
+
+      {/* Bypassed Reserves Panel */}
+      <BypassedReservesPanel isFromAI={!!analysisReport} />
+
       {/* AI Analysis Report */}
       {(isAnalyzing || analysisReport) && (
         <div className="border border-border rounded-lg p-4 bg-card">

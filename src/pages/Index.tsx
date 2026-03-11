@@ -16,7 +16,7 @@ const pipelineStages = [
 
 const additionalModules = [
   { emoji: "📡", title: "Data Collection & Import", desc: "Integration with OCC, Texas RRC & KGS databases. CSV/Excel upload, manual entry & ArcGIS API", path: "/dashboard/data-collection" },
-  { emoji: "🗺️", title: "Geological Analysis", desc: "AI seismic interpretation, 3D geological modeling & cross-section visualization", path: "/dashboard/geological-analysis" },
+  { emoji: "🗺️", title: "Seismic Reinterpretation", desc: "AI reinterprets seismic data to detect bypassed reserves — 20-40% of missed hydrocarbons in mature fields. Auto rock classification, anomaly detection & DHI mapping", path: "/dashboard/geological-analysis" },
   { emoji: "🎯", title: "AI Well Selection", desc: "ML-based well ranking by production potential with 94% accuracy", path: "/dashboard/well-selection" },
   { emoji: "💰", title: "Financial Forecast", desc: "Investment ROI calculator, scenario modeling & project-level financial analysis", path: "/dashboard/financial" },
   { emoji: "🔧", title: "SPT Treatment", desc: "Patented hydro-slotting technology (US 8,863,823) for marginal well revival — 5-10x production boost", path: "/dashboard/spt-treatment" },
