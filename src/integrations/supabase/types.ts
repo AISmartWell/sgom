@@ -238,6 +238,121 @@ export type Database = {
           },
         ]
       }
+      seismic_analyses: {
+        Row: {
+          analysis_mode: string
+          company_id: string
+          created_at: string
+          id: string
+          model: string | null
+          results: Json
+          seismic_image_id: string | null
+          user_id: string
+          well_id: string | null
+        }
+        Insert: {
+          analysis_mode?: string
+          company_id: string
+          created_at?: string
+          id?: string
+          model?: string | null
+          results?: Json
+          seismic_image_id?: string | null
+          user_id: string
+          well_id?: string | null
+        }
+        Update: {
+          analysis_mode?: string
+          company_id?: string
+          created_at?: string
+          id?: string
+          model?: string | null
+          results?: Json
+          seismic_image_id?: string | null
+          user_id?: string
+          well_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seismic_analyses_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "seismic_analyses_seismic_image_id_fkey"
+            columns: ["seismic_image_id"]
+            isOneToOne: false
+            referencedRelation: "seismic_images"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "seismic_analyses_well_id_fkey"
+            columns: ["well_id"]
+            isOneToOne: false
+            referencedRelation: "wells"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seismic_images: {
+        Row: {
+          api_number: string | null
+          company_id: string
+          created_at: string
+          description: string | null
+          file_name: string
+          file_path: string
+          formation: string | null
+          id: string
+          image_type: string | null
+          user_id: string
+          well_id: string | null
+        }
+        Insert: {
+          api_number?: string | null
+          company_id: string
+          created_at?: string
+          description?: string | null
+          file_name: string
+          file_path: string
+          formation?: string | null
+          id?: string
+          image_type?: string | null
+          user_id: string
+          well_id?: string | null
+        }
+        Update: {
+          api_number?: string | null
+          company_id?: string
+          created_at?: string
+          description?: string | null
+          file_name?: string
+          file_path?: string
+          formation?: string | null
+          id?: string
+          image_type?: string | null
+          user_id?: string
+          well_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seismic_images_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "seismic_images_well_id_fkey"
+            columns: ["well_id"]
+            isOneToOne: false
+            referencedRelation: "wells"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_companies: {
         Row: {
           company_id: string
