@@ -7,6 +7,7 @@ import WellLocationMap from "@/components/pipeline/WellLocationMap";
 import FieldScanMap from "@/components/pipeline/FieldScanMap";
 import GeophysicalStageViz from "@/components/oklahoma-pilot/stage-viz/GeophysicalStageViz";
 import CumulativeStageViz from "@/components/oklahoma-pilot/stage-viz/CumulativeStageViz";
+import SeismicStageViz from "@/components/oklahoma-pilot/stage-viz/SeismicStageViz";
 import PipelineReport from "@/components/pipeline/PipelineReport";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -31,6 +32,7 @@ import {
   Loader2,
   Droplets,
   Microscope,
+  Waves,
 } from "lucide-react";
 
 interface WellRecord {
@@ -63,9 +65,10 @@ const STAGES = [
   { key: "classification", label: "Data Classification", icon: FolderSearch, badge: "Stage 2", duration: 1800 },
   { key: "core_analysis", label: "Core Analysis (CV)", icon: Microscope, badge: "Core", duration: 2000 },
   { key: "cumulative", label: "Cumulative Analysis", icon: TrendingDown, badge: "Stage 3", duration: 2200 },
-  { key: "spt_projection", label: "SPT Projection", icon: TrendingUp, badge: "Stage 4", duration: 2000 },
-  { key: "economic", label: "Economic Analysis", icon: DollarSign, badge: "Stage 5", duration: 1800 },
-  { key: "geophysical", label: "Geophysical Expertise", icon: Activity, badge: "Stage 6", duration: 1500 },
+  { key: "geophysical", label: "Geophysical Expertise", icon: Activity, badge: "Stage 4", duration: 1500 },
+  { key: "seismic_reinterpretation", label: "Seismic Reinterpretation", icon: Waves, badge: "Stage 5", duration: 2500 },
+  { key: "spt_projection", label: "SPT Projection", icon: TrendingUp, badge: "Stage 6", duration: 2000 },
+  { key: "economic", label: "Economic Analysis", icon: DollarSign, badge: "Stage 7", duration: 1800 },
   { key: "eor", label: "EOR Recommendation", icon: Brain, badge: "Final", duration: 1200 },
 ];
 
@@ -405,6 +408,9 @@ const WellAnalysisPipeline = () => {
                   {/* Detailed stage visualizations when real data exists */}
                   {stage.key === "geophysical" && selectedWell && (
                     <GeophysicalStageViz well={selectedWell} />
+                  )}
+                  {stage.key === "seismic_reinterpretation" && selectedWell && (
+                    <SeismicStageViz well={selectedWell} />
                   )}
                   {stage.key === "cumulative" && selectedWell && (
                     <CumulativeStageViz well={selectedWell} />
