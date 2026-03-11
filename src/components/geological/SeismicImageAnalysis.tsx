@@ -9,6 +9,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { type SelectedWell } from "./WellSelector";
+import { SeismicSampleGallery } from "./SeismicSampleGallery";
 
 type AnalysisMode = "full" | "faults" | "horizons" | "anomalies";
 
