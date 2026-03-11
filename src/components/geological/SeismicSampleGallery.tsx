@@ -3,6 +3,9 @@ import { Badge } from "@/components/ui/badge";
 import { ImageIcon, Scan } from "lucide-react";
 
 import sampleSeismic from "@/assets/sample-seismic-section.jpg";
+import sampleTimeslice from "@/assets/sample-seismic-timeslice.jpg";
+import sampleAmplitude from "@/assets/sample-amplitude-map.jpg";
+import sampleSalt from "@/assets/sample-seismic-salt.jpg";
 
 interface SeismicSampleGalleryProps {
   onSelectSample: (imageDataUrl: string, name: string) => void;
@@ -16,6 +19,30 @@ const SAMPLES = [
     basin: "Gulf Coast Basin",
     depth: "0–4,500 m",
     features: "Faults, Bright Spots",
+  },
+  {
+    name: "3D Time-Slice — Salt Dome",
+    src: sampleTimeslice,
+    type: "3D Time-slice",
+    basin: "Permian Basin",
+    depth: "TWT 1,200 ms",
+    features: "Salt Dome, Channels",
+  },
+  {
+    name: "RMS Amplitude Map — Reservoir",
+    src: sampleAmplitude,
+    type: "Attribute Map",
+    basin: "North Sea",
+    depth: "Top Reservoir",
+    features: "Bright Spots, DHI",
+  },
+  {
+    name: "Salt Diapir Section — Deepwater",
+    src: sampleSalt,
+    type: "2D Post-stack",
+    basin: "Deepwater GoM",
+    depth: "0–6,000 m",
+    features: "Salt Body, Traps",
   },
 ];
 
