@@ -685,6 +685,9 @@ serve(async (req) => {
           ? computeGeophysicalReal(wellData, wellLogs)
           : computeGeophysicalSynthetic(wellData);
         break;
+      case "seismic_reinterpretation":
+        computed = computeSeismicReinterpretation(wellData);
+        break;
       case "eor":
         computed = computeEor(wellData, prodHistory, wellLogs);
         break;
