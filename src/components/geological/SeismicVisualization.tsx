@@ -19,11 +19,13 @@ import SeismicDataUpload, { type SeismicTrace } from "./SeismicDataUpload";
 import AnomalyDetector from "./AnomalyDetector";
 import AutoClassificationPanel from "./AutoClassificationPanel";
 import BypassedReservesPanel from "./BypassedReservesPanel";
+import WellSelector, { type SelectedWell } from "./WellSelector";
 
 const SeismicVisualization = () => {
   const [analysisReport, setAnalysisReport] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [uploadedData, setUploadedData] = useState<SeismicTrace[] | null>(null);
+  const [selectedWell, setSelectedWell] = useState<SelectedWell | null>(null);
 
   // Generate synthetic seismic trace data
   const syntheticData = useMemo(() => {
@@ -63,6 +65,18 @@ const SeismicVisualization = () => {
         body: {
           seismicData,
           horizons: horizons.map((h) => ({ name: h.name, depth: h.depth })),
+          well: selectedWell ? {
+            name: selectedWell.well_name,
+            api: selectedWell.api_number,
+            formation: selectedWell.formation,
+            depth: selectedWell.total_depth,
+            county: selectedWell.county,
+            state: selectedWell.state,
+            operator: selectedWell.operator,
+            oil: selectedWell.production_oil,
+            waterCut: selectedWell.water_cut,
+            status: selectedWell.status,
+          } : null,
         },
       });
 
@@ -97,6 +111,9 @@ const SeismicVisualization = () => {
 
   return (
     <div className="space-y-4">
+      {/* Well Selector */}
+      <WellSelector selectedWell={selectedWell} onSelect={(w) => { setSelectedWell(w); setAnalysisReport(null); }} />
+
       {/* Upload Section */}
       <SeismicDataUpload
         onDataLoaded={(data) => { setUploadedData(data); setAnalysisReport(null); }}
