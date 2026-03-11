@@ -65,6 +65,18 @@ const SeismicVisualization = () => {
         body: {
           seismicData,
           horizons: horizons.map((h) => ({ name: h.name, depth: h.depth })),
+          well: selectedWell ? {
+            name: selectedWell.well_name,
+            api: selectedWell.api_number,
+            formation: selectedWell.formation,
+            depth: selectedWell.total_depth,
+            county: selectedWell.county,
+            state: selectedWell.state,
+            operator: selectedWell.operator,
+            oil: selectedWell.production_oil,
+            waterCut: selectedWell.water_cut,
+            status: selectedWell.status,
+          } : null,
         },
       });
 
