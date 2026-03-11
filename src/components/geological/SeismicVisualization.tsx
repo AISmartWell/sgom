@@ -19,6 +19,7 @@ import SeismicDataUpload, { type SeismicTrace } from "./SeismicDataUpload";
 import AnomalyDetector from "./AnomalyDetector";
 import AutoClassificationPanel from "./AutoClassificationPanel";
 import BypassedReservesPanel from "./BypassedReservesPanel";
+import WellSelector, { type SelectedWell } from "./WellSelector";
 
 const SeismicVisualization = () => {
   const [analysisReport, setAnalysisReport] = useState<string | null>(null);
