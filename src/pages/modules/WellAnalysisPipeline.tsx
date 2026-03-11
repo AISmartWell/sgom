@@ -409,6 +409,9 @@ const WellAnalysisPipeline = () => {
                   {stage.key === "geophysical" && selectedWell && (
                     <GeophysicalStageViz well={selectedWell} />
                   )}
+                  {stage.key === "seismic_reinterpretation" && selectedWell && (
+                    <SeismicStageViz well={selectedWell} />
+                  )}
                   {stage.key === "cumulative" && selectedWell && (
                     <CumulativeStageViz well={selectedWell} />
                   )}

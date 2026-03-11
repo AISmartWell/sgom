@@ -53,9 +53,10 @@ const STAGE_ICONS: Record<string, typeof Activity> = {
   classification: FileText,
   core_analysis: Activity,
   cumulative: TrendingUp,
+  geophysical: Activity,
+  seismic_reinterpretation: Activity,
   spt_projection: TrendingUp,
   economic: DollarSign,
-  geophysical: Activity,
   eor: Droplets,
 };
 
