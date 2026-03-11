@@ -55,12 +55,24 @@ Your analysis MUST include these sections:
    - Estimated net pay thickness
    - Risk assessment (low/medium/high)
 
-6. **Recommendations**
-   - Priority zones for further investigation
-   - Suggested follow-up analyses
-   - Drilling target recommendations
+6. **Bypassed Reserves Assessment**
+   - Identify zones with bypassed hydrocarbons missed during original drilling/analysis
+   - Estimate percentage of missed reserves (industry average: 20-40% of produced volume in mature fields)
+   - Rank zones by recompletion/re-entry potential
+   - Highlight formations where AI reinterpretation reveals productive horizons overlooked by traditional methods
 
-Be specific with depth values and provide quantitative assessments where possible.`;
+7. **Automatic Lithology Classification**
+   - Classify rock types (sandstone, shale, limestone, dolomite, siltstone) from seismic attributes
+   - Identify productive vs non-productive intervals
+   - Map formation boundaries and unconformities
+
+8. **Recommendations**
+   - Priority zones for further investigation including bypassed reserves targets
+   - Wells recommended for recompletion based on bypassed pay identification
+   - Suggested follow-up analyses
+   - Drilling and re-entry target recommendations
+
+Be specific with depth values and provide quantitative assessments where possible. Emphasize bypassed reserves opportunities.`;
 
     // Summarize data for the prompt
     const dataSummary = seismicData.map((d: any) => 

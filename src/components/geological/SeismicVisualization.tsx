@@ -16,6 +16,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
 import SeismicDataUpload, { type SeismicTrace } from "./SeismicDataUpload";
+import AnomalyDetector from "./AnomalyDetector";
+import AutoClassificationPanel from "./AutoClassificationPanel";
+import BypassedReservesPanel from "./BypassedReservesPanel";
 
 const SeismicVisualization = () => {
   const [analysisReport, setAnalysisReport] = useState<string | null>(null);
@@ -205,6 +208,15 @@ const SeismicVisualization = () => {
           <p className="text-xs text-muted-foreground">AVO Gradient</p>
         </div>
       </div>
+
+      {/* Auto-Classification & Anomaly Detection */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <AutoClassificationPanel data={seismicData} />
+        <AnomalyDetector data={seismicData} />
+      </div>
+
+      {/* Bypassed Reserves Panel */}
+      <BypassedReservesPanel isFromAI={!!analysisReport} />
 
       {/* AI Analysis Report */}
       {(isAnalyzing || analysisReport) && (
