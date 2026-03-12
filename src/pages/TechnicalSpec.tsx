@@ -37,7 +37,7 @@ const TechnicalSpec = () => {
             </h1>
             <p className="text-muted-foreground mt-1">AI Smartwell SGOM Platform — Developer Specification</p>
           </div>
-          <Badge className="ml-auto text-xs" variant="outline">v1.0 — February 2026</Badge>
+          <Badge className="ml-auto text-xs" variant="outline">v2.0 — March 2026</Badge>
         </div>
 
         <Separator />
@@ -81,8 +81,9 @@ const TechnicalSpec = () => {
             <div>
               <h4 className="font-semibold text-foreground mb-2">AI / ML</h4>
               <ul className="list-disc pl-5 space-y-1">
-                <li>Google Gemini (via Lovable AI) — core analysis, report generation</li>
-                <li>Computer Vision — rock classification from images</li>
+                <li>Google Gemini 2.5 Flash (via Lovable AI) — core analysis, seismic interpretation, report generation</li>
+                <li>NVIDIA NIM (nemotron-nano-12b-v2-vl) — seismic CV analysis (with Gemini fallback)</li>
+                <li>Computer Vision — rock classification, seismic fault/horizon detection</li>
                 <li>Well ranking — ML scoring</li>
               </ul>
             </div>
@@ -125,48 +126,63 @@ const TechnicalSpec = () => {
 
         {/* 4. Database */}
         <Section icon={Database} title="4. Database Structure">
-          <h4 className="font-semibold text-foreground mb-2">Table: <code className="text-primary">public.wells</code></h4>
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs border border-border/50 rounded">
-              <thead className="bg-muted/30">
-                <tr>
-                  <th className="text-left p-2 border-b border-border/50">Field</th>
-                  <th className="text-left p-2 border-b border-border/50">Type</th>
-                  <th className="text-left p-2 border-b border-border/50">Description</th>
-                </tr>
-              </thead>
-              <tbody>
-                {[
-                  ["id", "UUID (PK)", "Unique identifier"],
-                  ["api_number", "TEXT (UNIQUE)", "Well API number"],
-                  ["well_name", "TEXT", "Well name"],
-                  ["operator", "TEXT", "Operator / company"],
-                  ["well_type", "TEXT", "Type (OIL, GAS, INJECTION, etc.)"],
-                  ["status", "TEXT", "Status (ACTIVE, PLUGGED, SHUT-IN)"],
-                  ["state", "TEXT (NOT NULL)", "State (default OK)"],
-                  ["county", "TEXT", "County"],
-                  ["latitude", "FLOAT", "Latitude (GPS)"],
-                  ["longitude", "FLOAT", "Longitude (GPS)"],
-                  ["total_depth", "FLOAT", "Total depth (TD), ft"],
-                  ["formation", "TEXT", "Geological formation"],
-                  ["production_oil", "FLOAT", "Oil production, bbl"],
-                  ["production_gas", "FLOAT", "Gas production, mcf"],
-                  ["water_cut", "FLOAT", "Water cut, %"],
-                  ["spud_date", "DATE", "Drilling start date"],
-                  ["completion_date", "DATE", "Completion date"],
-                  ["source", "TEXT", "Data source (OCC)"],
-                  ["raw_data", "JSONB", "Raw API data"],
-                  ["created_at", "TIMESTAMPTZ", "Record creation date"],
-                  ["updated_at", "TIMESTAMPTZ", "Last update date"],
-                ].map(([field, type, desc]) => (
-                  <tr key={field} className="border-b border-border/30 hover:bg-muted/10">
-                    <td className="p-2 font-mono text-primary">{field}</td>
-                    <td className="p-2">{type}</td>
-                    <td className="p-2">{desc}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <h4 className="font-semibold text-foreground mb-3">All Tables (12 total)</h4>
+          <div className="space-y-4">
+            {[
+              { table: "wells", desc: "Core well records — API number, operator, coordinates, depth, formation, production, status", cols: 22, rls: "CRUD by company_id", fk: "companies" },
+              { table: "companies", desc: "Operator organizations", cols: 4, rls: "SELECT/UPDATE/DELETE by membership, INSERT by authenticated", fk: "—" },
+              { table: "user_companies", desc: "Multi-tenant junction: maps users ↔ companies", cols: 4, rls: "CRUD by user_id = auth.uid()", fk: "companies" },
+              { table: "production_history", desc: "Monthly production data: oil (bbl), gas (mcf), water (bbl), days on", cols: 8, rls: "CRUD by company_id", fk: "companies, wells" },
+              { table: "well_logs", desc: "Digitized well logs: GR, resistivity, porosity, Sw, SP, density, neutron", cols: 12, rls: "SELECT/INSERT/DELETE by company_id", fk: "companies, wells" },
+              { table: "well_analyses", desc: "9-stage pipeline results (JSONB stage_results), batch tracking", cols: 8, rls: "SELECT/INSERT by company_id, DELETE by user_id", fk: "companies, wells" },
+              { table: "well_alerts", desc: "Auto-generated alerts: production drops, water cut thresholds, status changes", cols: 10, rls: "CRUD by company_id", fk: "companies, wells" },
+              { table: "core_images", desc: "Uploaded core sample images with depth, formation, rock_type metadata", cols: 14, rls: "CRUD by company_id/user_id", fk: "companies, wells" },
+              { table: "core_analyses", desc: "AI analysis results from core image CV (lithology, porosity, minerals)", cols: 8, rls: "CRUD by company_id/user_id", fk: "companies" },
+              { table: "seismic_images", desc: "Uploaded 2D/3D seismic section images with type, formation metadata", cols: 11, rls: "CRUD by company_id/user_id", fk: "companies, wells" },
+              { table: "seismic_analyses", desc: "CV interpretation results: faults, horizons, anomalies, fluid contacts (JSONB)", cols: 9, rls: "SELECT/INSERT by company_id, DELETE by user_id", fk: "companies, seismic_images, wells" },
+              { table: "formation_codes", desc: "Reference: state formation codes (KDOR), basins, counties", cols: 12, rls: "SELECT only (read-only reference)", fk: "—" },
+            ].map((t) => (
+              <div key={t.table} className="p-3 rounded-lg bg-muted/20 border border-border/30">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <code className="text-primary font-mono text-sm font-semibold">public.{t.table}</code>
+                  <Badge variant="outline" className="text-[10px]">{t.cols} cols</Badge>
+                  <Badge variant="secondary" className="text-[10px]">RLS ✓</Badge>
+                </div>
+                <p className="text-xs mt-1">{t.desc}</p>
+                <div className="flex gap-4 mt-1.5 text-[10px] text-muted-foreground">
+                  <span><strong>RLS:</strong> {t.rls}</span>
+                  <span><strong>FK →</strong> {t.fk}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <h4 className="font-semibold text-foreground mb-2 mt-6">Database Functions & Triggers</h4>
+          <div className="space-y-2">
+            {[
+              { name: "update_updated_at_column()", desc: "Auto-update updated_at on row modification" },
+              { name: "check_well_production_alerts()", desc: "SECURITY DEFINER trigger: generates alerts on production drops >20%, water cut >70%, status changes" },
+              { name: "auto_link_core_image_to_well()", desc: "SECURITY DEFINER trigger: auto-links core images to wells by API number on insert" },
+            ].map((fn) => (
+              <div key={fn.name} className="p-2 rounded bg-muted/20 border border-border/30">
+                <code className="text-xs text-primary font-mono">{fn.name}</code>
+                <p className="text-[11px] mt-0.5">{fn.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          <h4 className="font-semibold text-foreground mb-2 mt-6">Storage Buckets</h4>
+          <div className="flex gap-3 flex-wrap">
+            {[
+              { name: "core-images", desc: "Core sample photos (public)", public: true },
+              { name: "seismic-images", desc: "2D/3D seismic sections (public)", public: true },
+            ].map((b) => (
+              <div key={b.name} className="p-2 rounded bg-muted/20 border border-border/30 flex-1 min-w-[200px]">
+                <code className="text-xs text-primary font-mono">{b.name}</code>
+                <Badge variant="outline" className="text-[10px] ml-2">{b.public ? "public" : "private"}</Badge>
+                <p className="text-[11px] mt-0.5">{b.desc}</p>
+              </div>
+            ))}
           </div>
         </Section>
 
@@ -252,18 +268,25 @@ const TechnicalSpec = () => {
         </Section>
 
         {/* 6. Edge Functions */}
-        <Section icon={Cpu} title="6. Edge Functions (Server Functions)">
+        <Section icon={Cpu} title="6. Edge Functions (11 total)">
           <div className="space-y-3">
             {[
               { name: "fetch-wells", desc: "Fetch well data from OCC ArcGIS REST API. Filter by county/type. Upsert to wells table.", input: "{ county?, wellType?, limit?, offset? }", output: "{ success, fetched, stored, skipped, sample }" },
-              { name: "analyze-core", desc: "Analyze core images via AI (Gemini). Determine lithology, porosity, texture.", input: "{ imageBase64 }", output: "{ analysis: { lithology, porosity, ... } }" },
+              { name: "fetch-nearby-wells", desc: "Find wells near given coordinates using OCC spatial queries.", input: "{ lat, lng, radiusMiles? }", output: "{ wells[] }" },
+              { name: "fetch-texas-wells", desc: "Fetch well data from Texas Railroad Commission API.", input: "{ county?, operator? }", output: "{ wells[] }" },
+              { name: "analyze-core", desc: "Analyze core images via Gemini AI. Determine lithology, porosity, texture, mineral composition.", input: "{ imageBase64 }", output: "{ analysis: { lithology, porosity, ... } }" },
+              { name: "analyze-core-cv", desc: "Advanced core CV analysis with multi-stage pipeline (edge detection, segmentation, classification).", input: "{ imageBase64, rockType? }", output: "{ analysis, model }" },
+              { name: "analyze-seismic", desc: "Text-based seismic data interpretation via AI.", input: "{ seismicData, wellContext? }", output: "{ interpretation }" },
+              { name: "analyze-seismic-cv", desc: "Computer vision seismic image analysis. NVIDIA NIM (nemotron) with Gemini fallback. Detects faults, horizons, anomalies, fluid contacts.", input: "{ imageBase64, analysisMode, wellContext? }", output: "{ analysis: { faults[], horizons[], anomalies[], ... }, model }" },
+              { name: "analyze-well-stage", desc: "Run individual pipeline stage analysis for a well (used in 9-stage EOR pipeline).", input: "{ wellId, stageNumber, wellData }", output: "{ stageResult }" },
               { name: "rank-wells", desc: "ML-based well ranking. Calculate scores by multiple parameters.", input: "{ wells[], criteria }", output: "{ ranked: [{ id, score, ... }] }" },
-              { name: "get-oil-price", desc: "Fetch current oil price for financial calculations.", input: "{}", output: "{ price, currency, date }" },
+              { name: "get-oil-price", desc: "Fetch current WTI oil price for financial calculations.", input: "{}", output: "{ price, currency, date }" },
+              { name: "spt-chat", desc: "AI chatbot for SPT technology Q&A. Context-aware responses about slot-perforation treatment.", input: "{ message, history[] }", output: "{ response }" },
             ].map((fn) => (
               <div key={fn.name} className="p-3 rounded-lg bg-muted/20 border border-border/30">
                 <p className="font-semibold text-foreground font-mono text-sm">{fn.name}</p>
                 <p className="text-xs mt-1">{fn.desc}</p>
-                <div className="flex gap-4 mt-2 text-[10px]">
+                <div className="flex gap-4 mt-2 text-[10px] flex-wrap">
                   <span><strong>Input:</strong> <code>{fn.input}</code></span>
                   <span><strong>Output:</strong> <code>{fn.output}</code></span>
                 </div>
@@ -463,11 +486,18 @@ const TechnicalSpec = () => {
 └── assets/                  # Images
 
 supabase/
-├── functions/               # Edge Functions
+├── functions/               # Edge Functions (11)
 │   ├── fetch-wells/         # OCC data import
-│   ├── analyze-core/        # CV core analysis
+│   ├── fetch-nearby-wells/  # Spatial well search
+│   ├── fetch-texas-wells/   # Texas RRC import
+│   ├── analyze-core/        # AI core analysis
+│   ├── analyze-core-cv/     # Core CV pipeline
+│   ├── analyze-seismic/     # Seismic text analysis
+│   ├── analyze-seismic-cv/  # Seismic CV (NVIDIA NIM + Gemini)
+│   ├── analyze-well-stage/  # Pipeline stage analysis
 │   ├── rank-wells/          # ML ranking
-│   └── get-oil-price/       # Oil price
+│   ├── get-oil-price/       # WTI oil price
+│   └── spt-chat/            # SPT AI chatbot
 └── config.toml              # Configuration`}
           </pre>
         </Section>
@@ -487,7 +517,7 @@ supabase/
         </Section>
 
         <div className="text-center text-xs text-muted-foreground pb-8">
-          AI Smartwell SGOM Platform — Technical Specification v1.0 — February 2026
+          AI Smartwell SGOM Platform — Technical Specification v2.0 — March 2026
         </div>
       </div>
     </div>
