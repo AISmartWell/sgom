@@ -322,7 +322,7 @@ const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
       {/* Navigation */}
       <ScrollArea className="flex-1 py-4">
         <nav className="space-y-1 px-3">
-          {menuItems.map((item) => (
+          {visibleItems.map((item) => (
             <NavLink
               key={item.href}
               to={item.href}
