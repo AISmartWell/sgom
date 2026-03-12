@@ -517,7 +517,7 @@ supabase/
         </Section>
 
         <div className="text-center text-xs text-muted-foreground pb-8">
-          AI Smartwell SGOM Platform — Technical Specification v1.0 — February 2026
+          AI Smartwell SGOM Platform — Technical Specification v2.0 — March 2026
         </div>
       </div>
     </div>
