@@ -271,6 +271,11 @@ interface SidebarProps {
 
 const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
   const navigate = useNavigate();
+  const { isInvestor } = useUserRole();
+
+  const visibleItems = isInvestor
+    ? menuItems.filter((item) => INVESTOR_SIDEBAR_ITEMS.has(item.href))
+    : menuItems;
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
