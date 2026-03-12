@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { useUserRole, INVESTOR_SIDEBAR_ITEMS } from "@/hooks/useUserRole";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
@@ -270,6 +271,11 @@ interface SidebarProps {
 
 const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
   const navigate = useNavigate();
+  const { isInvestor } = useUserRole();
+
+  const visibleItems = isInvestor
+    ? menuItems.filter((item) => INVESTOR_SIDEBAR_ITEMS.has(item.href))
+    : menuItems;
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -316,7 +322,7 @@ const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
       {/* Navigation */}
       <ScrollArea className="flex-1 py-4">
         <nav className="space-y-1 px-3">
-          {menuItems.map((item) => (
+          {visibleItems.map((item) => (
             <NavLink
               key={item.href}
               to={item.href}
