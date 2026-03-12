@@ -268,18 +268,25 @@ const TechnicalSpec = () => {
         </Section>
 
         {/* 6. Edge Functions */}
-        <Section icon={Cpu} title="6. Edge Functions (Server Functions)">
+        <Section icon={Cpu} title="6. Edge Functions (11 total)">
           <div className="space-y-3">
             {[
               { name: "fetch-wells", desc: "Fetch well data from OCC ArcGIS REST API. Filter by county/type. Upsert to wells table.", input: "{ county?, wellType?, limit?, offset? }", output: "{ success, fetched, stored, skipped, sample }" },
-              { name: "analyze-core", desc: "Analyze core images via AI (Gemini). Determine lithology, porosity, texture.", input: "{ imageBase64 }", output: "{ analysis: { lithology, porosity, ... } }" },
+              { name: "fetch-nearby-wells", desc: "Find wells near given coordinates using OCC spatial queries.", input: "{ lat, lng, radiusMiles? }", output: "{ wells[] }" },
+              { name: "fetch-texas-wells", desc: "Fetch well data from Texas Railroad Commission API.", input: "{ county?, operator? }", output: "{ wells[] }" },
+              { name: "analyze-core", desc: "Analyze core images via Gemini AI. Determine lithology, porosity, texture, mineral composition.", input: "{ imageBase64 }", output: "{ analysis: { lithology, porosity, ... } }" },
+              { name: "analyze-core-cv", desc: "Advanced core CV analysis with multi-stage pipeline (edge detection, segmentation, classification).", input: "{ imageBase64, rockType? }", output: "{ analysis, model }" },
+              { name: "analyze-seismic", desc: "Text-based seismic data interpretation via AI.", input: "{ seismicData, wellContext? }", output: "{ interpretation }" },
+              { name: "analyze-seismic-cv", desc: "Computer vision seismic image analysis. NVIDIA NIM (nemotron) with Gemini fallback. Detects faults, horizons, anomalies, fluid contacts.", input: "{ imageBase64, analysisMode, wellContext? }", output: "{ analysis: { faults[], horizons[], anomalies[], ... }, model }" },
+              { name: "analyze-well-stage", desc: "Run individual pipeline stage analysis for a well (used in 9-stage EOR pipeline).", input: "{ wellId, stageNumber, wellData }", output: "{ stageResult }" },
               { name: "rank-wells", desc: "ML-based well ranking. Calculate scores by multiple parameters.", input: "{ wells[], criteria }", output: "{ ranked: [{ id, score, ... }] }" },
-              { name: "get-oil-price", desc: "Fetch current oil price for financial calculations.", input: "{}", output: "{ price, currency, date }" },
+              { name: "get-oil-price", desc: "Fetch current WTI oil price for financial calculations.", input: "{}", output: "{ price, currency, date }" },
+              { name: "spt-chat", desc: "AI chatbot for SPT technology Q&A. Context-aware responses about slot-perforation treatment.", input: "{ message, history[] }", output: "{ response }" },
             ].map((fn) => (
               <div key={fn.name} className="p-3 rounded-lg bg-muted/20 border border-border/30">
                 <p className="font-semibold text-foreground font-mono text-sm">{fn.name}</p>
                 <p className="text-xs mt-1">{fn.desc}</p>
-                <div className="flex gap-4 mt-2 text-[10px]">
+                <div className="flex gap-4 mt-2 text-[10px] flex-wrap">
                   <span><strong>Input:</strong> <code>{fn.input}</code></span>
                   <span><strong>Output:</strong> <code>{fn.output}</code></span>
                 </div>
