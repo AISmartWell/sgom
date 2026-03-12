@@ -486,11 +486,18 @@ const TechnicalSpec = () => {
 └── assets/                  # Images
 
 supabase/
-├── functions/               # Edge Functions
+├── functions/               # Edge Functions (11)
 │   ├── fetch-wells/         # OCC data import
-│   ├── analyze-core/        # CV core analysis
+│   ├── fetch-nearby-wells/  # Spatial well search
+│   ├── fetch-texas-wells/   # Texas RRC import
+│   ├── analyze-core/        # AI core analysis
+│   ├── analyze-core-cv/     # Core CV pipeline
+│   ├── analyze-seismic/     # Seismic text analysis
+│   ├── analyze-seismic-cv/  # Seismic CV (NVIDIA NIM + Gemini)
+│   ├── analyze-well-stage/  # Pipeline stage analysis
 │   ├── rank-wells/          # ML ranking
-│   └── get-oil-price/       # Oil price
+│   ├── get-oil-price/       # WTI oil price
+│   └── spt-chat/            # SPT AI chatbot
 └── config.toml              # Configuration`}
           </pre>
         </Section>
