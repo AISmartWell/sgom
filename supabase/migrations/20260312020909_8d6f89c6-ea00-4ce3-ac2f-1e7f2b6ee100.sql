@@ -1,0 +1,3 @@
+INSERT INTO public.user_companies (user_id, company_id)
+VALUES ('e8885b68-c0c7-4d88-80c8-81ffacf6af86', '00000000-0000-0000-0000-000000000001')
+ON CONFLICT DO NOTHING;
