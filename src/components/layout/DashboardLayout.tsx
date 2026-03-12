@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Sidebar from "./Sidebar";
 import SPTChatWidget from "@/components/chat/SPTChatWidget";
-import { Loader2 } from "lucide-react";
+import { Loader2, ShieldAlert } from "lucide-react";
+import { useUserRole, INVESTOR_ALLOWED_ROUTES } from "@/hooks/useUserRole";
 
 const DashboardLayout = () => {
   const navigate = useNavigate();
