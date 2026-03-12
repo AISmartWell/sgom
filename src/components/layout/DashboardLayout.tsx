@@ -8,8 +8,10 @@ import { useUserRole, INVESTOR_ALLOWED_ROUTES } from "@/hooks/useUserRole";
 
 const DashboardLayout = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const { isInvestor, loading: roleLoading } = useUserRole();
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
