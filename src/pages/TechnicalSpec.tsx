@@ -81,8 +81,9 @@ const TechnicalSpec = () => {
             <div>
               <h4 className="font-semibold text-foreground mb-2">AI / ML</h4>
               <ul className="list-disc pl-5 space-y-1">
-                <li>Google Gemini (via Lovable AI) — core analysis, report generation</li>
-                <li>Computer Vision — rock classification from images</li>
+                <li>Google Gemini 2.5 Flash (via Lovable AI) — core analysis, seismic interpretation, report generation</li>
+                <li>NVIDIA NIM (nemotron-nano-12b-v2-vl) — seismic CV analysis (with Gemini fallback)</li>
+                <li>Computer Vision — rock classification, seismic fault/horizon detection</li>
                 <li>Well ranking — ML scoring</li>
               </ul>
             </div>
