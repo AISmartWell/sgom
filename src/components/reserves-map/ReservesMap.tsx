@@ -5,7 +5,7 @@ import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from "react-leaf
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Map, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { FORMATION_DB } from "@/lib/formation-db";
+import { calcIOIP } from "@/lib/formation-db";
 import "leaflet/dist/leaflet.css";
 
 interface WellWithReserves {
