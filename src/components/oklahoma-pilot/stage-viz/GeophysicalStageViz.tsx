@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { Waves, Layers } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useWellLogs } from "@/hooks/useWellLogs";
-import CompositeWellLog from "./CompositeWellLog";
+import PilotWellLog from "../PilotWellLog";
 
 interface WellRecord {
   id?: string;
@@ -128,15 +128,12 @@ const GeophysicalStageViz = ({ well }: Props) => {
 
   return (
     <div className="mt-2 space-y-3">
-      {/* Composite Well Log — full width */}
-      <CompositeWellLog
-        logStrips={logStrips}
-        payZone={payZone}
-        hasRealData={hasRealData}
-        isLoading={isLoading}
+      {/* Multi-track Well Log */}
+      <PilotWellLog
+        wellId={well.id || ""}
+        wellName={well.well_name || "Unknown Well"}
         formation={well.formation}
-        wellName={well.well_name}
-        apiNumber={well.api_number}
+        defaultExpanded={true}
       />
 
       {/* Stats row below */}
