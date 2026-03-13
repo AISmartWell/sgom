@@ -106,6 +106,87 @@ const detectPayZones = (
   return zones;
 };
 
+/**
+ * Cubic spline interpolation for smooth well log curves.
+ * Inserts synthetic points between sparse real data so curves look continuous.
+ */
+type LogPoint = {
+  depth: number; gammaRay: number; resistivity: number;
+  porosity: number; waterSat: number;
+  density: number | null; neutronPor: number | null;
+  isOriginal?: boolean;
+};
+
+const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+const lerpNull = (a: number | null, b: number | null, t: number): number | null => {
+  if (a === null || b === null) return null;
+  return lerp(a, b, t);
+};
+
+/** Catmull-Rom (monotone cubic Hermite) interpolation for a single track */
+const hermiteInterp = (
+  pts: { x: number; y: number }[],
+  xTarget: number
+): number => {
+  let i = 0;
+  while (i < pts.length - 2 && pts[i + 1].x < xTarget) i++;
+  const p0 = pts[Math.max(0, i - 1)];
+  const p1 = pts[i];
+  const p2 = pts[i + 1];
+  const p3 = pts[Math.min(pts.length - 1, i + 2)];
+
+  const h = p2.x - p1.x;
+  if (h === 0) return p1.y;
+  const t = (xTarget - p1.x) / h;
+
+  const m1 = ((p2.y - p0.y) / (p2.x - p0.x || 1)) * h;
+  const m2 = ((p3.y - p1.y) / (p3.x - p1.x || 1)) * h;
+
+  const t2 = t * t;
+  const t3 = t2 * t;
+  return (2 * t3 - 3 * t2 + 1) * p1.y +
+         (t3 - 2 * t2 + t) * m1 +
+         (-2 * t3 + 3 * t2) * p2.y +
+         (t3 - t2) * m2;
+};
+
+/** Interpolate sparse well log data — inserts points every maxStep ft */
+const interpolateWellLog = (data: LogPoint[], maxStep: number): LogPoint[] => {
+  if (data.length < 2) return data;
+  const result: LogPoint[] = [];
+  const grPts = data.map(p => ({ x: p.depth, y: p.gammaRay }));
+  const resPts = data.map(p => ({ x: p.depth, y: p.resistivity }));
+  const porPts = data.map(p => ({ x: p.depth, y: p.porosity }));
+  const swPts = data.map(p => ({ x: p.depth, y: p.waterSat }));
+
+  for (let i = 0; i < data.length - 1; i++) {
+    const a = data[i];
+    const b = data[i + 1];
+    result.push(a);
+
+    const gap = b.depth - a.depth;
+    if (gap <= maxStep) continue;
+
+    const numInsert = Math.ceil(gap / maxStep) - 1;
+    for (let j = 1; j <= numInsert; j++) {
+      const t = j / (numInsert + 1);
+      const d = lerp(a.depth, b.depth, t);
+      result.push({
+        depth: Math.round(d * 10) / 10,
+        gammaRay: Math.max(0, hermiteInterp(grPts, d)),
+        resistivity: Math.max(0.01, hermiteInterp(resPts, d)),
+        porosity: Math.max(0, Math.min(100, hermiteInterp(porPts, d))),
+        waterSat: Math.max(0, Math.min(100, hermiteInterp(swPts, d))),
+        density: lerpNull(a.density, b.density, t),
+        neutronPor: lerpNull(a.neutronPor, b.neutronPor, t),
+        isOriginal: false,
+      });
+    }
+  }
+  result.push(data[data.length - 1]);
+  return result;
+};
+
 const MIN_DEPTH_RANGE = 20;
 
 const PilotWellLog = ({ wellId, wellName, formation, defaultExpanded = false }: PilotWellLogProps) => {
@@ -132,16 +213,21 @@ const PilotWellLog = ({ wellId, wellName, formation, defaultExpanded = false }: 
       toast.error("Failed to export");
     }
   }, [wellName]);
-  // Map real data
-  const chartData = useMemo(() => (rawLogs || []).map((pt) => ({
-    depth: pt.measured_depth,
-    gammaRay: pt.gamma_ray ?? 0,
-    resistivity: pt.resistivity ?? 0,
-    porosity: pt.porosity ?? 0,
-    waterSat: pt.water_saturation ?? 100,
-    density: pt.density ?? null,
-    neutronPor: pt.neutron_porosity ?? null,
-  })), [rawLogs]);
+  // Map real data and interpolate between sparse points
+  const chartData = useMemo(() => {
+    const raw = (rawLogs || []).map((pt) => ({
+      depth: pt.measured_depth,
+      gammaRay: pt.gamma_ray ?? 0,
+      resistivity: pt.resistivity ?? 0,
+      porosity: pt.porosity ?? 0,
+      waterSat: pt.water_saturation ?? 100,
+      density: pt.density ?? null,
+      neutronPor: pt.neutron_porosity ?? null,
+      isOriginal: true,
+    }));
+    if (raw.length < 2) return raw;
+    return interpolateWellLog(raw, 25);
+  }, [rawLogs]);
 
   const hasDensityNeutron = useMemo(() =>
     chartData.some(pt => pt.density !== null || pt.neutronPor !== null),
