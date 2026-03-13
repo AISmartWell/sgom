@@ -568,6 +568,66 @@ export type Database = {
           },
         ]
       }
+      well_perforations: {
+        Row: {
+          company_id: string
+          created_at: string
+          date_perforated: string | null
+          depth_from: number
+          depth_to: number
+          hole_diameter: number | null
+          id: string
+          notes: string | null
+          phasing: number | null
+          shots_per_foot: number | null
+          status: string | null
+          well_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          date_perforated?: string | null
+          depth_from: number
+          depth_to: number
+          hole_diameter?: number | null
+          id?: string
+          notes?: string | null
+          phasing?: number | null
+          shots_per_foot?: number | null
+          status?: string | null
+          well_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          date_perforated?: string | null
+          depth_from?: number
+          depth_to?: number
+          hole_diameter?: number | null
+          id?: string
+          notes?: string | null
+          phasing?: number | null
+          shots_per_foot?: number | null
+          status?: string | null
+          well_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "well_perforations_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "well_perforations_well_id_fkey"
+            columns: ["well_id"]
+            isOneToOne: false
+            referencedRelation: "wells"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       wells: {
         Row: {
           api_number: string | null

@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
 import { useWellLogs, WellLogPoint } from "@/hooks/useWellLogs";
+import { useWellPerforations, PerforationInterval } from "@/hooks/useWellPerforations";
 
 /* ── Interpolation ── */
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
@@ -70,12 +71,13 @@ const interpolateData = (data: DataPoint[], maxStep: number): DataPoint[] => {
 
 /* ── Layout ── */
 const LITH_W = 80;
-const GR_W = 180;
+const GR_W = 170;
 const DEPTH_W = 50;
-const RES_W = 190;
-const POR_W = 160;
-const COR_W = 60;
-const TOTAL_W = LITH_W + GR_W + DEPTH_W + RES_W + POR_W + COR_W;
+const RES_W = 180;
+const POR_W = 150;
+const PERF_W = 50;
+const COR_W = 50;
+const TOTAL_W = LITH_W + GR_W + DEPTH_W + RES_W + POR_W + PERF_W + COR_W;
 const HEADER_H = 60;
 const PAD_B = 10;
 
@@ -84,7 +86,8 @@ const GR_X = LITH_W;
 const DEPTH_X = GR_X + GR_W;
 const RES_X = DEPTH_X + DEPTH_W;
 const POR_X = RES_X + RES_W;
-const COR_X = POR_X + POR_W;
+const PERF_X = POR_X + POR_W;
+const COR_X = PERF_X + PERF_W;
 
 const C = {
   bg: "#0a0f1c",
@@ -137,6 +140,18 @@ interface EnhancedWellLogProps {
 
 const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, totalDepth }: EnhancedWellLogProps) => {
   const { data: rawLogs, isLoading, hasRealData } = useWellLogs(wellId);
+  const { data: perforations, hasData: hasPerfs } = useWellPerforations(wellId);
+  // Generate synthetic perforations when no real data exists
+  const perfIntervals = useMemo<PerforationInterval[]>(() => {
+    if (hasPerfs) return perforations;
+    // Synthetic: create 2-3 perforation intervals near pay zones
+    const depth = totalDepth ?? 3500;
+    const synth: PerforationInterval[] = [
+      { id: "s1", depth_from: Math.round(depth * 0.48), depth_to: Math.round(depth * 0.52), shots_per_foot: 4, hole_diameter: 0.42, phasing: 120, date_perforated: null, status: "open", notes: null },
+      { id: "s2", depth_from: Math.round(depth * 0.58), depth_to: Math.round(depth * 0.61), shots_per_foot: 6, hole_diameter: 0.38, phasing: 60, date_perforated: null, status: "open", notes: null },
+    ];
+    return synth;
+  }, [hasPerfs, perforations, totalDepth]);
   const [expanded, setExpanded] = useState(defaultExpanded);
   const [zoomFactor, setZoomFactor] = useState(1);
   const [scrollOffset, setScrollOffset] = useState(0);
@@ -331,6 +346,10 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
               <span className="text-[9px] text-muted-foreground">RHOB</span>
             </div>
           </>}
+          <div className="flex items-center gap-1">
+            <span className="w-2.5 h-[2px] rounded-full" style={{ backgroundColor: "#f97316" }} />
+            <span className="text-[9px] text-muted-foreground">PERF ({perfIntervals.length})</span>
+          </div>
           {hasRealData ? (
             <Badge variant="outline" className="text-[9px] h-4 border-success/40 bg-success/10 text-success gap-1">
               <Database className="h-2.5 w-2.5" />REAL DATA
@@ -423,6 +442,9 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
               <text x={POR_X + POR_W / 2} y={30} textAnchor="middle" fill={C.nphi} fontSize="7" fontFamily="monospace">NPHI: 0.45–0</text>
               <text x={POR_X + POR_W / 2} y={42} textAnchor="middle" fill={C.text} fontSize="7" fontFamily="monospace">RHOB: 1.9–2.9</text>
 
+              <text x={PERF_X + PERF_W / 2} y={16} textAnchor="middle" fill={C.textBright} fontSize="8" fontWeight="700" letterSpacing="1">PERF</text>
+              <text x={PERF_X + PERF_W / 2} y={30} textAnchor="middle" fill="#f97316" fontSize="7" fontFamily="monospace">SPF / ⌀</text>
+
               <text x={COR_X + COR_W / 2} y={16} textAnchor="middle" fill={C.textBright} fontSize="8" fontWeight="700" letterSpacing="1">COR</text>
 
               {/* ═══ TRACK BACKGROUNDS ═══ */}
@@ -431,10 +453,11 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
               <rect x={DEPTH_X} y={HEADER_H} width={DEPTH_W} height={plotH} fill="#0e1628" />
               <rect x={RES_X} y={HEADER_H} width={RES_W} height={plotH} fill={C.trackBg} />
               <rect x={POR_X} y={HEADER_H} width={POR_W} height={plotH} fill={C.trackBg} />
+              <rect x={PERF_X} y={HEADER_H} width={PERF_W} height={plotH} fill="#120d1a" />
               <rect x={COR_X} y={HEADER_H} width={COR_W} height={plotH} fill="#0d1220" />
 
               {/* Track borders */}
-              {[LITH_X, GR_X, DEPTH_X, RES_X, POR_X, COR_X, TOTAL_W].map((x, i) => (
+              {[LITH_X, GR_X, DEPTH_X, RES_X, POR_X, PERF_X, COR_X, TOTAL_W].map((x, i) => (
                 <line key={`b${i}`} x1={x} y1={HEADER_H} x2={x} y2={HEADER_H + plotH} stroke={C.border} strokeWidth="0.6" />
               ))}
               <line x1={0} y1={HEADER_H + plotH} x2={TOTAL_W} y2={HEADER_H + plotH} stroke={C.border} />
@@ -583,7 +606,72 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
                   fill="none" stroke={C.nphi} strokeWidth="1.2" />
               )}
 
-              {/* ═══ COR TRACK ═══ — lithology labels */}
+              {/* ═══ PERF TRACK ═══ — perforation intervals */}
+              {perfIntervals.map((perf, pi) => {
+                const y1 = yForDepth(perf.depth_from);
+                const y2 = yForDepth(perf.depth_to);
+                if (y2 < HEADER_H || y1 > HEADER_H + plotH) return null;
+                const clampY1 = Math.max(HEADER_H, y1);
+                const clampY2 = Math.min(HEADER_H + plotH, y2);
+                const h = clampY2 - clampY1;
+                if (h < 1) return null;
+                const spf = perf.shots_per_foot ?? 4;
+                const cx = PERF_X + PERF_W / 2;
+                // Draw perforation symbols (small arrows/bursts)
+                const perfShots: JSX.Element[] = [];
+                const shotSpacing = Math.max(4, PERF_W * 0.15);
+                const numShots = Math.min(Math.floor(h / shotSpacing), 60);
+                for (let s = 0; s < numShots; s++) {
+                  const sy = clampY1 + (s + 0.5) * (h / numShots);
+                  const side = s % 2 === 0 ? 1 : -1;
+                  const tipX = cx + side * (PERF_W * 0.38);
+                  const baseX = cx + side * 2;
+                  perfShots.push(
+                    <g key={`ps-${pi}-${s}`}>
+                      <line x1={baseX} y1={sy} x2={tipX} y2={sy}
+                        stroke="#f97316" strokeWidth="1.2" opacity={0.8} />
+                      {/* Arrow tip */}
+                      <polygon
+                        points={`${tipX},${sy} ${tipX - side * 3},${sy - 1.5} ${tipX - side * 3},${sy + 1.5}`}
+                        fill="#f97316" opacity={0.9} />
+                      {/* Burst dot */}
+                      <circle cx={tipX + side * 1.5} cy={sy} r="1" fill="#fbbf24" opacity={0.6} />
+                    </g>
+                  );
+                }
+                return (
+                  <g key={`perf-${pi}`}>
+                    {/* Interval background */}
+                    <rect x={PERF_X + 1} y={clampY1} width={PERF_W - 2} height={h}
+                      fill="#f9731610" stroke="#f97316" strokeWidth="0.6" strokeDasharray="2,2" rx="2" />
+                    {/* Top/bottom depth markers */}
+                    <line x1={PERF_X} y1={clampY1} x2={PERF_X + PERF_W} y2={clampY1}
+                      stroke="#f97316" strokeWidth="1" opacity={0.8} />
+                    <line x1={PERF_X} y1={clampY2} x2={PERF_X + PERF_W} y2={clampY2}
+                      stroke="#f97316" strokeWidth="1" opacity={0.8} />
+                    {/* Perforation shot symbols */}
+                    {perfShots}
+                    {/* SPF label */}
+                    {h > 20 && (
+                      <text x={cx} y={clampY1 + h / 2 + 3} textAnchor="middle"
+                        fill="#fbbf24" fontSize="7" fontWeight="700" fontFamily="monospace">
+                        {spf} SPF
+                      </text>
+                    )}
+                    {/* Depth labels */}
+                    {h > 30 && (
+                      <>
+                        <text x={cx} y={clampY1 - 2} textAnchor="middle"
+                          fill="#f97316" fontSize="6" fontFamily="monospace">{Math.round(perf.depth_from)}'</text>
+                        <text x={cx} y={clampY2 + 8} textAnchor="middle"
+                          fill="#f97316" fontSize="6" fontFamily="monospace">{Math.round(perf.depth_to)}'</text>
+                      </>
+                    )}
+                  </g>
+                );
+              })}
+
+
               {(() => {
                 const labels: JSX.Element[] = [];
                 let lastLabel = "";
