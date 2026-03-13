@@ -74,7 +74,7 @@ const CumulativeStageViz = ({ well }: Props) => {
   }, [hasRealData, realHistory, q0, Di, b]);
 
   const totalReserves = declineCurve[declineCurve.length - 1]?.cumulative ?? 0;
-  const ioip = Math.round(depth * porosity * 7.758 * 0.5);
+  const { ioip, params: ioipParams } = useMemo(() => calcIOIP(well.formation ?? null), [well.formation]);
 
   // Compute actual Di from real data (first vs last rate)
   const effectiveDi = useMemo(() => {
