@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useRef, useCallback, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Activity, ChevronDown, ChevronUp, Target, Zap } from "lucide-react";
+import { Activity, ChevronDown, ChevronUp, Target, Zap, ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
 import {
   ComposedChart,
   Line,
