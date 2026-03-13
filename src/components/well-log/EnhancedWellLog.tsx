@@ -438,6 +438,9 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
               <text x={POR_X + POR_W / 2} y={30} textAnchor="middle" fill={C.nphi} fontSize="7" fontFamily="monospace">NPHI: 0.45–0</text>
               <text x={POR_X + POR_W / 2} y={42} textAnchor="middle" fill={C.text} fontSize="7" fontFamily="monospace">RHOB: 1.9–2.9</text>
 
+              <text x={PERF_X + PERF_W / 2} y={16} textAnchor="middle" fill={C.textBright} fontSize="8" fontWeight="700" letterSpacing="1">PERF</text>
+              <text x={PERF_X + PERF_W / 2} y={30} textAnchor="middle" fill="#f97316" fontSize="7" fontFamily="monospace">SPF / ⌀</text>
+
               <text x={COR_X + COR_W / 2} y={16} textAnchor="middle" fill={C.textBright} fontSize="8" fontWeight="700" letterSpacing="1">COR</text>
 
               {/* ═══ TRACK BACKGROUNDS ═══ */}
@@ -446,6 +449,7 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
               <rect x={DEPTH_X} y={HEADER_H} width={DEPTH_W} height={plotH} fill="#0e1628" />
               <rect x={RES_X} y={HEADER_H} width={RES_W} height={plotH} fill={C.trackBg} />
               <rect x={POR_X} y={HEADER_H} width={POR_W} height={plotH} fill={C.trackBg} />
+              <rect x={PERF_X} y={HEADER_H} width={PERF_W} height={plotH} fill="#120d1a" />
               <rect x={COR_X} y={HEADER_H} width={COR_W} height={plotH} fill="#0d1220" />
 
               {/* Track borders */}
