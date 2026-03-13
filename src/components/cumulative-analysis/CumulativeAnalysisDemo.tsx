@@ -236,7 +236,7 @@ export const CumulativeAnalysisDemo = () => {
     const totalInitial = WELLS_DATA.reduce((s, w) => s + w.initialOil, 0);
     const totalRemaining = WELLS_DATA.reduce((s, w) => s + w.remainingOil, 0);
     addLog(`✅ Report complete. Total Initial: ${(totalInitial / 1000).toFixed(0)}k bbl | Remaining: ${(totalRemaining / 1000).toFixed(0)}k bbl`);
-    addLog("🏁 Stage 3 — Cumulative Analysis pipeline finished.");
+    addLog("🏁 Stage 4 — Cumulative Analysis pipeline finished.");
 
     setIsRunning(false);
   };

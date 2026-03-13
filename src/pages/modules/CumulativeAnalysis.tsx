@@ -30,7 +30,7 @@ const CumulativeAnalysis = () => {
         </div>
         <Badge variant="outline" className="text-primary border-primary">
           <TrendingDown className="mr-1 h-3 w-3" />
-          Stage 3
+          Stage 4
         </Badge>
       </div>
 
