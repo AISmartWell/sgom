@@ -295,7 +295,6 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
     return lines;
   }, [depthTicks, yForDepth, plotH]);
 
-  if (!hasRealData && !isLoading) return null;
   if (isLoading) return (
     <div className="p-3 text-xs text-muted-foreground flex items-center gap-2 border border-border/30 rounded-lg">
       <Activity className="h-3.5 w-3.5 animate-spin text-primary" />Loading well log…
