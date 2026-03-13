@@ -540,7 +540,7 @@ const WellLogVisualization = () => {
       ctx.restore();
     }
 
-  }, [logData, coreImages]);
+  }, [logData, coreImages, viewDepthMin, viewDepthMax]);
 
   // Mouse tooltip
   const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
