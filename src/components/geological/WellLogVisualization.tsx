@@ -546,6 +546,24 @@ const WellLogVisualization = () => {
   const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+
+    // Handle drag scrolling
+    if (isDragging.current) {
+      const rect = canvas.getBoundingClientRect();
+      const dy = e.clientY - dragStartY.current;
+      const plotH = 520 - HEADER_H - FOOTER_H;
+      const depthPerPx = (dragStartDepthMax.current - dragStartDepthMin.current) / plotH;
+      const depthShift = -dy * depthPerPx;
+      const [cMin, cMax] = clampView(
+        dragStartDepthMin.current + depthShift,
+        dragStartDepthMax.current + depthShift
+      );
+      setViewDepthMin(cMin);
+      setViewDepthMax(cMax);
+      setTooltip(null);
+      return;
+    }
+
     const rect = canvas.getBoundingClientRect();
     const mx = e.clientX - rect.left;
     const my = e.clientY - rect.top;
@@ -564,14 +582,46 @@ const WellLogVisualization = () => {
     setTooltip({ x: mx, y: my, data: closest });
   };
 
+  const handleWheel = (e: React.WheelEvent<HTMLCanvasElement>) => {
+    e.preventDefault();
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const my = e.clientY - rect.top;
+    const plotH = 520 - HEADER_H - FOOTER_H;
+    const depthAtMouse = depthMin + ((my - HEADER_H) / plotH) * (depthMax - depthMin);
+    const factor = e.deltaY > 0 ? 1.15 : 0.85;
+    handleZoom(factor, depthAtMouse);
+  };
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (e.button !== 0) return;
+    isDragging.current = true;
+    dragStartY.current = e.clientY;
+    dragStartDepthMin.current = viewDepthMin;
+    dragStartDepthMax.current = viewDepthMax;
+  };
+
+  const handleMouseUp = () => {
+    isDragging.current = false;
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
           <h4 className="font-semibold">Composite Well Log</h4>
-          <p className="text-sm text-muted-foreground">Multi-track log display with lithology, curves & core photos</p>
+          <p className="text-sm text-muted-foreground">Multi-track log display — scroll to zoom, drag to pan</p>
         </div>
-        <div className="flex gap-3 text-xs flex-wrap">
+        <div className="flex gap-3 text-xs flex-wrap items-center">
+          <div className="flex items-center gap-1 mr-2 border border-border/50 rounded px-2 py-1">
+            <button onClick={() => handleZoom(0.7)} className="px-1.5 py-0.5 rounded hover:bg-muted text-sm font-bold">+</button>
+            <span className="text-muted-foreground min-w-[40px] text-center">{zoomLevel}%</span>
+            <button onClick={() => handleZoom(1.4)} className="px-1.5 py-0.5 rounded hover:bg-muted text-sm font-bold">−</button>
+            {zoomLevel > 100 && (
+              <button onClick={resetZoom} className="px-1.5 py-0.5 rounded hover:bg-muted text-[10px] text-muted-foreground ml-1">Reset</button>
+            )}
+          </div>
           <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full" style={{ background: "#22c55e" }} /><span>GR</span></div>
           <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full" style={{ background: "#3b82f6" }} /><span>SP</span></div>
           <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full" style={{ background: "#ef4444" }} /><span>Res Deep</span></div>
@@ -581,12 +631,32 @@ const WellLogVisualization = () => {
         </div>
       </div>
 
+      {/* Depth range indicator */}
+      {zoomLevel > 100 && (
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <span>Viewing: {viewDepthMin.toFixed(0)}–{viewDepthMax.toFixed(0)} ft</span>
+          <div className="flex-1 h-1.5 bg-muted rounded-full relative">
+            <div
+              className="absolute h-full bg-primary/50 rounded-full"
+              style={{
+                left: `${((viewDepthMin - TOTAL_DEPTH_MIN) / (TOTAL_DEPTH_MAX - TOTAL_DEPTH_MIN)) * 100}%`,
+                width: `${((viewDepthMax - viewDepthMin) / (TOTAL_DEPTH_MAX - TOTAL_DEPTH_MIN)) * 100}%`,
+              }}
+            />
+          </div>
+          <span>{TOTAL_DEPTH_MIN}–{TOTAL_DEPTH_MAX} ft</span>
+        </div>
+      )}
+
       <div className="relative overflow-x-auto bg-[#0f1729] rounded-lg p-2" ref={containerRef}>
         <canvas
           ref={canvasRef}
           onMouseMove={handleMouseMove}
-          onMouseLeave={() => setTooltip(null)}
-          className="cursor-crosshair"
+          onMouseLeave={() => { setTooltip(null); isDragging.current = false; }}
+          onWheel={handleWheel}
+          onMouseDown={handleMouseDown}
+          onMouseUp={handleMouseUp}
+          className={isDragging.current ? "cursor-grabbing" : "cursor-crosshair"}
         />
         {tooltip && (
           <div
