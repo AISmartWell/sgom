@@ -237,8 +237,8 @@ const CumulativeStageViz = ({ well }: Props) => {
                 <span className="font-medium">{b.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-[10px]">
-                <span className="text-muted-foreground">Porosity (est.)</span>
-                <span className="font-medium">{(porosity * 100).toFixed(1)}%</span>
+                <span className="text-muted-foreground">Porosity (φ)</span>
+                <span className="font-medium">{(ioipParams.phi * 100).toFixed(1)}%</span>
               </div>
               <div className="pt-1 border-t border-border/20">
                 <Badge variant="outline" className={`text-[9px] ${b > 0.7 ? "text-warning" : b > 0.5 ? "text-primary" : "text-success"}`}>
