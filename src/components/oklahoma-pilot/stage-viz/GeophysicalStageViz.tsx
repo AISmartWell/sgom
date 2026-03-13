@@ -133,6 +133,7 @@ const GeophysicalStageViz = ({ well }: Props) => {
         wellId={well.id || ""}
         wellName={well.well_name || "Unknown Well"}
         formation={well.formation}
+        totalDepth={depth}
         defaultExpanded={true}
       />
 
