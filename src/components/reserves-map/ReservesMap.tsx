@@ -28,26 +28,6 @@ interface WellWithReserves {
   recoveryFactor: number;
 }
 
-// IOIP volumetric: 7758 * A * h * phi * (1-Sw) / Bo
-function calcIOIP(formationName: string | null): number {
-  const A = 40; // acres
-  const Bo = 1.15;
-  let h = 30, phi = 0.12, Sw = 0.35;
-
-  if (formationName) {
-    const key = Object.keys(FORMATION_DB).find(
-      k => k.toLowerCase() === formationName.toLowerCase() || formationName.toLowerCase().includes(k.toLowerCase())
-    );
-    if (key) {
-      const f = FORMATION_DB[key];
-      phi = (f.phiMin + f.phiMax) / 200; // avg as fraction
-      // Estimate Sw from porosity range
-      Sw = phi > 0.15 ? 0.25 : phi > 0.08 ? 0.35 : 0.45;
-    }
-  }
-
-  return Math.round(7758 * A * h * phi * (1 - Sw) / Bo);
-}
 
 function getReservesColor(remainingPct: number): string {
   // remainingPct = remaining / ioip * 100
