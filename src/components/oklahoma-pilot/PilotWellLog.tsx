@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useRef, useCallback, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Activity, ChevronDown, ChevronUp, Target, Zap } from "lucide-react";
+import { Activity, ChevronDown, ChevronUp, Target, Zap, ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
 import {
   ComposedChart,
   Line,
@@ -104,9 +104,97 @@ const detectPayZones = (
   return zones;
 };
 
+const MIN_DEPTH_RANGE = 20;
+
 const PilotWellLog = ({ wellId, wellName, formation, defaultExpanded = false }: PilotWellLogProps) => {
   const [expanded, setExpanded] = useState(defaultExpanded);
   const { data: rawLogs, isLoading, hasRealData } = useWellLogs(wellId);
+  const [viewRange, setViewRange] = useState<[number, number] | null>(null);
+  const isDragging = useRef(false);
+  const dragStartY = useRef(0);
+  const dragStartRange = useRef<[number, number]>([0, 0]);
+  const chartContainerRef = useRef<HTMLDivElement>(null);
+
+  // Map real data
+  const chartData = useMemo(() => (rawLogs || []).map((pt) => ({
+    depth: pt.measured_depth,
+    gammaRay: pt.gamma_ray ?? 0,
+    resistivity: pt.resistivity ?? 0,
+    porosity: pt.porosity ?? 0,
+    waterSat: pt.water_saturation ?? 100,
+  })), [rawLogs]);
+
+  const fullRange: [number, number] = useMemo(() => {
+    if (chartData.length === 0) return [0, 100];
+    return [chartData[0].depth, chartData[chartData.length - 1].depth];
+  }, [chartData]);
+
+  const currentRange = viewRange ?? fullRange;
+  const totalSpan = fullRange[1] - fullRange[0];
+  const currentSpan = currentRange[1] - currentRange[0];
+  const zoomLevel = totalSpan > 0 ? Math.round((totalSpan / currentSpan) * 100) : 100;
+  const isZoomed = zoomLevel > 105;
+
+  const clampRange = useCallback((min: number, max: number): [number, number] => {
+    const range = max - min;
+    let newMin = min;
+    let newMax = max;
+    if (newMin < fullRange[0]) { newMin = fullRange[0]; newMax = fullRange[0] + range; }
+    if (newMax > fullRange[1]) { newMax = fullRange[1]; newMin = fullRange[1] - range; }
+    newMin = Math.max(fullRange[0], newMin);
+    newMax = Math.min(fullRange[1], newMax);
+    return [newMin, newMax];
+  }, [fullRange]);
+
+  const handleZoom = useCallback((factor: number, centerDepth?: number) => {
+    const [curMin, curMax] = viewRange ?? fullRange;
+    const curSpan = curMax - curMin;
+    const newSpan = Math.max(MIN_DEPTH_RANGE, Math.min(fullRange[1] - fullRange[0], curSpan * factor));
+    const center = centerDepth ?? (curMin + curMax) / 2;
+    const ratio = (center - curMin) / curSpan;
+    const newMin = center - newSpan * ratio;
+    const newMax = newMin + newSpan;
+    const clamped = clampRange(newMin, newMax);
+    setViewRange(clamped);
+  }, [viewRange, fullRange, clampRange]);
+
+  const resetZoom = useCallback(() => setViewRange(null), []);
+
+  const handleWheel = useCallback((e: React.WheelEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const container = chartContainerRef.current;
+    if (!container) return;
+    const rect = container.getBoundingClientRect();
+    const my = e.clientY - rect.top;
+    const plotH = rect.height;
+    const [curMin, curMax] = viewRange ?? fullRange;
+    const depthAtMouse = curMin + (my / plotH) * (curMax - curMin);
+    const factor = e.deltaY > 0 ? 1.15 : 0.85;
+    handleZoom(factor, depthAtMouse);
+  }, [viewRange, fullRange, handleZoom]);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (e.button !== 0) return;
+    isDragging.current = true;
+    dragStartY.current = e.clientY;
+    dragStartRange.current = viewRange ?? fullRange;
+  }, [viewRange, fullRange]);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!isDragging.current) return;
+    const container = chartContainerRef.current;
+    if (!container) return;
+    const dy = e.clientY - dragStartY.current;
+    const plotH = container.getBoundingClientRect().height;
+    const [startMin, startMax] = dragStartRange.current;
+    const depthPerPx = (startMax - startMin) / plotH;
+    const shift = -dy * depthPerPx;
+    const clamped = clampRange(startMin + shift, startMax + shift);
+    setViewRange(clamped);
+  }, [clampRange]);
+
+  const handleMouseUp = useCallback(() => { isDragging.current = false; }, []);
 
   // No real data — don't render
   if (!hasRealData && !isLoading) return null;
@@ -119,14 +207,10 @@ const PilotWellLog = ({ wellId, wellName, formation, defaultExpanded = false }: 
     );
   }
 
-  // Map real data
-  const chartData = (rawLogs || []).map((pt) => ({
-    depth: pt.measured_depth,
-    gammaRay: pt.gamma_ray ?? 0,
-    resistivity: pt.resistivity ?? 0,
-    porosity: pt.porosity ?? 0,
-    waterSat: pt.water_saturation ?? 100,
-  }));
+  // Filter chart data to visible range
+  const visibleData = chartData.filter(
+    (pt) => pt.depth >= currentRange[0] && pt.depth <= currentRange[1]
+  );
 
   const zones = detectPayZones(chartData);
 
@@ -174,12 +258,57 @@ const PilotWellLog = ({ wellId, wellName, formation, defaultExpanded = false }: 
       {/* Expanded content */}
       {expanded && (
         <div className="p-3 space-y-3 animate-in slide-in-from-top-2 duration-200">
+          {/* Zoom controls */}
+          <div className="flex items-center gap-2 text-xs">
+            <div className="flex items-center gap-1 border border-border/50 rounded px-2 py-1">
+              <button onClick={() => handleZoom(0.7)} className="p-0.5 rounded hover:bg-muted" title="Zoom In">
+                <ZoomIn className="h-3.5 w-3.5" />
+              </button>
+              <span className="text-muted-foreground min-w-[36px] text-center">{zoomLevel}%</span>
+              <button onClick={() => handleZoom(1.4)} className="p-0.5 rounded hover:bg-muted" title="Zoom Out">
+                <ZoomOut className="h-3.5 w-3.5" />
+              </button>
+              {isZoomed && (
+                <button onClick={resetZoom} className="p-0.5 rounded hover:bg-muted ml-0.5" title="Reset Zoom">
+                  <RotateCcw className="h-3 w-3 text-muted-foreground" />
+                </button>
+              )}
+            </div>
+            <span className="text-muted-foreground">Scroll to zoom · Drag to pan</span>
+          </div>
+
+          {/* Depth range indicator */}
+          {isZoomed && (
+            <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+              <span>{currentRange[0].toFixed(0)}–{currentRange[1].toFixed(0)} ft</span>
+              <div className="flex-1 h-1 bg-muted rounded-full relative">
+                <div
+                  className="absolute h-full bg-primary/50 rounded-full"
+                  style={{
+                    left: `${((currentRange[0] - fullRange[0]) / totalSpan) * 100}%`,
+                    width: `${((currentSpan) / totalSpan) * 100}%`,
+                  }}
+                />
+              </div>
+              <span>{fullRange[0].toFixed(0)}–{fullRange[1].toFixed(0)} ft</span>
+            </div>
+          )}
+
           {/* Log chart */}
-          <div className="h-[280px] bg-background/50 rounded border border-border/30 p-2">
+          <div
+            ref={chartContainerRef}
+            className="h-[280px] bg-background/50 rounded border border-border/30 p-2 select-none"
+            onWheel={handleWheel}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            style={{ cursor: isDragging.current ? 'grabbing' : 'crosshair' }}
+          >
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart
                 layout="vertical"
-                data={chartData}
+                data={visibleData}
                 margin={{ top: 5, right: 15, left: 45, bottom: 5 }}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.2} />
@@ -190,7 +319,7 @@ const PilotWellLog = ({ wellId, wellName, formation, defaultExpanded = false }: 
                   stroke="hsl(var(--muted-foreground))"
                   fontSize={9}
                   reversed
-                  domain={["dataMin", "dataMax"]}
+                  domain={[currentRange[0], currentRange[1]]}
                   tickFormatter={(v) => `${v}'`}
                 />
                 <Tooltip
