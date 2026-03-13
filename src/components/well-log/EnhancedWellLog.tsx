@@ -602,7 +602,72 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
                   fill="none" stroke={C.nphi} strokeWidth="1.2" />
               )}
 
-              {/* ═══ COR TRACK ═══ — lithology labels */}
+              {/* ═══ PERF TRACK ═══ — perforation intervals */}
+              {perfIntervals.map((perf, pi) => {
+                const y1 = yForDepth(perf.depth_from);
+                const y2 = yForDepth(perf.depth_to);
+                if (y2 < HEADER_H || y1 > HEADER_H + plotH) return null;
+                const clampY1 = Math.max(HEADER_H, y1);
+                const clampY2 = Math.min(HEADER_H + plotH, y2);
+                const h = clampY2 - clampY1;
+                if (h < 1) return null;
+                const spf = perf.shots_per_foot ?? 4;
+                const cx = PERF_X + PERF_W / 2;
+                // Draw perforation symbols (small arrows/bursts)
+                const perfShots: JSX.Element[] = [];
+                const shotSpacing = Math.max(4, PERF_W * 0.15);
+                const numShots = Math.min(Math.floor(h / shotSpacing), 60);
+                for (let s = 0; s < numShots; s++) {
+                  const sy = clampY1 + (s + 0.5) * (h / numShots);
+                  const side = s % 2 === 0 ? 1 : -1;
+                  const tipX = cx + side * (PERF_W * 0.38);
+                  const baseX = cx + side * 2;
+                  perfShots.push(
+                    <g key={`ps-${pi}-${s}`}>
+                      <line x1={baseX} y1={sy} x2={tipX} y2={sy}
+                        stroke="#f97316" strokeWidth="1.2" opacity={0.8} />
+                      {/* Arrow tip */}
+                      <polygon
+                        points={`${tipX},${sy} ${tipX - side * 3},${sy - 1.5} ${tipX - side * 3},${sy + 1.5}`}
+                        fill="#f97316" opacity={0.9} />
+                      {/* Burst dot */}
+                      <circle cx={tipX + side * 1.5} cy={sy} r="1" fill="#fbbf24" opacity={0.6} />
+                    </g>
+                  );
+                }
+                return (
+                  <g key={`perf-${pi}`}>
+                    {/* Interval background */}
+                    <rect x={PERF_X + 1} y={clampY1} width={PERF_W - 2} height={h}
+                      fill="#f9731610" stroke="#f97316" strokeWidth="0.6" strokeDasharray="2,2" rx="2" />
+                    {/* Top/bottom depth markers */}
+                    <line x1={PERF_X} y1={clampY1} x2={PERF_X + PERF_W} y2={clampY1}
+                      stroke="#f97316" strokeWidth="1" opacity={0.8} />
+                    <line x1={PERF_X} y1={clampY2} x2={PERF_X + PERF_W} y2={clampY2}
+                      stroke="#f97316" strokeWidth="1" opacity={0.8} />
+                    {/* Perforation shot symbols */}
+                    {perfShots}
+                    {/* SPF label */}
+                    {h > 20 && (
+                      <text x={cx} y={clampY1 + h / 2 + 3} textAnchor="middle"
+                        fill="#fbbf24" fontSize="7" fontWeight="700" fontFamily="monospace">
+                        {spf} SPF
+                      </text>
+                    )}
+                    {/* Depth labels */}
+                    {h > 30 && (
+                      <>
+                        <text x={cx} y={clampY1 - 2} textAnchor="middle"
+                          fill="#f97316" fontSize="6" fontFamily="monospace">{Math.round(perf.depth_from)}'</text>
+                        <text x={cx} y={clampY2 + 8} textAnchor="middle"
+                          fill="#f97316" fontSize="6" fontFamily="monospace">{Math.round(perf.depth_to)}'</text>
+                      </>
+                    )}
+                  </g>
+                );
+              })}
+
+
               {(() => {
                 const labels: JSX.Element[] = [];
                 let lastLabel = "";
