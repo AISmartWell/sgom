@@ -331,9 +331,13 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
               <span className="text-[9px] text-muted-foreground">RHOB</span>
             </div>
           </>}
-          {hasRealData && (
+          {hasRealData ? (
             <Badge variant="outline" className="text-[9px] h-4 border-success/40 bg-success/10 text-success gap-1">
               <Database className="h-2.5 w-2.5" />REAL DATA
+            </Badge>
+          ) : (
+            <Badge variant="outline" className="text-[9px] h-4 border-amber-500/40 bg-amber-500/10 text-amber-400 gap-1">
+              SIMULATED
             </Badge>
           )}
         </div>
