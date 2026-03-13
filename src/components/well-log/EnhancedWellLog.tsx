@@ -132,6 +132,7 @@ interface EnhancedWellLogProps {
   wellName: string;
   formation?: string | null;
   defaultExpanded?: boolean;
+  totalDepth?: number;
 }
 
 const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true }: EnhancedWellLogProps) => {
