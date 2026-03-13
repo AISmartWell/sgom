@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { TrendingDown, BarChart3, Droplets, Database } from "lucide-react";
+import { calcIOIP } from "@/lib/formation-db";
 import { Badge } from "@/components/ui/badge";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
