@@ -14,6 +14,7 @@ interface WellRecord {
   production_gas: number | null;
   water_cut: number | null;
   total_depth: number | null;
+  formation?: string | null;
 }
 
 interface Props {
