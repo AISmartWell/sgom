@@ -274,7 +274,7 @@ const PilotWellLog = ({ wellId, wellName, formation, defaultExpanded = false }: 
 
       {/* Expanded content */}
       {expanded && (
-        <div className="p-3 space-y-3 animate-in slide-in-from-top-2 duration-200">
+        <div ref={exportRef} className="p-3 space-y-3 animate-in slide-in-from-top-2 duration-200">
           {/* Zoom controls */}
           <div className="flex items-center gap-2 text-xs">
             <div className="flex items-center gap-1 border border-border/50 rounded px-2 py-1">
