@@ -139,7 +139,13 @@ const PilotWellLog = ({ wellId, wellName, formation, defaultExpanded = false }: 
     resistivity: pt.resistivity ?? 0,
     porosity: pt.porosity ?? 0,
     waterSat: pt.water_saturation ?? 100,
+    density: pt.density ?? null,
+    neutronPor: pt.neutron_porosity ?? null,
   })), [rawLogs]);
+
+  const hasDensityNeutron = useMemo(() =>
+    chartData.some(pt => pt.density !== null || pt.neutronPor !== null),
+  [chartData]);
 
   const fullRange: [number, number] = useMemo(() => {
     if (chartData.length === 0) return [0, 100];
