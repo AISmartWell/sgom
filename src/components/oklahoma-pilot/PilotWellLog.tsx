@@ -456,6 +456,42 @@ const PilotWellLog = ({ wellId, wellName, formation, defaultExpanded = false }: 
                   </ComposedChart>
                 </ResponsiveContainer>
               </div>
+              {/* Track 4: Density / Neutron Porosity crossover */}
+              {hasDensityNeutron && (
+                <div className="h-full border-l border-border/30">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <ComposedChart layout="vertical" data={visibleData} margin={{ top: 5, right: 8, left: 8, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.15} />
+                      <XAxis type="number" domain={[1.9, 2.9]} ticks={[1.9, 2.1, 2.3, 2.5, 2.7, 2.9]} stroke="hsl(var(--muted-foreground))" fontSize={8} tickLine={false} />
+                      <YAxis dataKey="depth" type="number" hide reversed domain={[currentRange[0], currentRange[1]]} allowDataOverflow />
+                      <Tooltip content={({ active, payload }) => {
+                        if (!active || !payload?.length) return null;
+                        const pt = payload[0]?.payload;
+                        const rhob = pt?.density;
+                        const nphi = pt?.neutronPor;
+                        const crossover = rhob != null && nphi != null ? (nphi - rhob).toFixed(3) : null;
+                        return (
+                          <div className="bg-background/95 backdrop-blur-sm border border-border rounded p-1.5 text-[10px] shadow-lg">
+                            <p className="font-medium">{pt?.depth}ft</p>
+                            {rhob != null && <p style={{ color: '#a855f7' }}>RHOB: {rhob.toFixed(3)} g/cc</p>}
+                            {nphi != null && <p style={{ color: '#22c55e' }}>NPHI: {nphi.toFixed(3)}</p>}
+                            {crossover && <p className="text-foreground font-medium mt-0.5">Crossover: {crossover}</p>}
+                          </div>
+                        );
+                      }} />
+                      {/* Limestone matrix density reference */}
+                      <ReferenceArea x1={2.71} x2={2.9} fill="hsl(var(--muted))" fillOpacity={0.08} />
+                      {zones.map((zone) => (
+                        <ReferenceArea key={`dn-${zone.name}`} y1={zone.top} y2={zone.bottom}
+                          fill={getZoneColor(zone.status)} fillOpacity={0.1}
+                          stroke={getZoneColor(zone.status)} strokeDasharray="3 3" strokeWidth={1} />
+                      ))}
+                      <Line type="monotone" dataKey="density" stroke="#a855f7" strokeWidth={1.5} dot={false} isAnimationActive={false} connectNulls />
+                      <Line type="monotone" dataKey="neutronPor" stroke="#22c55e" strokeWidth={1.5} dot={false} isAnimationActive={false} connectNulls strokeDasharray="5 3" />
+                    </ComposedChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
             </div>
           </div>
 
@@ -465,6 +501,10 @@ const PilotWellLog = ({ wellId, wellName, formation, defaultExpanded = false }: 
             <span className="flex items-center gap-1"><span className="w-3 h-0.5 inline-block" style={{ backgroundColor: '#ef4444' }} /> Resistivity (log)</span>
             <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-sm inline-block" style={{ backgroundColor: 'rgba(59,130,246,0.3)', border: '1px solid #3b82f6' }} /> Porosity</span>
             <span className="flex items-center gap-1"><span className="w-3 h-0.5 inline-block" style={{ backgroundColor: '#06b6d4' }} /> Sw</span>
+            {hasDensityNeutron && <>
+              <span className="flex items-center gap-1"><span className="w-3 h-0.5 inline-block" style={{ backgroundColor: '#a855f7' }} /> RHOB</span>
+              <span className="flex items-center gap-1"><span className="w-3 h-0.5 inline-block border-t border-dashed" style={{ borderColor: '#22c55e' }} /> NPHI</span>
+            </>}
             <span className="flex items-center gap-1 ml-2"><span className="w-3 h-3 rounded-sm inline-block" style={{ backgroundColor: 'hsla(var(--muted), 0.2)' }} /> Shale (GR&gt;60)</span>
           </div>
 
