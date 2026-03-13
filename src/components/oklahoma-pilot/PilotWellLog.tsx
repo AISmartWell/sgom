@@ -347,7 +347,7 @@ const PilotWellLog = ({ wellId, wellName, formation, defaultExpanded = false }: 
               )}
             </div>
 
-            <div className={`grid gap-0 ${hasDensityNeutron ? 'grid-cols-[60px_1fr_1fr_1fr_1fr]' : 'grid-cols-[60px_1fr_1fr_1fr]'}`} style={{ height: `${Math.max(500, Math.min(1200, visibleData.length * 6))}px` }}>
+            <div className={`grid gap-0 ${hasDensityNeutron ? 'grid-cols-[60px_1fr_1fr_1fr_1fr]' : 'grid-cols-[60px_1fr_1fr_1fr]'}`} style={{ height: `${Math.max(500, Math.min(1400, Math.max(visibleData.length * 8, currentSpan * 0.25)))}px` }}>
               {/* Depth track */}
               <div className="h-full">
                 <ResponsiveContainer width="100%" height="100%">
