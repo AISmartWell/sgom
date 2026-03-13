@@ -295,6 +295,7 @@ const PilotWellLog = ({ wellId, wellName, formation, defaultExpanded = false }: 
             <button onClick={handleExportPNG} className="flex items-center gap-1 border border-border/50 rounded px-2 py-1 hover:bg-muted ml-auto" title="Export as PNG">
               <Download className="h-3.5 w-3.5" />
               <span>PNG</span>
+            </button>
           </div>
 
           {/* Depth range indicator */}
