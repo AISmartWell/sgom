@@ -347,7 +347,7 @@ const PilotWellLog = ({ wellId, wellName, formation, defaultExpanded = false }: 
               )}
             </div>
 
-            <div className={`grid gap-0 h-[400px] ${hasDensityNeutron ? 'grid-cols-[60px_1fr_1fr_1fr_1fr]' : 'grid-cols-[60px_1fr_1fr_1fr]'}`}>
+            <div className={`grid gap-0 ${hasDensityNeutron ? 'grid-cols-[60px_1fr_1fr_1fr_1fr]' : 'grid-cols-[60px_1fr_1fr_1fr]'}`} style={{ height: `${Math.max(500, Math.min(1200, visibleData.length * 6))}px` }}>
               {/* Depth track */}
               <div className="h-full">
                 <ResponsiveContainer width="100%" height="100%">
@@ -357,7 +357,7 @@ const PilotWellLog = ({ wellId, wellName, formation, defaultExpanded = false }: 
                       stroke="hsl(var(--muted-foreground))" fontSize={9} reversed
                       domain={[currentRange[0], currentRange[1]]}
                       tickFormatter={(v: number) => `${v}'`}
-                      tickCount={15}
+                      tickCount={Math.min(40, Math.max(15, Math.round(currentSpan / 100)))}
                       width={50}
                       allowDataOverflow
                     />
