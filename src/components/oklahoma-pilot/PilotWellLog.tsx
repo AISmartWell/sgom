@@ -357,7 +357,7 @@ const PilotWellLog = ({ wellId, wellName, formation, defaultExpanded = false }: 
                       stroke="hsl(var(--muted-foreground))" fontSize={9} reversed
                       domain={[currentRange[0], currentRange[1]]}
                       tickFormatter={(v: number) => `${v}'`}
-                      tickCount={15}
+                      tickCount={Math.min(40, Math.max(15, Math.round(currentSpan / 100)))}
                       width={50}
                       allowDataOverflow
                     />
