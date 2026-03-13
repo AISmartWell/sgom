@@ -129,7 +129,8 @@ const ReservesMap = () => {
         const cum = cumMap[w.id] || 0;
         const ioip = calcIOIP(w.formation);
         const remaining = Math.max(ioip - cum, 0);
-        const rf = ioip > 0 ? (cum / ioip) * 100 : 0;
+        const rfRaw = ioip > 0 ? (cum / ioip) * 100 : 0;
+        const rf = Math.min(rfRaw, 100);
         return {
           ...w,
           latitude: w.latitude!,
