@@ -167,7 +167,7 @@ const CumulativeStageViz = ({ well }: Props) => {
             <p className="text-[9px] text-muted-foreground">Di (nominal/mo)</p>
           </div>
           <div className="p-2 bg-muted/20 rounded text-center">
-            <p className="text-lg font-bold">{totalReserves > 0 ? ((totalReserves / ioip) * 100).toFixed(1) : 0}%</p>
+            <p className="text-lg font-bold">{totalReserves > 0 ? Math.min((totalReserves / ioip) * 100, 100).toFixed(1) : 0}%</p>
             <p className="text-[9px] text-muted-foreground">Recovery Factor</p>
           </div>
         </div>
