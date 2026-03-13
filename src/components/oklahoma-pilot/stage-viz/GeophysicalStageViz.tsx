@@ -129,7 +129,7 @@ const GeophysicalStageViz = ({ well }: Props) => {
   return (
     <div className="mt-2 space-y-3">
       {/* Multi-track Well Log */}
-      <PilotWellLog
+      <EnhancedWellLog
         wellId={well.id || ""}
         wellName={well.well_name || "Unknown Well"}
         formation={well.formation}
