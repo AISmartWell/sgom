@@ -107,15 +107,54 @@ const TRACK_CONFIG = {
 const HEADER_H = 50;
 const FOOTER_H = 10;
 
+const TOTAL_DEPTH_MIN = 4840;
+const TOTAL_DEPTH_MAX = 5000;
+const MIN_DEPTH_RANGE = 20; // minimum visible depth window
+
 const WellLogVisualization = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [tooltip, setTooltip] = useState<{ x: number; y: number; data: LogPoint } | null>(null);
   const [coreImages, setCoreImages] = useState<HTMLImageElement[]>([]);
+  const [viewDepthMin, setViewDepthMin] = useState(TOTAL_DEPTH_MIN);
+  const [viewDepthMax, setViewDepthMax] = useState(TOTAL_DEPTH_MAX);
+  const isDragging = useRef(false);
+  const dragStartY = useRef(0);
+  const dragStartDepthMin = useRef(TOTAL_DEPTH_MIN);
+  const dragStartDepthMax = useRef(TOTAL_DEPTH_MAX);
 
   const logData = useMemo(() => generateWellLogData(), []);
-  const depthMin = 4840;
-  const depthMax = 5000;
+  const depthMin = viewDepthMin;
+  const depthMax = viewDepthMax;
+  const zoomLevel = Math.round(((TOTAL_DEPTH_MAX - TOTAL_DEPTH_MIN) / (viewDepthMax - viewDepthMin)) * 100);
+
+  const clampView = (dMin: number, dMax: number): [number, number] => {
+    const range = dMax - dMin;
+    let newMin = dMin;
+    let newMax = dMax;
+    if (newMin < TOTAL_DEPTH_MIN) { newMin = TOTAL_DEPTH_MIN; newMax = TOTAL_DEPTH_MIN + range; }
+    if (newMax > TOTAL_DEPTH_MAX) { newMax = TOTAL_DEPTH_MAX; newMin = TOTAL_DEPTH_MAX - range; }
+    newMin = Math.max(TOTAL_DEPTH_MIN, newMin);
+    newMax = Math.min(TOTAL_DEPTH_MAX, newMax);
+    return [newMin, newMax];
+  };
+
+  const handleZoom = (factor: number, centerDepth?: number) => {
+    const currentRange = viewDepthMax - viewDepthMin;
+    const newRange = Math.max(MIN_DEPTH_RANGE, Math.min(TOTAL_DEPTH_MAX - TOTAL_DEPTH_MIN, currentRange * factor));
+    const center = centerDepth ?? (viewDepthMin + viewDepthMax) / 2;
+    const ratio = (center - viewDepthMin) / currentRange;
+    const newMin = center - newRange * ratio;
+    const newMax = center - newRange * ratio + newRange;
+    const [cMin, cMax] = clampView(newMin, newMax);
+    setViewDepthMin(cMin);
+    setViewDepthMax(cMax);
+  };
+
+  const resetZoom = () => {
+    setViewDepthMin(TOTAL_DEPTH_MIN);
+    setViewDepthMax(TOTAL_DEPTH_MAX);
+  };
 
   // Load core images
   useEffect(() => {
