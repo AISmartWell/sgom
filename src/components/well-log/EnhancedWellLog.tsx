@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
 import { useWellLogs, WellLogPoint } from "@/hooks/useWellLogs";
+import { useWellPerforations, PerforationInterval } from "@/hooks/useWellPerforations";
 
 /* ── Interpolation ── */
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
