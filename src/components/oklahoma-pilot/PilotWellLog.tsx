@@ -258,12 +258,57 @@ const PilotWellLog = ({ wellId, wellName, formation, defaultExpanded = false }: 
       {/* Expanded content */}
       {expanded && (
         <div className="p-3 space-y-3 animate-in slide-in-from-top-2 duration-200">
+          {/* Zoom controls */}
+          <div className="flex items-center gap-2 text-xs">
+            <div className="flex items-center gap-1 border border-border/50 rounded px-2 py-1">
+              <button onClick={() => handleZoom(0.7)} className="p-0.5 rounded hover:bg-muted" title="Zoom In">
+                <ZoomIn className="h-3.5 w-3.5" />
+              </button>
+              <span className="text-muted-foreground min-w-[36px] text-center">{zoomLevel}%</span>
+              <button onClick={() => handleZoom(1.4)} className="p-0.5 rounded hover:bg-muted" title="Zoom Out">
+                <ZoomOut className="h-3.5 w-3.5" />
+              </button>
+              {isZoomed && (
+                <button onClick={resetZoom} className="p-0.5 rounded hover:bg-muted ml-0.5" title="Reset Zoom">
+                  <RotateCcw className="h-3 w-3 text-muted-foreground" />
+                </button>
+              )}
+            </div>
+            <span className="text-muted-foreground">Scroll to zoom · Drag to pan</span>
+          </div>
+
+          {/* Depth range indicator */}
+          {isZoomed && (
+            <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+              <span>{currentRange[0].toFixed(0)}–{currentRange[1].toFixed(0)} ft</span>
+              <div className="flex-1 h-1 bg-muted rounded-full relative">
+                <div
+                  className="absolute h-full bg-primary/50 rounded-full"
+                  style={{
+                    left: `${((currentRange[0] - fullRange[0]) / totalSpan) * 100}%`,
+                    width: `${((currentSpan) / totalSpan) * 100}%`,
+                  }}
+                />
+              </div>
+              <span>{fullRange[0].toFixed(0)}–{fullRange[1].toFixed(0)} ft</span>
+            </div>
+          )}
+
           {/* Log chart */}
-          <div className="h-[280px] bg-background/50 rounded border border-border/30 p-2">
+          <div
+            ref={chartContainerRef}
+            className="h-[280px] bg-background/50 rounded border border-border/30 p-2 select-none"
+            onWheel={handleWheel}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            style={{ cursor: isDragging.current ? 'grabbing' : 'crosshair' }}
+          >
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart
                 layout="vertical"
-                data={chartData}
+                data={visibleData}
                 margin={{ top: 5, right: 15, left: 45, bottom: 5 }}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.2} />
@@ -274,7 +319,7 @@ const PilotWellLog = ({ wellId, wellName, formation, defaultExpanded = false }: 
                   stroke="hsl(var(--muted-foreground))"
                   fontSize={9}
                   reversed
-                  domain={["dataMin", "dataMax"]}
+                  domain={[currentRange[0], currentRange[1]]}
                   tickFormatter={(v) => `${v}'`}
                 />
                 <Tooltip
