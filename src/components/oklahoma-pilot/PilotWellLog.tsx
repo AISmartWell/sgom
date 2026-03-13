@@ -315,10 +315,10 @@ const PilotWellLog = ({ wellId, wellName, formation, defaultExpanded = false }: 
             </div>
           )}
 
-          {/* Log chart */}
+          {/* Multi-track Well Log */}
           <div
             ref={chartContainerRef}
-            className="h-[280px] bg-background/50 rounded border border-border/30 p-2 select-none"
+            className="bg-background/50 rounded border border-border/30 p-2 select-none"
             onWheel={handleWheel}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
@@ -326,67 +326,135 @@ const PilotWellLog = ({ wellId, wellName, formation, defaultExpanded = false }: 
             onMouseLeave={handleMouseUp}
             style={{ cursor: isDragging.current ? 'grabbing' : 'crosshair' }}
           >
-            <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart
-                layout="vertical"
-                data={visibleData}
-                margin={{ top: 5, right: 15, left: 45, bottom: 5 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.2} />
-                <XAxis type="number" stroke="hsl(var(--muted-foreground))" fontSize={9} domain={[0, 120]} />
-                <YAxis
-                  dataKey="depth"
-                  type="number"
-                  stroke="hsl(var(--muted-foreground))"
-                  fontSize={9}
-                  reversed
-                  domain={[currentRange[0], currentRange[1]]}
-                  tickFormatter={(v) => `${v}'`}
-                />
-                <Tooltip
-                  content={({ active, payload, label }) => {
-                    if (!active || !payload?.length) return null;
-                    return (
-                      <div className="bg-background/95 backdrop-blur-sm border border-border rounded p-2 text-xs shadow-lg">
-                        <p className="font-medium mb-1">Depth: {label}ft</p>
-                        {payload.map((e: any, i: number) => (
-                          <p key={i} style={{ color: e.color }}>
-                            {e.name}: {typeof e.value === "number" ? e.value.toFixed(1) : e.value}
-                          </p>
-                        ))}
-                      </div>
-                    );
-                  }}
-                />
+            {/* Track headers */}
+            <div className="grid grid-cols-[60px_1fr_1fr_1fr] gap-0 mb-1">
+              <div className="text-[9px] text-muted-foreground font-medium text-center">Depth</div>
+              <div className="text-[9px] text-center font-medium" style={{ color: '#eab308' }}>GR (0–150 API)</div>
+              <div className="text-[9px] text-center font-medium" style={{ color: '#ef4444' }}>Resistivity (0.1–1000 Ω·m)</div>
+              <div className="text-[9px] text-center font-medium">
+                <span style={{ color: '#3b82f6' }}>Porosity</span> / <span style={{ color: '#06b6d4' }}>Sw (0–50%)</span>
+              </div>
+            </div>
 
-                {/* Pay zone highlights */}
-                {zones.map((zone) => (
-                  <ReferenceArea
-                    key={zone.name}
-                    y1={zone.top}
-                    y2={zone.bottom}
-                    fill={getZoneColor(zone.status)}
-                    fillOpacity={0.12}
-                    stroke={getZoneColor(zone.status)}
-                    strokeDasharray={zone.status === "missed" ? "6 3" : "3 3"}
-                    strokeWidth={zone.status === "missed" ? 2 : 1}
-                  />
-                ))}
+            <div className="grid grid-cols-[60px_1fr_1fr_1fr] gap-0 h-[400px]">
+              {/* Depth track */}
+              <div className="h-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <ComposedChart layout="vertical" data={visibleData} margin={{ top: 5, right: 0, left: 5, bottom: 5 }}>
+                    <YAxis
+                      dataKey="depth" type="number" orientation="left"
+                      stroke="hsl(var(--muted-foreground))" fontSize={9} reversed
+                      domain={[currentRange[0], currentRange[1]]}
+                      tickFormatter={(v: number) => `${v}'`}
+                      tickCount={15}
+                      width={50}
+                      allowDataOverflow
+                    />
+                    <XAxis type="number" hide domain={[0, 1]} />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </div>
 
-                <Line type="monotone" dataKey="gammaRay" stroke="#eab308" strokeWidth={1.5} dot={false} name="GR (API)" />
-                <Area type="monotone" dataKey="porosity" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.15} name="Porosity (%)" />
-                <Line type="monotone" dataKey="resistivity" stroke="#ef4444" strokeWidth={1.5} dot={false} name="Res (Ω·m)" />
-                <Area type="monotone" dataKey="waterSat" stroke="#06b6d4" fill="#06b6d4" fillOpacity={0.08} name="Sw (%)" strokeDasharray="4 2" />
-              </ComposedChart>
-            </ResponsiveContainer>
+              {/* Track 1: Gamma Ray */}
+              <div className="h-full border-l border-border/30">
+                <ResponsiveContainer width="100%" height="100%">
+                  <ComposedChart layout="vertical" data={visibleData} margin={{ top: 5, right: 8, left: 8, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.15} />
+                    <XAxis type="number" domain={[0, 150]} ticks={[0, 30, 60, 90, 120, 150]} stroke="hsl(var(--muted-foreground))" fontSize={8} tickLine={false} />
+                    <YAxis dataKey="depth" type="number" hide reversed domain={[currentRange[0], currentRange[1]]} allowDataOverflow />
+                    <Tooltip content={({ active, payload }) => {
+                      if (!active || !payload?.length) return null;
+                      const pt = payload[0]?.payload;
+                      return (
+                        <div className="bg-background/95 backdrop-blur-sm border border-border rounded p-1.5 text-[10px] shadow-lg">
+                          <p className="font-medium">{pt?.depth}ft</p>
+                          <p style={{ color: '#eab308' }}>GR: {pt?.gammaRay?.toFixed(1)} API</p>
+                        </div>
+                      );
+                    }} />
+                    {/* Shale line at GR=60 */}
+                    <ReferenceArea x1={60} x2={150} fill="hsl(var(--muted))" fillOpacity={0.1} />
+                    {zones.map((zone) => (
+                      <ReferenceArea key={`gr-${zone.name}`} y1={zone.top} y2={zone.bottom}
+                        fill={getZoneColor(zone.status)} fillOpacity={0.1}
+                        stroke={getZoneColor(zone.status)} strokeDasharray="3 3" strokeWidth={1} />
+                    ))}
+                    <Line type="monotone" dataKey="gammaRay" stroke="#eab308" strokeWidth={1.5} dot={false} isAnimationActive={false} />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Track 2: Resistivity (log scale simulated) */}
+              <div className="h-full border-l border-border/30">
+                <ResponsiveContainer width="100%" height="100%">
+                  <ComposedChart layout="vertical" data={visibleData.map(pt => ({ ...pt, resLog: pt.resistivity > 0 ? Math.log10(pt.resistivity) : -1 }))} margin={{ top: 5, right: 8, left: 8, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.15} />
+                    <XAxis type="number" domain={[-1, 3]} ticks={[-1, 0, 1, 2, 3]}
+                      tickFormatter={(v: number) => v <= -1 ? '0.1' : v === 0 ? '1' : v === 1 ? '10' : v === 2 ? '100' : '1k'}
+                      stroke="hsl(var(--muted-foreground))" fontSize={8} tickLine={false} />
+                    <YAxis dataKey="depth" type="number" hide reversed domain={[currentRange[0], currentRange[1]]} allowDataOverflow />
+                    <Tooltip content={({ active, payload }) => {
+                      if (!active || !payload?.length) return null;
+                      const pt = payload[0]?.payload;
+                      return (
+                        <div className="bg-background/95 backdrop-blur-sm border border-border rounded p-1.5 text-[10px] shadow-lg">
+                          <p className="font-medium">{pt?.depth}ft</p>
+                          <p style={{ color: '#ef4444' }}>Res: {pt?.resistivity?.toFixed(1)} Ω·m</p>
+                        </div>
+                      );
+                    }} />
+                    {/* Pay cutoff at 10 ohm·m = log10(10) = 1 */}
+                    <ReferenceArea x1={1} x2={3} fill="hsl(var(--success))" fillOpacity={0.05} />
+                    {zones.map((zone) => (
+                      <ReferenceArea key={`res-${zone.name}`} y1={zone.top} y2={zone.bottom}
+                        fill={getZoneColor(zone.status)} fillOpacity={0.1}
+                        stroke={getZoneColor(zone.status)} strokeDasharray="3 3" strokeWidth={1} />
+                    ))}
+                    <Line type="monotone" dataKey="resLog" stroke="#ef4444" strokeWidth={1.5} dot={false} isAnimationActive={false} />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Track 3: Porosity + Water Saturation */}
+              <div className="h-full border-l border-border/30">
+                <ResponsiveContainer width="100%" height="100%">
+                  <ComposedChart layout="vertical" data={visibleData} margin={{ top: 5, right: 8, left: 8, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.15} />
+                    <XAxis type="number" domain={[0, 50]} ticks={[0, 10, 20, 30, 40, 50]} stroke="hsl(var(--muted-foreground))" fontSize={8} tickLine={false} />
+                    <YAxis dataKey="depth" type="number" hide reversed domain={[currentRange[0], currentRange[1]]} allowDataOverflow />
+                    <Tooltip content={({ active, payload }) => {
+                      if (!active || !payload?.length) return null;
+                      const pt = payload[0]?.payload;
+                      return (
+                        <div className="bg-background/95 backdrop-blur-sm border border-border rounded p-1.5 text-[10px] shadow-lg">
+                          <p className="font-medium">{pt?.depth}ft</p>
+                          <p style={{ color: '#3b82f6' }}>φ: {pt?.porosity?.toFixed(1)}%</p>
+                          <p style={{ color: '#06b6d4' }}>Sw: {pt?.waterSat?.toFixed(1)}%</p>
+                        </div>
+                      );
+                    }} />
+                    {/* Porosity cutoff at 8% */}
+                    <ReferenceArea x1={8} x2={50} fill="hsl(var(--success))" fillOpacity={0.05} />
+                    {zones.map((zone) => (
+                      <ReferenceArea key={`por-${zone.name}`} y1={zone.top} y2={zone.bottom}
+                        fill={getZoneColor(zone.status)} fillOpacity={0.1}
+                        stroke={getZoneColor(zone.status)} strokeDasharray="3 3" strokeWidth={1} />
+                    ))}
+                    <Area type="monotone" dataKey="porosity" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.2} strokeWidth={1.5} dot={false} isAnimationActive={false} name="Porosity (%)" />
+                    <Area type="monotone" dataKey="waterSat" stroke="#06b6d4" fill="#06b6d4" fillOpacity={0.08} strokeWidth={1} dot={false} isAnimationActive={false} strokeDasharray="4 2" name="Sw (%)" />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
           </div>
 
           {/* Legend */}
           <div className="flex flex-wrap gap-3 text-[10px] text-muted-foreground">
-            <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-yellow-500 inline-block" /> GR</span>
-            <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-sm bg-blue-500/30 border border-blue-500 inline-block" /> Porosity</span>
-            <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-red-500 inline-block" /> Resistivity</span>
-            <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-cyan-500 inline-block" /> Sw</span>
+            <span className="flex items-center gap-1"><span className="w-3 h-0.5 inline-block" style={{ backgroundColor: '#eab308' }} /> GR</span>
+            <span className="flex items-center gap-1"><span className="w-3 h-0.5 inline-block" style={{ backgroundColor: '#ef4444' }} /> Resistivity (log)</span>
+            <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-sm inline-block" style={{ backgroundColor: 'rgba(59,130,246,0.3)', border: '1px solid #3b82f6' }} /> Porosity</span>
+            <span className="flex items-center gap-1"><span className="w-3 h-0.5 inline-block" style={{ backgroundColor: '#06b6d4' }} /> Sw</span>
+            <span className="flex items-center gap-1 ml-2"><span className="w-3 h-3 rounded-sm inline-block" style={{ backgroundColor: 'hsla(var(--muted), 0.2)' }} /> Shale (GR&gt;60)</span>
           </div>
 
           {/* Zones table */}
