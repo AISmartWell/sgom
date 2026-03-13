@@ -333,16 +333,21 @@ const PilotWellLog = ({ wellId, wellName, formation, defaultExpanded = false }: 
             style={{ cursor: isDragging.current ? 'grabbing' : 'crosshair' }}
           >
             {/* Track headers */}
-            <div className="grid grid-cols-[60px_1fr_1fr_1fr] gap-0 mb-1">
+            <div className={`grid gap-0 mb-1 ${hasDensityNeutron ? 'grid-cols-[60px_1fr_1fr_1fr_1fr]' : 'grid-cols-[60px_1fr_1fr_1fr]'}`}>
               <div className="text-[9px] text-muted-foreground font-medium text-center">Depth</div>
               <div className="text-[9px] text-center font-medium" style={{ color: '#eab308' }}>GR (0–150 API)</div>
               <div className="text-[9px] text-center font-medium" style={{ color: '#ef4444' }}>Resistivity (0.1–1000 Ω·m)</div>
               <div className="text-[9px] text-center font-medium">
                 <span style={{ color: '#3b82f6' }}>Porosity</span> / <span style={{ color: '#06b6d4' }}>Sw (0–50%)</span>
               </div>
+              {hasDensityNeutron && (
+                <div className="text-[9px] text-center font-medium">
+                  <span style={{ color: '#a855f7' }}>RHOB</span> / <span style={{ color: '#22c55e' }}>NPHI (1.9–2.9)</span>
+                </div>
+              )}
             </div>
 
-            <div className="grid grid-cols-[60px_1fr_1fr_1fr] gap-0 h-[400px]">
+            <div className={`grid gap-0 h-[400px] ${hasDensityNeutron ? 'grid-cols-[60px_1fr_1fr_1fr_1fr]' : 'grid-cols-[60px_1fr_1fr_1fr]'}`}>
               {/* Depth track */}
               <div className="h-full">
                 <ResponsiveContainer width="100%" height="100%">
