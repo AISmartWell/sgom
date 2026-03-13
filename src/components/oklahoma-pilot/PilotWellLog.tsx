@@ -116,7 +116,22 @@ const PilotWellLog = ({ wellId, wellName, formation, defaultExpanded = false }: 
   const dragStartY = useRef(0);
   const dragStartRange = useRef<[number, number]>([0, 0]);
   const chartContainerRef = useRef<HTMLDivElement>(null);
+  const exportRef = useRef<HTMLDivElement>(null);
 
+  const handleExportPNG = useCallback(async () => {
+    const el = exportRef.current;
+    if (!el) return;
+    try {
+      const canvas = await html2canvas(el, { backgroundColor: null, scale: 2 });
+      const link = document.createElement("a");
+      link.download = `${wellName.replace(/\s+/g, "_")}_well_log.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+      toast.success("Well log exported as PNG");
+    } catch {
+      toast.error("Failed to export");
+    }
+  }, [wellName]);
   // Map real data
   const chartData = useMemo(() => (rawLogs || []).map((pt) => ({
     depth: pt.measured_depth,
