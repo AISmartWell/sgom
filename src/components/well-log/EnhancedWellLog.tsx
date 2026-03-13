@@ -140,7 +140,18 @@ interface EnhancedWellLogProps {
 
 const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, totalDepth }: EnhancedWellLogProps) => {
   const { data: rawLogs, isLoading, hasRealData } = useWellLogs(wellId);
-  const [expanded, setExpanded] = useState(defaultExpanded);
+  const { data: perforations, hasData: hasPerfs } = useWellPerforations(wellId);
+  // Generate synthetic perforations when no real data exists
+  const perfIntervals = useMemo<PerforationInterval[]>(() => {
+    if (hasPerfs) return perforations;
+    // Synthetic: create 2-3 perforation intervals near pay zones
+    const depth = totalDepth ?? 3500;
+    const synth: PerforationInterval[] = [
+      { id: "s1", depth_from: Math.round(depth * 0.48), depth_to: Math.round(depth * 0.52), shots_per_foot: 4, hole_diameter: 0.42, phasing: 120, date_perforated: null, status: "open", notes: null },
+      { id: "s2", depth_from: Math.round(depth * 0.58), depth_to: Math.round(depth * 0.61), shots_per_foot: 6, hole_diameter: 0.38, phasing: 60, date_perforated: null, status: "open", notes: null },
+    ];
+    return synth;
+  }, [hasPerfs, perforations, totalDepth]);
   const [zoomFactor, setZoomFactor] = useState(1);
   const [scrollOffset, setScrollOffset] = useState(0);
   const svgRef = useRef<SVGSVGElement>(null);
