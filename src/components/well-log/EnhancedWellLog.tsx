@@ -71,12 +71,13 @@ const interpolateData = (data: DataPoint[], maxStep: number): DataPoint[] => {
 
 /* ── Layout ── */
 const LITH_W = 80;
-const GR_W = 180;
+const GR_W = 170;
 const DEPTH_W = 50;
-const RES_W = 190;
-const POR_W = 160;
-const COR_W = 60;
-const TOTAL_W = LITH_W + GR_W + DEPTH_W + RES_W + POR_W + COR_W;
+const RES_W = 180;
+const POR_W = 150;
+const PERF_W = 50;
+const COR_W = 50;
+const TOTAL_W = LITH_W + GR_W + DEPTH_W + RES_W + POR_W + PERF_W + COR_W;
 const HEADER_H = 60;
 const PAD_B = 10;
 
@@ -85,7 +86,8 @@ const GR_X = LITH_W;
 const DEPTH_X = GR_X + GR_W;
 const RES_X = DEPTH_X + DEPTH_W;
 const POR_X = RES_X + RES_W;
-const COR_X = POR_X + POR_W;
+const PERF_X = POR_X + POR_W;
+const COR_X = PERF_X + PERF_W;
 
 const C = {
   bg: "#0a0f1c",
