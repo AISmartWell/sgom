@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { Waves, Layers } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useWellLogs } from "@/hooks/useWellLogs";
-import CompositeWellLog from "./CompositeWellLog";
+import PilotWellLog from "../PilotWellLog";
 
 interface WellRecord {
   id?: string;
