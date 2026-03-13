@@ -107,7 +107,7 @@ const ReservesMap = () => {
 
       const result: WellWithReserves[] = wellRows.map(w => {
         const cum = cumMap[w.id] || 0;
-        const ioip = calcIOIP(w.formation);
+        const { ioip } = calcIOIP(w.formation);
         const remaining = Math.max(ioip - cum, 0);
         const rfRaw = ioip > 0 ? (cum / ioip) * 100 : 0;
         const rf = Math.min(rfRaw, 100);
