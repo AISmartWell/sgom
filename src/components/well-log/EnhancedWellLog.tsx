@@ -132,9 +132,10 @@ interface EnhancedWellLogProps {
   wellName: string;
   formation?: string | null;
   defaultExpanded?: boolean;
+  totalDepth?: number;
 }
 
-const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true }: EnhancedWellLogProps) => {
+const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, totalDepth }: EnhancedWellLogProps) => {
   const { data: rawLogs, isLoading, hasRealData } = useWellLogs(wellId);
   const [expanded, setExpanded] = useState(defaultExpanded);
   const [zoomFactor, setZoomFactor] = useState(1);
@@ -143,9 +144,32 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true }
   const containerRef = useRef<HTMLDivElement>(null);
   const [hoverData, setHoverData] = useState<{ point: DataPoint; y: number } | null>(null);
 
-  // Convert raw data
+  // Generate synthetic data when no real data exists
+  const syntheticData = useMemo<DataPoint[]>(() => {
+    const depth = totalDepth ?? 3500;
+    const topDepth = Math.round(depth * 0.3);
+    const segments = 60;
+    const pts: DataPoint[] = [];
+    for (let i = 0; i <= segments; i++) {
+      const d = topDepth + ((depth - topDepth) / segments) * i;
+      const frac = i / segments;
+      // Realistic-ish curves
+      const baseGR = 50 + Math.sin(frac * Math.PI * 4) * 35 + Math.sin(frac * Math.PI * 9) * 15;
+      const gr = Math.max(5, Math.min(145, baseGR + (Math.random() - 0.5) * 12));
+      const sp = -10 + Math.sin(frac * Math.PI * 3 + 0.5) * 25 + (Math.random() - 0.5) * 5;
+      const res = Math.max(0.3, 8 + Math.cos(frac * Math.PI * 5) * 20 + Math.sin(frac * Math.PI * 11) * 10 + (Math.random() - 0.5) * 4);
+      const por = Math.max(1, Math.min(40, 12 + Math.sin(frac * Math.PI * 6 + 1) * 10 + (Math.random() - 0.5) * 3));
+      const sw = Math.max(5, Math.min(95, 45 + Math.cos(frac * Math.PI * 4) * 25 + (Math.random() - 0.5) * 8));
+      const rhob = 2.3 + Math.sin(frac * Math.PI * 5) * 0.25 + (Math.random() - 0.5) * 0.05;
+      const nphi = Math.max(0.01, 0.18 - por * 0.002 + Math.sin(frac * Math.PI * 7) * 0.08);
+      pts.push({ depth: Math.round(d), gr: +gr.toFixed(1), sp: +sp.toFixed(1), res: +res.toFixed(2), por: +por.toFixed(1), sw: +sw.toFixed(1), rhob: +rhob.toFixed(3), nphi: +nphi.toFixed(3) });
+    }
+    return pts;
+  }, [totalDepth]);
+
+  // Convert raw data or use synthetic
   const allData = useMemo<DataPoint[]>(() => {
-    if (!rawLogs || rawLogs.length === 0) return [];
+    if (!rawLogs || rawLogs.length === 0) return syntheticData;
     const mapped = rawLogs.map(p => ({
       depth: p.measured_depth,
       gr: p.gamma_ray ?? 50,
@@ -157,7 +181,7 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true }
       nphi: p.neutron_porosity,
     }));
     return interpolateData(mapped, 15);
-  }, [rawLogs]);
+  }, [rawLogs, syntheticData]);
 
   const depthMin = useMemo(() => allData.length ? allData[0].depth : 0, [allData]);
   const depthMax = useMemo(() => allData.length ? allData[allData.length - 1].depth : 100, [allData]);
@@ -271,7 +295,6 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true }
     return lines;
   }, [depthTicks, yForDepth, plotH]);
 
-  if (!hasRealData && !isLoading) return null;
   if (isLoading) return (
     <div className="p-3 text-xs text-muted-foreground flex items-center gap-2 border border-border/30 rounded-lg">
       <Activity className="h-3.5 w-3.5 animate-spin text-primary" />Loading well log…
@@ -308,9 +331,13 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true }
               <span className="text-[9px] text-muted-foreground">RHOB</span>
             </div>
           </>}
-          {hasRealData && (
+          {hasRealData ? (
             <Badge variant="outline" className="text-[9px] h-4 border-success/40 bg-success/10 text-success gap-1">
               <Database className="h-2.5 w-2.5" />REAL DATA
+            </Badge>
+          ) : (
+            <Badge variant="outline" className="text-[9px] h-4 border-amber-500/40 bg-amber-500/10 text-amber-400 gap-1">
+              SIMULATED
             </Badge>
           )}
         </div>
