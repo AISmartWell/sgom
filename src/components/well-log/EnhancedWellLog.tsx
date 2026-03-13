@@ -346,6 +346,10 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
               <span className="text-[9px] text-muted-foreground">RHOB</span>
             </div>
           </>}
+          <div className="flex items-center gap-1">
+            <span className="w-2.5 h-[2px] rounded-full" style={{ backgroundColor: "#f97316" }} />
+            <span className="text-[9px] text-muted-foreground">PERF ({perfIntervals.length})</span>
+          </div>
           {hasRealData ? (
             <Badge variant="outline" className="text-[9px] h-4 border-success/40 bg-success/10 text-success gap-1">
               <Database className="h-2.5 w-2.5" />REAL DATA
