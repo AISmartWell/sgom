@@ -45,7 +45,7 @@ const CumulativeStageViz = ({ well }: Props) => {
   // Deterministic synthetic parameters (fallback)
   const Di = useMemo(() => 0.02 + wellHash(q0, depth, 1) * 0.03, [q0, depth]);
   const b = useMemo(() => 0.3 + wellHash(q0, depth, 2) * 0.7, [q0, depth]);
-  const porosity = useMemo(() => 0.12 + wellHash(q0, depth, 3) * 0.08, [q0, depth]);
+  
 
   // Build chart data from real history or synthetic Arps
   const declineCurve = useMemo(() => {
