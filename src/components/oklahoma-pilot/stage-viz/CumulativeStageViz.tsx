@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { TrendingDown, BarChart3, Droplets, Database } from "lucide-react";
+import { calcIOIP } from "@/lib/formation-db";
 import { Badge } from "@/components/ui/badge";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -13,6 +14,7 @@ interface WellRecord {
   production_gas: number | null;
   water_cut: number | null;
   total_depth: number | null;
+  formation?: string | null;
 }
 
 interface Props {
@@ -43,7 +45,7 @@ const CumulativeStageViz = ({ well }: Props) => {
   // Deterministic synthetic parameters (fallback)
   const Di = useMemo(() => 0.02 + wellHash(q0, depth, 1) * 0.03, [q0, depth]);
   const b = useMemo(() => 0.3 + wellHash(q0, depth, 2) * 0.7, [q0, depth]);
-  const porosity = useMemo(() => 0.12 + wellHash(q0, depth, 3) * 0.08, [q0, depth]);
+  
 
   // Build chart data from real history or synthetic Arps
   const declineCurve = useMemo(() => {
@@ -72,7 +74,7 @@ const CumulativeStageViz = ({ well }: Props) => {
   }, [hasRealData, realHistory, q0, Di, b]);
 
   const totalReserves = declineCurve[declineCurve.length - 1]?.cumulative ?? 0;
-  const ioip = Math.round(depth * porosity * 7.758 * 0.5);
+  const { ioip, params: ioipParams } = useMemo(() => calcIOIP(well.formation ?? null), [well.formation]);
 
   // Compute actual Di from real data (first vs last rate)
   const effectiveDi = useMemo(() => {
@@ -203,8 +205,8 @@ const CumulativeStageViz = ({ well }: Props) => {
                 <span className="font-medium">{(effectiveDi * 100).toFixed(1)}%/mo</span>
               </div>
               <div className="flex justify-between text-[10px]">
-                <span className="text-muted-foreground">Porosity (est.)</span>
-                <span className="font-medium">{(porosity * 100).toFixed(1)}%</span>
+                <span className="text-muted-foreground">Porosity (φ)</span>
+                <span className="font-medium">{(ioipParams.phi * 100).toFixed(1)}%</span>
               </div>
               <div className="pt-1 border-t border-border/20">
                 <Badge variant="outline" className="text-[9px] text-success">
@@ -235,8 +237,8 @@ const CumulativeStageViz = ({ well }: Props) => {
                 <span className="font-medium">{b.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-[10px]">
-                <span className="text-muted-foreground">Porosity (est.)</span>
-                <span className="font-medium">{(porosity * 100).toFixed(1)}%</span>
+                <span className="text-muted-foreground">Porosity (φ)</span>
+                <span className="font-medium">{(ioipParams.phi * 100).toFixed(1)}%</span>
               </div>
               <div className="pt-1 border-t border-border/20">
                 <Badge variant="outline" className={`text-[9px] ${b > 0.7 ? "text-warning" : b > 0.5 ? "text-primary" : "text-success"}`}>
