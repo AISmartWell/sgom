@@ -1,6 +1,8 @@
 import { useState, useRef, useCallback, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Activity, ChevronDown, ChevronUp, Target, Zap, ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
+import { Activity, ChevronDown, ChevronUp, Target, Zap, ZoomIn, ZoomOut, RotateCcw, Download } from "lucide-react";
+import { toast } from "sonner";
+import html2canvas from "html2canvas";
 import {
   ComposedChart,
   Line,
@@ -114,7 +116,22 @@ const PilotWellLog = ({ wellId, wellName, formation, defaultExpanded = false }: 
   const dragStartY = useRef(0);
   const dragStartRange = useRef<[number, number]>([0, 0]);
   const chartContainerRef = useRef<HTMLDivElement>(null);
+  const exportRef = useRef<HTMLDivElement>(null);
 
+  const handleExportPNG = useCallback(async () => {
+    const el = exportRef.current;
+    if (!el) return;
+    try {
+      const canvas = await html2canvas(el, { backgroundColor: null, scale: 2 });
+      const link = document.createElement("a");
+      link.download = `${wellName.replace(/\s+/g, "_")}_well_log.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+      toast.success("Well log exported as PNG");
+    } catch {
+      toast.error("Failed to export");
+    }
+  }, [wellName]);
   // Map real data
   const chartData = useMemo(() => (rawLogs || []).map((pt) => ({
     depth: pt.measured_depth,
@@ -257,7 +274,7 @@ const PilotWellLog = ({ wellId, wellName, formation, defaultExpanded = false }: 
 
       {/* Expanded content */}
       {expanded && (
-        <div className="p-3 space-y-3 animate-in slide-in-from-top-2 duration-200">
+        <div ref={exportRef} className="p-3 space-y-3 animate-in slide-in-from-top-2 duration-200">
           {/* Zoom controls */}
           <div className="flex items-center gap-2 text-xs">
             <div className="flex items-center gap-1 border border-border/50 rounded px-2 py-1">
@@ -275,6 +292,10 @@ const PilotWellLog = ({ wellId, wellName, formation, defaultExpanded = false }: 
               )}
             </div>
             <span className="text-muted-foreground">Scroll to zoom · Drag to pan</span>
+            <button onClick={handleExportPNG} className="flex items-center gap-1 border border-border/50 rounded px-2 py-1 hover:bg-muted ml-auto" title="Export as PNG">
+              <Download className="h-3.5 w-3.5" />
+              <span>PNG</span>
+            </button>
           </div>
 
           {/* Depth range indicator */}
