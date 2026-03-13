@@ -132,16 +132,21 @@ const PilotWellLog = ({ wellId, wellName, formation, defaultExpanded = false }: 
       toast.error("Failed to export");
     }
   }, [wellName]);
-  // Map real data
-  const chartData = useMemo(() => (rawLogs || []).map((pt) => ({
-    depth: pt.measured_depth,
-    gammaRay: pt.gamma_ray ?? 0,
-    resistivity: pt.resistivity ?? 0,
-    porosity: pt.porosity ?? 0,
-    waterSat: pt.water_saturation ?? 100,
-    density: pt.density ?? null,
-    neutronPor: pt.neutron_porosity ?? null,
-  })), [rawLogs]);
+  // Map real data and interpolate between sparse points
+  const chartData = useMemo(() => {
+    const raw = (rawLogs || []).map((pt) => ({
+      depth: pt.measured_depth,
+      gammaRay: pt.gamma_ray ?? 0,
+      resistivity: pt.resistivity ?? 0,
+      porosity: pt.porosity ?? 0,
+      waterSat: pt.water_saturation ?? 100,
+      density: pt.density ?? null,
+      neutronPor: pt.neutron_porosity ?? null,
+      isOriginal: true,
+    }));
+    if (raw.length < 2) return raw;
+    return interpolateWellLog(raw, 25);
+  }, [rawLogs]);
 
   const hasDensityNeutron = useMemo(() =>
     chartData.some(pt => pt.density !== null || pt.neutronPor !== null),
