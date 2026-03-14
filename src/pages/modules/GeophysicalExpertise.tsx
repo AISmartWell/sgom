@@ -25,7 +25,7 @@ const GeophysicalExpertise = () => {
             <span className="text-3xl">📊</span>
             <div className="flex items-center gap-2">
               <h1 className="text-3xl font-bold">Geophysical Expertise</h1>
-              <Badge className="text-xs">Stage 6</Badge>
+              <Badge className="text-xs">Stage 8</Badge>
             </div>
           </div>
           <p className="text-muted-foreground">

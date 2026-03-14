@@ -25,6 +25,7 @@ import {
   Microscope,
   Loader2,
   Trash2,
+  Waves,
 } from "lucide-react";
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
@@ -58,12 +59,13 @@ interface AnalysisRecord {
 const STAGE_META: { key: string; label: string; icon: React.ElementType; badge: string }[] = [
   { key: "field_scan", label: "Field Scanning", icon: Radar, badge: "Stage 1" },
   { key: "classification", label: "Data Classification", icon: FolderSearch, badge: "Stage 2" },
-  { key: "core_analysis", label: "Core Analysis (CV)", icon: Microscope, badge: "Core" },
-  { key: "cumulative", label: "Cumulative Analysis", icon: TrendingDown, badge: "Stage 3" },
-  { key: "spt_projection", label: "SPT Projection", icon: TrendingUp, badge: "Stage 4" },
-  { key: "economic", label: "Economic Analysis", icon: DollarSign, badge: "Stage 5" },
-  { key: "geophysical", label: "Geophysical Expertise", icon: Activity, badge: "Stage 6" },
-  { key: "eor", label: "EOR Recommendation", icon: Brain, badge: "Final" },
+  { key: "core_analysis", label: "Core Analysis (CV)", icon: Microscope, badge: "Stage 3" },
+  { key: "cumulative", label: "Cumulative Analysis", icon: TrendingDown, badge: "Stage 4" },
+  { key: "seismic_reinterpretation", label: "Seismic Reinterpretation", icon: Waves, badge: "Stage 5" },
+  { key: "spt_projection", label: "SPT Projection", icon: TrendingUp, badge: "Stage 6" },
+  { key: "economic", label: "Economic Analysis", icon: DollarSign, badge: "Stage 7" },
+  { key: "geophysical", label: "Geophysical Expertise", icon: Activity, badge: "Stage 8" },
+  { key: "eor", label: "EOR Recommendation", icon: Brain, badge: "Stage 9" },
 ];
 
 const ROWS_PER_PAGE = 10;

@@ -262,10 +262,10 @@
            </p>
          </div>
          <div className="flex gap-3">
-           <Badge variant="outline" className="text-primary border-primary">
-             <Zap className="mr-1 h-3 w-3" />
-             AI-Powered
-           </Badge>
+            <Badge variant="outline" className="text-primary border-primary">
+              <Zap className="mr-1 h-3 w-3" />
+              Stage 9
+            </Badge>
            <div className="flex gap-2">
              {!isRunning ? (
                <Button onClick={handleStart} className="gap-2">

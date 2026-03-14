@@ -191,7 +191,7 @@ const CoreAnalysis = () => {
         </div>
         <Badge variant="outline" className="text-primary border-primary">
           <Scan className="mr-1 h-3 w-3" />
-          Vision AI
+          Stage 3
         </Badge>
       </div>
 

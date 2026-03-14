@@ -32,6 +32,7 @@ import CumulativeStageViz from "@/components/oklahoma-pilot/stage-viz/Cumulative
 import SPTProjectionStageViz from "@/components/oklahoma-pilot/stage-viz/SPTProjectionStageViz";
 import EconomicStageViz from "@/components/oklahoma-pilot/stage-viz/EconomicStageViz";
 import GeophysicalStageViz from "@/components/oklahoma-pilot/stage-viz/GeophysicalStageViz";
+import SeismicStageViz from "@/components/oklahoma-pilot/stage-viz/SeismicStageViz";
 import ProductionHistoryChart from "@/components/production-history/ProductionHistoryChart";
 
 const MAX_ANALYSIS = 20;
@@ -57,12 +58,13 @@ const getSptRating = (w: WellRecord): "excellent" | "good" | "marginal" => {
 const STAGES = [
   { key: "field_scan", label: "Field Scanning", badge: "Stage 1" },
   { key: "classification", label: "Data Classification", badge: "Stage 2" },
-  { key: "core_analysis", label: "Core Analysis (CV)", badge: "Core" },
-  { key: "cumulative", label: "Cumulative Analysis", badge: "Stage 3" },
-  { key: "spt_projection", label: "SPT Projection", badge: "Stage 4" },
-  { key: "economic", label: "Economic Analysis", badge: "Stage 5" },
-  { key: "geophysical", label: "Geophysical Expertise", badge: "Stage 6" },
-  { key: "eor", label: "EOR Recommendation", badge: "Final" },
+  { key: "core_analysis", label: "Core Analysis (CV)", badge: "Stage 3" },
+  { key: "cumulative", label: "Cumulative Analysis", badge: "Stage 4" },
+  { key: "seismic_reinterpretation", label: "Seismic Reinterpretation", badge: "Stage 5" },
+  { key: "spt_projection", label: "SPT Projection", badge: "Stage 6" },
+  { key: "economic", label: "Economic Analysis", badge: "Stage 7" },
+  { key: "geophysical", label: "Geophysical Expertise", badge: "Stage 8" },
+  { key: "eor", label: "EOR Recommendation", badge: "Stage 9" },
 ];
 
 interface WellRecord {
@@ -905,6 +907,9 @@ ${placemarks}
                             <ProductionHistoryChart wellId={well.id} wellName={well.well_name || well.api_number || undefined} />
                           </>
                         )}
+                        {isDone && analysis?.stages.has("seismic_reinterpretation") && (
+                          <SeismicStageViz well={well} />
+                        )}
                         {isDone && analysis?.stages.has("spt_projection") && (
                           <SPTProjectionStageViz well={well} />
                         )}
@@ -1071,6 +1076,9 @@ ${placemarks}
                                   <CumulativeStageViz well={well} />
                                   <ProductionHistoryChart wellId={well.id} wellName={well.well_name || well.api_number || undefined} />
                                 </>
+                              )}
+                              {stage.key === "seismic_reinterpretation" && (
+                                <SeismicStageViz well={well} />
                               )}
                               {stage.key === "spt_projection" && (
                                 <SPTProjectionStageViz well={well} />
