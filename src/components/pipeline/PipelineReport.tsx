@@ -245,7 +245,16 @@ const PipelineReport = ({ well, stages, completedStages }: PipelineReportProps) 
                   <div className="flex items-center gap-2">
                     <Badge variant="outline" className="text-xs">{stage.badge}</Badge>
                     <h4 className="font-semibold text-sm">{stage.label}</h4>
+                    {result.dataSource && (
+                      <Badge variant="outline" className="text-[10px] ml-auto">
+                        {result.dataSource}
+                      </Badge>
+                    )}
                   </div>
+                  
+                  {/* Visual charts for PDF */}
+                  <StageVisualization stageKey={stage.key} metrics={result.metrics} />
+                  
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     {result.metrics.map((m) => (
                       <div key={m.label} className="text-sm">
@@ -254,7 +263,9 @@ const PipelineReport = ({ well, stages, completedStages }: PipelineReportProps) 
                       </div>
                     ))}
                   </div>
-                  <p className="text-sm font-medium border-t border-border/30 pt-2">{result.verdict}</p>
+                  <div className="text-sm border-t border-border/30 pt-2 whitespace-pre-line">
+                    {result.verdict}
+                  </div>
                 </div>
               );
             })}
