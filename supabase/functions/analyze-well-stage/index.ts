@@ -283,10 +283,14 @@ function computeCumulativeSynthetic(well: WellData): { metrics: StageMetric[]; c
   for (let m = 1; m <= 60; m++) eur += arpsRate(q0, Di, b, m) * 30.44;
   eur = Math.round(eur);
   const fp = formationPorosity(well.formation);
-  const depth = well.total_depth ?? 5000;
   const porosity = (fp.min + wellHash(well, 20) * (fp.max - fp.min)) / 100;
-  const ioip = Math.round(depth * porosity * 7.758 * 0.5);
-  const rf = ioip > 0 ? +((eur / ioip) * 100).toFixed(1) : 0;
+  const A = 40; // drainage area acres
+  const hPay = 30; // net pay ft
+  const Sw = 0.35;
+  const Bo = 1.2;
+  const ioip = Math.round(7758 * A * hPay * porosity * (1 - Sw) / Bo);
+  const rfRaw = ioip > 0 ? (eur / ioip) * 100 : 0;
+  const rf = +Math.min(rfRaw, 100).toFixed(1);
   const annualDecline = +((1 - arpsRate(q0, Di, b, 12) / q0) * 100).toFixed(1);
 
   return {
