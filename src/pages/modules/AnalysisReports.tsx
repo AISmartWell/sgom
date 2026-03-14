@@ -25,6 +25,7 @@ import {
   Microscope,
   Loader2,
   Trash2,
+  Waves,
 } from "lucide-react";
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
