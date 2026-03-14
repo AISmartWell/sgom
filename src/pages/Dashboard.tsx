@@ -37,7 +37,7 @@ const Dashboard = () => {
   }, []);
 
   const modules = [
-    // ── Stages 1–6 ──
+    // ── Stages 1–9 ──
     {
       title: "Field Scanning",
       description: "Satellite imagery & well location mapping",
@@ -63,6 +63,18 @@ const Dashboard = () => {
       ],
     },
     {
+      title: "Core Analysis",
+      description: "Computer vision rock type identification & porosity estimation",
+      icon: Microscope,
+      href: "/dashboard/core-analysis",
+      status: "ready" as const,
+      emoji: "🔬",
+      stats: [
+        { label: "Stage", value: "3" },
+        { label: "Accuracy", value: "96%" },
+      ],
+    },
+    {
       title: "Cumulative Analysis",
       description: "Production decline curves & reserve estimation",
       icon: TrendingDown,
@@ -70,8 +82,20 @@ const Dashboard = () => {
       status: "ready" as const,
       emoji: "📈",
       stats: [
-        { label: "Stage", value: "3" },
+        { label: "Stage", value: "4" },
         { label: "Wells", value: "847" },
+      ],
+    },
+    {
+      title: "Seismic Reinterpretation",
+      description: "AI-enhanced seismic data analysis & horizon mapping",
+      icon: Waves,
+      href: "/dashboard/geological-analysis",
+      status: "ready" as const,
+      emoji: "🌊",
+      stats: [
+        { label: "Stage", value: "5" },
+        { label: "Horizons", value: "45" },
       ],
     },
     {
@@ -82,7 +106,7 @@ const Dashboard = () => {
       status: "ready" as const,
       emoji: "🚀",
       stats: [
-        { label: "Stage", value: "4" },
+        { label: "Stage", value: "6" },
         { label: "Accuracy", value: "94%" },
       ],
     },
@@ -94,7 +118,7 @@ const Dashboard = () => {
       status: "ready" as const,
       emoji: "💵",
       stats: [
-        { label: "Stage", value: "5" },
+        { label: "Stage", value: "7" },
         { label: "ROI", value: "7-8mo" },
       ],
     },
@@ -106,11 +130,10 @@ const Dashboard = () => {
       status: "ready" as const,
       emoji: "📊",
       stats: [
-        { label: "Stage", value: "6" },
+        { label: "Stage", value: "8" },
         { label: "Formations", value: "120" },
       ],
     },
-    // ── EOR Optimization (integrator) ──
     {
       title: "EOR Optimization",
       description: "Final treatment recommendations & PDF reports",
@@ -119,7 +142,7 @@ const Dashboard = () => {
       status: "in-progress" as const,
       emoji: "🧠",
       stats: [
-        { label: "Candidates", value: "6-10" },
+        { label: "Stage", value: "9" },
         { label: "Effect", value: "5-10x" },
       ],
     },
