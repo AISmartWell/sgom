@@ -57,12 +57,13 @@ const getSptRating = (w: WellRecord): "excellent" | "good" | "marginal" => {
 const STAGES = [
   { key: "field_scan", label: "Field Scanning", badge: "Stage 1" },
   { key: "classification", label: "Data Classification", badge: "Stage 2" },
-  { key: "core_analysis", label: "Core Analysis (CV)", badge: "Core" },
-  { key: "cumulative", label: "Cumulative Analysis", badge: "Stage 3" },
-  { key: "spt_projection", label: "SPT Projection", badge: "Stage 4" },
-  { key: "economic", label: "Economic Analysis", badge: "Stage 5" },
-  { key: "geophysical", label: "Geophysical Expertise", badge: "Stage 6" },
-  { key: "eor", label: "EOR Recommendation", badge: "Final" },
+  { key: "core_analysis", label: "Core Analysis (CV)", badge: "Stage 3" },
+  { key: "cumulative", label: "Cumulative Analysis", badge: "Stage 4" },
+  { key: "seismic_reinterpretation", label: "Seismic Reinterpretation", badge: "Stage 5" },
+  { key: "spt_projection", label: "SPT Projection", badge: "Stage 6" },
+  { key: "economic", label: "Economic Analysis", badge: "Stage 7" },
+  { key: "geophysical", label: "Geophysical Expertise", badge: "Stage 8" },
+  { key: "eor", label: "EOR Recommendation", badge: "Stage 9" },
 ];
 
 interface WellRecord {
