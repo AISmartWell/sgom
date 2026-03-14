@@ -17,6 +17,8 @@ import {
   FolderSearch,
   TrendingDown,
   Brain,
+  Microscope,
+  Waves,
 } from "lucide-react";
 
 const Dashboard = () => {
