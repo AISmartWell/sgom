@@ -32,6 +32,7 @@ import CumulativeStageViz from "@/components/oklahoma-pilot/stage-viz/Cumulative
 import SPTProjectionStageViz from "@/components/oklahoma-pilot/stage-viz/SPTProjectionStageViz";
 import EconomicStageViz from "@/components/oklahoma-pilot/stage-viz/EconomicStageViz";
 import GeophysicalStageViz from "@/components/oklahoma-pilot/stage-viz/GeophysicalStageViz";
+import SeismicStageViz from "@/components/oklahoma-pilot/stage-viz/SeismicStageViz";
 import ProductionHistoryChart from "@/components/production-history/ProductionHistoryChart";
 
 const MAX_ANALYSIS = 20;
