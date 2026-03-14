@@ -716,41 +716,62 @@ serve(async (req) => {
 
     const userContent = `Pre-calculated metrics for ${stageKey} stage:\n${computed.context}\n\nWell: ${wellDescription}\n\nProvide your DETAILED expert assessment based on the data above. Be specific, reference the actual numbers, and give actionable insights. Write 4-8 sentences.`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [
-          { role: "system", content: verdictPrompt },
-          { role: "user", content: userContent },
-        ],
-        max_tokens: 500,
-      }),
-    });
+    const aiPayload = {
+      model: "google/gemini-2.5-flash",
+      messages: [
+        { role: "system", content: verdictPrompt },
+        { role: "user", content: userContent },
+      ],
+      max_tokens: 500,
+    };
 
-    if (!response.ok) {
-      if (response.status === 429) {
+    let aiResponse: Response | null = null;
+    let lastErrStatus = 0;
+    let lastErrText = "";
+
+    // Retry up to 2 times with backoff
+    for (let attempt = 0; attempt < 3; attempt++) {
+      if (attempt > 0) {
+        console.log(`[${stageKey}] Retry attempt ${attempt} after ${attempt * 2}s...`);
+        await new Promise(r => setTimeout(r, attempt * 2000));
+      }
+
+      const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(aiPayload),
+      });
+
+      if (resp.ok) {
+        aiResponse = resp;
+        break;
+      }
+
+      lastErrStatus = resp.status;
+      lastErrText = await resp.text();
+      console.error(`[${stageKey}] AI gateway error (attempt ${attempt + 1}): status=${resp.status}, body=${lastErrText.slice(0, 200)}`);
+
+      if (resp.status === 429) {
         return new Response(JSON.stringify({ error: "Rate limit exceeded, please try again later." }), {
           status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      if (response.status === 402) {
+      if (resp.status === 402) {
         return new Response(JSON.stringify({ error: "Payment required. Please add credits." }), {
           status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      const errText = await response.text();
-      console.error("AI gateway error:", response.status, errText);
-      return new Response(JSON.stringify({
-        title: `${stageKey} Analysis Complete`,
-        metrics: computed.metrics,
-        verdict: `📊 Analysis complete (AI verdict unavailable) [${computed.dataSource}]`,
-        dataSource: computed.dataSource,
-      }), {
+      // For other errors, retry
+    }
+
+    if (!aiResponse) {
+      console.error(`[${stageKey}] All AI attempts failed. Last: ${lastErrStatus} ${lastErrText.slice(0, 200)}`);
+      // Return error so the pipeline stops and user sees the issue
+      return new Response(JSON.stringify({ error: `AI analysis failed (status ${lastErrStatus}). Please try again.` }), {
+        status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
