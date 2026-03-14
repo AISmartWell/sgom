@@ -776,7 +776,7 @@ serve(async (req) => {
       });
     }
 
-    const data = await response.json();
+    const data = await aiResponse.json();
     const verdict = data.choices?.[0]?.message?.content?.trim() || "📊 Analysis complete";
 
     return new Response(JSON.stringify({
