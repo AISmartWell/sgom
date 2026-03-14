@@ -8,6 +8,7 @@ import FieldScanMap from "@/components/pipeline/FieldScanMap";
 import GeophysicalStageViz from "@/components/oklahoma-pilot/stage-viz/GeophysicalStageViz";
 import CumulativeStageViz from "@/components/oklahoma-pilot/stage-viz/CumulativeStageViz";
 import SeismicStageViz from "@/components/oklahoma-pilot/stage-viz/SeismicStageViz";
+import PilotWellLog from "@/components/oklahoma-pilot/PilotWellLog";
 import PipelineReport from "@/components/pipeline/PipelineReport";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -407,7 +408,15 @@ const WellAnalysisPipeline = () => {
                   
                   {/* Detailed stage visualizations when real data exists */}
                   {stage.key === "geophysical" && selectedWell && (
-                    <GeophysicalStageViz well={selectedWell} />
+                    <>
+                      <GeophysicalStageViz well={selectedWell} />
+                      <PilotWellLog
+                        wellId={selectedWell.id}
+                        wellName={selectedWell.well_name || selectedWell.api_number || "Well"}
+                        formation={selectedWell.formation ?? null}
+                        defaultExpanded
+                      />
+                    </>
                   )}
                   {stage.key === "seismic_reinterpretation" && selectedWell && (
                     <SeismicStageViz well={selectedWell} />
