@@ -61,7 +61,7 @@ const SCIENTIFIC_REFS: Record<string, { formula: string; reference: string; desc
     { formula: "Np = (qᵢ / Dᵢ(1-b)) · [1 - (1+b·Dᵢ·t)^((b-1)/b)]", reference: "Arps Cumulative Production", description: "Cumulative production integration from decline parameters" },
   ],
   spt_projection: [
-    { formula: "SPT Score = Σ wᵢ · xᵢ (MCDA)", reference: "US Patent 8,863,823", description: "Multi-criteria decision analysis for treatment candidacy", url: "https://patents.google.com/patent/US8863823B2" },
+    { formula: "SPT Score = Σ wᵢ · xᵢ (MCDA)", reference: "US Patent 8,863,823", description: "Multi-criteria decision analysis for treatment candidacy", url: "https://patents.google.com/patent/US8863823" },
     { formula: "Δq = f(WC, formation, depth)", reference: "SPT Engineering Model", description: "Production gain projection based on reservoir parameters" },
   ],
   economic: [
