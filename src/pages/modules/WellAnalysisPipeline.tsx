@@ -422,7 +422,15 @@ const WellAnalysisPipeline = () => {
                     <SeismicStageViz well={selectedWell} />
                   )}
                   {stage.key === "cumulative" && selectedWell && (
-                    <CumulativeStageViz well={selectedWell} />
+                    <>
+                      <CumulativeStageViz well={selectedWell} />
+                      <PilotWellLog
+                        wellId={selectedWell.id}
+                        wellName={selectedWell.well_name || selectedWell.api_number || "Well"}
+                        formation={selectedWell.formation ?? null}
+                        defaultExpanded={false}
+                      />
+                    </>
                   )}
                   
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
