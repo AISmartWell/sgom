@@ -1077,6 +1077,9 @@ ${placemarks}
                                   <ProductionHistoryChart wellId={well.id} wellName={well.well_name || well.api_number || undefined} />
                                 </>
                               )}
+                              {stage.key === "seismic_reinterpretation" && (
+                                <SeismicStageViz well={well} />
+                              )}
                               {stage.key === "spt_projection" && (
                                 <SPTProjectionStageViz well={well} />
                               )}
