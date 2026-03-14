@@ -907,6 +907,9 @@ ${placemarks}
                             <ProductionHistoryChart wellId={well.id} wellName={well.well_name || well.api_number || undefined} />
                           </>
                         )}
+                        {isDone && analysis?.stages.has("seismic_reinterpretation") && (
+                          <SeismicStageViz well={well} />
+                        )}
                         {isDone && analysis?.stages.has("spt_projection") && (
                           <SPTProjectionStageViz well={well} />
                         )}
