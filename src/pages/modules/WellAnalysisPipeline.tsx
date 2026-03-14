@@ -8,6 +8,7 @@ import FieldScanMap from "@/components/pipeline/FieldScanMap";
 import GeophysicalStageViz from "@/components/oklahoma-pilot/stage-viz/GeophysicalStageViz";
 import CumulativeStageViz from "@/components/oklahoma-pilot/stage-viz/CumulativeStageViz";
 import SeismicStageViz from "@/components/oklahoma-pilot/stage-viz/SeismicStageViz";
+import PilotWellLog from "@/components/oklahoma-pilot/PilotWellLog";
 import PipelineReport from "@/components/pipeline/PipelineReport";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
