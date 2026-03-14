@@ -18,6 +18,7 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { EvidenceConfidenceSection } from "./EvidenceConfidenceSection";
 import { BacktestingModule } from "./BacktestingModule";
+import { StageVisualization } from "./StageVisualization";
 
 interface StageResult {
   title: string;
