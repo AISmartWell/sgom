@@ -408,7 +408,15 @@ const WellAnalysisPipeline = () => {
                   
                   {/* Detailed stage visualizations when real data exists */}
                   {stage.key === "geophysical" && selectedWell && (
-                    <GeophysicalStageViz well={selectedWell} />
+                    <>
+                      <GeophysicalStageViz well={selectedWell} />
+                      <PilotWellLog
+                        wellId={selectedWell.id}
+                        wellName={selectedWell.well_name || selectedWell.api_number || "Well"}
+                        formation={selectedWell.formation ?? null}
+                        defaultExpanded
+                      />
+                    </>
                   )}
                   {stage.key === "seismic_reinterpretation" && selectedWell && (
                     <SeismicStageViz well={selectedWell} />
