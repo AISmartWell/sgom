@@ -410,12 +410,12 @@ const WellAnalysisPipeline = () => {
                   {/* Mini-visualization */}
                   <StageVisualization stageKey={stage.key} metrics={result.metrics} />
                   
-                  {/* Detailed stage visualizations when real data exists */}
-                  {stage.key === "geophysical" && selectedWell && (
-                    <GeophysicalStageViz well={selectedWell} />
+                  {/* Detailed stage visualizations for all 9 stages */}
+                  {stage.key === "classification" && selectedWell && (
+                    <ClassificationStageViz well={selectedWell} />
                   )}
-                  {stage.key === "seismic_reinterpretation" && selectedWell && (
-                    <SeismicStageViz well={selectedWell} />
+                  {stage.key === "core_analysis" && selectedWell && (
+                    <CoreAnalysisStageViz well={selectedWell} />
                   )}
                   {stage.key === "cumulative" && selectedWell && (
                     <>
@@ -427,6 +427,18 @@ const WellAnalysisPipeline = () => {
                         defaultExpanded={false}
                       />
                     </>
+                  )}
+                  {stage.key === "seismic_reinterpretation" && selectedWell && (
+                    <SeismicStageViz well={selectedWell} />
+                  )}
+                  {stage.key === "spt_projection" && selectedWell && (
+                    <SPTProjectionStageViz well={selectedWell} />
+                  )}
+                  {stage.key === "economic" && selectedWell && (
+                    <EconomicStageViz well={selectedWell} />
+                  )}
+                  {stage.key === "geophysical" && selectedWell && (
+                    <GeophysicalStageViz well={selectedWell} />
                   )}
                   
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
