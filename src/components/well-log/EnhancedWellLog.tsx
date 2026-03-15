@@ -525,19 +525,62 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
                 const norm = (cal - 6) / (12 - 6);
                 return `${GR_X + Math.max(0, Math.min(1, norm)) * GR_W},${yForDepth(pt.depth)}`;
               }).join(" ")} fill="none" stroke={C.cal} strokeWidth="0.8" strokeDasharray="4,3" opacity={0.5} />
-              {/* Shale line at GR=75 */}
+              {/* ═══ GR ZONE COLOR BANDS ═══ */}
+              {/* Green: Reservoir (GR < 45) */}
+              <rect x={GR_X} y={HEADER_H} width={(45 / 150) * GR_W} height={plotH}
+                fill="#22c55e" opacity={0.06} />
+              {/* Yellow: Transition (45 ≤ GR ≤ 75) */}
+              <rect x={GR_X + (45 / 150) * GR_W} y={HEADER_H} width={(30 / 150) * GR_W} height={plotH}
+                fill="#eab308" opacity={0.06} />
+              {/* Red: Cap/Shale (GR > 75) */}
+              <rect x={GR_X + (75 / 150) * GR_W} y={HEADER_H} width={(75 / 150) * GR_W} height={plotH}
+                fill="#ef4444" opacity={0.06} />
+
+              {/* Zone cutlines */}
+              <line x1={GR_X + (45 / 150) * GR_W} y1={HEADER_H} x2={GR_X + (45 / 150) * GR_W} y2={HEADER_H + plotH}
+                stroke="#22c55e" strokeWidth="0.5" strokeDasharray="4,4" opacity={0.5} />
               <line x1={GR_X + (75 / 150) * GR_W} y1={HEADER_H} x2={GR_X + (75 / 150) * GR_W} y2={HEADER_H + plotH}
-                stroke={C.shaleFill} strokeWidth="0.5" strokeDasharray="4,4" opacity={0.4} />
-              {/* GR fill */}
+                stroke="#ef4444" strokeWidth="0.5" strokeDasharray="4,4" opacity={0.5} />
+
+              {/* Zone labels at top */}
+              <text x={GR_X + (22.5 / 150) * GR_W} y={HEADER_H + 10} textAnchor="middle" fill="#22c55e" fontSize="6" fontWeight="600" opacity={0.7}>RESERVOIR</text>
+              <text x={GR_X + (60 / 150) * GR_W} y={HEADER_H + 10} textAnchor="middle" fill="#eab308" fontSize="6" fontWeight="600" opacity={0.7}>TRANSITION</text>
+              <text x={GR_X + (112.5 / 150) * GR_W} y={HEADER_H + 10} textAnchor="middle" fill="#ef4444" fontSize="6" fontWeight="600" opacity={0.7}>SHALE</text>
+
+              {/* GR zone-colored fill segments */}
               {visibleData.length > 1 && (() => {
-                const cutX = GR_X + (75 / 150) * GR_W;
-                const pts = visibleData.map(pt => {
-                  const x = GR_X + (pt.gr / 150) * GR_W;
-                  return `${Math.max(x, cutX)},${yForDepth(pt.depth)}`;
+                const elements: JSX.Element[] = [];
+                const cut45 = GR_X + (45 / 150) * GR_W;
+                const cut75 = GR_X + (75 / 150) * GR_W;
+
+                // Green fill: reservoir zone (GR < 45)
+                const greenPts = visibleData.map(pt => {
+                  const x = GR_X + (Math.min(pt.gr, 45) / 150) * GR_W;
+                  return `${x},${yForDepth(pt.depth)}`;
                 });
-                return <polygon
-                  points={[`${cutX},${yForDepth(visibleData[0].depth)}`, ...pts, `${cutX},${yForDepth(visibleData[visibleData.length - 1].depth)}`].join(" ")}
-                  fill={`${C.shaleFill}18`} />;
+                elements.push(<polygon key="gr-green"
+                  points={[`${GR_X},${yForDepth(visibleData[0].depth)}`, ...greenPts, `${GR_X},${yForDepth(visibleData[visibleData.length - 1].depth)}`].join(" ")}
+                  fill="#22c55e" opacity={0.1} />);
+
+                // Yellow fill: transition zone (45–75)
+                const yellowPts = visibleData.map(pt => {
+                  const x = GR_X + (Math.max(45, Math.min(pt.gr, 75)) / 150) * GR_W;
+                  return `${x},${yForDepth(pt.depth)}`;
+                });
+                elements.push(<polygon key="gr-yellow"
+                  points={[`${cut45},${yForDepth(visibleData[0].depth)}`, ...yellowPts, `${cut45},${yForDepth(visibleData[visibleData.length - 1].depth)}`].join(" ")}
+                  fill="#eab308" opacity={0.1} />);
+
+                // Red fill: shale zone (GR > 75)
+                const redPts = visibleData.map(pt => {
+                  const x = GR_X + (Math.max(pt.gr, 75) / 150) * GR_W;
+                  return `${Math.max(x, cut75)},${yForDepth(pt.depth)}`;
+                });
+                elements.push(<polygon key="gr-red"
+                  points={[`${cut75},${yForDepth(visibleData[0].depth)}`, ...redPts, `${cut75},${yForDepth(visibleData[visibleData.length - 1].depth)}`].join(" ")}
+                  fill="#ef4444" opacity={0.12} />);
+
+                return elements;
               })()}
               {/* GR curve */}
               <polyline points={buildPath(visibleData, "gr", GR_X, GR_W, 0, 150)}
