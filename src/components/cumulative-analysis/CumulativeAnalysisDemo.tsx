@@ -471,6 +471,11 @@ export const CumulativeAnalysisDemo = () => {
           </Card>
         </TabsContent>
 
+        {/* Economic Limit */}
+        <TabsContent value="econlimit">
+          <EconomicLimitPanel productionData={productionData} />
+        </TabsContent>
+
         {/* Summary */}
         <TabsContent value="summary">
           <Card>
