@@ -294,6 +294,51 @@ const CumulativeStageViz = ({ well }: Props) => {
           )}
         </div>
       </div>
+
+      {/* Economic Limit */}
+      <div className="sm:col-span-2 p-3 rounded-lg border border-border/40 bg-muted/10 space-y-2">
+        <div className="flex items-center gap-2 text-xs font-semibold">
+          <DollarSign className="h-3.5 w-3.5 text-primary" />
+          Economic Limit
+          <span className="text-[9px] text-muted-foreground font-normal ml-auto">
+            WTI ${DEFAULT_OIL_PRICE}/bbl · OPEX ${DEFAULT_OPEX_PER_BBL}/bbl · Fixed ${FIXED_MONTHLY}/mo
+          </span>
+        </div>
+        <div className="grid grid-cols-4 gap-2">
+          <div className="p-2 bg-muted/20 rounded text-center">
+            <p className="text-lg font-bold text-destructive">{econLimit.econRate.toFixed(1)}</p>
+            <p className="text-[9px] text-muted-foreground">q_econ (bbl/d)</p>
+          </div>
+          <div className="p-2 bg-muted/20 rounded text-center">
+            <p className="text-lg font-bold text-primary">
+              {econLimit.econMonth ? econLimit.econMonth : ">240"}
+            </p>
+            <p className="text-[9px] text-muted-foreground">Econ. Life (mo)</p>
+          </div>
+          <div className="p-2 bg-muted/20 rounded text-center">
+            <p className="text-lg font-bold">{(econLimit.econReserves / 1000).toFixed(1)}K</p>
+            <p className="text-[9px] text-muted-foreground">Econ. EUR (bbl)</p>
+          </div>
+          <div className="p-2 bg-muted/20 rounded text-center">
+            <p className={`text-lg font-bold ${econLimit.netProfit > 0 ? "text-success" : "text-destructive"}`}>
+              ${(econLimit.netProfit / 1000).toFixed(0)}K
+            </p>
+            <p className="text-[9px] text-muted-foreground">Net Profit</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 pt-1">
+          {econLimit.netProfit <= 0 ? (
+            <Badge variant="destructive" className="text-[9px]">Uneconomic</Badge>
+          ) : econLimit.econMonth && econLimit.econMonth < 24 ? (
+            <Badge variant="outline" className="text-[9px] text-warning border-warning/30">Short Life</Badge>
+          ) : (
+            <Badge variant="outline" className="text-[9px] text-success border-success/30">Viable</Badge>
+          )}
+          <span className="text-[9px] text-muted-foreground">
+            Margin: ${econLimit.netPerBbl.toFixed(1)}/bbl
+          </span>
+        </div>
+      </div>
     </div>
   );
 };
