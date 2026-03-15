@@ -18,6 +18,7 @@ import {
   DollarSign,
 } from "lucide-react";
 import { EconomicLimitPanel } from "./EconomicLimitPanel";
+import { RateVsCumulativeChart } from "./RateVsCumulativeChart";
 
 interface WellReserves {
   name: string;
