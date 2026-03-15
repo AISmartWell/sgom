@@ -15,7 +15,9 @@ import {
   CheckCircle2,
   Clock,
   AlertTriangle,
+  DollarSign,
 } from "lucide-react";
+import { EconomicLimitPanel } from "./EconomicLimitPanel";
 
 interface WellReserves {
   name: string;
