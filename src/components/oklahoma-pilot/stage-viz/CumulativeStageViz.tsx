@@ -300,9 +300,54 @@ const CumulativeStageViz = ({ well }: Props) => {
         <div className="flex items-center gap-2 text-xs font-semibold">
           <DollarSign className="h-3.5 w-3.5 text-primary" />
           Economic Limit
-          <span className="text-[9px] text-muted-foreground font-normal ml-auto">
-            WTI ${DEFAULT_OIL_PRICE}/bbl · OPEX ${DEFAULT_OPEX_PER_BBL}/bbl · Fixed ${FIXED_MONTHLY}/mo
-          </span>
+        </div>
+        {/* Inline editable params */}
+        <div className="flex flex-wrap gap-3 text-[10px]">
+          <label className="flex items-center gap-1">
+            <span className="text-muted-foreground">Oil $/bbl:</span>
+            <input
+              type="number"
+              value={oilPrice}
+              onChange={(e) => {
+                const v = Number(e.target.value);
+                if (v >= 0 && v <= 300) setOilPrice(v);
+              }}
+              className="w-14 h-5 px-1 text-[10px] rounded border border-border bg-background text-foreground text-center"
+              min={0}
+              max={300}
+              step={1}
+            />
+          </label>
+          <label className="flex items-center gap-1">
+            <span className="text-muted-foreground">OPEX $/bbl:</span>
+            <input
+              type="number"
+              value={opexPerBbl}
+              onChange={(e) => {
+                const v = Number(e.target.value);
+                if (v >= 0 && v <= 200) setOpexPerBbl(v);
+              }}
+              className="w-14 h-5 px-1 text-[10px] rounded border border-border bg-background text-foreground text-center"
+              min={0}
+              max={200}
+              step={0.5}
+            />
+          </label>
+          <label className="flex items-center gap-1">
+            <span className="text-muted-foreground">Fixed $/mo:</span>
+            <input
+              type="number"
+              value={fixedMonthly}
+              onChange={(e) => {
+                const v = Number(e.target.value);
+                if (v >= 0 && v <= 50000) setFixedMonthly(v);
+              }}
+              className="w-16 h-5 px-1 text-[10px] rounded border border-border bg-background text-foreground text-center"
+              min={0}
+              max={50000}
+              step={100}
+            />
+          </label>
         </div>
         <div className="grid grid-cols-4 gap-2">
           <div className="p-2 bg-muted/20 rounded text-center">
