@@ -315,6 +315,7 @@ export const CumulativeAnalysisDemo = () => {
           <TabsTrigger value="pipeline">Pipeline Log</TabsTrigger>
           <TabsTrigger value="reserves">Reserve Estimates</TabsTrigger>
           <TabsTrigger value="curve">Decline Curve</TabsTrigger>
+          <TabsTrigger value="qvsnp">q vs Np</TabsTrigger>
           <TabsTrigger value="econlimit">Economic Limit</TabsTrigger>
           <TabsTrigger value="summary">Summary</TabsTrigger>
           <TabsTrigger value="formulas">Formulas</TabsTrigger>
