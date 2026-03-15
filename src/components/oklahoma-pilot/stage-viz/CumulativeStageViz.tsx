@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { TrendingDown, BarChart3, Droplets, Database } from "lucide-react";
+import { TrendingDown, BarChart3, Droplets, Database, DollarSign } from "lucide-react";
 import { calcIOIP } from "@/lib/formation-db";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -7,6 +7,10 @@ import {
   ResponsiveContainer, ReferenceLine,
 } from "recharts";
 import { useProductionHistory } from "@/hooks/useProductionHistory";
+import {
+  DEFAULT_OIL_PRICE, DEFAULT_OPEX_PER_BBL,
+  arpsRate as arpsRateShared, ARPS_DEFAULTS,
+} from "@/lib/economics-config";
 
 interface WellRecord {
   id?: string;
