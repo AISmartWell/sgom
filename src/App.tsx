@@ -40,6 +40,7 @@ import FormationCodesReference from "./pages/modules/FormationCodesReference";
 import ProductionHistory from "./pages/modules/ProductionHistory";
 import ReservesMapPage from "./pages/modules/ReservesMapPage";
 import AnalysisReports from "./pages/modules/AnalysisReports";
+import AIEOROptimization from "./pages/modules/AIEOROptimization";
 import NvidiaInception from "./pages/NvidiaInception";
 import NvidiaShowcase from "./pages/NvidiaShowcase";
 import AWSActivate from "./pages/AWSActivate";
@@ -105,6 +106,7 @@ const App = () => (
              <Route path="production-history" element={<ProductionHistory />} />
              <Route path="reserves-map" element={<ReservesMapPage />} />
              <Route path="analysis-reports" element={<AnalysisReports />} />
+             <Route path="ai-eor-optimization" element={<AIEOROptimization />} />
           </Route>
            <Route path="/nvidia-inception" element={<NvidiaInception />} />
            <Route path="/nvidia-showcase" element={<NvidiaShowcase />} />

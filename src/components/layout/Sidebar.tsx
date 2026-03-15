@@ -74,6 +74,12 @@ const menuItems = [
     href: "/dashboard/reserves-map",
     badge: "🗺️",
   },
+  {
+    title: "AI EOR SPT Optimization",
+    icon: Droplets,
+    href: "/dashboard/ai-eor-optimization",
+    badge: "🚀",
+  },
   // ── Stages 1–6 + EOR ──
   {
     title: "Field Scanning",
