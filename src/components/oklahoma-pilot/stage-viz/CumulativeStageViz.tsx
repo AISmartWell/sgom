@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { TrendingDown, BarChart3, Droplets, Database, DollarSign } from "lucide-react";
 import { calcIOIP } from "@/lib/formation-db";
 import { Badge } from "@/components/ui/badge";
