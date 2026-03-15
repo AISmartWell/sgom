@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { TrendingDown, BarChart3, Droplets, Database, DollarSign } from "lucide-react";
 import { calcIOIP } from "@/lib/formation-db";
 import { Badge } from "@/components/ui/badge";
@@ -99,19 +99,19 @@ const CumulativeStageViz = ({ well }: Props) => {
     ? Math.max(...realHistory.map((r) => r.rate))
     : q0;
 
-  // ── Economic Limit Calculation ──────────────────────────────────
-  const FIXED_MONTHLY = 1500; // $/month fixed overhead
-  const econLimit = useMemo(() => {
-    const oilPrice = DEFAULT_OIL_PRICE;
-    const opex = DEFAULT_OPEX_PER_BBL;
-    const netPerBbl = oilPrice - opex;
-    const calcEconRate = netPerBbl > 0 ? FIXED_MONTHLY / (netPerBbl * 30.44) : Infinity;
-    const econRate = Math.max(calcEconRate, 1); // min 1 bbl/d floor
+  // ── Economic Limit (editable parameters) ───────────────────────
+  const [oilPrice, setOilPrice] = useState(DEFAULT_OIL_PRICE);
+  const [opexPerBbl, setOpexPerBbl] = useState(DEFAULT_OPEX_PER_BBL);
+  const [fixedMonthly, setFixedMonthly] = useState(1500);
 
-    // Find month when rate drops below economic limit
+  const econLimit = useMemo(() => {
+    const netPerBbl = oilPrice - opexPerBbl;
+    const calcEconRate = netPerBbl > 0 ? fixedMonthly / (netPerBbl * 30.44) : Infinity;
+    const econRate = Math.max(calcEconRate, 1);
+
     const initRate = q0;
     const useDi = effectiveDi;
-    const useB = hasRealData ? 0.5 : b; // default b for extrapolation
+    const useB = hasRealData ? 0.5 : b;
     let econMonth: number | null = null;
     let econReserves = 0;
     let totalRevenue = 0;
@@ -129,7 +129,7 @@ const CumulativeStageViz = ({ well }: Props) => {
       const monthlyOil = rate * 30.44;
       econReserves += monthlyOil;
       totalRevenue += monthlyOil * oilPrice;
-      totalCost += monthlyOil * opex + FIXED_MONTHLY;
+      totalCost += monthlyOil * opexPerBbl + fixedMonthly;
 
       if (rate < econRate && !econMonth) {
         econMonth = m;
@@ -138,7 +138,7 @@ const CumulativeStageViz = ({ well }: Props) => {
 
     const netProfit = totalRevenue - totalCost;
     return { econRate, econMonth, econReserves: Math.round(econReserves), netPerBbl, netProfit };
-  }, [q0, effectiveDi, b, hasRealData, realHistory]);
+  }, [q0, effectiveDi, b, hasRealData, realHistory, oilPrice, opexPerBbl, fixedMonthly]);
 
   return (
     <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -300,9 +300,54 @@ const CumulativeStageViz = ({ well }: Props) => {
         <div className="flex items-center gap-2 text-xs font-semibold">
           <DollarSign className="h-3.5 w-3.5 text-primary" />
           Economic Limit
-          <span className="text-[9px] text-muted-foreground font-normal ml-auto">
-            WTI ${DEFAULT_OIL_PRICE}/bbl · OPEX ${DEFAULT_OPEX_PER_BBL}/bbl · Fixed ${FIXED_MONTHLY}/mo
-          </span>
+        </div>
+        {/* Inline editable params */}
+        <div className="flex flex-wrap gap-3 text-[10px]">
+          <label className="flex items-center gap-1">
+            <span className="text-muted-foreground">Oil $/bbl:</span>
+            <input
+              type="number"
+              value={oilPrice}
+              onChange={(e) => {
+                const v = Number(e.target.value);
+                if (v >= 0 && v <= 300) setOilPrice(v);
+              }}
+              className="w-14 h-5 px-1 text-[10px] rounded border border-border bg-background text-foreground text-center"
+              min={0}
+              max={300}
+              step={1}
+            />
+          </label>
+          <label className="flex items-center gap-1">
+            <span className="text-muted-foreground">OPEX $/bbl:</span>
+            <input
+              type="number"
+              value={opexPerBbl}
+              onChange={(e) => {
+                const v = Number(e.target.value);
+                if (v >= 0 && v <= 200) setOpexPerBbl(v);
+              }}
+              className="w-14 h-5 px-1 text-[10px] rounded border border-border bg-background text-foreground text-center"
+              min={0}
+              max={200}
+              step={0.5}
+            />
+          </label>
+          <label className="flex items-center gap-1">
+            <span className="text-muted-foreground">Fixed $/mo:</span>
+            <input
+              type="number"
+              value={fixedMonthly}
+              onChange={(e) => {
+                const v = Number(e.target.value);
+                if (v >= 0 && v <= 50000) setFixedMonthly(v);
+              }}
+              className="w-16 h-5 px-1 text-[10px] rounded border border-border bg-background text-foreground text-center"
+              min={0}
+              max={50000}
+              step={100}
+            />
+          </label>
         </div>
         <div className="grid grid-cols-4 gap-2">
           <div className="p-2 bg-muted/20 rounded text-center">
