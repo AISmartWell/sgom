@@ -99,6 +99,47 @@ const CumulativeStageViz = ({ well }: Props) => {
     ? Math.max(...realHistory.map((r) => r.rate))
     : q0;
 
+  // ── Economic Limit Calculation ──────────────────────────────────
+  const FIXED_MONTHLY = 1500; // $/month fixed overhead
+  const econLimit = useMemo(() => {
+    const oilPrice = DEFAULT_OIL_PRICE;
+    const opex = DEFAULT_OPEX_PER_BBL;
+    const netPerBbl = oilPrice - opex;
+    const calcEconRate = netPerBbl > 0 ? FIXED_MONTHLY / (netPerBbl * 30.44) : Infinity;
+    const econRate = Math.max(calcEconRate, 1); // min 1 bbl/d floor
+
+    // Find month when rate drops below economic limit
+    const initRate = q0;
+    const useDi = effectiveDi;
+    const useB = hasRealData ? 0.5 : b; // default b for extrapolation
+    let econMonth: number | null = null;
+    let econReserves = 0;
+    let totalRevenue = 0;
+    let totalCost = 0;
+
+    for (let m = 1; m <= 240; m++) {
+      let rate: number;
+      if (hasRealData && realHistory && m - 1 < realHistory.length) {
+        rate = realHistory[m - 1].rate;
+      } else {
+        rate = arpsRate(initRate, useDi, useB, m);
+      }
+      if (rate <= 0) break;
+
+      const monthlyOil = rate * 30.44;
+      econReserves += monthlyOil;
+      totalRevenue += monthlyOil * oilPrice;
+      totalCost += monthlyOil * opex + FIXED_MONTHLY;
+
+      if (rate < econRate && !econMonth) {
+        econMonth = m;
+      }
+    }
+
+    const netProfit = totalRevenue - totalCost;
+    return { econRate, econMonth, econReserves: Math.round(econReserves), netPerBbl, netProfit };
+  }, [q0, effectiveDi, b, hasRealData, realHistory]);
+
   return (
     <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
       {/* Decline Curve */}
