@@ -186,7 +186,7 @@ const CumulativeStageViz = ({ well }: Props) => {
                 }}
               />
               {!hasRealData && (
-                <ReferenceLine y={q0 * 0.3} stroke="hsl(var(--destructive))" strokeDasharray="5 5" label={{ value: "Economic Limit", fontSize: 9, fill: "hsl(var(--destructive))" }} />
+                <ReferenceLine y={econLimit.econRate} stroke="hsl(var(--destructive))" strokeDasharray="5 5" label={{ value: `Econ. Limit (${econLimit.econRate.toFixed(1)} bbl/d)`, fontSize: 9, fill: "hsl(var(--destructive))" }} />
               )}
               <Area type="monotone" dataKey="rate" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.2} strokeWidth={2} />
             </AreaChart>
