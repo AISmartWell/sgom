@@ -480,6 +480,9 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
               <text x={PERF_X + PERF_W / 2} y={16} textAnchor="middle" fill={C.textBright} fontSize="8" fontWeight="700" letterSpacing="1">PERF</text>
               <text x={PERF_X + PERF_W / 2} y={30} textAnchor="middle" fill="#f97316" fontSize="7" fontFamily="monospace">SPF / ⌀</text>
 
+              <text x={FLUID_X + FLUID_W / 2} y={16} textAnchor="middle" fill={C.textBright} fontSize="8" fontWeight="700" letterSpacing="1">FLUID</text>
+              <text x={FLUID_X + FLUID_W / 2} y={30} textAnchor="middle" fill="#a78bfa" fontSize="7" fontFamily="monospace">Ko Ko</text>
+
               <text x={COR_X + COR_W / 2} y={16} textAnchor="middle" fill={C.textBright} fontSize="8" fontWeight="700" letterSpacing="1">COR</text>
 
               {/* ═══ TRACK BACKGROUNDS ═══ */}
