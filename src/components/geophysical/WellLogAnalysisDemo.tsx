@@ -234,7 +234,7 @@ export const WellLogAnalysisDemo = () => {
                   fontSize={10}
                   reversed
                   domain={["dataMin", "dataMax"]}
-                  tickFormatter={(v) => `${v}m`}
+                  tickFormatter={(v) => `${v} ft`}
                 />
                 <Tooltip content={<CustomTooltip />} />
 
