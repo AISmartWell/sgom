@@ -140,9 +140,10 @@ interface EnhancedWellLogProps {
   formation?: string | null;
   defaultExpanded?: boolean;
   totalDepth?: number;
+  showInterpretationByDefault?: boolean;
 }
 
-const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, totalDepth }: EnhancedWellLogProps) => {
+const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, totalDepth, showInterpretationByDefault = false }: EnhancedWellLogProps) => {
   const { data: rawLogs, isLoading, hasRealData } = useWellLogs(wellId);
   const { data: perforations, hasData: hasPerfs } = useWellPerforations(wellId);
   // Generate synthetic perforations when no real data exists
