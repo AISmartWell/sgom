@@ -357,7 +357,7 @@ export const WellLogAnalysisDemo = () => {
                   <div className="grid grid-cols-3 gap-2 text-[10px] text-muted-foreground">
                     <div>
                       <span className="block">Depth</span>
-                      <span className="font-medium text-foreground">{zone.top}-{zone.bottom}m</span>
+                      <span className="font-medium text-foreground">{zone.top}–{zone.bottom} ft</span>
                     </div>
                     <div>
                       <span className="block">φ / Sw</span>
