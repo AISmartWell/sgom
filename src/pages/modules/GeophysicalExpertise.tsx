@@ -228,7 +228,7 @@ const StepPorosity = ({ data }: { data: PetroPoint[] }) => {
             φ<sub>eff</sub> = φ<sub>total</sub> × (1 − V<sub>sh</sub>)
           </div>
           <p className="mt-2 text-xs text-muted-foreground text-center">
-            Эффективная пористость — пористость за вычетом объёма связанной воды в глинах
+            Effective porosity — total porosity minus the volume of clay-bound water
           </p>
         </CardContent>
       </Card>
