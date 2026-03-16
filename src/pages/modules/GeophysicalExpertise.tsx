@@ -108,7 +108,7 @@ const StepVshale = ({ data }: { data: PetroPoint[] }) => {
         <CardHeader className="pb-2">
           <CardTitle className="text-sm flex items-center gap-2">
             <Layers className="h-4 w-4 text-primary" />
-            Формула линейного метода
+            Linear Method Formula
           </CardTitle>
         </CardHeader>
         <CardContent>
