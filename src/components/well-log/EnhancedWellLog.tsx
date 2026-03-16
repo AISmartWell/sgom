@@ -140,9 +140,10 @@ interface EnhancedWellLogProps {
   formation?: string | null;
   defaultExpanded?: boolean;
   totalDepth?: number;
+  showInterpretationByDefault?: boolean;
 }
 
-const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, totalDepth }: EnhancedWellLogProps) => {
+const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, totalDepth, showInterpretationByDefault = false }: EnhancedWellLogProps) => {
   const { data: rawLogs, isLoading, hasRealData } = useWellLogs(wellId);
   const { data: perforations, hasData: hasPerfs } = useWellPerforations(wellId);
   // Generate synthetic perforations when no real data exists
@@ -159,7 +160,7 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
   const [expanded, setExpanded] = useState(defaultExpanded);
   const [zoomFactor, setZoomFactor] = useState(2);
   const [scrollOffset, setScrollOffset] = useState(0);
-  const [showInterpretation, setShowInterpretation] = useState(false);
+  const [showInterpretation, setShowInterpretation] = useState(showInterpretationByDefault);
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [hoverData, setHoverData] = useState<{ point: DataPoint; y: number } | null>(null);
