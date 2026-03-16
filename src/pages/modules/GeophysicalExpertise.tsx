@@ -662,7 +662,7 @@ const GeophysicalExpertise = () => {
         {selectedWell?.total_depth && (
           <Badge variant="outline" className="text-xs">{selectedWell.total_depth.toLocaleString()} ft</Badge>
         )}
-        <Button variant="outline" size="sm" onClick={() => navigate("/modules/data-import")} className="ml-auto text-xs">
+        <Button variant="outline" size="sm" onClick={() => navigate("/dashboard/data-import")} className="ml-auto text-xs">
           + Add Well
         </Button>
       </div>
