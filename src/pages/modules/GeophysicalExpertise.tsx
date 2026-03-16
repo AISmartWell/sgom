@@ -636,16 +636,16 @@ const GeophysicalExpertise = () => {
       </div>
 
       {/* Well Selector */}
-      {wells.length > 1 && (
-        <div className="mb-4 flex items-center gap-3">
-          <label className="text-sm text-muted-foreground font-medium">Well:</label>
+      <div className="mb-4 flex items-center gap-3">
+        <label className="text-sm text-muted-foreground font-medium">Well:</label>
+        {wells.length > 0 ? (
           <select
             value={selectedWell?.id || ""}
             onChange={(e) => {
               const w = wells.find(w => w.id === e.target.value);
               if (w) setSelectedWell(w);
             }}
-            className="bg-background border border-border rounded-md px-3 py-1.5 text-sm"
+            className="bg-background border border-border rounded-md px-3 py-1.5 text-sm min-w-[220px]"
           >
             {wells.map(w => (
               <option key={w.id} value={w.id}>
@@ -653,11 +653,19 @@ const GeophysicalExpertise = () => {
               </option>
             ))}
           </select>
-          {selectedWell?.formation && (
-            <Badge variant="outline" className="text-xs">{selectedWell.formation}</Badge>
-          )}
-        </div>
-      )}
+        ) : (
+          <span className="text-sm text-muted-foreground">Нет скважин в базе</span>
+        )}
+        {selectedWell?.formation && (
+          <Badge variant="outline" className="text-xs">{selectedWell.formation}</Badge>
+        )}
+        {selectedWell?.total_depth && (
+          <Badge variant="outline" className="text-xs">{selectedWell.total_depth.toLocaleString()} ft</Badge>
+        )}
+        <Button variant="outline" size="sm" onClick={() => navigate("/modules/data-import")} className="ml-auto text-xs">
+          + Добавить скважину
+        </Button>
+      </div>
 
       {/* 7-Step Pipeline Navigator */}
       <div className="flex gap-1.5 mb-6 overflow-x-auto pb-1">
