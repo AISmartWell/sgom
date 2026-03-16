@@ -1,9 +1,10 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Activity, Eye, Zap, FileText, Layers, Droplets, BarChart3, Target, Calculator } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { ArrowLeft, Activity, Eye, Zap, FileText, Layers, Droplets, BarChart3, Target, Calculator, Search, Play, RefreshCw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import EnhancedWellLog from "@/components/well-log/EnhancedWellLog";
 import { WellLogAnalysisDemo } from "@/components/geophysical/WellLogAnalysisDemo";
@@ -564,6 +565,98 @@ const StepNetPay = ({ summary }: { summary: InterpretationSummary }) => {
   );
 };
 
+/* ── Well Search Selector ── */
+const WellSearchSelector = ({
+  wells,
+  selectedWell,
+  onSelect,
+  onAddWell,
+}: {
+  wells: WellOption[];
+  selectedWell: WellOption | null;
+  onSelect: (w: WellOption) => void;
+  onAddWell: () => void;
+}) => {
+  const [search, setSearch] = useState("");
+  const [open, setOpen] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  const filtered = useMemo(() => {
+    if (!search.trim()) return wells;
+    const q = search.toLowerCase();
+    return wells.filter(
+      (w) =>
+        (w.well_name?.toLowerCase().includes(q)) ||
+        (w.api_number?.toLowerCase().includes(q)) ||
+        (w.formation?.toLowerCase().includes(q))
+    );
+  }, [wells, search]);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const displayValue = selectedWell
+    ? (selectedWell.well_name || selectedWell.api_number || selectedWell.id.slice(0, 8))
+    : "";
+
+  return (
+    <Card className="mb-6 bg-muted/20 border-border/30">
+      <CardContent className="py-4">
+        <p className="text-sm font-semibold mb-2">Select Well</p>
+        <div className="flex items-center gap-3">
+          <div className="flex-1 relative" ref={wrapperRef}>
+            <Input
+              placeholder="Search by name, API #, operator..."
+              value={open ? search : displayValue}
+              onFocus={() => { setOpen(true); setSearch(""); }}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full"
+            />
+            {open && (
+              <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-popover border border-border rounded-md shadow-lg max-h-64 overflow-auto">
+                {filtered.length === 0 ? (
+                  <div className="px-3 py-4 text-sm text-muted-foreground text-center">
+                    No wells found.{" "}
+                    <button className="text-primary underline" onClick={onAddWell}>
+                      Add a well
+                    </button>
+                  </div>
+                ) : (
+                  filtered.map((w) => (
+                    <button
+                      key={w.id}
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-accent transition-colors flex items-center gap-2"
+                      onClick={() => {
+                        onSelect(w);
+                        setOpen(false);
+                        setSearch("");
+                      }}
+                    >
+                      <span className="font-medium">{w.well_name || w.api_number || w.id.slice(0, 8)}</span>
+                      {w.formation && <span className="text-muted-foreground">• {w.formation}</span>}
+                      {w.total_depth && <span className="text-muted-foreground">• {w.total_depth.toLocaleString()} ft</span>}
+                    </button>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+          <Button onClick={onAddWell} variant="outline" size="sm" className="flex-shrink-0">
+            + Add Well
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
 /* ── Main Page ── */
 const GeophysicalExpertise = () => {
   const navigate = useNavigate();
@@ -636,39 +729,12 @@ const GeophysicalExpertise = () => {
       </div>
 
       {/* Well Selector */}
-      <Card className="mb-6 bg-muted/20 border-border/30">
-        <CardContent className="py-4">
-          <p className="text-sm font-semibold mb-2">Select Well</p>
-          <div className="flex items-center gap-3">
-            <div className="flex-1">
-              {wells.length > 0 ? (
-                <select
-                  value={selectedWell?.id || ""}
-                  onChange={(e) => {
-                    const w = wells.find(w => w.id === e.target.value);
-                    if (w) setSelectedWell(w);
-                  }}
-                  className="w-full bg-background border border-border rounded-md px-3 py-2 text-sm"
-                >
-                  <option value="" disabled>Search and select a well...</option>
-                  {wells.map(w => (
-                    <option key={w.id} value={w.id}>
-                      {w.well_name || w.api_number || w.id}{w.formation ? ` • ${w.formation}` : ""}{w.total_depth ? ` • ${w.total_depth.toLocaleString()} ft` : ""}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <div className="w-full bg-background border border-border rounded-md px-3 py-2 text-sm text-muted-foreground">
-                  No wells in database
-                </div>
-              )}
-            </div>
-            <Button onClick={() => navigate("/dashboard/data-import")} variant="outline" size="sm" className="flex-shrink-0">
-              + Add Well
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <WellSearchSelector
+        wells={wells}
+        selectedWell={selectedWell}
+        onSelect={setSelectedWell}
+        onAddWell={() => navigate("/dashboard/data-import")}
+      />
 
       {/* 7-Step Pipeline Navigator */}
       <div className="flex gap-1.5 mb-6 overflow-x-auto pb-1">
