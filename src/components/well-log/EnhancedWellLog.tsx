@@ -221,22 +221,21 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
     HEADER_H + ((d - viewMin) / visibleSpan) * plotH
   , [viewMin, visibleSpan, plotH]);
 
-  // Pay zones — stricter thresholds: low GR + good porosity + good resistivity
+  // Petrophysical interpretation (Ko Ko Rules + Archie + Net Pay cutoffs)
+  const interpretation = useMemo<InterpretationSummary>(() => {
+    const petroData: PetroPoint[] = allData.map(p => ({
+      depth: p.depth, gr: p.gr, sp: p.sp, res: p.res,
+      por: p.por, sw: p.sw, rhob: p.rhob, nphi: p.nphi,
+    }));
+    return interpretWellLog(petroData);
+  }, [allData]);
+
+  // Pay zones from interpretation engine (replaces simple heuristic)
   const payZones = useMemo<PayZone[]>(() => {
-    if (allData.length < 5) return [];
-    const zones: PayZone[] = [];
-    let inZone = false, zStart = 0;
-    for (const pt of allData) {
-      const isPay = pt.gr < 50 && pt.por > 8 && pt.res > 8;
-      if (isPay && !inZone) { inZone = true; zStart = pt.depth; }
-      if (!isPay && inZone) {
-        if (pt.depth - zStart > 5) zones.push({ top: zStart, bottom: pt.depth, label: formation || "Pay" });
-        inZone = false;
-      }
-    }
-    if (inZone) zones.push({ top: zStart, bottom: allData[allData.length - 1].depth, label: formation || "Pay" });
-    return zones;
-  }, [allData, formation]);
+    return interpretation.intervals
+      .filter(i => i.isReservoir)
+      .map(i => ({ top: i.top, bottom: i.bottom, label: `${fluidEmoji(i.fluidType)} ${i.fluidType}` }));
+  }, [interpretation]);
 
   // Parse formation intervals from formation string (e.g. "Rodessa / Upper Carlisle / James Lime")
   const formationIntervals = useMemo(() => {
