@@ -159,10 +159,10 @@ export const WellLogAnalysisDemo = () => {
     setVisibleDepth(wellLogData.length);
     setDetectedZones(PAY_ZONES);
     setReport({
-      totalPayThickness: 220,
+      totalPayThickness: 715,
       missedIntervals: 1,
-      recommendedPerforations: 3,
-      estimatedReserves: 1.85,
+      recommendedPerforations: 2,
+      estimatedReserves: 0.42,
       payZones: PAY_ZONES,
     });
     setIsRunning(false);
