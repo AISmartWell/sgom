@@ -400,12 +400,13 @@ export const WellLogAnalysisDemo = () => {
               </div>
             </div>
             <div className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg space-y-1">
-              <p className="font-medium text-foreground">AI Recommendations:</p>
+              <p className="font-medium text-foreground">AI Recommendations — Brawner 10-15 (Rodessa / James Lime):</p>
               <ul className="list-disc list-inside space-y-0.5">
-                <li>Perforate Zone C (3250-3280m) — missed pay interval with 15.8% porosity and 85 mD permeability</li>
-                <li>Zone A remains primary target with best reservoir properties (φ=22.4%, k=320 mD)</li>
-                <li>Avoid Zone D — water-saturated interval (Sw=85%)</li>
-                <li>Consider acidizing Zone B to improve productivity index</li>
+                <li>⚠️ Perforate Rodessa/James Lime interval (4750–4915 ft) — missed pay with φ=20.2%, Res=48 Ωm, Sw=28%</li>
+                <li>Upper Carlisle (4400–4750 ft) shows moderate pay with φ=14%, consider acidizing to improve inflow</li>
+                <li>Best pay concentration at 4837–4900 ft: GR=20–24 API, porosity 20–23%, high resistivity 35–52 Ωm</li>
+                <li>Avoid Sub-Rodessa (5000–5100 ft) — water-saturated (Sw=85%)</li>
+                <li>Recommended: dual completion targeting Upper Carlisle + Rodessa intervals</li>
               </ul>
             </div>
           </div>
