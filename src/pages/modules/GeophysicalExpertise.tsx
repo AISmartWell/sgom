@@ -34,10 +34,10 @@ const STEPS = [
   {
     num: 1,
     key: "raw-log",
-    label: "Сырые кривые",
+    label: "Raw Curves",
     icon: Eye,
     formula: null,
-    description: "Визуализация каротажных кривых: GR, SP, Resistivity, Porosity, Density, Neutron",
+    description: "Visualization of well log curves: GR, SP, Resistivity, Porosity, Density, Neutron",
   },
   {
     num: 2,
@@ -45,15 +45,15 @@ const STEPS = [
     label: "Vshale",
     icon: Layers,
     formula: "Vsh = (GR − GRclean) / (GRshale − GRclean)",
-    description: "Линейный метод расчёта глинистости по гамма-каротажу. GRclean = 20 API, GRshale = 120 API",
+    description: "Linear GR method for shale volume calculation. GRclean = 20 API, GRshale = 120 API",
   },
   {
     num: 3,
     key: "porosity",
-    label: "Пористость",
+    label: "Porosity",
     icon: Target,
     formula: "φeff = φtotal × (1 − Vsh)",
-    description: "Эффективная пористость с коррекцией на глинистость. Cutoff: φ > 8%",
+    description: "Effective porosity with shale volume correction. Cutoff: φ > 8%",
   },
   {
     num: 4,
@@ -61,7 +61,7 @@ const STEPS = [
     label: "Sw (Archie)",
     icon: Droplets,
     formula: "Sw² = (a · Rw) / (φᵐ · Rt)",
-    description: "Уравнение Арчи (1942): a=1, m=2, n=2, Rw=0.04 Ω·m. Cutoff: Sw < 60%",
+    description: "Archie Equation (1942): a=1, m=2, n=2, Rw=0.04 Ω·m. Cutoff: Sw < 60%",
   },
   {
     num: 5,
@@ -69,7 +69,7 @@ const STEPS = [
     label: "Ko Ko Rules",
     icon: Zap,
     formula: "Pattern: GR→Res→Den→Neu (L/R)",
-    description: "Правила Ко Ко — идентификация флюида по паттернам отклонения 4 кривых",
+    description: "Ko Ko Rules — fluid identification by 4-curve deflection patterns",
   },
   {
     num: 6,
@@ -77,15 +77,15 @@ const STEPS = [
     label: "Net Pay",
     icon: BarChart3,
     formula: "Net Pay = φ>8% AND Sw<60% AND Vsh<40%",
-    description: "Определение продуктивных интервалов и пропущенных зон (Missed Pay)",
+    description: "Productive interval determination and Missed Pay zone detection",
   },
   {
     num: 7,
     key: "report",
-    label: "Отчёт",
+    label: "Report",
     icon: FileText,
     formula: null,
-    description: "Финальный отчёт: Gross/Net Pay, N/G ratio, доминирующий флюид, рекомендации",
+    description: "Final report: Gross/Net Pay, N/G ratio, dominant fluid, recommendations",
   },
 ];
 
@@ -108,7 +108,7 @@ const StepVshale = ({ data }: { data: PetroPoint[] }) => {
         <CardHeader className="pb-2">
           <CardTitle className="text-sm flex items-center gap-2">
             <Layers className="h-4 w-4 text-primary" />
-            Формула линейного метода
+            Linear Method Formula
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -134,7 +134,7 @@ const StepVshale = ({ data }: { data: PetroPoint[] }) => {
 
       <Card className="bg-muted/20 border-border/30">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm">Результаты по глубинам</CardTitle>
+          <CardTitle className="text-sm">Results by Depth</CardTitle>
         </CardHeader>
         <CardContent>
           <table className="w-full text-xs">
@@ -143,7 +143,7 @@ const StepVshale = ({ data }: { data: PetroPoint[] }) => {
                 <th className="py-1.5 text-left">Depth (ft)</th>
                 <th className="py-1.5 text-center">GR (API)</th>
                 <th className="py-1.5 text-center">Vshale</th>
-                <th className="py-1.5 text-center">Литология</th>
+                <th className="py-1.5 text-center">Lithology</th>
               </tr>
             </thead>
             <tbody>
@@ -220,7 +220,7 @@ const StepPorosity = ({ data }: { data: PetroPoint[] }) => {
         <CardHeader className="pb-2">
           <CardTitle className="text-sm flex items-center gap-2">
             <Target className="h-4 w-4 text-primary" />
-            Коррекция пористости
+            Porosity Correction
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -228,14 +228,14 @@ const StepPorosity = ({ data }: { data: PetroPoint[] }) => {
             φ<sub>eff</sub> = φ<sub>total</sub> × (1 − V<sub>sh</sub>)
           </div>
           <p className="mt-2 text-xs text-muted-foreground text-center">
-            Эффективная пористость — пористость за вычетом объёма связанной воды в глинах
+            Effective porosity — total porosity minus the volume of clay-bound water
           </p>
         </CardContent>
       </Card>
 
       <Card className="bg-muted/20 border-border/30">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm">Расчёт по интервалам</CardTitle>
+          <CardTitle className="text-sm">Calculation by Intervals</CardTitle>
         </CardHeader>
         <CardContent>
           <table className="w-full text-xs">
@@ -297,7 +297,7 @@ const StepArchie = ({ data }: { data: PetroPoint[] }) => {
         <CardHeader className="pb-2">
           <CardTitle className="text-sm flex items-center gap-2">
             <Droplets className="h-4 w-4 text-primary" />
-            Уравнение Арчи (1942)
+            Archie Equation (1942)
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -327,7 +327,7 @@ const StepArchie = ({ data }: { data: PetroPoint[] }) => {
 
       <Card className="bg-muted/20 border-border/30">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm">Sw расчёт по глубинам</CardTitle>
+          <CardTitle className="text-sm">Sw Calculation by Depth</CardTitle>
         </CardHeader>
         <CardContent>
           <table className="w-full text-xs">
@@ -383,7 +383,7 @@ const StepKoKo = ({ data }: { data: PetroPoint[] }) => {
         <CardHeader className="pb-2">
           <CardTitle className="text-sm flex items-center gap-2">
             <Zap className="h-4 w-4 text-primary" />
-            Ko Ko Rules — Таблица паттернов
+            Ko Ko Rules — Pattern Table
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -413,7 +413,7 @@ const StepKoKo = ({ data }: { data: PetroPoint[] }) => {
 
       <Card className="bg-muted/20 border-border/30">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm">Результаты классификации</CardTitle>
+          <CardTitle className="text-sm">Classification Results</CardTitle>
         </CardHeader>
         <CardContent>
           <table className="w-full text-xs">
@@ -626,7 +626,7 @@ const GeophysicalExpertise = () => {
             </div>
           </div>
           <p className="text-muted-foreground">
-            Пошаговый алгоритм интерпретации каротажных данных
+            Step-by-step well log interpretation algorithm
           </p>
         </div>
         <Badge variant="outline" className="text-primary border-primary">
@@ -654,7 +654,7 @@ const GeophysicalExpertise = () => {
             ))}
           </select>
         ) : (
-          <span className="text-sm text-muted-foreground">Нет скважин в базе</span>
+          <span className="text-sm text-muted-foreground">No wells in database</span>
         )}
         {selectedWell?.formation && (
           <Badge variant="outline" className="text-xs">{selectedWell.formation}</Badge>
@@ -663,7 +663,7 @@ const GeophysicalExpertise = () => {
           <Badge variant="outline" className="text-xs">{selectedWell.total_depth.toLocaleString()} ft</Badge>
         )}
         <Button variant="outline" size="sm" onClick={() => navigate("/modules/data-import")} className="ml-auto text-xs">
-          + Добавить скважину
+          + Add Well
         </Button>
       </div>
 
