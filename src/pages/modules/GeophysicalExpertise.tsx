@@ -569,6 +569,174 @@ const StepNetPay = ({ summary }: { summary: InterpretationSummary }) => {
   );
 };
 
+/* ── Add Well Dialog ── */
+const US_STATES = ["OK", "TX", "NM", "CO", "ND", "WY", "KS", "LA", "PA", "WV", "OH"];
+const WELL_TYPES = ["OIL", "GAS", "OIL AND GAS", "INJECTION", "DISPOSAL", "DRY HOLE"];
+const STATUSES = ["ACTIVE", "INACTIVE", "PLUGGED", "DRILLING", "COMPLETED", "PERMITTED"];
+
+const AddWellDialog = ({
+  open,
+  onOpenChange,
+  companyId,
+  onWellAdded,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  companyId: string | null;
+  onWellAdded: (well: WellOption) => void;
+}) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [form, setForm] = useState({
+    api_number: "", well_name: "", operator: "", well_type: "", status: "",
+    county: "", state: "OK", latitude: "", longitude: "", formation: "",
+    total_depth: "", production_oil: "", production_gas: "", water_cut: "",
+    spud_date: "", completion_date: "",
+  });
+
+  const updateField = (field: string, value: string) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!companyId) { toast.error("No company found. Please log in first."); return; }
+    if (!form.api_number || !form.well_name) { toast.error("API Number and Well Name are required"); return; }
+
+    setIsSubmitting(true);
+    try {
+      const wellData = {
+        api_number: form.api_number.trim(),
+        well_name: form.well_name.trim(),
+        operator: form.operator.trim() || "Unknown",
+        well_type: form.well_type || null,
+        status: form.status || null,
+        county: form.county.trim().toUpperCase() || null,
+        state: form.state,
+        latitude: form.latitude ? parseFloat(form.latitude) : null,
+        longitude: form.longitude ? parseFloat(form.longitude) : null,
+        formation: form.formation.trim() || null,
+        total_depth: form.total_depth ? parseFloat(form.total_depth) : null,
+        production_oil: form.production_oil ? parseFloat(form.production_oil) : null,
+        production_gas: form.production_gas ? parseFloat(form.production_gas) : null,
+        water_cut: form.water_cut ? parseFloat(form.water_cut) : null,
+        spud_date: form.spud_date || null,
+        completion_date: form.completion_date || null,
+        company_id: companyId,
+        source: "MANUAL",
+      };
+
+      const { data, error } = await supabase.from("wells").upsert(wellData, { onConflict: "api_number" }).select("id, well_name, api_number, formation, total_depth").single();
+      if (error) throw error;
+
+      toast.success(`Well "${form.well_name}" saved successfully`);
+      if (data) onWellAdded(data);
+      setForm({
+        api_number: "", well_name: "", operator: "", well_type: "", status: "",
+        county: "", state: "OK", latitude: "", longitude: "", formation: "",
+        total_depth: "", production_oil: "", production_gas: "", water_cut: "",
+        spud_date: "", completion_date: "",
+      });
+      onOpenChange(false);
+    } catch (err) {
+      console.error("Insert error:", err);
+      toast.error(err instanceof Error ? err.message : "Failed to save well");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Plus className="h-5 w-5 text-primary" />
+            Add New Well
+          </DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <Label htmlFor="dlg-api">API Number *</Label>
+              <Input id="dlg-api" placeholder="3500100001" value={form.api_number} onChange={(e) => updateField("api_number", e.target.value)} required />
+            </div>
+            <div>
+              <Label htmlFor="dlg-name">Well Name *</Label>
+              <Input id="dlg-name" placeholder="SMITH 1-24" value={form.well_name} onChange={(e) => updateField("well_name", e.target.value)} required />
+            </div>
+            <div>
+              <Label htmlFor="dlg-op">Operator</Label>
+              <Input id="dlg-op" placeholder="ALPHA PETROLEUM" value={form.operator} onChange={(e) => updateField("operator", e.target.value)} />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+              <Label>Well Type</Label>
+              <Select value={form.well_type} onValueChange={(v) => updateField("well_type", v)}>
+                <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                <SelectContent>{WELL_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Status</Label>
+              <Select value={form.status} onValueChange={(v) => updateField("status", v)}>
+                <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                <SelectContent>{STATUSES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="dlg-county">County</Label>
+              <Input id="dlg-county" placeholder="CANADIAN" value={form.county} onChange={(e) => updateField("county", e.target.value)} />
+            </div>
+            <div>
+              <Label>State</Label>
+              <Select value={form.state} onValueChange={(v) => updateField("state", v)}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>{US_STATES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <Label htmlFor="dlg-lat">Latitude</Label>
+              <Input id="dlg-lat" type="number" step="any" placeholder="35.467" value={form.latitude} onChange={(e) => updateField("latitude", e.target.value)} />
+            </div>
+            <div>
+              <Label htmlFor="dlg-lng">Longitude</Label>
+              <Input id="dlg-lng" type="number" step="any" placeholder="-97.523" value={form.longitude} onChange={(e) => updateField("longitude", e.target.value)} />
+            </div>
+            <div>
+              <Label htmlFor="dlg-fm">Formation</Label>
+              <Input id="dlg-fm" placeholder="MISSISSIPPIAN" value={form.formation} onChange={(e) => updateField("formation", e.target.value)} />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+              <Label htmlFor="dlg-td">Total Depth (ft)</Label>
+              <Input id="dlg-td" type="number" placeholder="8500" value={form.total_depth} onChange={(e) => updateField("total_depth", e.target.value)} />
+            </div>
+            <div>
+              <Label htmlFor="dlg-oil">Oil (bbl/day)</Label>
+              <Input id="dlg-oil" type="number" placeholder="150" value={form.production_oil} onChange={(e) => updateField("production_oil", e.target.value)} />
+            </div>
+            <div>
+              <Label htmlFor="dlg-gas">Gas (mcf/day)</Label>
+              <Input id="dlg-gas" type="number" placeholder="300" value={form.production_gas} onChange={(e) => updateField("production_gas", e.target.value)} />
+            </div>
+            <div>
+              <Label htmlFor="dlg-wc">Water Cut (%)</Label>
+              <Input id="dlg-wc" type="number" step="0.1" placeholder="25" value={form.water_cut} onChange={(e) => updateField("water_cut", e.target.value)} />
+            </div>
+          </div>
+          <Button type="submit" disabled={isSubmitting} className="w-full">
+            {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Saving...</> : <><CheckCircle2 className="mr-2 h-4 w-4" />Save Well</>}
+          </Button>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 /* ── Well Search Selector ── */
 const WellSearchSelector = ({
   wells,
@@ -653,7 +821,8 @@ const WellSearchSelector = ({
             )}
           </div>
           <Button onClick={onAddWell} variant="outline" size="sm" className="flex-shrink-0">
-            + Add Well
+            <Plus className="mr-1 h-4 w-4" />
+            Add Well
           </Button>
         </div>
       </CardContent>
