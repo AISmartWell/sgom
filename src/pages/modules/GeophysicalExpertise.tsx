@@ -297,7 +297,7 @@ const StepArchie = ({ data }: { data: PetroPoint[] }) => {
         <CardHeader className="pb-2">
           <CardTitle className="text-sm flex items-center gap-2">
             <Droplets className="h-4 w-4 text-primary" />
-            Уравнение Арчи (1942)
+            Archie Equation (1942)
           </CardTitle>
         </CardHeader>
         <CardContent>
