@@ -636,36 +636,39 @@ const GeophysicalExpertise = () => {
       </div>
 
       {/* Well Selector */}
-      <div className="mb-4 flex items-center gap-3">
-        <label className="text-sm text-muted-foreground font-medium">Well:</label>
-        {wells.length > 0 ? (
-          <select
-            value={selectedWell?.id || ""}
-            onChange={(e) => {
-              const w = wells.find(w => w.id === e.target.value);
-              if (w) setSelectedWell(w);
-            }}
-            className="bg-background border border-border rounded-md px-3 py-1.5 text-sm min-w-[220px]"
-          >
-            {wells.map(w => (
-              <option key={w.id} value={w.id}>
-                {w.well_name || w.api_number || w.id}
-              </option>
-            ))}
-          </select>
-        ) : (
-          <span className="text-sm text-muted-foreground">No wells in database</span>
-        )}
-        {selectedWell?.formation && (
-          <Badge variant="outline" className="text-xs">{selectedWell.formation}</Badge>
-        )}
-        {selectedWell?.total_depth && (
-          <Badge variant="outline" className="text-xs">{selectedWell.total_depth.toLocaleString()} ft</Badge>
-        )}
-        <Button variant="outline" size="sm" onClick={() => navigate("/dashboard/data-import")} className="ml-auto text-xs">
-          + Add Well
-        </Button>
-      </div>
+      <Card className="mb-6 bg-muted/20 border-border/30">
+        <CardContent className="py-4">
+          <p className="text-sm font-semibold mb-2">Select Well</p>
+          <div className="flex items-center gap-3">
+            <div className="flex-1">
+              {wells.length > 0 ? (
+                <select
+                  value={selectedWell?.id || ""}
+                  onChange={(e) => {
+                    const w = wells.find(w => w.id === e.target.value);
+                    if (w) setSelectedWell(w);
+                  }}
+                  className="w-full bg-background border border-border rounded-md px-3 py-2 text-sm"
+                >
+                  <option value="" disabled>Search and select a well...</option>
+                  {wells.map(w => (
+                    <option key={w.id} value={w.id}>
+                      {w.well_name || w.api_number || w.id}{w.formation ? ` • ${w.formation}` : ""}{w.total_depth ? ` • ${w.total_depth.toLocaleString()} ft` : ""}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <div className="w-full bg-background border border-border rounded-md px-3 py-2 text-sm text-muted-foreground">
+                  No wells in database
+                </div>
+              )}
+            </div>
+            <Button onClick={() => navigate("/dashboard/data-import")} variant="outline" size="sm" className="flex-shrink-0">
+              + Add Well
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* 7-Step Pipeline Navigator */}
       <div className="flex gap-1.5 mb-6 overflow-x-auto pb-1">
