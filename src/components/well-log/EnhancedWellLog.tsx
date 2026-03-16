@@ -869,9 +869,11 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
           </div>
 
           {/* Footer */}
-          <div className="flex justify-between text-[9px] text-muted-foreground px-1">
+          <div className="flex justify-between text-[9px] text-muted-foreground px-1 flex-wrap gap-1">
             <span>Formation: <span className="text-foreground/80">{formation || "Unknown"}</span></span>
             <span>{allData.length} pts · {Math.round(viewMin)}–{Math.round(viewMax)} ft</span>
+            {payZones.length > 0 && <span className="text-amber-400">Pay zones: {payZones.length}</span>}
+            {missedZones.length > 0 && <span className="text-red-400">⚠ Missed: {missedZones.length}</span>}
           </div>
         </div>
       )}

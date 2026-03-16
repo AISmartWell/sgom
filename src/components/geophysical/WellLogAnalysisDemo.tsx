@@ -65,11 +65,12 @@ const STAGES: { key: AnalysisStage; label: string; icon: any; duration: number }
   { key: "complete", label: "Complete", icon: CheckCircle2, duration: 0 },
 ];
 
+// Brawner 10-15 specific intervals based on real log data (formation: Rodessa / Upper Carlisle / James Lime)
 const PAY_ZONES: PayZone[] = [
-  { top: 2900, bottom: 3050, name: "Zone A — Main Pay", porosity: 22.4, sw: 24, permeability: 320, status: "productive" },
-  { top: 3120, bottom: 3180, name: "Zone B — Secondary", porosity: 18.1, sw: 32, permeability: 145, status: "productive" },
-  { top: 3250, bottom: 3280, name: "Zone C — Missed Pay", porosity: 15.8, sw: 38, permeability: 85, status: "missed" },
-  { top: 3350, bottom: 3400, name: "Zone D — Water", porosity: 20.2, sw: 85, permeability: 210, status: "water" },
+  { top: 4200, bottom: 4400, name: "Upper Carlisle — Transition", porosity: 11.4, sw: 72, permeability: 8.5, status: "productive" },
+  { top: 4400, bottom: 4750, name: "Upper Carlisle — Main Pay", porosity: 14.0, sw: 60, permeability: 15.5, status: "productive" },
+  { top: 4750, bottom: 4915, name: "Rodessa / James Lime — Best Pay", porosity: 20.2, sw: 28, permeability: 48, status: "missed" },
+  { top: 5000, bottom: 5100, name: "Sub-Rodessa — Water", porosity: 7.0, sw: 85, permeability: 5, status: "water" },
 ];
 
 export const WellLogAnalysisDemo = () => {
