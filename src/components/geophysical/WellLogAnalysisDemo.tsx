@@ -184,7 +184,7 @@ export const WellLogAnalysisDemo = () => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-background/95 backdrop-blur-sm border border-border rounded-lg p-3 shadow-lg z-50">
-          <p className="text-sm font-medium mb-2">Depth: {label}m TVD</p>
+          <p className="text-sm font-medium mb-2">Depth: {label} ft TVD</p>
           {payload.map((entry: any, index: number) => (
             <p key={index} className="text-xs" style={{ color: entry.color }}>
               {entry.name}: {typeof entry.value === "number" ? entry.value.toFixed(1) : entry.value}
