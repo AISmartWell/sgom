@@ -654,7 +654,7 @@ const GeophysicalExpertise = () => {
             ))}
           </select>
         ) : (
-          <span className="text-sm text-muted-foreground">Нет скважин в базе</span>
+          <span className="text-sm text-muted-foreground">No wells in database</span>
         )}
         {selectedWell?.formation && (
           <Badge variant="outline" className="text-xs">{selectedWell.formation}</Badge>
