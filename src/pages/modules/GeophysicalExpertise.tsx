@@ -836,22 +836,38 @@ const GeophysicalExpertise = () => {
   const [wells, setWells] = useState<WellOption[]>([]);
   const [selectedWell, setSelectedWell] = useState<WellOption | null>(null);
   const [activeStep, setActiveStep] = useState("raw-log");
+  const [addWellOpen, setAddWellOpen] = useState(false);
+  const [companyId, setCompanyId] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchWells = async () => {
-      const { data } = await supabase
-        .from("wells")
-        .select("id, well_name, api_number, formation, total_depth")
-        .order("well_name", { ascending: true })
-        .limit(50);
-      if (data && data.length > 0) {
-        setWells(data);
+    const loadCompany = async () => {
+      const { data } = await supabase.from("user_companies").select("company_id").limit(1).maybeSingle();
+      if (data) setCompanyId(data.company_id);
+    };
+    loadCompany();
+  }, []);
+
+  const fetchWells = async () => {
+    const { data } = await supabase
+      .from("wells")
+      .select("id, well_name, api_number, formation, total_depth")
+      .order("well_name", { ascending: true })
+      .limit(50);
+    if (data && data.length > 0) {
+      setWells(data);
+      if (!selectedWell) {
         const brawner = data.find(w => w.api_number === "42467309790000");
         setSelectedWell(brawner || data[0]);
       }
-    };
-    fetchWells();
-  }, []);
+    }
+  };
+
+  useEffect(() => { fetchWells(); }, []);
+
+  const handleWellAdded = (well: WellOption) => {
+    setWells(prev => [...prev, well]);
+    setSelectedWell(well);
+  };
 
   // Load well log data for calculation steps
   const { data: rawLogs } = useWellLogs(selectedWell?.id);
@@ -877,6 +893,14 @@ const GeophysicalExpertise = () => {
 
   return (
     <div className="p-8">
+      {/* Add Well Dialog */}
+      <AddWellDialog
+        open={addWellOpen}
+        onOpenChange={setAddWellOpen}
+        companyId={companyId}
+        onWellAdded={handleWellAdded}
+      />
+
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -906,7 +930,7 @@ const GeophysicalExpertise = () => {
         wells={wells}
         selectedWell={selectedWell}
         onSelect={setSelectedWell}
-        onAddWell={() => navigate("/dashboard/data-import")}
+        onAddWell={() => setAddWellOpen(true)}
       />
 
       {/* 7-Step Pipeline Navigator */}
