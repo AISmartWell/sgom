@@ -34,10 +34,10 @@ const STEPS = [
   {
     num: 1,
     key: "raw-log",
-    label: "Сырые кривые",
+    label: "Raw Curves",
     icon: Eye,
     formula: null,
-    description: "Визуализация каротажных кривых: GR, SP, Resistivity, Porosity, Density, Neutron",
+    description: "Visualization of well log curves: GR, SP, Resistivity, Porosity, Density, Neutron",
   },
   {
     num: 2,
@@ -45,15 +45,15 @@ const STEPS = [
     label: "Vshale",
     icon: Layers,
     formula: "Vsh = (GR − GRclean) / (GRshale − GRclean)",
-    description: "Линейный метод расчёта глинистости по гамма-каротажу. GRclean = 20 API, GRshale = 120 API",
+    description: "Linear GR method for shale volume calculation. GRclean = 20 API, GRshale = 120 API",
   },
   {
     num: 3,
     key: "porosity",
-    label: "Пористость",
+    label: "Porosity",
     icon: Target,
     formula: "φeff = φtotal × (1 − Vsh)",
-    description: "Эффективная пористость с коррекцией на глинистость. Cutoff: φ > 8%",
+    description: "Effective porosity with shale volume correction. Cutoff: φ > 8%",
   },
   {
     num: 4,
@@ -61,7 +61,7 @@ const STEPS = [
     label: "Sw (Archie)",
     icon: Droplets,
     formula: "Sw² = (a · Rw) / (φᵐ · Rt)",
-    description: "Уравнение Арчи (1942): a=1, m=2, n=2, Rw=0.04 Ω·m. Cutoff: Sw < 60%",
+    description: "Archie Equation (1942): a=1, m=2, n=2, Rw=0.04 Ω·m. Cutoff: Sw < 60%",
   },
   {
     num: 5,
@@ -69,7 +69,7 @@ const STEPS = [
     label: "Ko Ko Rules",
     icon: Zap,
     formula: "Pattern: GR→Res→Den→Neu (L/R)",
-    description: "Правила Ко Ко — идентификация флюида по паттернам отклонения 4 кривых",
+    description: "Ko Ko Rules — fluid identification by 4-curve deflection patterns",
   },
   {
     num: 6,
@@ -77,15 +77,15 @@ const STEPS = [
     label: "Net Pay",
     icon: BarChart3,
     formula: "Net Pay = φ>8% AND Sw<60% AND Vsh<40%",
-    description: "Определение продуктивных интервалов и пропущенных зон (Missed Pay)",
+    description: "Productive interval determination and Missed Pay zone detection",
   },
   {
     num: 7,
     key: "report",
-    label: "Отчёт",
+    label: "Report",
     icon: FileText,
     formula: null,
-    description: "Финальный отчёт: Gross/Net Pay, N/G ratio, доминирующий флюид, рекомендации",
+    description: "Final report: Gross/Net Pay, N/G ratio, dominant fluid, recommendations",
   },
 ];
 
