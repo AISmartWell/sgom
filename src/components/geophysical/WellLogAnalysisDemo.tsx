@@ -85,42 +85,35 @@ export const WellLogAnalysisDemo = () => {
   // Generate synthetic well log data
   const wellLogData = useMemo(() => {
     const data = [];
-    for (let i = 0; i < 80; i++) {
-      const depth = 2800 + i * 10;
+    for (let i = 0; i < 100; i++) {
+      const depth = 3800 + i * 15; // 3800–5285 ft range (Brawner 10-15 productive section)
 
-      // Gamma Ray — low in sand (pay zones), high in shale
-      const inZoneA = depth >= 2900 && depth <= 3050;
-      const inZoneB = depth >= 3120 && depth <= 3180;
-      const inZoneC = depth >= 3250 && depth <= 3280;
-      const inZoneD = depth >= 3350 && depth <= 3400;
-      const inPay = inZoneA || inZoneB || inZoneC || inZoneD;
+      // Formation intervals for Rodessa / Upper Carlisle / James Lime
+      const inUpperCarlisle = depth >= 4200 && depth <= 4750;
+      const inRodessa = depth >= 4750 && depth <= 4915;
+      const inSubRodessa = depth >= 5000 && depth <= 5100;
+      const inBestPay = depth >= 4837 && depth <= 4900; // Best pay within Rodessa
+      const inPay = inUpperCarlisle || inRodessa;
 
-      const baseGR = inPay ? 25 : 85;
-      const gammaRay = Math.max(0, baseGR + Math.random() * 30 - 15);
+      // GR: low in reservoir, high in shale
+      const baseGR = inBestPay ? 22 : inRodessa ? 35 : inUpperCarlisle ? 55 : inSubRodessa ? 72 : 80;
+      const gammaRay = Math.max(0, baseGR + Math.random() * 20 - 10);
 
-      // Resistivity — high in oil zones, low in water
-      const baseRes = inZoneD ? 3 : inPay ? 60 : 5;
-      const resistivity = Math.max(0.5, baseRes * (0.7 + Math.random() * 0.6));
+      // Resistivity: high in oil, low in water
+      const baseRes = inSubRodessa ? 4 : inBestPay ? 48 : inRodessa ? 25 : inUpperCarlisle ? 12 : 4;
+      const resistivity = Math.max(0.5, baseRes * (0.8 + Math.random() * 0.4));
 
       // Porosity
-      const basePor = inZoneA ? 22 : inZoneB ? 18 : inZoneC ? 16 : inZoneD ? 20 : 6;
-      const porosity = Math.max(0, Math.min(40, basePor + Math.random() * 6 - 3));
+      const basePor = inBestPay ? 21 : inRodessa ? 16 : inUpperCarlisle ? 10 : inSubRodessa ? 7 : 4.5;
+      const porosity = Math.max(0, Math.min(40, basePor + Math.random() * 4 - 2));
 
-      // Neutron Porosity (slightly different from density porosity in pay)
-      const neutronPor = porosity + (inPay ? -2 + Math.random() * 1 : 2 + Math.random() * 2);
+      const neutronPor = porosity + (inPay ? -1.5 + Math.random() * 1 : 1.5 + Math.random() * 2);
 
-      // Water Saturation
-      const baseSw = inZoneA ? 24 : inZoneB ? 32 : inZoneC ? 38 : inZoneD ? 85 : 100;
-      const waterSat = Math.min(100, Math.max(0, baseSw + Math.random() * 15 - 7));
+      // Sw
+      const baseSw = inBestPay ? 26 : inRodessa ? 45 : inUpperCarlisle ? 72 : inSubRodessa ? 85 : 92;
+      const waterSat = Math.min(100, Math.max(0, baseSw + Math.random() * 12 - 6));
 
-      data.push({
-        depth,
-        gammaRay,
-        resistivity,
-        porosity,
-        neutronPor,
-        waterSat,
-      });
+      data.push({ depth, gammaRay, resistivity, porosity, neutronPor, waterSat });
     }
     return data;
   }, []);
