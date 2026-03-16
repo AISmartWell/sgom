@@ -143,7 +143,7 @@ const StepVshale = ({ data }: { data: PetroPoint[] }) => {
                 <th className="py-1.5 text-left">Depth (ft)</th>
                 <th className="py-1.5 text-center">GR (API)</th>
                 <th className="py-1.5 text-center">Vshale</th>
-                <th className="py-1.5 text-center">Литология</th>
+                <th className="py-1.5 text-center">Lithology</th>
               </tr>
             </thead>
             <tbody>
