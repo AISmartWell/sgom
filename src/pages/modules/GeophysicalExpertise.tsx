@@ -327,7 +327,7 @@ const StepArchie = ({ data }: { data: PetroPoint[] }) => {
 
       <Card className="bg-muted/20 border-border/30">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm">Sw расчёт по глубинам</CardTitle>
+          <CardTitle className="text-sm">Sw Calculation by Depth</CardTitle>
         </CardHeader>
         <CardContent>
           <table className="w-full text-xs">
