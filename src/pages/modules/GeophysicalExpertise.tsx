@@ -626,7 +626,7 @@ const GeophysicalExpertise = () => {
             </div>
           </div>
           <p className="text-muted-foreground">
-            Пошаговый алгоритм интерпретации каротажных данных
+            Step-by-step well log interpretation algorithm
           </p>
         </div>
         <Badge variant="outline" className="text-primary border-primary">
