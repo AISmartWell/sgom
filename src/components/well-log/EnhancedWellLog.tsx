@@ -1,10 +1,12 @@
 import { useMemo, useState, useCallback, useRef } from "react";
-import { Activity, Database, ZoomIn, ZoomOut, RotateCcw, Download } from "lucide-react";
+import { Activity, Database, ZoomIn, ZoomOut, RotateCcw, Download, FlaskConical } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
 import { useWellLogs, WellLogPoint } from "@/hooks/useWellLogs";
 import { useWellPerforations, PerforationInterval } from "@/hooks/useWellPerforations";
+import { interpretWellLog, fluidColor, fluidEmoji, type PetroPoint, type InterpretationSummary } from "@/lib/petrophysics";
+import WellLogInterpretation from "./WellLogInterpretation";
 
 /* ── Interpolation ── */
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
@@ -75,9 +77,10 @@ const GR_W = 170;
 const DEPTH_W = 50;
 const RES_W = 180;
 const POR_W = 150;
+const FLUID_W = 45;
 const PERF_W = 50;
 const COR_W = 50;
-const TOTAL_W = LITH_W + GR_W + DEPTH_W + RES_W + POR_W + PERF_W + COR_W;
+const TOTAL_W = LITH_W + GR_W + DEPTH_W + RES_W + POR_W + FLUID_W + PERF_W + COR_W;
 const HEADER_H = 60;
 const PAD_B = 10;
 
@@ -86,7 +89,8 @@ const GR_X = LITH_W;
 const DEPTH_X = GR_X + GR_W;
 const RES_X = DEPTH_X + DEPTH_W;
 const POR_X = RES_X + RES_W;
-const PERF_X = POR_X + POR_W;
+const FLUID_X = POR_X + POR_W;
+const PERF_X = FLUID_X + FLUID_W;
 const COR_X = PERF_X + PERF_W;
 
 const C = {
@@ -153,8 +157,9 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
     return synth;
   }, [hasPerfs, perforations, totalDepth]);
   const [expanded, setExpanded] = useState(defaultExpanded);
-  const [zoomFactor, setZoomFactor] = useState(2); // Default 2x zoom for better detail
+  const [zoomFactor, setZoomFactor] = useState(2);
   const [scrollOffset, setScrollOffset] = useState(0);
+  const [showInterpretation, setShowInterpretation] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [hoverData, setHoverData] = useState<{ point: DataPoint; y: number } | null>(null);
@@ -216,22 +221,21 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
     HEADER_H + ((d - viewMin) / visibleSpan) * plotH
   , [viewMin, visibleSpan, plotH]);
 
-  // Pay zones — stricter thresholds: low GR + good porosity + good resistivity
+  // Petrophysical interpretation (Ko Ko Rules + Archie + Net Pay cutoffs)
+  const interpretation = useMemo<InterpretationSummary>(() => {
+    const petroData: PetroPoint[] = allData.map(p => ({
+      depth: p.depth, gr: p.gr, sp: p.sp, res: p.res,
+      por: p.por, sw: p.sw, rhob: p.rhob, nphi: p.nphi,
+    }));
+    return interpretWellLog(petroData);
+  }, [allData]);
+
+  // Pay zones from interpretation engine (replaces simple heuristic)
   const payZones = useMemo<PayZone[]>(() => {
-    if (allData.length < 5) return [];
-    const zones: PayZone[] = [];
-    let inZone = false, zStart = 0;
-    for (const pt of allData) {
-      const isPay = pt.gr < 50 && pt.por > 8 && pt.res > 8;
-      if (isPay && !inZone) { inZone = true; zStart = pt.depth; }
-      if (!isPay && inZone) {
-        if (pt.depth - zStart > 5) zones.push({ top: zStart, bottom: pt.depth, label: formation || "Pay" });
-        inZone = false;
-      }
-    }
-    if (inZone) zones.push({ top: zStart, bottom: allData[allData.length - 1].depth, label: formation || "Pay" });
-    return zones;
-  }, [allData, formation]);
+    return interpretation.intervals
+      .filter(i => i.isReservoir)
+      .map(i => ({ top: i.top, bottom: i.bottom, label: `${fluidEmoji(i.fluidType)} ${i.fluidType}` }));
+  }, [interpretation]);
 
   // Parse formation intervals from formation string (e.g. "Rodessa / Upper Carlisle / James Lime")
   const formationIntervals = useMemo(() => {
@@ -476,6 +480,9 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
               <text x={PERF_X + PERF_W / 2} y={16} textAnchor="middle" fill={C.textBright} fontSize="8" fontWeight="700" letterSpacing="1">PERF</text>
               <text x={PERF_X + PERF_W / 2} y={30} textAnchor="middle" fill="#f97316" fontSize="7" fontFamily="monospace">SPF / ⌀</text>
 
+              <text x={FLUID_X + FLUID_W / 2} y={16} textAnchor="middle" fill={C.textBright} fontSize="8" fontWeight="700" letterSpacing="1">FLUID</text>
+              <text x={FLUID_X + FLUID_W / 2} y={30} textAnchor="middle" fill="#a78bfa" fontSize="7" fontFamily="monospace">Ko Ko</text>
+
               <text x={COR_X + COR_W / 2} y={16} textAnchor="middle" fill={C.textBright} fontSize="8" fontWeight="700" letterSpacing="1">COR</text>
 
               {/* ═══ TRACK BACKGROUNDS ═══ */}
@@ -484,11 +491,12 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
               <rect x={DEPTH_X} y={HEADER_H} width={DEPTH_W} height={plotH} fill="#0e1628" />
               <rect x={RES_X} y={HEADER_H} width={RES_W} height={plotH} fill={C.trackBg} />
               <rect x={POR_X} y={HEADER_H} width={POR_W} height={plotH} fill={C.trackBg} />
+              <rect x={FLUID_X} y={HEADER_H} width={FLUID_W} height={plotH} fill="#0d1020" />
               <rect x={PERF_X} y={HEADER_H} width={PERF_W} height={plotH} fill="#120d1a" />
               <rect x={COR_X} y={HEADER_H} width={COR_W} height={plotH} fill="#0d1220" />
 
               {/* Track borders */}
-              {[LITH_X, GR_X, DEPTH_X, RES_X, POR_X, PERF_X, COR_X, TOTAL_W].map((x, i) => (
+              {[LITH_X, GR_X, DEPTH_X, RES_X, POR_X, FLUID_X, PERF_X, COR_X, TOTAL_W].map((x, i) => (
                 <line key={`b${i}`} x1={x} y1={HEADER_H} x2={x} y2={HEADER_H + plotH} stroke={C.border} strokeWidth="0.6" />
               ))}
               <line x1={0} y1={HEADER_H + plotH} x2={TOTAL_W} y2={HEADER_H + plotH} stroke={C.border} />
@@ -791,6 +799,36 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
                 );
               })}
 
+              {/* ═══ FLUID TYPE TRACK ═══ — Ko Ko Rules interpretation */}
+              {interpretation.intervals.map((iv, i) => {
+                const y1 = yForDepth(iv.top);
+                const y2 = yForDepth(iv.bottom);
+                if (y2 < HEADER_H || y1 > HEADER_H + plotH) return null;
+                const clampY1 = Math.max(HEADER_H, y1);
+                const clampY2 = Math.min(HEADER_H + plotH, y2);
+                const h = clampY2 - clampY1;
+                if (h < 2) return null;
+                const color = fluidColor(iv.fluidType);
+                return (
+                  <g key={`fluid-${i}`}>
+                    <rect x={FLUID_X + 2} y={clampY1} width={FLUID_W - 4} height={h}
+                      fill={color} opacity={iv.isNetPay ? 0.35 : 0.12}
+                      stroke={color} strokeWidth={iv.isNetPay ? 0.8 : 0.3} rx="1" />
+                    {h > 14 && (
+                      <text x={FLUID_X + FLUID_W / 2} y={(clampY1 + clampY2) / 2 + 3}
+                        textAnchor="middle" fill={color} fontSize="6" fontWeight="700">
+                        {fluidEmoji(iv.fluidType)}
+                      </text>
+                    )}
+                    {h > 24 && iv.isNetPay && (
+                      <text x={FLUID_X + FLUID_W / 2} y={(clampY1 + clampY2) / 2 + 12}
+                        textAnchor="middle" fill="#22c55e" fontSize="5" fontWeight="800">
+                        NET
+                      </text>
+                    )}
+                  </g>
+                );
+              })}
 
               {(() => {
                 const labels: JSX.Element[] = [];
@@ -869,12 +907,29 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
           </div>
 
           {/* Footer */}
-          <div className="flex justify-between text-[9px] text-muted-foreground px-1 flex-wrap gap-1">
+          <div className="flex justify-between items-center text-[9px] text-muted-foreground px-1 flex-wrap gap-1">
             <span>Formation: <span className="text-foreground/80">{formation || "Unknown"}</span></span>
             <span>{allData.length} pts · {Math.round(viewMin)}–{Math.round(viewMax)} ft</span>
-            {payZones.length > 0 && <span className="text-amber-400">Pay zones: {payZones.length}</span>}
+            {interpretation.netPay > 0 && (
+              <span className="text-emerald-400">Net Pay: {interpretation.netPay} ft (N/G: {interpretation.netToGross}%)</span>
+            )}
+            {payZones.length > 0 && <span className="text-amber-400">Reservoir zones: {payZones.length}</span>}
             {missedZones.length > 0 && <span className="text-red-400">⚠ Missed: {missedZones.length}</span>}
+            <button
+              onClick={() => setShowInterpretation(p => !p)}
+              className="flex items-center gap-1 text-[10px] text-primary hover:text-primary/80 font-semibold transition-colors"
+            >
+              <FlaskConical className="h-3 w-3" />
+              {showInterpretation ? "Hide" : "Show"} Interpretation
+            </button>
           </div>
+
+          {/* Petrophysical Interpretation Panel */}
+          {showInterpretation && (
+            <div className="border border-border/30 rounded-lg p-3 bg-muted/5">
+              <WellLogInterpretation summary={interpretation} wellName={wellName} />
+            </div>
+          )}
         </div>
       )}
     </div>
