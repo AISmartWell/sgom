@@ -153,7 +153,7 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
     return synth;
   }, [hasPerfs, perforations, totalDepth]);
   const [expanded, setExpanded] = useState(defaultExpanded);
-  const [zoomFactor, setZoomFactor] = useState(1);
+  const [zoomFactor, setZoomFactor] = useState(2); // Default 2x zoom for better detail
   const [scrollOffset, setScrollOffset] = useState(0);
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
