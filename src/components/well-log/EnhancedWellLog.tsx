@@ -491,11 +491,12 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
               <rect x={DEPTH_X} y={HEADER_H} width={DEPTH_W} height={plotH} fill="#0e1628" />
               <rect x={RES_X} y={HEADER_H} width={RES_W} height={plotH} fill={C.trackBg} />
               <rect x={POR_X} y={HEADER_H} width={POR_W} height={plotH} fill={C.trackBg} />
+              <rect x={FLUID_X} y={HEADER_H} width={FLUID_W} height={plotH} fill="#0d1020" />
               <rect x={PERF_X} y={HEADER_H} width={PERF_W} height={plotH} fill="#120d1a" />
               <rect x={COR_X} y={HEADER_H} width={COR_W} height={plotH} fill="#0d1220" />
 
               {/* Track borders */}
-              {[LITH_X, GR_X, DEPTH_X, RES_X, POR_X, PERF_X, COR_X, TOTAL_W].map((x, i) => (
+              {[LITH_X, GR_X, DEPTH_X, RES_X, POR_X, FLUID_X, PERF_X, COR_X, TOTAL_W].map((x, i) => (
                 <line key={`b${i}`} x1={x} y1={HEADER_H} x2={x} y2={HEADER_H + plotH} stroke={C.border} strokeWidth="0.6" />
               ))}
               <line x1={0} y1={HEADER_H + plotH} x2={TOTAL_W} y2={HEADER_H + plotH} stroke={C.border} />
