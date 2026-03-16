@@ -216,22 +216,53 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
     HEADER_H + ((d - viewMin) / visibleSpan) * plotH
   , [viewMin, visibleSpan, plotH]);
 
-  // Pay zones
+  // Pay zones — stricter thresholds: low GR + good porosity + good resistivity
   const payZones = useMemo<PayZone[]>(() => {
     if (allData.length < 5) return [];
     const zones: PayZone[] = [];
     let inZone = false, zStart = 0;
     for (const pt of allData) {
-      const isPay = pt.gr < 75 && pt.por > 6 && pt.res > 5;
+      const isPay = pt.gr < 50 && pt.por > 8 && pt.res > 8;
       if (isPay && !inZone) { inZone = true; zStart = pt.depth; }
       if (!isPay && inZone) {
-        if (pt.depth - zStart > 10) zones.push({ top: zStart, bottom: pt.depth, label: formation || "Pay" });
+        if (pt.depth - zStart > 5) zones.push({ top: zStart, bottom: pt.depth, label: formation || "Pay" });
         inZone = false;
       }
     }
     if (inZone) zones.push({ top: zStart, bottom: allData[allData.length - 1].depth, label: formation || "Pay" });
     return zones;
   }, [allData, formation]);
+
+  // Parse formation intervals from formation string (e.g. "Rodessa / Upper Carlisle / James Lime")
+  const formationIntervals = useMemo(() => {
+    if (!formation) return [];
+    const names = formation.split(/\s*[\/,]\s*/).map(s => s.trim()).filter(Boolean);
+    if (names.length === 0) return [];
+    const dMin = allData.length > 0 ? allData[0].depth : 0;
+    const dMax = allData.length > 0 ? allData[allData.length - 1].depth : totalDepth ?? 3500;
+    const range = dMax - dMin;
+    // Distribute formation intervals across the depth range
+    // Focus intervals in the lower 60% of the well (where productive zones typically are)
+    const startFrac = 0.4;
+    const intervalStart = dMin + range * startFrac;
+    const intervalRange = range * (1 - startFrac);
+    return names.map((name, i) => ({
+      name,
+      top: Math.round(intervalStart + (i / names.length) * intervalRange),
+      bottom: Math.round(intervalStart + ((i + 1) / names.length) * intervalRange),
+      color: ["#f59e0b", "#3b82f6", "#10b981", "#8b5cf6", "#ef4444"][i % 5],
+    }));
+  }, [formation, allData, totalDepth]);
+
+  // Missed/bypassed zones — pay zones with no perforation overlap
+  const missedZones = useMemo(() => {
+    return payZones.filter(pz => {
+      const hasPerf = perfIntervals.some(p =>
+        p.depth_from < pz.bottom && p.depth_to > pz.top
+      );
+      return !hasPerf;
+    });
+  }, [payZones, perfIntervals]);
 
   // Has NPHI/RHOB
   const hasDenNphi = useMemo(() => allData.some(p => p.rhob !== null || p.nphi !== null), [allData]);
