@@ -209,7 +209,7 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
   const viewMax = viewMin + visibleSpan;
   const visibleData = allData.filter(p => p.depth >= viewMin && p.depth <= viewMax);
 
-  const plotH = Math.max(400, Math.min(1000, visibleData.length * 4));
+  const plotH = Math.max(500, Math.min(1400, visibleData.length * 6));
   const totalH = HEADER_H + plotH + PAD_B;
 
   const yForDepth = useCallback((d: number) =>
