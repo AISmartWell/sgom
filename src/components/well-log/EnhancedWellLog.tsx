@@ -799,6 +799,36 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
                 );
               })}
 
+              {/* ═══ FLUID TYPE TRACK ═══ — Ko Ko Rules interpretation */}
+              {interpretation.intervals.map((iv, i) => {
+                const y1 = yForDepth(iv.top);
+                const y2 = yForDepth(iv.bottom);
+                if (y2 < HEADER_H || y1 > HEADER_H + plotH) return null;
+                const clampY1 = Math.max(HEADER_H, y1);
+                const clampY2 = Math.min(HEADER_H + plotH, y2);
+                const h = clampY2 - clampY1;
+                if (h < 2) return null;
+                const color = fluidColor(iv.fluidType);
+                return (
+                  <g key={`fluid-${i}`}>
+                    <rect x={FLUID_X + 2} y={clampY1} width={FLUID_W - 4} height={h}
+                      fill={color} opacity={iv.isNetPay ? 0.35 : 0.12}
+                      stroke={color} strokeWidth={iv.isNetPay ? 0.8 : 0.3} rx="1" />
+                    {h > 14 && (
+                      <text x={FLUID_X + FLUID_W / 2} y={(clampY1 + clampY2) / 2 + 3}
+                        textAnchor="middle" fill={color} fontSize="6" fontWeight="700">
+                        {fluidEmoji(iv.fluidType)}
+                      </text>
+                    )}
+                    {h > 24 && iv.isNetPay && (
+                      <text x={FLUID_X + FLUID_W / 2} y={(clampY1 + clampY2) / 2 + 12}
+                        textAnchor="middle" fill="#22c55e" fontSize="5" fontWeight="800">
+                        NET
+                      </text>
+                    )}
+                  </g>
+                );
+              })}
 
               {(() => {
                 const labels: JSX.Element[] = [];
