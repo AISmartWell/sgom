@@ -235,7 +235,7 @@ const StepPorosity = ({ data }: { data: PetroPoint[] }) => {
 
       <Card className="bg-muted/20 border-border/30">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm">Расчёт по интервалам</CardTitle>
+          <CardTitle className="text-sm">Calculation by Intervals</CardTitle>
         </CardHeader>
         <CardContent>
           <table className="w-full text-xs">
