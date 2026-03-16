@@ -1,9 +1,10 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Activity, Eye, Zap, FileText, Layers, Droplets, BarChart3, Target, Calculator } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { ArrowLeft, Activity, Eye, Zap, FileText, Layers, Droplets, BarChart3, Target, Calculator, Search, Play, RefreshCw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import EnhancedWellLog from "@/components/well-log/EnhancedWellLog";
 import { WellLogAnalysisDemo } from "@/components/geophysical/WellLogAnalysisDemo";
