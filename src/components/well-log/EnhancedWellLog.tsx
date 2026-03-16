@@ -907,12 +907,29 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
           </div>
 
           {/* Footer */}
-          <div className="flex justify-between text-[9px] text-muted-foreground px-1 flex-wrap gap-1">
+          <div className="flex justify-between items-center text-[9px] text-muted-foreground px-1 flex-wrap gap-1">
             <span>Formation: <span className="text-foreground/80">{formation || "Unknown"}</span></span>
             <span>{allData.length} pts · {Math.round(viewMin)}–{Math.round(viewMax)} ft</span>
-            {payZones.length > 0 && <span className="text-amber-400">Pay zones: {payZones.length}</span>}
+            {interpretation.netPay > 0 && (
+              <span className="text-emerald-400">Net Pay: {interpretation.netPay} ft (N/G: {interpretation.netToGross}%)</span>
+            )}
+            {payZones.length > 0 && <span className="text-amber-400">Reservoir zones: {payZones.length}</span>}
             {missedZones.length > 0 && <span className="text-red-400">⚠ Missed: {missedZones.length}</span>}
+            <button
+              onClick={() => setShowInterpretation(p => !p)}
+              className="flex items-center gap-1 text-[10px] text-primary hover:text-primary/80 font-semibold transition-colors"
+            >
+              <FlaskConical className="h-3 w-3" />
+              {showInterpretation ? "Hide" : "Show"} Interpretation
+            </button>
           </div>
+
+          {/* Petrophysical Interpretation Panel */}
+          {showInterpretation && (
+            <div className="border border-border/30 rounded-lg p-3 bg-muted/5">
+              <WellLogInterpretation summary={interpretation} wellName={wellName} />
+            </div>
+          )}
         </div>
       )}
     </div>
