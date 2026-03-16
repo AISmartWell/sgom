@@ -65,11 +65,12 @@ const STAGES: { key: AnalysisStage; label: string; icon: any; duration: number }
   { key: "complete", label: "Complete", icon: CheckCircle2, duration: 0 },
 ];
 
+// Brawner 10-15 specific intervals based on real log data (formation: Rodessa / Upper Carlisle / James Lime)
 const PAY_ZONES: PayZone[] = [
-  { top: 2900, bottom: 3050, name: "Zone A — Main Pay", porosity: 22.4, sw: 24, permeability: 320, status: "productive" },
-  { top: 3120, bottom: 3180, name: "Zone B — Secondary", porosity: 18.1, sw: 32, permeability: 145, status: "productive" },
-  { top: 3250, bottom: 3280, name: "Zone C — Missed Pay", porosity: 15.8, sw: 38, permeability: 85, status: "missed" },
-  { top: 3350, bottom: 3400, name: "Zone D — Water", porosity: 20.2, sw: 85, permeability: 210, status: "water" },
+  { top: 4200, bottom: 4400, name: "Upper Carlisle — Transition", porosity: 11.4, sw: 72, permeability: 8.5, status: "productive" },
+  { top: 4400, bottom: 4750, name: "Upper Carlisle — Main Pay", porosity: 14.0, sw: 60, permeability: 15.5, status: "productive" },
+  { top: 4750, bottom: 4915, name: "Rodessa / James Lime — Best Pay", porosity: 20.2, sw: 28, permeability: 48, status: "missed" },
+  { top: 5000, bottom: 5100, name: "Sub-Rodessa — Water", porosity: 7.0, sw: 85, permeability: 5, status: "water" },
 ];
 
 export const WellLogAnalysisDemo = () => {
@@ -84,42 +85,35 @@ export const WellLogAnalysisDemo = () => {
   // Generate synthetic well log data
   const wellLogData = useMemo(() => {
     const data = [];
-    for (let i = 0; i < 80; i++) {
-      const depth = 2800 + i * 10;
+    for (let i = 0; i < 100; i++) {
+      const depth = 3800 + i * 15; // 3800–5285 ft range (Brawner 10-15 productive section)
 
-      // Gamma Ray — low in sand (pay zones), high in shale
-      const inZoneA = depth >= 2900 && depth <= 3050;
-      const inZoneB = depth >= 3120 && depth <= 3180;
-      const inZoneC = depth >= 3250 && depth <= 3280;
-      const inZoneD = depth >= 3350 && depth <= 3400;
-      const inPay = inZoneA || inZoneB || inZoneC || inZoneD;
+      // Formation intervals for Rodessa / Upper Carlisle / James Lime
+      const inUpperCarlisle = depth >= 4200 && depth <= 4750;
+      const inRodessa = depth >= 4750 && depth <= 4915;
+      const inSubRodessa = depth >= 5000 && depth <= 5100;
+      const inBestPay = depth >= 4837 && depth <= 4900; // Best pay within Rodessa
+      const inPay = inUpperCarlisle || inRodessa;
 
-      const baseGR = inPay ? 25 : 85;
-      const gammaRay = Math.max(0, baseGR + Math.random() * 30 - 15);
+      // GR: low in reservoir, high in shale
+      const baseGR = inBestPay ? 22 : inRodessa ? 35 : inUpperCarlisle ? 55 : inSubRodessa ? 72 : 80;
+      const gammaRay = Math.max(0, baseGR + Math.random() * 20 - 10);
 
-      // Resistivity — high in oil zones, low in water
-      const baseRes = inZoneD ? 3 : inPay ? 60 : 5;
-      const resistivity = Math.max(0.5, baseRes * (0.7 + Math.random() * 0.6));
+      // Resistivity: high in oil, low in water
+      const baseRes = inSubRodessa ? 4 : inBestPay ? 48 : inRodessa ? 25 : inUpperCarlisle ? 12 : 4;
+      const resistivity = Math.max(0.5, baseRes * (0.8 + Math.random() * 0.4));
 
       // Porosity
-      const basePor = inZoneA ? 22 : inZoneB ? 18 : inZoneC ? 16 : inZoneD ? 20 : 6;
-      const porosity = Math.max(0, Math.min(40, basePor + Math.random() * 6 - 3));
+      const basePor = inBestPay ? 21 : inRodessa ? 16 : inUpperCarlisle ? 10 : inSubRodessa ? 7 : 4.5;
+      const porosity = Math.max(0, Math.min(40, basePor + Math.random() * 4 - 2));
 
-      // Neutron Porosity (slightly different from density porosity in pay)
-      const neutronPor = porosity + (inPay ? -2 + Math.random() * 1 : 2 + Math.random() * 2);
+      const neutronPor = porosity + (inPay ? -1.5 + Math.random() * 1 : 1.5 + Math.random() * 2);
 
-      // Water Saturation
-      const baseSw = inZoneA ? 24 : inZoneB ? 32 : inZoneC ? 38 : inZoneD ? 85 : 100;
-      const waterSat = Math.min(100, Math.max(0, baseSw + Math.random() * 15 - 7));
+      // Sw
+      const baseSw = inBestPay ? 26 : inRodessa ? 45 : inUpperCarlisle ? 72 : inSubRodessa ? 85 : 92;
+      const waterSat = Math.min(100, Math.max(0, baseSw + Math.random() * 12 - 6));
 
-      data.push({
-        depth,
-        gammaRay,
-        resistivity,
-        porosity,
-        neutronPor,
-        waterSat,
-      });
+      data.push({ depth, gammaRay, resistivity, porosity, neutronPor, waterSat });
     }
     return data;
   }, []);
@@ -165,10 +159,10 @@ export const WellLogAnalysisDemo = () => {
     setVisibleDepth(wellLogData.length);
     setDetectedZones(PAY_ZONES);
     setReport({
-      totalPayThickness: 220,
+      totalPayThickness: 715,
       missedIntervals: 1,
-      recommendedPerforations: 3,
-      estimatedReserves: 1.85,
+      recommendedPerforations: 2,
+      estimatedReserves: 0.42,
       payZones: PAY_ZONES,
     });
     setIsRunning(false);
@@ -190,7 +184,7 @@ export const WellLogAnalysisDemo = () => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-background/95 backdrop-blur-sm border border-border rounded-lg p-3 shadow-lg z-50">
-          <p className="text-sm font-medium mb-2">Depth: {label}m TVD</p>
+          <p className="text-sm font-medium mb-2">Depth: {label} ft TVD</p>
           {payload.map((entry: any, index: number) => (
             <p key={index} className="text-xs" style={{ color: entry.color }}>
               {entry.name}: {typeof entry.value === "number" ? entry.value.toFixed(1) : entry.value}
@@ -240,7 +234,7 @@ export const WellLogAnalysisDemo = () => {
                   fontSize={10}
                   reversed
                   domain={["dataMin", "dataMax"]}
-                  tickFormatter={(v) => `${v}m`}
+                  tickFormatter={(v) => `${v} ft`}
                 />
                 <Tooltip content={<CustomTooltip />} />
 
@@ -363,7 +357,7 @@ export const WellLogAnalysisDemo = () => {
                   <div className="grid grid-cols-3 gap-2 text-[10px] text-muted-foreground">
                     <div>
                       <span className="block">Depth</span>
-                      <span className="font-medium text-foreground">{zone.top}-{zone.bottom}m</span>
+                      <span className="font-medium text-foreground">{zone.top}–{zone.bottom} ft</span>
                     </div>
                     <div>
                       <span className="block">φ / Sw</span>
@@ -390,7 +384,7 @@ export const WellLogAnalysisDemo = () => {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
               <div>
                 <p className="text-muted-foreground text-xs">Total Pay Thickness</p>
-                <p className="font-bold text-lg">{report.totalPayThickness}m</p>
+                <p className="font-bold text-lg">{report.totalPayThickness} ft</p>
               </div>
               <div>
                 <p className="text-muted-foreground text-xs">Missed Intervals</p>
@@ -406,12 +400,13 @@ export const WellLogAnalysisDemo = () => {
               </div>
             </div>
             <div className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg space-y-1">
-              <p className="font-medium text-foreground">AI Recommendations:</p>
+              <p className="font-medium text-foreground">AI Recommendations — Brawner 10-15 (Rodessa / James Lime):</p>
               <ul className="list-disc list-inside space-y-0.5">
-                <li>Perforate Zone C (3250-3280m) — missed pay interval with 15.8% porosity and 85 mD permeability</li>
-                <li>Zone A remains primary target with best reservoir properties (φ=22.4%, k=320 mD)</li>
-                <li>Avoid Zone D — water-saturated interval (Sw=85%)</li>
-                <li>Consider acidizing Zone B to improve productivity index</li>
+                <li>⚠️ Perforate Rodessa/James Lime interval (4750–4915 ft) — missed pay with φ=20.2%, Res=48 Ωm, Sw=28%</li>
+                <li>Upper Carlisle (4400–4750 ft) shows moderate pay with φ=14%, consider acidizing to improve inflow</li>
+                <li>Best pay concentration at 4837–4900 ft: GR=20–24 API, porosity 20–23%, high resistivity 35–52 Ωm</li>
+                <li>Avoid Sub-Rodessa (5000–5100 ft) — water-saturated (Sw=85%)</li>
+                <li>Recommended: dual completion targeting Upper Carlisle + Rodessa intervals</li>
               </ul>
             </div>
           </div>

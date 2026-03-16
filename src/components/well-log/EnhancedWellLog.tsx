@@ -153,7 +153,7 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
     return synth;
   }, [hasPerfs, perforations, totalDepth]);
   const [expanded, setExpanded] = useState(defaultExpanded);
-  const [zoomFactor, setZoomFactor] = useState(1);
+  const [zoomFactor, setZoomFactor] = useState(2); // Default 2x zoom for better detail
   const [scrollOffset, setScrollOffset] = useState(0);
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -209,29 +209,60 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
   const viewMax = viewMin + visibleSpan;
   const visibleData = allData.filter(p => p.depth >= viewMin && p.depth <= viewMax);
 
-  const plotH = Math.max(400, Math.min(1000, visibleData.length * 4));
+  const plotH = Math.max(500, Math.min(1400, visibleData.length * 6));
   const totalH = HEADER_H + plotH + PAD_B;
 
   const yForDepth = useCallback((d: number) =>
     HEADER_H + ((d - viewMin) / visibleSpan) * plotH
   , [viewMin, visibleSpan, plotH]);
 
-  // Pay zones
+  // Pay zones — stricter thresholds: low GR + good porosity + good resistivity
   const payZones = useMemo<PayZone[]>(() => {
     if (allData.length < 5) return [];
     const zones: PayZone[] = [];
     let inZone = false, zStart = 0;
     for (const pt of allData) {
-      const isPay = pt.gr < 75 && pt.por > 6 && pt.res > 5;
+      const isPay = pt.gr < 50 && pt.por > 8 && pt.res > 8;
       if (isPay && !inZone) { inZone = true; zStart = pt.depth; }
       if (!isPay && inZone) {
-        if (pt.depth - zStart > 10) zones.push({ top: zStart, bottom: pt.depth, label: formation || "Pay" });
+        if (pt.depth - zStart > 5) zones.push({ top: zStart, bottom: pt.depth, label: formation || "Pay" });
         inZone = false;
       }
     }
     if (inZone) zones.push({ top: zStart, bottom: allData[allData.length - 1].depth, label: formation || "Pay" });
     return zones;
   }, [allData, formation]);
+
+  // Parse formation intervals from formation string (e.g. "Rodessa / Upper Carlisle / James Lime")
+  const formationIntervals = useMemo(() => {
+    if (!formation) return [];
+    const names = formation.split(/\s*[\/,]\s*/).map(s => s.trim()).filter(Boolean);
+    if (names.length === 0) return [];
+    const dMin = allData.length > 0 ? allData[0].depth : 0;
+    const dMax = allData.length > 0 ? allData[allData.length - 1].depth : totalDepth ?? 3500;
+    const range = dMax - dMin;
+    // Distribute formation intervals across the depth range
+    // Focus intervals in the lower 60% of the well (where productive zones typically are)
+    const startFrac = 0.4;
+    const intervalStart = dMin + range * startFrac;
+    const intervalRange = range * (1 - startFrac);
+    return names.map((name, i) => ({
+      name,
+      top: Math.round(intervalStart + (i / names.length) * intervalRange),
+      bottom: Math.round(intervalStart + ((i + 1) / names.length) * intervalRange),
+      color: ["#f59e0b", "#3b82f6", "#10b981", "#8b5cf6", "#ef4444"][i % 5],
+    }));
+  }, [formation, allData, totalDepth]);
+
+  // Missed/bypassed zones — pay zones with no perforation overlap
+  const missedZones = useMemo(() => {
+    return payZones.filter(pz => {
+      const hasPerf = perfIntervals.some(p =>
+        p.depth_from < pz.bottom && p.depth_to > pz.top
+      );
+      return !hasPerf;
+    });
+  }, [payZones, perfIntervals]);
 
   // Has NPHI/RHOB
   const hasDenNphi = useMemo(() => allData.some(p => p.rhob !== null || p.nphi !== null), [allData]);
@@ -470,14 +501,60 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
               {/* ═══ PAY ZONES ═══ */}
               {payZones.map((pz, i) => {
                 const y1 = yForDepth(pz.top), y2 = yForDepth(pz.bottom);
+                const isMissed = missedZones.some(mz => mz.top === pz.top && mz.bottom === pz.bottom);
                 return (
                   <g key={`pz${i}`}>
                     {[GR_X, RES_X, POR_X].map((tx, ti) => (
                       <rect key={ti} x={tx} y={y1} width={ti === 0 ? GR_W : ti === 1 ? RES_W : POR_W}
-                        height={y2 - y1} fill={`${C.payZone}15`} />
+                        height={y2 - y1} fill={isMissed ? "#ef444425" : `${C.payZone}15`} />
                     ))}
-                    <line x1={LITH_X} y1={y1} x2={COR_X + COR_W} y2={y1} stroke={C.payZone} strokeWidth="0.8" strokeDasharray="6,4" opacity={0.6} />
-                    <line x1={LITH_X} y1={y2} x2={COR_X + COR_W} y2={y2} stroke={C.payZone} strokeWidth="0.8" strokeDasharray="6,4" opacity={0.6} />
+                    <line x1={LITH_X} y1={y1} x2={COR_X + COR_W} y2={y1}
+                      stroke={isMissed ? "#ef4444" : C.payZone} strokeWidth={isMissed ? 1.5 : 0.8} strokeDasharray={isMissed ? "3,2" : "6,4"} opacity={0.8} />
+                    <line x1={LITH_X} y1={y2} x2={COR_X + COR_W} y2={y2}
+                      stroke={isMissed ? "#ef4444" : C.payZone} strokeWidth={isMissed ? 1.5 : 0.8} strokeDasharray={isMissed ? "3,2" : "6,4"} opacity={0.8} />
+                    {/* Missed zone label */}
+                    {isMissed && y2 - y1 > 15 && (
+                      <g>
+                        <rect x={DEPTH_X + 1} y={(y1 + y2) / 2 - 6} width={DEPTH_W - 2} height={12} rx="2" fill="#ef4444" opacity={0.85} />
+                        <text x={DEPTH_X + DEPTH_W / 2} y={(y1 + y2) / 2 + 2} textAnchor="middle"
+                          fill="#fff" fontSize="5.5" fontWeight="800" letterSpacing="0.5">MISSED</text>
+                      </g>
+                    )}
+                  </g>
+                );
+              })}
+
+              {/* ═══ FORMATION INTERVAL LABELS ═══ */}
+              {formationIntervals.map((fi, i) => {
+                const y1 = yForDepth(fi.top), y2 = yForDepth(fi.bottom);
+                if (y2 < HEADER_H || y1 > HEADER_H + plotH) return null;
+                const clampY1 = Math.max(HEADER_H + 2, y1);
+                const clampY2 = Math.min(HEADER_H + plotH - 2, y2);
+                const h = clampY2 - clampY1;
+                if (h < 10) return null;
+                return (
+                  <g key={`fi-${i}`}>
+                    {/* Side bracket on LITH track */}
+                    <line x1={LITH_X + 2} y1={clampY1} x2={LITH_X + 2} y2={clampY2}
+                      stroke={fi.color} strokeWidth="2.5" opacity={0.7} />
+                    <line x1={LITH_X + 2} y1={clampY1} x2={LITH_X + 8} y2={clampY1}
+                      stroke={fi.color} strokeWidth="1.5" opacity={0.7} />
+                    <line x1={LITH_X + 2} y1={clampY2} x2={LITH_X + 8} y2={clampY2}
+                      stroke={fi.color} strokeWidth="1.5" opacity={0.7} />
+                    {/* Formation name label */}
+                    {h > 20 && (
+                      <g transform={`translate(${LITH_X + LITH_W / 2}, ${(clampY1 + clampY2) / 2})`}>
+                        <rect x={-35} y={-7} width={70} height={14} rx="3" fill={`${fi.color}30`} stroke={fi.color} strokeWidth="0.5" />
+                        <text x={0} y={3.5} textAnchor="middle" fill={fi.color} fontSize="6.5" fontWeight="700">
+                          {fi.name.length > 12 ? fi.name.substring(0, 11) + "…" : fi.name}
+                        </text>
+                      </g>
+                    )}
+                    {/* Depth range */}
+                    {h > 35 && (
+                      <text x={LITH_X + LITH_W / 2} y={(clampY1 + clampY2) / 2 + 14} textAnchor="middle"
+                        fill={`${fi.color}88`} fontSize="5.5">{fi.top}–{fi.bottom} ft</text>
+                    )}
                   </g>
                 );
               })}
@@ -792,9 +869,11 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
           </div>
 
           {/* Footer */}
-          <div className="flex justify-between text-[9px] text-muted-foreground px-1">
+          <div className="flex justify-between text-[9px] text-muted-foreground px-1 flex-wrap gap-1">
             <span>Formation: <span className="text-foreground/80">{formation || "Unknown"}</span></span>
             <span>{allData.length} pts · {Math.round(viewMin)}–{Math.round(viewMax)} ft</span>
+            {payZones.length > 0 && <span className="text-amber-400">Pay zones: {payZones.length}</span>}
+            {missedZones.length > 0 && <span className="text-red-400">⚠ Missed: {missedZones.length}</span>}
           </div>
         </div>
       )}
