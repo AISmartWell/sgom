@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Activity } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ArrowLeft, Activity, Eye, Zap, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import EnhancedWellLog from "@/components/well-log/EnhancedWellLog";
+import { WellLogAnalysisDemo } from "@/components/geophysical/WellLogAnalysisDemo";
 import { supabase } from "@/integrations/supabase/client";
 
 interface WellOption {
@@ -14,10 +16,32 @@ interface WellOption {
   total_depth: number | null;
 }
 
+const STAGES = [
+  {
+    key: "raw-log",
+    label: "1. Raw Log",
+    icon: Eye,
+    description: "Визуализация каротажных кривых — GR, Resistivity, Porosity, SP, Density, Neutron",
+  },
+  {
+    key: "ai-interpretation",
+    label: "2. AI Interpretation",
+    icon: Zap,
+    description: "Автоматическая интерпретация: Ko Ko Rules, Archie Equation, Fluid Identification",
+  },
+  {
+    key: "report",
+    label: "3. Report",
+    icon: FileText,
+    description: "Анимированная демонстрация полного AI-пайплайна с генерацией отчёта",
+  },
+];
+
 const GeophysicalExpertise = () => {
   const navigate = useNavigate();
   const [wells, setWells] = useState<WellOption[]>([]);
   const [selectedWell, setSelectedWell] = useState<WellOption | null>(null);
+  const [activeTab, setActiveTab] = useState("raw-log");
 
   useEffect(() => {
     const fetchWells = async () => {
@@ -28,7 +52,6 @@ const GeophysicalExpertise = () => {
         .limit(50);
       if (data && data.length > 0) {
         setWells(data);
-        // Default to Brawner 10-15 if available
         const brawner = data.find(w => w.api_number === "42467309790000");
         setSelectedWell(brawner || data[0]);
       }
@@ -88,22 +111,79 @@ const GeophysicalExpertise = () => {
         </div>
       )}
 
-      {/* Well Log */}
-      {selectedWell && (
-        <EnhancedWellLog
-          wellId={selectedWell.id}
-          wellName={selectedWell.well_name || "Unknown Well"}
-          formation={selectedWell.formation}
-          defaultExpanded={true}
-          totalDepth={selectedWell.total_depth ?? undefined}
-        />
-      )}
+      {/* 3-Stage Pipeline */}
+      <div className="grid grid-cols-3 gap-2 mb-6">
+        {STAGES.map((s, idx) => {
+          const Icon = s.icon;
+          const isActive = activeTab === s.key;
+          return (
+            <button
+              key={s.key}
+              onClick={() => setActiveTab(s.key)}
+              className={`p-3 rounded-lg border text-left transition-all ${
+                isActive
+                  ? "bg-primary/15 border-primary ring-1 ring-primary/50"
+                  : "bg-muted/30 border-border hover:bg-muted/50"
+              }`}
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <Icon className={`h-4 w-4 ${isActive ? "text-primary" : "text-muted-foreground"}`} />
+                <span className={`text-sm font-semibold ${isActive ? "text-primary" : "text-foreground"}`}>
+                  {s.label}
+                </span>
+              </div>
+              <p className="text-[10px] text-muted-foreground leading-tight">{s.description}</p>
+            </button>
+          );
+        })}
+      </div>
 
-      {!selectedWell && wells.length === 0 && (
-        <div className="text-center py-16 text-muted-foreground">
-          <p>No wells found. Import wells first to view well log analysis.</p>
-        </div>
-      )}
+      {/* Tab Content */}
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="hidden">
+          {STAGES.map(s => <TabsTrigger key={s.key} value={s.key}>{s.label}</TabsTrigger>)}
+        </TabsList>
+
+        {/* Stage 1: Raw Log */}
+        <TabsContent value="raw-log" className="mt-0">
+          {selectedWell ? (
+            <EnhancedWellLog
+              wellId={selectedWell.id}
+              wellName={selectedWell.well_name || "Unknown Well"}
+              formation={selectedWell.formation}
+              defaultExpanded={true}
+              totalDepth={selectedWell.total_depth ?? undefined}
+            />
+          ) : wells.length === 0 ? (
+            <div className="text-center py-16 text-muted-foreground">
+              <p>No wells found. Import wells first to view well log analysis.</p>
+            </div>
+          ) : null}
+        </TabsContent>
+
+        {/* Stage 2: AI Interpretation (same component with interpretation panel shown) */}
+        <TabsContent value="ai-interpretation" className="mt-0">
+          {selectedWell ? (
+            <EnhancedWellLog
+              wellId={selectedWell.id}
+              wellName={selectedWell.well_name || "Unknown Well"}
+              formation={selectedWell.formation}
+              defaultExpanded={true}
+              totalDepth={selectedWell.total_depth ?? undefined}
+              showInterpretationByDefault
+            />
+          ) : (
+            <div className="text-center py-16 text-muted-foreground">
+              <p>Select a well to view AI interpretation.</p>
+            </div>
+          )}
+        </TabsContent>
+
+        {/* Stage 3: Animated Demo Report */}
+        <TabsContent value="report" className="mt-0">
+          <WellLogAnalysisDemo />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
