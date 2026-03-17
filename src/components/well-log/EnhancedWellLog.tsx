@@ -845,7 +845,7 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
                         <text x={COR_X + COR_W / 2} y={y + 10} textAnchor="middle"
                           fill={C.text} fontSize="6.5" fontWeight="600">{lith.label}</text>
                         <text x={COR_X + COR_W / 2} y={y + 20} textAnchor="middle"
-                          fill={`${C.text}88`} fontSize="6">{Math.round(visibleData[i].depth)}'</text>
+                          fill={`${C.text}88`} fontSize="6">{visibleData[i].depth.toFixed(2)}'</text>
                       </g>
                     );
                     lastLabel = lith.label;
