@@ -78,28 +78,43 @@ function normalizeWell(state: string, attrs: Record<string, unknown>, geometry: 
   }
 }
 
-async function queryStateAPI(state: string, apiNumber: string): Promise<Record<string, unknown> | null> {
+async function queryStateAPI(state: string, apiNumber: string, wellName?: string): Promise<Record<string, unknown> | null> {
   const config = STATE_APIS[state];
   if (!config) return null;
 
-  // Build query based on state
+  // Build query based on state and search type
   let whereClause: string;
-  if (state === "OK") {
-    whereClause = `api='${apiNumber}'`;
-  } else if (state === "TX") {
-    const numericApi = apiNumber.replace(/\D/g, "");
-    whereClause = `API=${numericApi}`;
-  } else if (state === "KS") {
-    whereClause = `API_NUMBER='${apiNumber}'`;
+  if (wellName) {
+    // Search by well name
+    const safeName = wellName.replace(/'/g, "''");
+    if (state === "OK") {
+      whereClause = `well_name LIKE '%${safeName}%'`;
+    } else if (state === "TX") {
+      whereClause = `WELL_NAME LIKE '%${safeName}%'`;
+    } else if (state === "KS") {
+      whereClause = `LEASE LIKE '%${safeName}%' OR WELL_NAME LIKE '%${safeName}%'`;
+    } else {
+      whereClause = `WELL_NAME LIKE '%${safeName}%'`;
+    }
   } else {
-    whereClause = `API='${apiNumber}'`;
+    // Search by API number
+    if (state === "OK") {
+      whereClause = `api='${apiNumber}'`;
+    } else if (state === "TX") {
+      const numericApi = apiNumber.replace(/\D/g, "");
+      whereClause = `API=${numericApi}`;
+    } else if (state === "KS") {
+      whereClause = `API_NUMBER='${apiNumber}'`;
+    } else {
+      whereClause = `API='${apiNumber}'`;
+    }
   }
 
   const params = new URLSearchParams({
     where: whereClause,
     outFields: "*",
     returnGeometry: "true",
-    resultRecordCount: "1",
+    resultRecordCount: wellName ? "10" : "1",
     f: "json",
   });
 
