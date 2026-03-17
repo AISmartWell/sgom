@@ -791,9 +791,9 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
                     {h > 30 && (
                       <>
                         <text x={cx} y={clampY1 - 2} textAnchor="middle"
-                          fill="#f97316" fontSize="6" fontFamily="monospace">{Math.round(perf.depth_from)}'</text>
+                          fill="#f97316" fontSize="6" fontFamily="monospace">{perf.depth_from.toFixed(2)}'</text>
                         <text x={cx} y={clampY2 + 8} textAnchor="middle"
-                          fill="#f97316" fontSize="6" fontFamily="monospace">{Math.round(perf.depth_to)}'</text>
+                          fill="#f97316" fontSize="6" fontFamily="monospace">{perf.depth_to.toFixed(2)}'</text>
                       </>
                     )}
                   </g>
