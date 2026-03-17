@@ -672,6 +672,10 @@ const GeophysicalExpertise = () => {
   const [activeStep, setActiveStep] = useState("raw-log");
   const [addWellOpen, setAddWellOpen] = useState(false);
   const [companyId, setCompanyId] = useState<string | null>(null);
+  const [wellSearch, setWellSearch] = useState("");
+  const [wellPickerOpen, setWellPickerOpen] = useState(false);
+  const [searchResults, setSearchResults] = useState<WellOption[]>([]);
+  const [searching, setSearching] = useState(false);
 
   useEffect(() => {
     const loadCompany = async () => {
@@ -681,26 +685,57 @@ const GeophysicalExpertise = () => {
     loadCompany();
   }, []);
 
+  useEffect(() => {
+    if (!wellSearch.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    const timeout = setTimeout(async () => {
+      setSearching(true);
+      const s = `%${wellSearch.trim()}%`;
+      const { data } = await supabase
+        .from("wells")
+        .select("id, well_name, api_number, formation, total_depth")
+        .or(`well_name.ilike.${s},api_number.ilike.${s},formation.ilike.${s}`)
+        .order("well_name", { ascending: true })
+        .limit(50);
+      setSearchResults(data || []);
+      setSearching(false);
+    }, 300);
+
+    return () => clearTimeout(timeout);
+  }, [wellSearch]);
+
   const fetchWells = async () => {
     const { data } = await supabase
       .from("wells")
       .select("id, well_name, api_number, formation, total_depth")
       .order("well_name", { ascending: true })
-      .limit(50);
+      .limit(200);
     if (data && data.length > 0) {
       setWells(data);
-      if (!selectedWell) {
-        const brawner = data.find(w => w.api_number === "42467309790000");
-        setSelectedWell(brawner || data[0]);
-      }
+      setSelectedWell((prev) => prev ?? data[0]);
     }
   };
 
   useEffect(() => { fetchWells(); }, []);
 
-  const handleWellAdded = (well: WellOption) => {
-    setWells(prev => [...prev, well]);
-    setSelectedWell(well);
+  const handleWellAdded = async (well: WellOption) => {
+    const { data } = await supabase
+      .from("wells")
+      .select("id, well_name, api_number, formation, total_depth")
+      .eq("id", well.id)
+      .maybeSingle();
+
+    const nextWell = data || well;
+    setWells((prev) => {
+      const exists = prev.some((item) => item.id === nextWell.id);
+      return exists ? prev : [nextWell, ...prev];
+    });
+    setSelectedWell(nextWell);
+    setWellPickerOpen(false);
+    setWellSearch("");
   };
 
   // Load well log data for calculation steps
