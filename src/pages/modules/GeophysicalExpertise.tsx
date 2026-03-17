@@ -629,7 +629,7 @@ const WellSearchSelector = ({
                   ) : filteredWells.length === 0 ? (
                     <div className="px-3 py-4 text-sm text-muted-foreground text-center">
                       No wells found.{" "}
-                      <button className="text-primary underline" onClick={onAddWell}>
+                      <button className="text-primary underline" onClick={() => { onOpenChange(false); onAddWell(); }}>
                         Add a well
                       </button>
                     </div>
