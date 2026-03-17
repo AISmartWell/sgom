@@ -47,10 +47,10 @@ export interface InterpretationSummary {
   dominantFluid: FluidType;
 }
 
-/* ── Constants (Российская школа ГИС) ── */
-// GR cutoffs — российская классификация
-const GR_CLEAN = 35;    // верхняя граница чистого песчаника (≤35)
-const GR_SHALE = 70;    // граница глина/аргиллит (>70)
+/* ── Constants (American well logging standards) ── */
+// GR cutoffs — API standard classification
+const GR_CLEAN = 45;    // clean sand upper limit (≤45 API)
+const GR_SHALE = 75;    // shale baseline (>75 API)
 
 // Net Pay cutoffs
 const CUTOFF_POR = 8;   // minimum porosity %
