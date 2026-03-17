@@ -67,7 +67,7 @@ const CrossSectionVisualization = () => {
                   )}
                 >
                   <p className="font-semibold leading-tight">{well.name}</p>
-                  <p className="text-muted-foreground leading-tight">TD: {well.depth}m</p>
+                  <p className="text-muted-foreground leading-tight">TD: {well.depth} ft</p>
                 </div>
               </div>
             );
