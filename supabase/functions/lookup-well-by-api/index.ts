@@ -150,21 +150,26 @@ serve(async (req) => {
   }
 
   try {
-    const { api_number, company_id } = await req.json();
+    const { api_number, well_name, company_id, state: requestedState } = await req.json();
 
-    if (!api_number || !company_id) {
+    if ((!api_number && !well_name) || !company_id) {
       return new Response(
-        JSON.stringify({ error: "api_number and company_id are required" }),
+        JSON.stringify({ error: "api_number or well_name, and company_id are required" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const statesToTry = detectState(api_number);
+    const searchByName = !api_number && !!well_name;
+    const statesToTry = requestedState ? [requestedState] : (api_number ? detectState(api_number) : ["OK", "TX", "KS"]);
     let wellData = null;
+    const allResults: Array<{ state: string; attrs: Record<string, unknown>; geom: any }> = [];
 
     for (const state of statesToTry) {
-      const feature = await queryStateAPI(state, api_number);
+      const feature = await queryStateAPI(state, api_number || "", searchByName ? well_name : undefined);
       if (feature) {
+        if (searchByName && Array.isArray((feature as any).__multiResults)) {
+          // Won't happen with current code, handle single
+        }
         const attrs = (feature as { attributes: Record<string, unknown> }).attributes;
         const geom = (feature as { geometry?: { x?: number; y?: number } }).geometry || null;
         wellData = normalizeWell(state, attrs, geom, company_id);
@@ -174,7 +179,7 @@ serve(async (req) => {
 
     if (!wellData) {
       return new Response(
-        JSON.stringify({ success: false, error: "Well not found in state registries", searched: statesToTry }),
+        JSON.stringify({ success: false, error: searchByName ? "Well not found by name" : "Well not found in state registries", searched: statesToTry }),
         { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
