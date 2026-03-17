@@ -798,6 +798,12 @@ const GeophysicalExpertise = () => {
       <WellSearchSelector
         wells={wells}
         selectedWell={selectedWell}
+        searchResults={searchResults}
+        searching={searching}
+        search={wellSearch}
+        open={wellPickerOpen}
+        onSearchChange={setWellSearch}
+        onOpenChange={setWellPickerOpen}
         onSelect={setSelectedWell}
         onAddWell={() => setAddWellOpen(true)}
       />
