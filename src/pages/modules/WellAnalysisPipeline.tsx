@@ -38,7 +38,9 @@ import {
   Droplets,
   Microscope,
   Waves,
+  Plus,
 } from "lucide-react";
+import { AddWellDialog } from "@/components/shared/AddWellDialog";
 
 interface WellRecord {
   id: string;
