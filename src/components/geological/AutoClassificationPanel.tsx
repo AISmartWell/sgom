@@ -115,10 +115,10 @@ const AutoClassificationPanel = ({ data }: AutoClassificationPanelProps) => {
                 backgroundColor: z.color,
                 opacity: 0.7,
               }}
-              title={`${z.lithology} (${z.depthFrom}–${z.depthTo}m)`}
+              title={`${z.lithology} (${z.depthFrom}–${z.depthTo} ft)`}
             >
               <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block bg-background border border-border rounded px-2 py-1 text-[10px] whitespace-nowrap z-10 shadow-lg">
-                <strong>{z.lithology}</strong> · {z.depthFrom}–{z.depthTo}m · {z.confidence}%
+                <strong>{z.lithology}</strong> · {z.depthFrom}–{z.depthTo} ft · {z.confidence}%
               </div>
             </div>
           );

@@ -284,7 +284,7 @@ const SeismicImageAnalysis = ({ selectedWell }: SeismicImageAnalysisProps) => {
                         <p className="text-xs font-medium">{f.type} fault</p>
                         <p className="text-xs text-muted-foreground">
                           {f.dip_angle_deg && `Dip: ${f.dip_angle_deg}°`}
-                          {f.throw_m && ` • Throw: ${f.throw_m}m`}
+                          {f.throw_m && ` • Throw: ${f.throw_m} ft`}
                           {f.depth_range && ` • ${f.depth_range}`}
                         </p>
                         {f.description && <p className="text-xs text-muted-foreground mt-1">{f.description}</p>}
@@ -309,7 +309,7 @@ const SeismicImageAnalysis = ({ selectedWell }: SeismicImageAnalysisProps) => {
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-medium">{h.name}</p>
                         <p className="text-xs text-muted-foreground">
-                          {h.depth_m && `Depth: ${h.depth_m}m`}
+                          {h.depth_m && `Depth: ${h.depth_m} ft`}
                           {h.twt_ms && ` • TWT: ${h.twt_ms}ms`}
                           {h.continuity && ` • ${h.continuity}`}
                           {h.amplitude && ` • Amp: ${h.amplitude}`}
@@ -336,8 +336,8 @@ const SeismicImageAnalysis = ({ selectedWell }: SeismicImageAnalysisProps) => {
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-medium">{a.type}</p>
                         <p className="text-xs text-muted-foreground">
-                          {a.depth_m && `Depth: ${a.depth_m}m`}
-                          {a.lateral_extent_m && ` • Extent: ${a.lateral_extent_m}m`}
+                          {a.depth_m && `Depth: ${a.depth_m} ft`}
+                          {a.lateral_extent_m && ` • Extent: ${a.lateral_extent_m} ft`}
                           {a.dhi_class && ` • ${a.dhi_class}`}
                         </p>
                         {a.description && <p className="text-xs text-muted-foreground mt-1">{a.description}</p>}
@@ -355,7 +355,7 @@ const SeismicImageAnalysis = ({ selectedWell }: SeismicImageAnalysisProps) => {
                 <h5 className="text-xs font-semibold text-muted-foreground uppercase mb-2">Unconformities</h5>
                 {result.unconformities.map((u: any, i: number) => (
                   <div key={i} className="text-xs p-2 bg-muted/30 rounded-md mb-1">
-                    <span className="font-medium">{u.type}</span> at {u.depth_m}m — {u.description}
+                    <span className="font-medium">{u.type}</span> at {u.depth_m} ft — {u.description}
                   </div>
                 ))}
               </div>
@@ -368,7 +368,7 @@ const SeismicImageAnalysis = ({ selectedWell }: SeismicImageAnalysisProps) => {
                 <div className="flex gap-2 flex-wrap">
                   {result.fluid_contacts.map((fc: any, i: number) => (
                     <Badge key={i} variant="outline" className="text-xs">
-                      {fc.type}: {fc.depth_m}m ({(fc.confidence * 100).toFixed(0)}%)
+                      {fc.type}: {fc.depth_m} ft ({(fc.confidence * 100).toFixed(0)}%)
                     </Badge>
                   ))}
                 </div>

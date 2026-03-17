@@ -119,7 +119,7 @@ export const SeismicAnalysisHistory = () => {
                           <p className="text-xs font-medium">{f.type} fault</p>
                           <p className="text-xs text-muted-foreground">
                             {f.dip_angle_deg && `Dip: ${f.dip_angle_deg}°`}
-                            {f.throw_m && ` · Throw: ${f.throw_m}m`}
+                            {f.throw_m && ` · Throw: ${f.throw_m} ft`}
                             {f.depth_range && ` · ${f.depth_range}`}
                           </p>
                         </div>
@@ -141,7 +141,7 @@ export const SeismicAnalysisHistory = () => {
                         <div className="flex-1 min-w-0">
                           <p className="text-xs font-medium">{h.name}</p>
                           <p className="text-xs text-muted-foreground">
-                            {h.depth_m && `Depth: ${h.depth_m}m`}
+                            {h.depth_m && `Depth: ${h.depth_m} ft`}
                             {h.twt_ms && ` · TWT: ${h.twt_ms}ms`}
                             {h.continuity && ` · ${h.continuity}`}
                           </p>
@@ -164,8 +164,8 @@ export const SeismicAnalysisHistory = () => {
                         <div className="flex-1 min-w-0">
                           <p className="text-xs font-medium">{a.type}</p>
                           <p className="text-xs text-muted-foreground">
-                            {a.depth_m && `Depth: ${a.depth_m}m`}
-                            {a.lateral_extent_m && ` · Extent: ${a.lateral_extent_m}m`}
+                            {a.depth_m && `Depth: ${a.depth_m} ft`}
+                            {a.lateral_extent_m && ` · Extent: ${a.lateral_extent_m} ft`}
                           </p>
                         </div>
                         {a.confidence != null && <ConfidenceBadge c={a.confidence} />}

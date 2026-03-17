@@ -67,7 +67,7 @@ const CrossSectionVisualization = () => {
                   )}
                 >
                   <p className="font-semibold leading-tight">{well.name}</p>
-                  <p className="text-muted-foreground leading-tight">TD: {well.depth}m</p>
+                  <p className="text-muted-foreground leading-tight">TD: {well.depth} ft</p>
                 </div>
               </div>
             );
@@ -209,15 +209,15 @@ const CrossSectionVisualization = () => {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                 <div className="p-5 bg-background/50 rounded-lg border border-border/50">
                   <p className="text-muted-foreground text-sm mb-2">Total Depth</p>
-                  <p className="text-3xl font-bold text-primary">{selectedWell?.depth}m</p>
+                  <p className="text-3xl font-bold text-primary">{selectedWell?.depth} ft</p>
                 </div>
                 <div className="p-5 bg-background/50 rounded-lg border border-border/50">
                   <p className="text-muted-foreground text-sm mb-2">Top Reservoir</p>
-                  <p className="text-3xl font-bold text-primary">2,850m</p>
+                  <p className="text-3xl font-bold text-primary">9,350 ft</p>
                 </div>
                 <div className="p-5 bg-background/50 rounded-lg border border-border/50">
                   <p className="text-muted-foreground text-sm mb-2">Net Pay</p>
-                  <p className="text-3xl font-bold text-success">45m</p>
+                  <p className="text-3xl font-bold text-success">148 ft</p>
                 </div>
                 <div className="p-5 bg-background/50 rounded-lg border border-border/50">
                   <p className="text-muted-foreground text-sm mb-2">Production</p>

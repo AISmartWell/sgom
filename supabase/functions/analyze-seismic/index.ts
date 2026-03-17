@@ -76,10 +76,10 @@ Be specific with depth values and provide quantitative assessments where possibl
 
     // Summarize data for the prompt
     const dataSummary = seismicData.map((d: any) => 
-      `${d.depth}m: T1=${d.trace1.toFixed(1)}, T2=${d.trace2.toFixed(1)}, T3=${d.trace3.toFixed(1)}, Amp=${d.amplitude.toFixed(1)}`
+      `${d.depth}ft: T1=${d.trace1.toFixed(1)}, T2=${d.trace2.toFixed(1)}, T3=${d.trace3.toFixed(1)}, Amp=${d.amplitude.toFixed(1)}`
     ).join('\n');
 
-    const horizonSummary = horizons.map((h: any) => `${h.name} at ${h.depth}m`).join(', ');
+    const horizonSummary = horizons.map((h: any) => `${h.name} at ${h.depth}ft`).join(', ');
 
     const wellContext = well
       ? `\n\nWell Context:\n- Name: ${well.name || 'Unknown'}\n- API: ${well.api || 'N/A'}\n- Formation: ${well.formation || 'Unknown'}\n- Total Depth: ${well.depth || 'Unknown'} ft\n- Location: ${well.county || ''}, ${well.state || ''}\n- Operator: ${well.operator || 'Unknown'}\n- Current Oil Production: ${well.oil || 'Unknown'} bbl/d\n- Water Cut: ${well.waterCut || 'Unknown'}%\n- Status: ${well.status || 'Unknown'}\n\nTailor the analysis to this specific well's formation, depth, and production characteristics. Reference the well by name in your report.`

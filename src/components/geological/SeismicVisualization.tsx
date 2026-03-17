@@ -99,7 +99,7 @@ const SeismicVisualization = () => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-background/95 backdrop-blur-sm border border-border rounded-lg p-3 shadow-lg">
-          <p className="text-sm font-medium mb-2">Depth: {label}m</p>
+          <p className="text-sm font-medium mb-2">Depth: {label} ft</p>
           {payload.map((entry: any, index: number) => (
             <p key={index} className="text-xs" style={{ color: entry.color }}>
               {entry.name}: {entry.value.toFixed(2)}
@@ -160,7 +160,7 @@ const SeismicVisualization = () => {
               dataKey="depth"
               stroke="hsl(var(--muted-foreground))"
               fontSize={10}
-              tickFormatter={(v) => `${v}m`}
+              tickFormatter={(v) => `${v} ft`}
             />
             <YAxis
               stroke="hsl(var(--muted-foreground))"
