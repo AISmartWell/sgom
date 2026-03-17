@@ -202,21 +202,34 @@ serve(async (req) => {
 
   try {
     const { api_number, well_name, company_id, state: requestedState } = await req.json();
+    const normalizedApiNumber = sanitizeSearchValue(api_number);
+    const normalizedWellName = sanitizeSearchValue(well_name);
 
-    if ((!api_number && !well_name) || !company_id) {
+    if ((!normalizedApiNumber && !normalizedWellName) || !company_id) {
       return new Response(
         JSON.stringify({ error: "api_number or well_name, and company_id are required" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const searchByName = !api_number && !!well_name;
-    const statesToTry = requestedState ? [requestedState] : (api_number ? detectState(api_number) : ["OK", "TX", "KS"]);
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    const existingWell = await findExistingWell(supabase, company_id, normalizedApiNumber, normalizedWellName);
+    if (existingWell) {
+      return new Response(
+        JSON.stringify({ success: true, well: existingWell, source: "database" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const searchByName = !normalizedApiNumber && !!normalizedWellName;
+    const statesToTry = requestedState ? [requestedState] : (normalizedApiNumber ? detectState(normalizedApiNumber) : ["OK", "TX", "KS"]);
     let wellData = null;
-    const allResults: Array<{ state: string; attrs: Record<string, unknown>; geom: any }> = [];
 
     for (const state of statesToTry) {
-      const feature = await queryStateAPI(state, api_number || "", searchByName ? well_name : undefined);
+      const feature = await queryStateAPI(state, normalizedApiNumber || "", searchByName ? normalizedWellName : undefined);
       if (feature) {
         if (searchByName && Array.isArray((feature as any).__multiResults)) {
           // Won't happen with current code, handle single
@@ -236,9 +249,6 @@ serve(async (req) => {
     }
 
     // Save to database
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
 
     const { data, error } = await supabase
       .from("wells")
