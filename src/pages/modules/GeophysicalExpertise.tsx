@@ -68,7 +68,7 @@ const STEPS = [
     label: "Sw (Archie)",
     icon: Droplets,
     formula: "Sw² = (a · Rw) / (φᵐ · Rt)",
-    description: "Archie Equation (1942): a=1, m=2, n=2, Rw=0.04 Ω·m. Cutoff: Sw < 60%",
+    description: "Уравнение Арчи (1942): a=1, m=2, n=2, Rw=0.04 Ω·м. Кондиция: Sw < 60%",
   },
   {
     num: 5,

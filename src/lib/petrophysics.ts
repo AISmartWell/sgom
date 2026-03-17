@@ -169,11 +169,11 @@ export const applyKoKoRules = (
 export const segmentIntervals = (data: PetroPoint[], minThickness = 5): IntervalResult[] => {
   if (data.length < 3) return [];
 
-  // Step 1: assign each point a lithology class based on GR
+  // Step 1: assign each point a lithology class based on GR (Russian cutoffs)
   const classes = data.map(p => {
-    if (p.gr > 75) return "shale";
-    if (p.gr > 50) return "transition";
-    return "reservoir";
+    if (p.gr > 70) return "shale";       // Глина/аргиллит
+    if (p.gr > 35) return "transition";  // Алевролит
+    return "reservoir";                   // Песчаник
   });
 
   // Step 2: merge consecutive same-class points into intervals

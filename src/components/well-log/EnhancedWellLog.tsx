@@ -636,34 +636,34 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
               {/* GR zone-colored fill segments */}
               {visibleData.length > 1 && (() => {
                 const elements: JSX.Element[] = [];
-                const cut45 = GR_X + (45 / 150) * GR_W;
-                const cut75 = GR_X + (75 / 150) * GR_W;
+                const cut35 = GR_X + (35 / 150) * GR_W;
+                const cut70 = GR_X + (70 / 150) * GR_W;
 
-                // Green fill: reservoir zone (GR < 45)
+                // Green fill: Песчаник (GR ≤ 35)
                 const greenPts = visibleData.map(pt => {
-                  const x = GR_X + (Math.min(pt.gr, 45) / 150) * GR_W;
+                  const x = GR_X + (Math.min(pt.gr, 35) / 150) * GR_W;
                   return `${x},${yForDepth(pt.depth)}`;
                 });
                 elements.push(<polygon key="gr-green"
                   points={[`${GR_X},${yForDepth(visibleData[0].depth)}`, ...greenPts, `${GR_X},${yForDepth(visibleData[visibleData.length - 1].depth)}`].join(" ")}
                   fill="#22c55e" opacity={0.1} />);
 
-                // Yellow fill: transition zone (45–75)
+                // Yellow fill: Алевролит (35–70)
                 const yellowPts = visibleData.map(pt => {
-                  const x = GR_X + (Math.max(45, Math.min(pt.gr, 75)) / 150) * GR_W;
+                  const x = GR_X + (Math.max(35, Math.min(pt.gr, 70)) / 150) * GR_W;
                   return `${x},${yForDepth(pt.depth)}`;
                 });
                 elements.push(<polygon key="gr-yellow"
-                  points={[`${cut45},${yForDepth(visibleData[0].depth)}`, ...yellowPts, `${cut45},${yForDepth(visibleData[visibleData.length - 1].depth)}`].join(" ")}
+                  points={[`${cut35},${yForDepth(visibleData[0].depth)}`, ...yellowPts, `${cut35},${yForDepth(visibleData[visibleData.length - 1].depth)}`].join(" ")}
                   fill="#eab308" opacity={0.1} />);
 
-                // Red fill: shale zone (GR > 75)
+                // Red fill: Глина (GR > 70)
                 const redPts = visibleData.map(pt => {
-                  const x = GR_X + (Math.max(pt.gr, 75) / 150) * GR_W;
-                  return `${Math.max(x, cut75)},${yForDepth(pt.depth)}`;
+                  const x = GR_X + (Math.max(pt.gr, 70) / 150) * GR_W;
+                  return `${Math.max(x, cut70)},${yForDepth(pt.depth)}`;
                 });
                 elements.push(<polygon key="gr-red"
-                  points={[`${cut75},${yForDepth(visibleData[0].depth)}`, ...redPts, `${cut75},${yForDepth(visibleData[visibleData.length - 1].depth)}`].join(" ")}
+                  points={[`${cut70},${yForDepth(visibleData[0].depth)}`, ...redPts, `${cut70},${yForDepth(visibleData[visibleData.length - 1].depth)}`].join(" ")}
                   fill="#ef4444" opacity={0.12} />);
 
                 return elements;
