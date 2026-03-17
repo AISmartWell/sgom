@@ -273,7 +273,7 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
   const hasDenNphi = useMemo(() => allData.some(p => p.rhob !== null || p.nphi !== null), [allData]);
 
   // Depth ticks
-  const depthStep = visibleSpan > 2000 ? 500 : visibleSpan > 800 ? 200 : visibleSpan > 300 ? 100 : visibleSpan > 100 ? 50 : 10;
+  const depthStep = visibleSpan > 2000 ? 500 : visibleSpan > 800 ? 200 : visibleSpan > 300 ? 100 : visibleSpan > 100 ? 50 : visibleSpan > 40 ? 10 : visibleSpan > 16 ? 5 : 2;
   const depthTicks: number[] = [];
   for (let d = Math.ceil(viewMin / depthStep) * depthStep; d <= viewMax; d += depthStep) depthTicks.push(d);
 
