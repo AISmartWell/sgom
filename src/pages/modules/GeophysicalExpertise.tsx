@@ -672,6 +672,7 @@ const GeophysicalExpertise = () => {
   const [selectedWell, setSelectedWell] = useState<WellOption | null>(null);
   const [activeStep, setActiveStep] = useState("raw-log");
   const [addWellOpen, setAddWellOpen] = useState(false);
+  const [lasUploadOpen, setLasUploadOpen] = useState(false);
   const [companyId, setCompanyId] = useState<string | null>(null);
   const [wellSearch, setWellSearch] = useState("");
   const [wellPickerOpen, setWellPickerOpen] = useState(false);
