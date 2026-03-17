@@ -52,7 +52,7 @@ const STEPS = [
     label: "Vshale",
     icon: Layers,
     formula: "Vsh = (GR − GRclean) / (GRshale − GRclean)",
-    description: "Linear GR method for shale volume calculation. GRclean = 20 API, GRshale = 120 API",
+    description: "Линейный метод ГК. GRclean = 35 (песчаник), GRshale = 70 (глина). Российская школа ГИС.",
   },
   {
     num: 3,
