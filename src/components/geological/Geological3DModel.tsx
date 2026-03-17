@@ -118,7 +118,7 @@ const FluidContacts = () => {
         <meshStandardMaterial color="#3b82f6" transparent opacity={0.2} side={THREE.DoubleSide} />
       </mesh>
       <Text position={[4, -0.5, 0]} fontSize={0.2} color="#3b82f6" anchorX="left">
-        OWC -3150m
+        OWC -10,335 ft
       </Text>
       
       {/* Gas-Oil Contact */}
