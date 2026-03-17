@@ -93,6 +93,8 @@ const WellAnalysisPipeline = () => {
   const [searchResults, setSearchResults] = useState<WellRecord[]>([]);
   const [searching, setSearching] = useState(false);
   const [cachedSelectedWell, setCachedSelectedWell] = useState<WellRecord | null>(null);
+  const [addWellOpen, setAddWellOpen] = useState(false);
+  const [companyId, setCompanyId] = useState<string | null>(null);
 
   const selectedWell = wells.find((w) => w.id === selectedWellId) || searchResults.find((w) => w.id === selectedWellId) || cachedSelectedWell;
 
