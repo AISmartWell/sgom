@@ -76,7 +76,7 @@ Be specific with depth values and provide quantitative assessments where possibl
 
     // Summarize data for the prompt
     const dataSummary = seismicData.map((d: any) => 
-      `${d.depth}m: T1=${d.trace1.toFixed(1)}, T2=${d.trace2.toFixed(1)}, T3=${d.trace3.toFixed(1)}, Amp=${d.amplitude.toFixed(1)}`
+      `${d.depth}ft: T1=${d.trace1.toFixed(1)}, T2=${d.trace2.toFixed(1)}, T3=${d.trace3.toFixed(1)}, Amp=${d.amplitude.toFixed(1)}`
     ).join('\n');
 
     const horizonSummary = horizons.map((h: any) => `${h.name} at ${h.depth}m`).join(', ');
