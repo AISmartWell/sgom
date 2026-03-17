@@ -172,11 +172,11 @@ const CrossSectionVisualization = () => {
 
           {/* Depth scale */}
           <div className="absolute right-2 top-0 bottom-0 flex flex-col justify-between py-2 text-[10px] text-muted-foreground">
-            <span>0m</span>
-            <span>1000m</span>
-            <span>2000m</span>
-            <span>3000m</span>
-            <span>4000m</span>
+            <span>0 ft</span>
+            <span>2,500 ft</span>
+            <span>5,000 ft</span>
+            <span>7,500 ft</span>
+            <span>10,000 ft</span>
           </div>
         </div>
       </div>
