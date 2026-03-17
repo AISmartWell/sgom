@@ -74,7 +74,7 @@ const interpolateData = (data: DataPoint[], maxStep: number): DataPoint[] => {
 /* ── Layout ── */
 const LITH_W = 80;
 const GR_W = 170;
-const DEPTH_W = 50;
+const DEPTH_W = 65;
 const RES_W = 180;
 const POR_W = 150;
 const FLUID_W = 45;
