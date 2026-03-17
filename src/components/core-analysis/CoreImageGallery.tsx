@@ -105,7 +105,7 @@ export const CoreImageGallery = () => {
       const { data } = await supabase
         .from("wells")
         .select("id, well_name, api_number, county, state")
-        .or(`well_name.ilike.${s},api_number.ilike.${s}`)
+        .or(`well_name.ilike."${s}",api_number.ilike."${s}"`)
         .limit(20);
       setWellResults(data || []);
       setSearchingWells(false);

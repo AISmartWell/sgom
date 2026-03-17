@@ -110,7 +110,7 @@ const WellAnalysisPipeline = () => {
       const { data } = await supabase
         .from("wells")
         .select("id, well_name, api_number, operator, county, state, formation, production_oil, production_gas, water_cut, total_depth, well_type, status, latitude, longitude")
-        .or(`well_name.ilike.${s},api_number.ilike.${s},operator.ilike.${s},county.ilike.${s},formation.ilike.${s}`)
+        .or(`well_name.ilike."${s}",api_number.ilike."${s}",operator.ilike."${s}",county.ilike."${s}",formation.ilike."${s}"`)
         .order("well_name")
         .limit(50);
       setSearchResults(data || []);
