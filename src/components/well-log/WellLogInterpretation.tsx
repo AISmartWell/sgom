@@ -35,7 +35,7 @@ const WellLogInterpretation = ({ summary, wellName }: Props) => {
         <Badge variant="outline" className="gap-1 text-xs" style={{ borderColor: fluidColor(dominantFluid), color: fluidColor(dominantFluid) }}>
           {fluidLabel(dominantFluid)}
         </Badge>
-        <span className="text-muted-foreground ml-auto">Кондиции: φ&gt;8%, Sw&lt;60%, Vsh&lt;40%</span>
+        <span className="text-muted-foreground ml-auto">Cutoffs: φ&gt;8%, Sw&lt;60%, Vsh&lt;40%</span>
       </div>
 
       {/* Interval table */}
