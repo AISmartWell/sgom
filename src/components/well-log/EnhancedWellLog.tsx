@@ -890,7 +890,7 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
                         <rect x={tx + 1} y={ty + 1} width={140} height={22 + rows.length * 14} rx="5" fill="#000" opacity={0.25} />
                         <rect x={tx} y={ty} width={140} height={22 + rows.length * 14} rx="5" fill={C.tooltipBg} stroke={C.border} strokeWidth="0.8" />
                         <text x={tx + 8} y={ty + 14} fill={C.crosshair} fontSize="8.5" fontWeight="800" fontFamily="monospace">
-                          ⬥ {Math.round(hoverData.point.depth)} ft
+                          ⬥ {hoverData.point.depth.toFixed(2)} ft
                         </text>
                         {rows.map((r, i) => (
                           <g key={i}>
