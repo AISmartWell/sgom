@@ -405,7 +405,7 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
             <div className="flex items-center gap-1 border border-border/50 rounded px-2 py-1">
               <button onClick={() => setZoomFactor(z => Math.min(50, z + 1))} className="p-0.5 hover:bg-muted rounded"><ZoomIn className="h-3.5 w-3.5" /></button>
               <span className="text-muted-foreground min-w-[36px] text-center">{Math.round(zoomFactor * 100)}%</span>
-              <button onClick={() => setZoomFactor(z => Math.max(1, z - 0.5))} className="p-0.5 hover:bg-muted rounded"><ZoomOut className="h-3.5 w-3.5" /></button>
+              <button onClick={() => setZoomFactor(z => Math.max(1, z - 1))} className="p-0.5 hover:bg-muted rounded"><ZoomOut className="h-3.5 w-3.5" /></button>
               {zoomFactor > 1 && <button onClick={() => { setZoomFactor(1); setScrollOffset(0); }} className="p-0.5 hover:bg-muted rounded"><RotateCcw className="h-3 w-3 text-muted-foreground" /></button>}
             </div>
             <span className="text-muted-foreground">Ctrl+Scroll to zoom · Scroll to pan</span>
