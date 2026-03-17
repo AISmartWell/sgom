@@ -87,7 +87,15 @@ export const calcArchieSwFromInputs = (
 };
 
 /**
- * Ko Ko Rules: determine fluid type by curve deflection patterns
+ * Российская классификация литологии и флюидов
+ * Критерии по российской школе ГИС:
+ * - Песчаник водоносный: GR ≤35, SP 0–30, ННКт 1.5–2, УЭС 2–6
+ * - Песчаник нефтеносный: GR ≤35, SP 0–30, ННКт пониж., УЭС >10
+ * - Алевролит: GR 35–70, SP 30–70, УЭС 1–2
+ * - Глина (аргиллит): GR >70, SP >70, УЭС 1–2
+ * - Плотная порода: GR 30–50, УЭС >30
+ *
+ * Also generates Ko Ko pattern for compatibility.
  * GR → Res → Density → Neutron
  * L = deflects left (lower), R = deflects right (higher)
  */
@@ -98,8 +106,8 @@ export const applyKoKoRules = (
   nphi: number | null,
   por: number,
   // Baseline values for determining deflection direction
-  grBaseline = 75,
-  resBaseline = 10,
+  grBaseline = 52,   // midpoint between 35 and 70 (Russian scale)
+  resBaseline = 6,
   rhobBaseline = 2.55,
   nphiBaseline = 15
 ): { fluidType: FluidType; pattern: string } => {
