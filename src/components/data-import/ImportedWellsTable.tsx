@@ -131,6 +131,7 @@ export const ImportedWellsTable = ({ refreshTrigger }: ImportedWellsTableProps) 
               </Button>
             )}
           </div>
+        </div>
         <div className="relative mt-3">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
@@ -156,7 +157,7 @@ export const ImportedWellsTable = ({ refreshTrigger }: ImportedWellsTableProps) 
           <div className="space-y-3">
             <ScrollArea className="h-[350px]">
               <div className="space-y-0.5">
-                <div className="grid grid-cols-7 gap-2 text-xs font-medium text-muted-foreground px-2 py-2 border-b sticky top-0 bg-background z-10">
+                <div className="grid grid-cols-[1fr_1fr_1fr_0.6fr_0.7fr_0.7fr_0.8fr_2rem] gap-2 text-xs font-medium text-muted-foreground px-2 py-2 border-b sticky top-0 bg-background z-10">
                   <span>API #</span>
                   <span>Well Name</span>
                   <span>Operator</span>
@@ -164,9 +165,10 @@ export const ImportedWellsTable = ({ refreshTrigger }: ImportedWellsTableProps) 
                   <span>Status</span>
                   <span>Source</span>
                   <span>Oil (bbl)</span>
+                  <span></span>
                 </div>
                 {wells.map((well) => (
-                  <div key={well.id} className="grid grid-cols-7 gap-2 text-xs px-2 py-2 rounded hover:bg-muted/30 border-b border-border/20 cursor-pointer transition-colors" onClick={() => { setSelectedWell(well); setDialogOpen(true); }}>
+                  <div key={well.id} className="grid grid-cols-[1fr_1fr_1fr_0.6fr_0.7fr_0.7fr_0.8fr_2rem] gap-2 text-xs px-2 py-2 rounded hover:bg-muted/30 border-b border-border/20 cursor-pointer transition-colors" onClick={() => { setSelectedWell(well); setDialogOpen(true); }}>
                     <span className="font-mono truncate">{well.api_number || "—"}</span>
                     <span className="truncate">{well.well_name || "—"}</span>
                     <span className="truncate">{well.operator || "—"}</span>
@@ -182,6 +184,17 @@ export const ImportedWellsTable = ({ refreshTrigger }: ImportedWellsTableProps) 
                       </Badge>
                     </span>
                     <span>{well.production_oil?.toLocaleString() ?? "—"}</span>
+                    <span className="flex justify-end items-center">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 text-muted-foreground hover:text-destructive"
+                        onClick={(e) => handleDeleteWell(e, well.id)}
+                        disabled={deleting === well.id}
+                      >
+                        {deleting === well.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
+                      </Button>
+                    </span>
                   </div>
                 ))}
               </div>
