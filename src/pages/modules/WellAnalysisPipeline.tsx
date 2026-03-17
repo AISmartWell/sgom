@@ -271,6 +271,12 @@ const WellAnalysisPipeline = () => {
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
+      <AddWellDialog
+        open={addWellOpen}
+        onOpenChange={setAddWellOpen}
+        companyId={companyId}
+        onWellAdded={handleWellAdded}
+      />
       {/* Header */}
       <div className="mb-8">
         <Button variant="ghost" size="sm" onClick={() => navigate("/dashboard")} className="mb-2">
