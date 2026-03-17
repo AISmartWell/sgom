@@ -141,7 +141,7 @@ export const SeismicAnalysisHistory = () => {
                         <div className="flex-1 min-w-0">
                           <p className="text-xs font-medium">{h.name}</p>
                           <p className="text-xs text-muted-foreground">
-                            {h.depth_m && `Depth: ${h.depth_m}m`}
+                            {h.depth_m && `Depth: ${h.depth_m} ft`}
                             {h.twt_ms && ` · TWT: ${h.twt_ms}ms`}
                             {h.continuity && ` · ${h.continuity}`}
                           </p>
