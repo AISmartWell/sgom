@@ -368,7 +368,7 @@ const SeismicImageAnalysis = ({ selectedWell }: SeismicImageAnalysisProps) => {
                 <div className="flex gap-2 flex-wrap">
                   {result.fluid_contacts.map((fc: any, i: number) => (
                     <Badge key={i} variant="outline" className="text-xs">
-                      {fc.type}: {fc.depth_m}m ({(fc.confidence * 100).toFixed(0)}%)
+                      {fc.type}: {fc.depth_m} ft ({(fc.confidence * 100).toFixed(0)}%)
                     </Badge>
                   ))}
                 </div>

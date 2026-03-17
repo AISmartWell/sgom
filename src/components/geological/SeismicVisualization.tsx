@@ -160,7 +160,7 @@ const SeismicVisualization = () => {
               dataKey="depth"
               stroke="hsl(var(--muted-foreground))"
               fontSize={10}
-              tickFormatter={(v) => `${v}m`}
+              tickFormatter={(v) => `${v} ft`}
             />
             <YAxis
               stroke="hsl(var(--muted-foreground))"
