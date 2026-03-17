@@ -22,6 +22,8 @@ export const ImportedWellsTable = ({ refreshTrigger }: ImportedWellsTableProps) 
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedWell, setSelectedWell] = useState<any | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [deleting, setDeleting] = useState<string | null>(null);
+  const [deletingAll, setDeletingAll] = useState(false);
   const PAGE_SIZE = 20;
 
   useEffect(() => {
