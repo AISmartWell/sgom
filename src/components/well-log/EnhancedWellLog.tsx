@@ -121,12 +121,12 @@ const C = {
 };
 
 /* ── Lithology patterns ── */
+/* Lithology classification — Russian GIS school */
 const getLithology = (gr: number): { type: string; fill: string; label: string } => {
-  if (gr > 100) return { type: "shale", fill: C.shaleFill, label: "Shale" };
-  if (gr > 75) return { type: "silt", fill: "#6b7280", label: "Siltstone" };
-  if (gr > 50) return { type: "lime", fill: C.limeFill, label: "Limestone" };
-  if (gr > 30) return { type: "dolo", fill: C.dolomiteFill, label: "Dolomite" };
-  return { type: "sand", fill: C.sandFill, label: "Sandstone" };
+  if (gr > 70) return { type: "shale", fill: C.shaleFill, label: "Глина / Clay" };
+  if (gr > 50) return { type: "silt", fill: "#6b7280", label: "Алевролит / Siltstone" };
+  if (gr > 35) return { type: "lime", fill: C.limeFill, label: "Алевролит / Siltstone" };
+  return { type: "sand", fill: C.sandFill, label: "Песчаник / Sandstone" };
 };
 
 interface PayZone {
