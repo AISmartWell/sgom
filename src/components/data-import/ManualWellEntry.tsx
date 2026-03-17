@@ -53,6 +53,15 @@ export const ManualWellEntry = ({ companyId, onImportComplete }: ManualWellEntry
       return;
     }
 
+    if (form.latitude) {
+      const lat = parseFloat(form.latitude);
+      if (isNaN(lat) || lat < 24 || lat > 72) { toast.error("Latitude must be between 24 and 72"); return; }
+    }
+    if (form.longitude) {
+      const lng = parseFloat(form.longitude);
+      if (isNaN(lng) || lng < -180 || lng > -60) { toast.error("Longitude must be between -180 and -60"); return; }
+    }
+
     setIsSubmitting(true);
     try {
       const wellData = {
@@ -163,11 +172,13 @@ export const ManualWellEntry = ({ companyId, onImportComplete }: ManualWellEntry
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <Label htmlFor="latitude">Latitude</Label>
-              <Input id="latitude" type="number" step="any" placeholder="35.467" value={form.latitude} onChange={(e) => updateField("latitude", e.target.value)} />
+              <Input id="latitude" type="number" step="any" min="24" max="72" placeholder="35.467" value={form.latitude} onChange={(e) => updateField("latitude", e.target.value)} />
+              <p className="text-xs text-muted-foreground mt-1">24–72</p>
             </div>
             <div>
               <Label htmlFor="longitude">Longitude</Label>
-              <Input id="longitude" type="number" step="any" placeholder="-97.523" value={form.longitude} onChange={(e) => updateField("longitude", e.target.value)} />
+              <Input id="longitude" type="number" step="any" min="-180" max="-60" placeholder="-97.523" value={form.longitude} onChange={(e) => updateField("longitude", e.target.value)} />
+              <p className="text-xs text-muted-foreground mt-1">-180 – -60</p>
             </div>
             <div>
               <Label htmlFor="formation">Formation</Label>
