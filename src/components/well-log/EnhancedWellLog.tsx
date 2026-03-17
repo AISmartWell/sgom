@@ -281,7 +281,7 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
   const handleWheel = useCallback((e: React.WheelEvent) => {
     e.preventDefault();
     if (e.ctrlKey || e.metaKey) {
-      setZoomFactor(prev => Math.max(1, Math.min(10, prev + (e.deltaY > 0 ? -0.3 : 0.3))));
+      setZoomFactor(prev => Math.max(1, Math.min(50, prev + (e.deltaY > 0 ? -0.5 : 0.5))));
     } else {
       setScrollOffset(prev => Math.max(0, Math.min(maxOffset, prev + e.deltaY * 2)));
     }
