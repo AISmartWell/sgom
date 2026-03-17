@@ -430,7 +430,7 @@ export const WellLogAnalysisDemo = () => {
             <li><strong>Data Loading</strong> — Import and digitize well log curves (GR, RT, NPHI, RHOB)</li>
             <li><strong>Curve Analysis</strong> — Neural network correlates multi-curve patterns across depth</li>
             <li><strong>Zone Detection</strong> — AI identifies productive intervals by cross-analyzing log responses</li>
-            <li><strong>Missed Pay Detection</strong> — Model finds thin beds (&lt;2m) with pay zone signatures missed by conventional analysis</li>
+            <li><strong>Missed Pay Detection</strong> — Model finds thin beds (&lt;6 ft) with pay zone signatures missed by conventional analysis</li>
             <li><strong>Report Generation</strong> — LLM generates formation evaluation report with perforation recommendations</li>
           </ol>
         </div>
