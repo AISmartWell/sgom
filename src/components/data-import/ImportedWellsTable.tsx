@@ -47,7 +47,7 @@ export const ImportedWellsTable = ({ refreshTrigger }: ImportedWellsTableProps) 
 
     if (debouncedSearch.trim()) {
       const s = `%${debouncedSearch.trim()}%`;
-      const filter = `well_name.ilike.${s},api_number.ilike.${s},operator.ilike.${s},county.ilike.${s},formation.ilike.${s}`;
+      const filter = `well_name.ilike."${s}",api_number.ilike."${s}",operator.ilike."${s}",county.ilike."${s}",formation.ilike."${s}"`;
       query = query.or(filter);
       countQuery = countQuery.or(filter);
     }
