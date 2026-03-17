@@ -47,10 +47,10 @@ export interface InterpretationSummary {
   dominantFluid: FluidType;
 }
 
-/* ── Constants (Российская школа ГИС) ── */
-// GR cutoffs — российская классификация
-const GR_CLEAN = 35;    // верхняя граница чистого песчаника (≤35)
-const GR_SHALE = 70;    // граница глина/аргиллит (>70)
+/* ── Constants (American well logging standards) ── */
+// GR cutoffs — API standard classification
+const GR_CLEAN = 45;    // clean sand upper limit (≤45 API)
+const GR_SHALE = 75;    // shale baseline (>75 API)
 
 // Net Pay cutoffs
 const CUTOFF_POR = 8;   // minimum porosity %
@@ -87,13 +87,13 @@ export const calcArchieSwFromInputs = (
 };
 
 /**
- * Российская классификация литологии и флюидов
- * Критерии по российской школе ГИС:
- * - Песчаник водоносный: GR ≤35, SP 0–30, ННКт 1.5–2, УЭС 2–6
- * - Песчаник нефтеносный: GR ≤35, SP 0–30, ННКт пониж., УЭС >10
- * - Алевролит: GR 35–70, SP 30–70, УЭС 1–2
- * - Глина (аргиллит): GR >70, SP >70, УЭС 1–2
- * - Плотная порода: GR 30–50, УЭС >30
+ * American well logging fluid & lithology classification
+ * Standard API log interpretation criteria:
+ * - Clean sand (water-bearing): GR ≤45 API, Rt 2–8 Ω·m
+ * - Clean sand (oil-bearing): GR ≤45 API, Rt >10 Ω·m
+ * - Silty sand: GR 45–75 API, Rt 1–4 Ω·m
+ * - Shale: GR >75 API, Rt 1–3 Ω·m
+ * - Tight/cemented: GR 30–60 API, Rt >30 Ω·m
  *
  * Also generates Ko Ko pattern for compatibility.
  * GR → Res → Density → Neutron
@@ -106,8 +106,8 @@ export const applyKoKoRules = (
   nphi: number | null,
   por: number,
   // Baseline values for determining deflection direction
-  grBaseline = 52,   // midpoint between 35 and 70 (Russian scale)
-  resBaseline = 6,
+  grBaseline = 60,   // midpoint between 45 and 75 (API scale)
+  resBaseline = 8,
   rhobBaseline = 2.55,
   nphiBaseline = 15
 ): { fluidType: FluidType; pattern: string } => {
@@ -169,11 +169,11 @@ export const applyKoKoRules = (
 export const segmentIntervals = (data: PetroPoint[], minThickness = 5): IntervalResult[] => {
   if (data.length < 3) return [];
 
-  // Step 1: assign each point a lithology class based on GR (Russian cutoffs)
+  // Step 1: assign each point a lithology class based on GR (API cutoffs)
   const classes = data.map(p => {
-    if (p.gr > 70) return "shale";       // Глина/аргиллит
-    if (p.gr > 35) return "transition";  // Алевролит
-    return "reservoir";                   // Песчаник
+    if (p.gr > 75) return "shale";       // Shale
+    if (p.gr > 45) return "transition";  // Silty sand
+    return "reservoir";                   // Clean sand
   });
 
   // Step 2: merge consecutive same-class points into intervals
