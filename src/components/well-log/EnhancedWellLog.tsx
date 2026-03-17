@@ -273,7 +273,7 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
   const hasDenNphi = useMemo(() => allData.some(p => p.rhob !== null || p.nphi !== null), [allData]);
 
   // Depth ticks
-  const depthStep = visibleSpan > 2000 ? 500 : visibleSpan > 800 ? 200 : visibleSpan > 300 ? 100 : visibleSpan > 100 ? 50 : 10;
+  const depthStep = visibleSpan > 2000 ? 500 : visibleSpan > 800 ? 200 : visibleSpan > 300 ? 100 : visibleSpan > 100 ? 50 : visibleSpan > 40 ? 10 : visibleSpan > 16 ? 5 : 2;
   const depthTicks: number[] = [];
   for (let d = Math.ceil(viewMin / depthStep) * depthStep; d <= viewMax; d += depthStep) depthTicks.push(d);
 
@@ -281,7 +281,7 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
   const handleWheel = useCallback((e: React.WheelEvent) => {
     e.preventDefault();
     if (e.ctrlKey || e.metaKey) {
-      setZoomFactor(prev => Math.max(1, Math.min(10, prev + (e.deltaY > 0 ? -0.3 : 0.3))));
+      setZoomFactor(prev => Math.max(1, Math.min(50, prev + (e.deltaY > 0 ? -0.5 : 0.5))));
     } else {
       setScrollOffset(prev => Math.max(0, Math.min(maxOffset, prev + e.deltaY * 2)));
     }
