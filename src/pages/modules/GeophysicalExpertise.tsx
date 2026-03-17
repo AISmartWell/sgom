@@ -602,6 +602,15 @@ const AddWellDialog = ({
     if (!companyId) { toast.error("No company found. Please log in first."); return; }
     if (!form.api_number || !form.well_name) { toast.error("API Number and Well Name are required"); return; }
 
+    if (form.latitude) {
+      const lat = parseFloat(form.latitude);
+      if (isNaN(lat) || lat < 24 || lat > 72) { toast.error("Latitude must be between 24 and 72"); return; }
+    }
+    if (form.longitude) {
+      const lng = parseFloat(form.longitude);
+      if (isNaN(lng) || lng < -180 || lng > -60) { toast.error("Longitude must be between -180 and -60"); return; }
+    }
+
     setIsSubmitting(true);
     try {
       const wellData = {
