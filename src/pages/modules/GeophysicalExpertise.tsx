@@ -730,12 +730,13 @@ const GeophysicalExpertise = () => {
 
     const nextWell = data || well;
     setWells((prev) => {
-      const exists = prev.some((item) => item.id === nextWell.id);
-      return exists ? prev : [nextWell, ...prev];
+      const withoutDuplicate = prev.filter((item) => item.id !== nextWell.id);
+      return [nextWell, ...withoutDuplicate];
     });
     setSelectedWell(nextWell);
     setWellPickerOpen(false);
     setWellSearch("");
+    await fetchWells();
   };
 
   // Load well log data for calculation steps
