@@ -126,6 +126,14 @@ const WellAnalysisPipeline = () => {
     : "";
 
   useEffect(() => {
+    const loadCompany = async () => {
+      const { data } = await supabase.from("user_companies").select("company_id").limit(1).maybeSingle();
+      if (data) setCompanyId(data.company_id);
+    };
+    loadCompany();
+  }, []);
+
+  useEffect(() => {
     const fetchWells = async () => {
       const { data } = await supabase
         .from("wells")
@@ -137,6 +145,24 @@ const WellAnalysisPipeline = () => {
     };
     fetchWells();
   }, []);
+
+  const handleWellAdded = (well: { id: string; well_name: string | null; api_number: string | null }) => {
+    // Refetch wells to include the newly added one
+    const refetch = async () => {
+      const { data } = await supabase
+        .from("wells")
+        .select("id, well_name, api_number, operator, county, state, formation, production_oil, production_gas, water_cut, total_depth, well_type, status, latitude, longitude")
+        .eq("id", well.id)
+        .maybeSingle();
+      if (data) {
+        setWells(prev => [...prev, data]);
+        setSelectedWellId(data.id);
+        setCachedSelectedWell(data);
+        reset();
+      }
+    };
+    refetch();
+  };
 
   const analyzeStage = useCallback(
     async (stageKey: string, well: WellRecord): Promise<StageResult> => {
