@@ -69,6 +69,37 @@ export const ImportedWellsTable = ({ refreshTrigger }: ImportedWellsTableProps) 
     loadWells();
   }, [page, refreshTrigger, debouncedSearch]);
 
+  const handleDeleteWell = async (e: React.MouseEvent, wellId: string) => {
+    e.stopPropagation();
+    if (!confirm("Delete this well and all associated data?")) return;
+    setDeleting(wellId);
+    try {
+      const { error } = await supabase.from("wells").delete().eq("id", wellId);
+      if (error) throw error;
+      toast.success("Well deleted");
+      loadWells();
+    } catch (err: any) {
+      toast.error(`Delete failed: ${err.message}`);
+    } finally {
+      setDeleting(null);
+    }
+  };
+
+  const handleDeleteAll = async () => {
+    if (!confirm(`Delete ALL ${total} wells? This cannot be undone.`)) return;
+    setDeletingAll(true);
+    try {
+      const { error } = await supabase.from("wells").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+      if (error) throw error;
+      toast.success("All wells deleted");
+      loadWells();
+    } catch (err: any) {
+      toast.error(`Delete failed: ${err.message}`);
+    } finally {
+      setDeletingAll(false);
+    }
+  };
+
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
   return (
