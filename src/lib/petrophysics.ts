@@ -87,13 +87,13 @@ export const calcArchieSwFromInputs = (
 };
 
 /**
- * Российская классификация литологии и флюидов
- * Критерии по российской школе ГИС:
- * - Песчаник водоносный: GR ≤35, SP 0–30, ННКт 1.5–2, УЭС 2–6
- * - Песчаник нефтеносный: GR ≤35, SP 0–30, ННКт пониж., УЭС >10
- * - Алевролит: GR 35–70, SP 30–70, УЭС 1–2
- * - Глина (аргиллит): GR >70, SP >70, УЭС 1–2
- * - Плотная порода: GR 30–50, УЭС >30
+ * American well logging fluid & lithology classification
+ * Standard API log interpretation criteria:
+ * - Clean sand (water-bearing): GR ≤45 API, Rt 2–8 Ω·m
+ * - Clean sand (oil-bearing): GR ≤45 API, Rt >10 Ω·m
+ * - Silty sand: GR 45–75 API, Rt 1–4 Ω·m
+ * - Shale: GR >75 API, Rt 1–3 Ω·m
+ * - Tight/cemented: GR 30–60 API, Rt >30 Ω·m
  *
  * Also generates Ko Ko pattern for compatibility.
  * GR → Res → Density → Neutron
@@ -106,8 +106,8 @@ export const applyKoKoRules = (
   nphi: number | null,
   por: number,
   // Baseline values for determining deflection direction
-  grBaseline = 52,   // midpoint between 35 and 70 (Russian scale)
-  resBaseline = 6,
+  grBaseline = 60,   // midpoint between 45 and 75 (API scale)
+  resBaseline = 8,
   rhobBaseline = 2.55,
   nphiBaseline = 15
 ): { fluidType: FluidType; pattern: string } => {
