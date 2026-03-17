@@ -812,6 +812,39 @@ const GeophysicalExpertise = () => {
         onAddWell={() => setAddWellOpen(true)}
       />
 
+      {/* LAS Upload Panel */}
+      {selectedWell && lasUploadOpen && (
+        <div className="mb-4">
+          <LASUploadPanel
+            wellId={selectedWell.id}
+            wellName={selectedWell.well_name || "Unknown"}
+            companyId={companyId}
+            onImportComplete={() => {
+              setLasUploadOpen(false);
+              // Force re-fetch well logs by toggling the well
+              const w = selectedWell;
+              setSelectedWell(null);
+              setTimeout(() => setSelectedWell(w), 100);
+            }}
+          />
+        </div>
+      )}
+
+      {/* Upload LAS button */}
+      {selectedWell && !lasUploadOpen && (
+        <div className="mb-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setLasUploadOpen(true)}
+            className="gap-1.5"
+          >
+            <Upload className="h-3.5 w-3.5" />
+            Upload LAS
+          </Button>
+        </div>
+      )}
+
       {/* 7-Step Pipeline Navigator */}
       <div className="flex gap-1.5 mb-6 overflow-x-auto pb-1">
         {STEPS.map((s) => {
