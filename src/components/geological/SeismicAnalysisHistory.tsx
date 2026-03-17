@@ -119,7 +119,7 @@ export const SeismicAnalysisHistory = () => {
                           <p className="text-xs font-medium">{f.type} fault</p>
                           <p className="text-xs text-muted-foreground">
                             {f.dip_angle_deg && `Dip: ${f.dip_angle_deg}°`}
-                            {f.throw_m && ` · Throw: ${f.throw_m}m`}
+                            {f.throw_m && ` · Throw: ${f.throw_m} ft`}
                             {f.depth_range && ` · ${f.depth_range}`}
                           </p>
                         </div>
