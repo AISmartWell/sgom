@@ -61,6 +61,7 @@ export const useUserRole = () => {
 export const INVESTOR_ALLOWED_ROUTES = [
   "/dashboard",
   "/dashboard/oklahoma-pilot",
+  "/dashboard/geophysical",
   "/investor-deck",
   "/dashboard/saas-business-model",
   "/budget",
