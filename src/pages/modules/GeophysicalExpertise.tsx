@@ -577,84 +577,82 @@ const StepNetPay = ({ summary }: { summary: InterpretationSummary }) => {
 const WellSearchSelector = ({
   wells,
   selectedWell,
+  searchResults,
+  searching,
+  search,
+  open,
+  onSearchChange,
+  onOpenChange,
   onSelect,
   onAddWell,
 }: {
   wells: WellOption[];
   selectedWell: WellOption | null;
+  searchResults: WellOption[];
+  searching: boolean;
+  search: string;
+  open: boolean;
+  onSearchChange: (value: string) => void;
+  onOpenChange: (value: boolean) => void;
   onSelect: (w: WellOption) => void;
   onAddWell: () => void;
 }) => {
-  const [search, setSearch] = useState("");
-  const [open, setOpen] = useState(false);
-  const wrapperRef = useRef<HTMLDivElement>(null);
-
-  const filtered = useMemo(() => {
-    if (!search.trim()) return wells;
-    const q = search.toLowerCase();
-    return wells.filter(
-      (w) =>
-        (w.well_name?.toLowerCase().includes(q)) ||
-        (w.api_number?.toLowerCase().includes(q)) ||
-        (w.formation?.toLowerCase().includes(q))
-    );
-  }, [wells, search]);
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
-
-  const displayValue = selectedWell
-    ? (selectedWell.well_name || selectedWell.api_number || selectedWell.id.slice(0, 8))
+  const filteredWells = search.trim() ? searchResults : wells;
+  const selectedLabel = selectedWell
+    ? `${selectedWell.well_name || selectedWell.api_number || selectedWell.id.slice(0, 8)}${selectedWell.formation ? ` • ${selectedWell.formation}` : ""}`
     : "";
 
   return (
     <Card className="mb-6 bg-muted/20 border-border/30">
       <CardContent className="py-4">
         <p className="text-sm font-semibold mb-2">Select Well</p>
-        <div className="flex items-center gap-3">
-          <div className="flex-1 relative" ref={wrapperRef}>
-            <Input
-              placeholder="Search by name, API #, operator..."
-              value={open ? search : displayValue}
-              onFocus={() => { setOpen(true); setSearch(""); }}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full"
-            />
-            {open && (
-              <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-popover border border-border rounded-md shadow-lg max-h-64 overflow-auto">
-                {filtered.length === 0 ? (
-                  <div className="px-3 py-4 text-sm text-muted-foreground text-center">
-                    No wells found.{" "}
-                    <button className="text-primary underline" onClick={onAddWell}>
-                      Add a well
-                    </button>
-                  </div>
-                ) : (
-                  filtered.map((w) => (
-                    <button
-                      key={w.id}
-                      className="w-full text-left px-3 py-2 text-sm hover:bg-accent transition-colors flex items-center gap-2"
-                      onClick={() => {
-                        onSelect(w);
-                        setOpen(false);
-                        setSearch("");
-                      }}
-                    >
-                      <span className="font-medium">{w.well_name || w.api_number || w.id.slice(0, 8)}</span>
-                      {w.formation && <span className="text-muted-foreground">• {w.formation}</span>}
-                      {w.total_depth && <span className="text-muted-foreground">• {w.total_depth.toLocaleString()} ft</span>}
-                    </button>
-                  ))
-                )}
-              </div>
-            )}
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex-1">
+            <Popover open={open} onOpenChange={onOpenChange}>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="w-full justify-start font-normal">
+                  {selectedLabel || "Search and select a well..."}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+                <div className="p-2 border-b">
+                  <Input
+                    placeholder="Search by name, API #, or formation..."
+                    value={search}
+                    onChange={(e) => onSearchChange(e.target.value)}
+                    autoFocus
+                  />
+                </div>
+                <ScrollArea className="max-h-64">
+                  {searching ? (
+                    <p className="text-sm text-muted-foreground text-center py-4">Searching...</p>
+                  ) : filteredWells.length === 0 ? (
+                    <div className="px-3 py-4 text-sm text-muted-foreground text-center">
+                      No wells found.{" "}
+                      <button className="text-primary underline" onClick={onAddWell}>
+                        Add a well
+                      </button>
+                    </div>
+                  ) : (
+                    filteredWells.map((w) => (
+                      <button
+                        key={w.id}
+                        className={`w-full text-left px-3 py-2 text-sm hover:bg-accent transition-colors ${w.id === selectedWell?.id ? "bg-accent font-medium" : ""}`}
+                        onClick={() => {
+                          onSelect(w);
+                          onOpenChange(false);
+                          onSearchChange("");
+                        }}
+                      >
+                        <span className="font-medium">{w.well_name || w.api_number || w.id.slice(0, 8)}</span>
+                        {w.formation && <span className="text-muted-foreground"> • {w.formation}</span>}
+                        {w.total_depth && <span className="text-muted-foreground"> • {w.total_depth.toLocaleString()} ft</span>}
+                      </button>
+                    ))
+                  )}
+                </ScrollArea>
+              </PopoverContent>
+            </Popover>
           </div>
           <Button onClick={onAddWell} variant="outline" size="sm" className="flex-shrink-0">
             <Plus className="mr-1 h-4 w-4" />
