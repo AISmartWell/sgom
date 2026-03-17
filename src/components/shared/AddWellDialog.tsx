@@ -22,7 +22,8 @@ interface AddWellDialogProps {
   onWellAdded: (well: AddedWell) => void;
 }
 
-const isApiNumber = (v: string) => /^\d{2,}/.test(v.replace(/[-\s]/g, ""));
+const normalizeLookupInput = (value: string) => value.trim().replace(/^["']+|["']+$/g, "").trim();
+const isApiNumber = (value: string) => /^\d{2,}/.test(normalizeLookupInput(value).replace(/[-\s]/g, ""));
 
 export const AddWellDialog = ({ open, onOpenChange, companyId, onWellAdded }: AddWellDialogProps) => {
   const [searchValue, setSearchValue] = useState("");
@@ -32,7 +33,8 @@ export const AddWellDialog = ({ open, onOpenChange, companyId, onWellAdded }: Ad
   const [status, setStatus] = useState<"idle" | "searching" | "found" | "not_found">("idle");
 
   const handleLookup = async () => {
-    if (!searchValue.trim()) { toast.error("Enter an API number or well name"); return; }
+    const normalizedSearchValue = normalizeLookupInput(searchValue);
+    if (!normalizedSearchValue) { toast.error("Enter an API number or well name"); return; }
     if (!companyId) { toast.error("No company found. Please log in first."); return; }
 
     setIsLoading(true);
@@ -41,9 +43,9 @@ export const AddWellDialog = ({ open, onOpenChange, companyId, onWellAdded }: Ad
     try {
       const body: Record<string, string> = { company_id: companyId };
       if (searchMode === "api") {
-        body.api_number = searchValue.trim();
+        body.api_number = normalizedSearchValue;
       } else {
-        body.well_name = searchValue.trim();
+        body.well_name = normalizedSearchValue;
         if (selectedState !== "all") body.state = selectedState;
       }
 
@@ -53,7 +55,11 @@ export const AddWellDialog = ({ open, onOpenChange, companyId, onWellAdded }: Ad
 
       if (data?.success && data.well) {
         setStatus("found");
-        toast.success(`Well "${data.well.well_name}" added from state registry`);
+        toast.success(
+          data.source === "database"
+            ? `Well "${data.well.well_name}" added from your workspace`
+            : `Well "${data.well.well_name}" added from state registry`
+        );
         onWellAdded(data.well);
         setSearchValue("");
         setStatus("idle");

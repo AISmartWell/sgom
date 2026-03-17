@@ -134,13 +134,64 @@ async function queryStateAPI(state: string, apiNumber: string, wellName?: string
   }
 }
 
+function sanitizeSearchValue(value?: string | null) {
+  const sanitized = value?.trim().replace(/^["']+|["']+$/g, "").replace(/\s+/g, " ");
+  return sanitized || undefined;
+}
+
+function escapeFilterValue(value: string) {
+  return value.replace(/"/g, '\\"');
+}
+
+async function findExistingWell(
+  supabase: ReturnType<typeof createClient>,
+  companyId: string,
+  apiNumber?: string,
+  wellName?: string,
+) {
+  if (apiNumber) {
+    const compactApi = apiNumber.replace(/[-\s]/g, "");
+    const apiVariants = Array.from(new Set([
+      apiNumber,
+      compactApi,
+      `TX-${compactApi}`,
+      `OK-${compactApi}`,
+      `KS-${compactApi}`,
+    ].filter(Boolean)));
+
+    const { data } = await supabase
+      .from("wells")
+      .select("id, well_name, api_number, formation, total_depth")
+      .eq("company_id", companyId)
+      .or(apiVariants.map((value) => `api_number.eq."${escapeFilterValue(value)}"`).join(","))
+      .limit(1)
+      .maybeSingle();
+
+    if (data) return data;
+  }
+
+  if (wellName) {
+    const { data } = await supabase
+      .from("wells")
+      .select("id, well_name, api_number, formation, total_depth")
+      .eq("company_id", companyId)
+      .ilike("well_name", `%${wellName}%`)
+      .order("updated_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (data) return data;
+  }
+
+  return null;
+}
+
 // Detect state from API number prefix
 function detectState(apiNumber: string): string[] {
   const clean = apiNumber.replace(/[-\s]/g, "").toUpperCase();
   if (clean.startsWith("TX") || clean.startsWith("42")) return ["TX"];
   if (clean.startsWith("OK") || clean.startsWith("35")) return ["OK"];
   if (clean.startsWith("KS") || clean.startsWith("15")) return ["KS"];
-  // Try all states
   return ["OK", "TX", "KS"];
 }
 
@@ -151,21 +202,34 @@ serve(async (req) => {
 
   try {
     const { api_number, well_name, company_id, state: requestedState } = await req.json();
+    const normalizedApiNumber = sanitizeSearchValue(api_number);
+    const normalizedWellName = sanitizeSearchValue(well_name);
 
-    if ((!api_number && !well_name) || !company_id) {
+    if ((!normalizedApiNumber && !normalizedWellName) || !company_id) {
       return new Response(
         JSON.stringify({ error: "api_number or well_name, and company_id are required" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const searchByName = !api_number && !!well_name;
-    const statesToTry = requestedState ? [requestedState] : (api_number ? detectState(api_number) : ["OK", "TX", "KS"]);
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    const existingWell = await findExistingWell(supabase, company_id, normalizedApiNumber, normalizedWellName);
+    if (existingWell) {
+      return new Response(
+        JSON.stringify({ success: true, well: existingWell, source: "database" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const searchByName = !normalizedApiNumber && !!normalizedWellName;
+    const statesToTry = requestedState ? [requestedState] : (normalizedApiNumber ? detectState(normalizedApiNumber) : ["OK", "TX", "KS"]);
     let wellData = null;
-    const allResults: Array<{ state: string; attrs: Record<string, unknown>; geom: any }> = [];
 
     for (const state of statesToTry) {
-      const feature = await queryStateAPI(state, api_number || "", searchByName ? well_name : undefined);
+      const feature = await queryStateAPI(state, normalizedApiNumber || "", searchByName ? normalizedWellName : undefined);
       if (feature) {
         if (searchByName && Array.isArray((feature as any).__multiResults)) {
           // Won't happen with current code, handle single
@@ -185,9 +249,6 @@ serve(async (req) => {
     }
 
     // Save to database
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
 
     const { data, error } = await supabase
       .from("wells")
