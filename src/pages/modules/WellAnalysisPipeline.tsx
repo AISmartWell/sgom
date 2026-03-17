@@ -349,6 +349,10 @@ const WellAnalysisPipeline = () => {
               </Popover>
             </div>
             <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => setAddWellOpen(true)}>
+                <Plus className="mr-1 h-4 w-4" />
+                Add Well
+              </Button>
               <Button onClick={runPipeline} disabled={!selectedWellId || isRunning}>
                 {isRunning ? (
                   <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Analyzing...</>
