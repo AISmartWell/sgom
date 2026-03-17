@@ -74,7 +74,7 @@ const interpolateData = (data: DataPoint[], maxStep: number): DataPoint[] => {
 /* ── Layout ── */
 const LITH_W = 80;
 const GR_W = 170;
-const DEPTH_W = 50;
+const DEPTH_W = 65;
 const RES_W = 180;
 const POR_W = 150;
 const FLUID_W = 45;
@@ -597,7 +597,7 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
                 <g key={`dt-${d}`}>
                   <line x1={DEPTH_X} y1={yForDepth(d)} x2={DEPTH_X + DEPTH_W} y2={yForDepth(d)} stroke={C.gridMajor} strokeWidth="0.4" />
                   <text x={DEPTH_X + DEPTH_W / 2} y={yForDepth(d) + 3.5} textAnchor="middle"
-                    fill={C.textBright} fontSize="8" fontWeight="600" fontFamily="monospace">{d}</text>
+                    fill={C.textBright} fontSize="8" fontWeight="600" fontFamily="monospace">{d.toFixed(2)}</text>
                 </g>
               ))}
 
@@ -791,9 +791,9 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
                     {h > 30 && (
                       <>
                         <text x={cx} y={clampY1 - 2} textAnchor="middle"
-                          fill="#f97316" fontSize="6" fontFamily="monospace">{Math.round(perf.depth_from)}'</text>
+                          fill="#f97316" fontSize="6" fontFamily="monospace">{perf.depth_from.toFixed(2)}'</text>
                         <text x={cx} y={clampY2 + 8} textAnchor="middle"
-                          fill="#f97316" fontSize="6" fontFamily="monospace">{Math.round(perf.depth_to)}'</text>
+                          fill="#f97316" fontSize="6" fontFamily="monospace">{perf.depth_to.toFixed(2)}'</text>
                       </>
                     )}
                   </g>
@@ -845,7 +845,7 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
                         <text x={COR_X + COR_W / 2} y={y + 10} textAnchor="middle"
                           fill={C.text} fontSize="6.5" fontWeight="600">{lith.label}</text>
                         <text x={COR_X + COR_W / 2} y={y + 20} textAnchor="middle"
-                          fill={`${C.text}88`} fontSize="6">{Math.round(visibleData[i].depth)}'</text>
+                          fill={`${C.text}88`} fontSize="6">{visibleData[i].depth.toFixed(2)}'</text>
                       </g>
                     );
                     lastLabel = lith.label;
@@ -872,7 +872,7 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
                   {/* Depth badge */}
                   <rect x={DEPTH_X + 2} y={hoverData.y - 8} width={DEPTH_W - 4} height={16} rx="3" fill={C.crosshair} opacity={0.85} />
                   <text x={DEPTH_X + DEPTH_W / 2} y={hoverData.y + 3.5} textAnchor="middle"
-                    fill="#0a0f1c" fontSize="8" fontWeight="800" fontFamily="monospace">{Math.round(hoverData.point.depth)}'</text>
+                    fill="#0a0f1c" fontSize="8" fontWeight="800" fontFamily="monospace">{hoverData.point.depth.toFixed(2)}'</text>
                   {/* Tooltip */}
                   {(() => {
                     const tx = RES_X + 8;
@@ -890,7 +890,7 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
                         <rect x={tx + 1} y={ty + 1} width={140} height={22 + rows.length * 14} rx="5" fill="#000" opacity={0.25} />
                         <rect x={tx} y={ty} width={140} height={22 + rows.length * 14} rx="5" fill={C.tooltipBg} stroke={C.border} strokeWidth="0.8" />
                         <text x={tx + 8} y={ty + 14} fill={C.crosshair} fontSize="8.5" fontWeight="800" fontFamily="monospace">
-                          ⬥ {Math.round(hoverData.point.depth)} ft
+                          ⬥ {hoverData.point.depth.toFixed(2)} ft
                         </text>
                         {rows.map((r, i) => (
                           <g key={i}>
