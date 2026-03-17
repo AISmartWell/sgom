@@ -22,7 +22,8 @@ interface AddWellDialogProps {
   onWellAdded: (well: AddedWell) => void;
 }
 
-const isApiNumber = (v: string) => /^\d{2,}/.test(v.replace(/[-\s]/g, ""));
+const normalizeLookupInput = (value: string) => value.trim().replace(/^["']+|["']+$/g, "").trim();
+const isApiNumber = (value: string) => /^\d{2,}/.test(normalizeLookupInput(value).replace(/[-\s]/g, ""));
 
 export const AddWellDialog = ({ open, onOpenChange, companyId, onWellAdded }: AddWellDialogProps) => {
   const [searchValue, setSearchValue] = useState("");

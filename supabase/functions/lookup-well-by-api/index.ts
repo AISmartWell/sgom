@@ -134,13 +134,64 @@ async function queryStateAPI(state: string, apiNumber: string, wellName?: string
   }
 }
 
+function sanitizeSearchValue(value?: string | null) {
+  const sanitized = value?.trim().replace(/^["']+|["']+$/g, "").replace(/\s+/g, " ");
+  return sanitized || undefined;
+}
+
+function escapeFilterValue(value: string) {
+  return value.replace(/"/g, '\\"');
+}
+
+async function findExistingWell(
+  supabase: ReturnType<typeof createClient>,
+  companyId: string,
+  apiNumber?: string,
+  wellName?: string,
+) {
+  if (apiNumber) {
+    const compactApi = apiNumber.replace(/[-\s]/g, "");
+    const apiVariants = Array.from(new Set([
+      apiNumber,
+      compactApi,
+      `TX-${compactApi}`,
+      `OK-${compactApi}`,
+      `KS-${compactApi}`,
+    ].filter(Boolean)));
+
+    const { data } = await supabase
+      .from("wells")
+      .select("id, well_name, api_number, formation, total_depth")
+      .eq("company_id", companyId)
+      .or(apiVariants.map((value) => `api_number.eq."${escapeFilterValue(value)}"`).join(","))
+      .limit(1)
+      .maybeSingle();
+
+    if (data) return data;
+  }
+
+  if (wellName) {
+    const { data } = await supabase
+      .from("wells")
+      .select("id, well_name, api_number, formation, total_depth")
+      .eq("company_id", companyId)
+      .ilike("well_name", `%${wellName}%`)
+      .order("updated_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (data) return data;
+  }
+
+  return null;
+}
+
 // Detect state from API number prefix
 function detectState(apiNumber: string): string[] {
   const clean = apiNumber.replace(/[-\s]/g, "").toUpperCase();
   if (clean.startsWith("TX") || clean.startsWith("42")) return ["TX"];
   if (clean.startsWith("OK") || clean.startsWith("35")) return ["OK"];
   if (clean.startsWith("KS") || clean.startsWith("15")) return ["KS"];
-  // Try all states
   return ["OK", "TX", "KS"];
 }
 
