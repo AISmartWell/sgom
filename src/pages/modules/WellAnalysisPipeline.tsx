@@ -38,7 +38,9 @@ import {
   Droplets,
   Microscope,
   Waves,
+  Plus,
 } from "lucide-react";
+import { AddWellDialog } from "@/components/shared/AddWellDialog";
 
 interface WellRecord {
   id: string;
@@ -91,6 +93,8 @@ const WellAnalysisPipeline = () => {
   const [searchResults, setSearchResults] = useState<WellRecord[]>([]);
   const [searching, setSearching] = useState(false);
   const [cachedSelectedWell, setCachedSelectedWell] = useState<WellRecord | null>(null);
+  const [addWellOpen, setAddWellOpen] = useState(false);
+  const [companyId, setCompanyId] = useState<string | null>(null);
 
   const selectedWell = wells.find((w) => w.id === selectedWellId) || searchResults.find((w) => w.id === selectedWellId) || cachedSelectedWell;
 
@@ -122,6 +126,14 @@ const WellAnalysisPipeline = () => {
     : "";
 
   useEffect(() => {
+    const loadCompany = async () => {
+      const { data } = await supabase.from("user_companies").select("company_id").limit(1).maybeSingle();
+      if (data) setCompanyId(data.company_id);
+    };
+    loadCompany();
+  }, []);
+
+  useEffect(() => {
     const fetchWells = async () => {
       const { data } = await supabase
         .from("wells")
@@ -133,6 +145,24 @@ const WellAnalysisPipeline = () => {
     };
     fetchWells();
   }, []);
+
+  const handleWellAdded = (well: { id: string; well_name: string | null; api_number: string | null }) => {
+    // Refetch wells to include the newly added one
+    const refetch = async () => {
+      const { data } = await supabase
+        .from("wells")
+        .select("id, well_name, api_number, operator, county, state, formation, production_oil, production_gas, water_cut, total_depth, well_type, status, latitude, longitude")
+        .eq("id", well.id)
+        .maybeSingle();
+      if (data) {
+        setWells(prev => [...prev, data]);
+        setSelectedWellId(data.id);
+        setCachedSelectedWell(data);
+        reset();
+      }
+    };
+    refetch();
+  };
 
   const analyzeStage = useCallback(
     async (stageKey: string, well: WellRecord): Promise<StageResult> => {
@@ -241,6 +271,12 @@ const WellAnalysisPipeline = () => {
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
+      <AddWellDialog
+        open={addWellOpen}
+        onOpenChange={setAddWellOpen}
+        companyId={companyId}
+        onWellAdded={handleWellAdded}
+      />
       {/* Header */}
       <div className="mb-8">
         <Button variant="ghost" size="sm" onClick={() => navigate("/dashboard")} className="mb-2">
@@ -313,6 +349,10 @@ const WellAnalysisPipeline = () => {
               </Popover>
             </div>
             <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => setAddWellOpen(true)}>
+                <Plus className="mr-1 h-4 w-4" />
+                Add Well
+              </Button>
               <Button onClick={runPipeline} disabled={!selectedWellId || isRunning}>
                 {isRunning ? (
                   <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Analyzing...</>
