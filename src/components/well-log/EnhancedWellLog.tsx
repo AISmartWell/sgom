@@ -121,12 +121,12 @@ const C = {
 };
 
 /* ── Lithology patterns ── */
+/* Lithology classification — Russian GIS school */
 const getLithology = (gr: number): { type: string; fill: string; label: string } => {
-  if (gr > 100) return { type: "shale", fill: C.shaleFill, label: "Shale" };
-  if (gr > 75) return { type: "silt", fill: "#6b7280", label: "Siltstone" };
-  if (gr > 50) return { type: "lime", fill: C.limeFill, label: "Limestone" };
-  if (gr > 30) return { type: "dolo", fill: C.dolomiteFill, label: "Dolomite" };
-  return { type: "sand", fill: C.sandFill, label: "Sandstone" };
+  if (gr > 70) return { type: "shale", fill: C.shaleFill, label: "Глина / Clay" };
+  if (gr > 50) return { type: "silt", fill: "#6b7280", label: "Алевролит / Siltstone" };
+  if (gr > 35) return { type: "lime", fill: C.limeFill, label: "Алевролит / Siltstone" };
+  return { type: "sand", fill: C.sandFill, label: "Песчаник / Sandstone" };
 };
 
 interface PayZone {
@@ -611,59 +611,59 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
                 const norm = (cal - 6) / (12 - 6);
                 return `${GR_X + Math.max(0, Math.min(1, norm)) * GR_W},${yForDepth(pt.depth)}`;
               }).join(" ")} fill="none" stroke={C.cal} strokeWidth="0.8" strokeDasharray="4,3" opacity={0.5} />
-              {/* ═══ GR ZONE COLOR BANDS ═══ */}
-              {/* Green: Reservoir (GR < 45) */}
-              <rect x={GR_X} y={HEADER_H} width={(45 / 150) * GR_W} height={plotH}
+              {/* ═══ GR ZONE COLOR BANDS (Russian GIS: 35/70) ═══ */}
+              {/* Green: Песчаник / Reservoir (GR ≤ 35) */}
+              <rect x={GR_X} y={HEADER_H} width={(35 / 150) * GR_W} height={plotH}
                 fill="#22c55e" opacity={0.06} />
-              {/* Yellow: Transition (45 ≤ GR ≤ 75) */}
-              <rect x={GR_X + (45 / 150) * GR_W} y={HEADER_H} width={(30 / 150) * GR_W} height={plotH}
+              {/* Yellow: Алевролит / Transition (35 < GR ≤ 70) */}
+              <rect x={GR_X + (35 / 150) * GR_W} y={HEADER_H} width={(35 / 150) * GR_W} height={plotH}
                 fill="#eab308" opacity={0.06} />
-              {/* Red: Cap/Shale (GR > 75) */}
-              <rect x={GR_X + (75 / 150) * GR_W} y={HEADER_H} width={(75 / 150) * GR_W} height={plotH}
+              {/* Red: Глина / Shale (GR > 70) */}
+              <rect x={GR_X + (70 / 150) * GR_W} y={HEADER_H} width={(80 / 150) * GR_W} height={plotH}
                 fill="#ef4444" opacity={0.06} />
 
               {/* Zone cutlines */}
-              <line x1={GR_X + (45 / 150) * GR_W} y1={HEADER_H} x2={GR_X + (45 / 150) * GR_W} y2={HEADER_H + plotH}
+              <line x1={GR_X + (35 / 150) * GR_W} y1={HEADER_H} x2={GR_X + (35 / 150) * GR_W} y2={HEADER_H + plotH}
                 stroke="#22c55e" strokeWidth="0.5" strokeDasharray="4,4" opacity={0.5} />
-              <line x1={GR_X + (75 / 150) * GR_W} y1={HEADER_H} x2={GR_X + (75 / 150) * GR_W} y2={HEADER_H + plotH}
+              <line x1={GR_X + (70 / 150) * GR_W} y1={HEADER_H} x2={GR_X + (70 / 150) * GR_W} y2={HEADER_H + plotH}
                 stroke="#ef4444" strokeWidth="0.5" strokeDasharray="4,4" opacity={0.5} />
 
               {/* Zone labels at top */}
-              <text x={GR_X + (22.5 / 150) * GR_W} y={HEADER_H + 10} textAnchor="middle" fill="#22c55e" fontSize="6" fontWeight="600" opacity={0.7}>RESERVOIR</text>
-              <text x={GR_X + (60 / 150) * GR_W} y={HEADER_H + 10} textAnchor="middle" fill="#eab308" fontSize="6" fontWeight="600" opacity={0.7}>TRANSITION</text>
-              <text x={GR_X + (112.5 / 150) * GR_W} y={HEADER_H + 10} textAnchor="middle" fill="#ef4444" fontSize="6" fontWeight="600" opacity={0.7}>SHALE</text>
+              <text x={GR_X + (17.5 / 150) * GR_W} y={HEADER_H + 10} textAnchor="middle" fill="#22c55e" fontSize="6" fontWeight="600" opacity={0.7}>ПЕСЧАНИК</text>
+              <text x={GR_X + (52.5 / 150) * GR_W} y={HEADER_H + 10} textAnchor="middle" fill="#eab308" fontSize="6" fontWeight="600" opacity={0.7}>АЛЕВРОЛИТ</text>
+              <text x={GR_X + (110 / 150) * GR_W} y={HEADER_H + 10} textAnchor="middle" fill="#ef4444" fontSize="6" fontWeight="600" opacity={0.7}>ГЛИНА</text>
 
               {/* GR zone-colored fill segments */}
               {visibleData.length > 1 && (() => {
                 const elements: JSX.Element[] = [];
-                const cut45 = GR_X + (45 / 150) * GR_W;
-                const cut75 = GR_X + (75 / 150) * GR_W;
+                const cut35 = GR_X + (35 / 150) * GR_W;
+                const cut70 = GR_X + (70 / 150) * GR_W;
 
-                // Green fill: reservoir zone (GR < 45)
+                // Green fill: Песчаник (GR ≤ 35)
                 const greenPts = visibleData.map(pt => {
-                  const x = GR_X + (Math.min(pt.gr, 45) / 150) * GR_W;
+                  const x = GR_X + (Math.min(pt.gr, 35) / 150) * GR_W;
                   return `${x},${yForDepth(pt.depth)}`;
                 });
                 elements.push(<polygon key="gr-green"
                   points={[`${GR_X},${yForDepth(visibleData[0].depth)}`, ...greenPts, `${GR_X},${yForDepth(visibleData[visibleData.length - 1].depth)}`].join(" ")}
                   fill="#22c55e" opacity={0.1} />);
 
-                // Yellow fill: transition zone (45–75)
+                // Yellow fill: Алевролит (35–70)
                 const yellowPts = visibleData.map(pt => {
-                  const x = GR_X + (Math.max(45, Math.min(pt.gr, 75)) / 150) * GR_W;
+                  const x = GR_X + (Math.max(35, Math.min(pt.gr, 70)) / 150) * GR_W;
                   return `${x},${yForDepth(pt.depth)}`;
                 });
                 elements.push(<polygon key="gr-yellow"
-                  points={[`${cut45},${yForDepth(visibleData[0].depth)}`, ...yellowPts, `${cut45},${yForDepth(visibleData[visibleData.length - 1].depth)}`].join(" ")}
+                  points={[`${cut35},${yForDepth(visibleData[0].depth)}`, ...yellowPts, `${cut35},${yForDepth(visibleData[visibleData.length - 1].depth)}`].join(" ")}
                   fill="#eab308" opacity={0.1} />);
 
-                // Red fill: shale zone (GR > 75)
+                // Red fill: Глина (GR > 70)
                 const redPts = visibleData.map(pt => {
-                  const x = GR_X + (Math.max(pt.gr, 75) / 150) * GR_W;
-                  return `${Math.max(x, cut75)},${yForDepth(pt.depth)}`;
+                  const x = GR_X + (Math.max(pt.gr, 70) / 150) * GR_W;
+                  return `${Math.max(x, cut70)},${yForDepth(pt.depth)}`;
                 });
                 elements.push(<polygon key="gr-red"
-                  points={[`${cut75},${yForDepth(visibleData[0].depth)}`, ...redPts, `${cut75},${yForDepth(visibleData[visibleData.length - 1].depth)}`].join(" ")}
+                  points={[`${cut70},${yForDepth(visibleData[0].depth)}`, ...redPts, `${cut70},${yForDepth(visibleData[visibleData.length - 1].depth)}`].join(" ")}
                   fill="#ef4444" opacity={0.12} />);
 
                 return elements;

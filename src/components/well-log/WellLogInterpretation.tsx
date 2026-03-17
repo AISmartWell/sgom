@@ -35,7 +35,7 @@ const WellLogInterpretation = ({ summary, wellName }: Props) => {
         <Badge variant="outline" className="gap-1 text-xs" style={{ borderColor: fluidColor(dominantFluid), color: fluidColor(dominantFluid) }}>
           {fluidLabel(dominantFluid)}
         </Badge>
-        <span className="text-muted-foreground ml-auto">Cutoffs: φ&gt;8%, Sw&lt;60%, Vsh&lt;40%</span>
+        <span className="text-muted-foreground ml-auto">Кондиции: φ&gt;8%, Sw&lt;60%, Vsh&lt;40%</span>
       </div>
 
       {/* Interval table */}
@@ -68,12 +68,13 @@ const WellLogInterpretation = ({ summary, wellName }: Props) => {
 
       {/* Methodology */}
       <div className="p-2.5 bg-muted/20 rounded-lg text-[10px] text-muted-foreground space-y-1">
-        <p className="font-semibold text-foreground/80">📐 Methodology:</p>
+        <p className="font-semibold text-foreground/80">📐 Методика (Российская школа ГИС):</p>
         <ul className="list-disc list-inside space-y-0.5">
-          <li><strong>Vshale</strong>: Linear GR method — Vsh = (GR − GR<sub>clean</sub>) / (GR<sub>shale</sub> − GR<sub>clean</sub>)</li>
-          <li><strong>Sw</strong>: Archie equation — Sw² = (a·Rw) / (φ<sup>m</sup>·Rt), a=1, m=2, n=2, Rw=0.04 Ω·m</li>
-          <li><strong>Ko Ko Rules</strong>: GR→Res→Den→Neu deflection patterns (L=low, R=high)</li>
-          <li><strong>Net Pay</strong>: φ &gt; 8% AND Sw &lt; 60% AND Vsh &lt; 40%</li>
+          <li><strong>Литология</strong>: Песчаник (GR ≤ 35), Алевролит (GR 35–70), Глина (GR &gt; 70)</li>
+          <li><strong>Vshale</strong>: Линейный метод — Vsh = (GR − GR<sub>clean</sub>) / (GR<sub>shale</sub> − GR<sub>clean</sub>), GR<sub>clean</sub>=35, GR<sub>shale</sub>=70</li>
+          <li><strong>Sw</strong>: Уравнение Арчи — Sw² = (a·Rw) / (φ<sup>m</sup>·Rt), a=1, m=2, n=2, Rw=0.04 Ω·м</li>
+          <li><strong>Флюид</strong>: Песч. водоносный (УЭС 2–6), Песч. нефтеносный (УЭС &gt;10), Плотная (УЭС &gt;30)</li>
+          <li><strong>Кондиции</strong>: φ &gt; 8% И Sw &lt; 60% И Vsh &lt; 40%</li>
         </ul>
       </div>
     </div>
@@ -104,7 +105,7 @@ const IntervalRow = ({ iv }: { iv: IntervalResult }) => {
       </td>
       <td className="px-2 py-1 text-center font-mono">{iv.thickness}</td>
       <td className="px-2 py-1 text-center font-mono">
-        <span style={{ color: iv.avgGR < 45 ? "#22c55e" : iv.avgGR < 75 ? "#eab308" : "#ef4444" }}>
+        <span style={{ color: iv.avgGR < 35 ? "#22c55e" : iv.avgGR < 70 ? "#eab308" : "#ef4444" }}>
           {iv.avgGR}
         </span>
       </td>
