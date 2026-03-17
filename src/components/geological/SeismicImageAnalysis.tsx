@@ -355,7 +355,7 @@ const SeismicImageAnalysis = ({ selectedWell }: SeismicImageAnalysisProps) => {
                 <h5 className="text-xs font-semibold text-muted-foreground uppercase mb-2">Unconformities</h5>
                 {result.unconformities.map((u: any, i: number) => (
                   <div key={i} className="text-xs p-2 bg-muted/30 rounded-md mb-1">
-                    <span className="font-medium">{u.type}</span> at {u.depth_m}m — {u.description}
+                    <span className="font-medium">{u.type}</span> at {u.depth_m} ft — {u.description}
                   </div>
                 ))}
               </div>
