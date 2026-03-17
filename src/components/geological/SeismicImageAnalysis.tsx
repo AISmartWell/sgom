@@ -336,8 +336,8 @@ const SeismicImageAnalysis = ({ selectedWell }: SeismicImageAnalysisProps) => {
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-medium">{a.type}</p>
                         <p className="text-xs text-muted-foreground">
-                          {a.depth_m && `Depth: ${a.depth_m}m`}
-                          {a.lateral_extent_m && ` • Extent: ${a.lateral_extent_m}m`}
+                          {a.depth_m && `Depth: ${a.depth_m} ft`}
+                          {a.lateral_extent_m && ` • Extent: ${a.lateral_extent_m} ft`}
                           {a.dhi_class && ` • ${a.dhi_class}`}
                         </p>
                         {a.description && <p className="text-xs text-muted-foreground mt-1">{a.description}</p>}

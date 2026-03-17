@@ -109,7 +109,7 @@ const BypassedReservesPanel = ({ zones = defaultZones, isFromAI = false }: Bypas
                 </Badge>
               </div>
               <div className="grid grid-cols-2 gap-x-4 text-xs text-muted-foreground">
-                <span>Depth: {zone.depthFrom}–{zone.depthTo}m</span>
+                <span>Depth: {zone.depthFrom}–{zone.depthTo} ft</span>
                 <span>Lithology: {zone.lithology}</span>
                 <span className="flex items-center gap-1">
                   <TrendingUp className="h-3 w-3" />

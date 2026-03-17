@@ -164,8 +164,8 @@ export const SeismicAnalysisHistory = () => {
                         <div className="flex-1 min-w-0">
                           <p className="text-xs font-medium">{a.type}</p>
                           <p className="text-xs text-muted-foreground">
-                            {a.depth_m && `Depth: ${a.depth_m}m`}
-                            {a.lateral_extent_m && ` · Extent: ${a.lateral_extent_m}m`}
+                            {a.depth_m && `Depth: ${a.depth_m} ft`}
+                            {a.lateral_extent_m && ` · Extent: ${a.lateral_extent_m} ft`}
                           </p>
                         </div>
                         {a.confidence != null && <ConfidenceBadge c={a.confidence} />}

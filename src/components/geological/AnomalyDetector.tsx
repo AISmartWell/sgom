@@ -134,7 +134,7 @@ const AnomalyDetector = ({ data }: AnomalyDetectorProps) => {
                 <div className="flex items-center gap-1.5 mb-0.5">
                   <span className="font-medium">{tl.label}</span>
                   <Badge className={`text-[9px] px-1 py-0 ${severityColors[a.severity]}`}>
-                    {a.depth}m
+                    {a.depth} ft
                   </Badge>
                 </div>
                 <p className="text-muted-foreground leading-tight">{a.description}</p>
