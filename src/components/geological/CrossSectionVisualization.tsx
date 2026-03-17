@@ -228,7 +228,7 @@ const CrossSectionVisualization = () => {
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
                 <div className="p-4 bg-background/30 rounded-lg border border-border/30">
                   <p className="text-muted-foreground text-xs mb-1">Perforations</p>
-                  <p className="text-lg font-semibold">2,850 - 2,895m</p>
+                  <p className="text-lg font-semibold">9,350 - 9,500 ft</p>
                 </div>
                 <div className="p-4 bg-background/30 rounded-lg border border-border/30">
                   <p className="text-muted-foreground text-xs mb-1">Water Cut</p>

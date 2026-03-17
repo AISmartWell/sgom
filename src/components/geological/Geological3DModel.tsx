@@ -127,7 +127,7 @@ const FluidContacts = () => {
         <meshStandardMaterial color="#eab308" transparent opacity={0.15} side={THREE.DoubleSide} />
       </mesh>
       <Text position={[3.5, 0.8, 0]} fontSize={0.2} color="#eab308" anchorX="left">
-        GOC -2950m
+        GOC -9,678 ft
       </Text>
     </group>
   );

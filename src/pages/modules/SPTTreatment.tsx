@@ -5,9 +5,9 @@ import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const benefits = [
-  { label: "Slot Depth", value: "Up to 5 ft (1.5m)" },
-  { label: "Drainage (2 nozzles)", value: "13 ft²/linear m" },
-  { label: "Drainage (4 nozzles)", value: "23 ft²/linear m" },
+  { label: "Slot Depth", value: "Up to 5 ft" },
+  { label: "Drainage (2 nozzles)", value: "13 ft²/linear ft" },
+  { label: "Drainage (4 nozzles)", value: "23 ft²/linear ft" },
   { label: "Stress Relief", value: "50-100%" },
   { label: "Permeability Increase", value: "30-50%" },
   { label: "Porosity Increase", value: "30-50%" },

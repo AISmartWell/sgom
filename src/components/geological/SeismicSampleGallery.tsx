@@ -41,7 +41,7 @@ const SAMPLES = [
     src: sampleSalt,
     type: "2D Post-stack",
     basin: "Deepwater GoM",
-    depth: "0–6,000 m",
+    depth: "0–19,685 ft",
     features: "Salt Body, Traps",
   },
 ];
