@@ -5,8 +5,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
-import { Database, RefreshCw, Loader2, Search } from "lucide-react";
+import { Database, RefreshCw, Loader2, Search, Trash2 } from "lucide-react";
 import { WellDetailDialog } from "@/components/data-collection/WellDetailDialog";
+import { toast } from "sonner";
 
 interface ImportedWellsTableProps {
   refreshTrigger: number;
