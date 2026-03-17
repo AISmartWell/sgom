@@ -119,11 +119,18 @@ export const ImportedWellsTable = ({ refreshTrigger }: ImportedWellsTableProps) 
               Wells persisted in the database. This data is available across all modules.
             </CardDescription>
           </div>
-          <Button variant="outline" size="sm" onClick={loadWells} disabled={isLoading}>
-            <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
-            Refresh
-          </Button>
-        </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={loadWells} disabled={isLoading}>
+              <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
+              Refresh
+            </Button>
+            {total > 0 && (
+              <Button variant="destructive" size="sm" onClick={handleDeleteAll} disabled={deletingAll}>
+                {deletingAll ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+                Delete All
+              </Button>
+            )}
+          </div>
         <div className="relative mt-3">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
