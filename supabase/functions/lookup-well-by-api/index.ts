@@ -177,6 +177,75 @@ serve(async (req) => {
 
     if (error) throw error;
 
+    // Generate synthetic well log data for the new well
+    if (data) {
+      const wellId = data.id;
+      const totalDepth = data.total_depth || 10000;
+      const startDepth = Math.max(500, totalDepth * 0.3);
+      const endDepth = totalDepth;
+      const step = 0.5; // every 0.5 ft
+      const numPoints = Math.min(Math.floor((endDepth - startDepth) / step), 500);
+
+      // Deterministic seed from well ID
+      const seed = wellId.split("").reduce((a: number, c: string) => a + c.charCodeAt(0), 0);
+      const seededRandom = (i: number, offset: number) => {
+        const x = Math.sin((seed + i * 13.37 + offset * 7.91) * 43758.5453);
+        return x - Math.floor(x);
+      };
+
+      const logPoints = [];
+      let prevGR = 50, prevRes = 10, prevPor = 15;
+
+      for (let i = 0; i < numPoints; i++) {
+        const depth = Math.round((startDepth + i * step) * 10) / 10;
+        const r1 = seededRandom(i, 1);
+        const r2 = seededRandom(i, 2);
+        const r3 = seededRandom(i, 3);
+        const r4 = seededRandom(i, 4);
+        const r5 = seededRandom(i, 5);
+        const r6 = seededRandom(i, 6);
+
+        // Smooth random walk for realistic curves
+        const gr = Math.max(10, Math.min(150, prevGR + (r1 - 0.5) * 15));
+        const isShale = gr > 75;
+        const res = Math.max(0.5, Math.min(2000, isShale ? prevRes * 0.95 + r2 * 3 : prevRes + (r2 - 0.4) * 20));
+        const basePor = isShale ? 5 + r3 * 8 : 8 + r3 * 22;
+        const por = Math.max(2, Math.min(35, prevPor * 0.7 + basePor * 0.3));
+        const sp = isShale ? -10 + r4 * 20 : -80 + r4 * 40;
+        const density = isShale ? 2.55 + r5 * 0.15 : 2.2 + r5 * 0.3;
+        const nphi = isShale ? 0.25 + r6 * 0.15 : 0.05 + r6 * 0.25;
+
+        // Archie Sw
+        const phiFrac = por / 100;
+        const sw = phiFrac > 0.04 ? Math.min(1, Math.sqrt(0.04 / (phiFrac * phiFrac * Math.max(0.5, res)))) : 1;
+
+        prevGR = gr; prevRes = res; prevPor = por;
+
+        logPoints.push({
+          well_id: wellId,
+          company_id: company_id,
+          measured_depth: depth,
+          gamma_ray: Math.round(gr * 10) / 10,
+          resistivity: Math.round(res * 100) / 100,
+          porosity: Math.round(por * 10) / 10,
+          sp: Math.round(sp * 10) / 10,
+          density: Math.round(density * 1000) / 1000,
+          neutron_porosity: Math.round(nphi * 1000) / 1000,
+          water_saturation: Math.round(sw * 100) / 100,
+          source: "synthetic",
+        });
+      }
+
+      // Insert in batches of 100
+      for (let i = 0; i < logPoints.length; i += 100) {
+        const batch = logPoints.slice(i, i + 100);
+        const { error: logError } = await supabase.from("well_logs").insert(batch);
+        if (logError) console.error("Well log insert error:", logError);
+      }
+
+      console.log(`Generated ${logPoints.length} well log points for well ${wellId}`);
+    }
+
     return new Response(
       JSON.stringify({ success: true, well: data }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
