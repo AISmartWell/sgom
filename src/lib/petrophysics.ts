@@ -47,17 +47,17 @@ export interface InterpretationSummary {
   dominantFluid: FluidType;
 }
 
-/* ── Constants ── */
-// GR cutoffs (API units)
-const GR_CLEAN = 20;    // cleanest sandstone/carbonate
-const GR_SHALE = 120;   // pure shale baseline
+/* ── Constants (Российская школа ГИС) ── */
+// GR cutoffs — российская классификация
+const GR_CLEAN = 35;    // верхняя граница чистого песчаника (≤35)
+const GR_SHALE = 70;    // граница глина/аргиллит (>70)
 
 // Net Pay cutoffs
 const CUTOFF_POR = 8;   // minimum porosity %
 const CUTOFF_SW = 60;   // maximum water saturation %
 const CUTOFF_VSH = 0.40; // maximum shale volume fraction
 
-// Archie parameters (typical carbonate/sandstone)
+// Archie parameters
 const ARCHIE_A = 1.0;    // tortuosity factor
 const ARCHIE_M = 2.0;    // cementation exponent
 const ARCHIE_N = 2.0;    // saturation exponent
