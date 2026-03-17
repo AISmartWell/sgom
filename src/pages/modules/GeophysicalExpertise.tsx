@@ -693,11 +693,12 @@ const GeophysicalExpertise = () => {
 
     const timeout = setTimeout(async () => {
       setSearching(true);
-      const s = `%${wellSearch.trim()}%`;
+      const term = wellSearch.trim();
+      const pattern = `%${term}%`;
       const { data } = await supabase
         .from("wells")
         .select("id, well_name, api_number, formation, total_depth")
-        .or(`well_name.ilike.${s},api_number.ilike.${s},formation.ilike.${s}`)
+        .or(`well_name.ilike."${pattern}",api_number.ilike."${pattern}",formation.ilike."${pattern}"`)
         .order("well_name", { ascending: true })
         .limit(50);
       setSearchResults(data || []);
