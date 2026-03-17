@@ -74,7 +74,7 @@ const AnomalyDetector = ({ data }: AnomalyDetectorProps) => {
             depth: d.depth,
             type: "flat_spot",
             severity: "info",
-            description: `Flat reflector at ${d.depth}m — possible fluid contact (OWC/GWC)`,
+            description: `Flat reflector at ${d.depth} ft — possible fluid contact (OWC/GWC)`,
           });
         }
       }
