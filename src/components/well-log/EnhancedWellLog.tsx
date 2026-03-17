@@ -597,7 +597,7 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
                 <g key={`dt-${d}`}>
                   <line x1={DEPTH_X} y1={yForDepth(d)} x2={DEPTH_X + DEPTH_W} y2={yForDepth(d)} stroke={C.gridMajor} strokeWidth="0.4" />
                   <text x={DEPTH_X + DEPTH_W / 2} y={yForDepth(d) + 3.5} textAnchor="middle"
-                    fill={C.textBright} fontSize="8" fontWeight="600" fontFamily="monospace">{d}</text>
+                    fill={C.textBright} fontSize="8" fontWeight="600" fontFamily="monospace">{d.toFixed(2)}</text>
                 </g>
               ))}
 
