@@ -636,8 +636,8 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
               {/* GR zone-colored fill segments */}
               {visibleData.length > 1 && (() => {
                 const elements: JSX.Element[] = [];
-                const cut35 = GR_X + (35 / 150) * GR_W;
-                const cut70 = GR_X + (70 / 150) * GR_W;
+                const cut35 = GR_X + (45 / 150) * GR_W;
+                const cut70 = GR_X + (75 / 150) * GR_W;
 
                 // Green fill: Песчаник (GR ≤ 35)
                 const greenPts = visibleData.map(pt => {

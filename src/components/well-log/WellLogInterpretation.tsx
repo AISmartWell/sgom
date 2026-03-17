@@ -105,7 +105,7 @@ const IntervalRow = ({ iv }: { iv: IntervalResult }) => {
       </td>
       <td className="px-2 py-1 text-center font-mono">{iv.thickness}</td>
       <td className="px-2 py-1 text-center font-mono">
-        <span style={{ color: iv.avgGR < 35 ? "#22c55e" : iv.avgGR < 70 ? "#eab308" : "#ef4444" }}>
+        <span style={{ color: iv.avgGR < 45 ? "#22c55e" : iv.avgGR < 75 ? "#eab308" : "#ef4444" }}>
           {iv.avgGR}
         </span>
       </td>

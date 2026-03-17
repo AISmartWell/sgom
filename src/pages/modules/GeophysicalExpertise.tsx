@@ -52,7 +52,7 @@ const STEPS = [
     label: "Vshale",
     icon: Layers,
     formula: "Vsh = (GR − GRclean) / (GRshale − GRclean)",
-    description: "Линейный метод ГК. GRclean = 35 (песчаник), GRshale = 70 (глина). Российская школа ГИС.",
+    description: "Linear GR method. GRclean = 45 API (clean sand), GRshale = 75 API (shale). American standard.",
   },
   {
     num: 3,
