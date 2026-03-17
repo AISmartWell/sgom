@@ -17,7 +17,7 @@ const SAMPLES = [
     src: sampleSeismic,
     type: "2D Post-stack",
     basin: "Gulf Coast Basin",
-    depth: "0–4,500 m",
+    depth: "0–14,750 ft",
     features: "Faults, Bright Spots",
   },
   {
