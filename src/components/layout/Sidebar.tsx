@@ -17,6 +17,7 @@ import {
   FileText,
   LogOut,
   ChevronLeft,
+  Bot,
   ChevronRight,
   Microscope,
   Radio,
@@ -79,7 +80,12 @@ const menuItems = [
     icon: Droplets,
     href: "/dashboard/ai-eor-optimization",
     badge: "🚀",
-  },
+  },{
+  title: "AI Analyst",
+  icon: Bot,
+  href: "/dashboard/ai-analyst",
+  badge: "🤖",
+},
   // ── Stages 1–6 + EOR ──
   {
     title: "Field Scanning",
