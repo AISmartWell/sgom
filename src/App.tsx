@@ -17,6 +17,7 @@ import SPTProjection from "./pages/modules/SPTProjection";
 import EconomicAnalysis from "./pages/modules/EconomicAnalysis";
 
 import Reports from "./pages/modules/Reports";
+import AIAnalyst from "./AIAnalyst";
 import CoreAnalysis from "./pages/modules/CoreAnalysis";
 import RealtimeDashboard from "./pages/modules/RealtimeDashboard";
 import EOROptimization from "./pages/modules/EOROptimization";
@@ -106,7 +107,7 @@ const App = () => (
              <Route path="production-history" element={<ProductionHistory />} />
              <Route path="reserves-map" element={<ReservesMapPage />} />
              <Route path="analysis-reports" element={<AnalysisReports />} />
-             <Route path="ai-eor-optimization" element={<AIEOROptimization />} />
+             <Route path="ai-eor-optimization" element={<AIEOROptimization />} /><Route path="ai-analyst" element={<AIAnalyst />} />
           </Route>
            <Route path="/nvidia-inception" element={<NvidiaInception />} />
            <Route path="/nvidia-showcase" element={<NvidiaShowcase />} />
