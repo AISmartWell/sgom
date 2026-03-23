@@ -35,8 +35,7 @@ interface UploadedFile {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages";
-const ANTHROPIC_API_KEY = "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";
+const AI_ANALYST_CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/spt-chat`;
 
 const SYSTEM_PROMPT = `You are SGOM AI, an expert geological analyst for the AI Smart Well platform.
 You analyze oil well data, interpret geological information, and assess the restoration potential of abandoned wells.
@@ -131,26 +130,29 @@ const INVESTOR_SLIDES = [
   },
 ];
 
-// ─── Claude API helper ────────────────────────────────────────────────────────
+// ─── AI helper ────────────────────────────────────────────────────────────────
 
 async function callClaude(messages: { role: string; content: string }[], system: string): Promise<string> {
-  const res = await fetch(ANTHROPIC_API_URL, {
+  const res = await fetch(AI_ANALYST_CHAT_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-api-key": ANTHROPIC_API_KEY,
-      "anthropic-version": "2023-06-01",
-      "anthropic-dangerous-direct-browser-access": "true",
+      Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
     },
     body: JSON.stringify({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 1000,
-      system,
       messages,
+      systemPrompt: system,
+      stream: false,
     }),
   });
-  const data = await res.json();
-  return data.content?.[0]?.text ?? "Error retrieving response.";
+
+  const data = await res.json().catch(() => null);
+
+  if (!res.ok) {
+    throw new Error(data?.error || `AI request failed (${res.status})`);
+  }
+
+  return data?.choices?.[0]?.message?.content?.trim() || "Error retrieving response.";
 }
 
 // ─── Status Badge ─────────────────────────────────────────────────────────────
