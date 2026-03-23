@@ -92,7 +92,7 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
 
   try {
-    const { messages, wellContext } = await req.json();
+    const { messages, wellContext, systemPrompt, stream = true } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
@@ -126,7 +126,7 @@ serve(async (req) => {
 
     const systemMessage = {
       role: "system",
-      content: SYSTEM_PROMPT + contextBlock,
+      content: `${systemPrompt || SYSTEM_PROMPT}${contextBlock}`,
     };
 
     const response = await fetch(
@@ -140,7 +140,7 @@ serve(async (req) => {
         body: JSON.stringify({
           model: "google/gemini-3-flash-preview",
           messages: [systemMessage, ...messages],
-          stream: true,
+          stream,
         }),
       }
     );
@@ -167,7 +167,10 @@ serve(async (req) => {
     }
 
     return new Response(response.body, {
-      headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
+      headers: {
+        ...corsHeaders,
+        "Content-Type": stream ? "text/event-stream" : "application/json",
+      },
     });
   } catch (e) {
     console.error("spt-chat error:", e);
