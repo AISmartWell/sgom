@@ -321,12 +321,18 @@ function AnalysisTab() {
                   {m.role === "user" ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
                 </div>
                 <div className={cn(
-                  "rounded-xl px-4 py-3 text-sm leading-relaxed max-w-[80%] whitespace-pre-wrap",
+                  "rounded-xl px-4 py-3 text-sm leading-relaxed max-w-[80%]",
                   m.role === "user"
-                    ? "bg-blue-900/30 border border-blue-800/30 text-slate-200"
+                    ? "bg-blue-900/30 border border-blue-800/30 text-slate-200 whitespace-pre-wrap"
                     : "bg-slate-800 border border-slate-700 text-slate-300"
                 )}>
-                  {m.content}
+                  {m.role === "assistant" ? (
+                    <div className="prose prose-sm dark:prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 prose-td:p-1 prose-th:p-1 prose-table:text-xs">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content}</ReactMarkdown>
+                    </div>
+                  ) : (
+                    m.content
+                  )}
                 </div>
               </div>
             ))}
