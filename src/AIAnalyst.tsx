@@ -556,7 +556,7 @@ function InvestorTab() {
         </CardHeader>
         <CardContent>
           {pitch
-            ? <p className="text-slate-400 text-sm leading-relaxed whitespace-pre-wrap">{pitch}</p>
+            ? <div className="text-slate-400 text-sm leading-relaxed prose prose-sm dark:prose-invert max-w-none"><ReactMarkdown remarkPlugins={[remarkGfm]}>{pitch}</ReactMarkdown></div>
             : <p className="text-slate-600 text-sm">Click the button to generate an AI-powered investor pitch</p>
           }
         </CardContent>
