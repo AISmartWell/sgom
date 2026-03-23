@@ -8,6 +8,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -319,12 +321,18 @@ function AnalysisTab() {
                   {m.role === "user" ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
                 </div>
                 <div className={cn(
-                  "rounded-xl px-4 py-3 text-sm leading-relaxed max-w-[80%] whitespace-pre-wrap",
+                  "rounded-xl px-4 py-3 text-sm leading-relaxed max-w-[80%]",
                   m.role === "user"
-                    ? "bg-blue-900/30 border border-blue-800/30 text-slate-200"
+                    ? "bg-blue-900/30 border border-blue-800/30 text-slate-200 whitespace-pre-wrap"
                     : "bg-slate-800 border border-slate-700 text-slate-300"
                 )}>
-                  {m.content}
+                  {m.role === "assistant" ? (
+                    <div className="prose prose-sm dark:prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 prose-td:p-1 prose-th:p-1 prose-table:text-xs">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content}</ReactMarkdown>
+                    </div>
+                  ) : (
+                    m.content
+                  )}
                 </div>
               </div>
             ))}
@@ -447,8 +455,8 @@ function UploadTab() {
                   )}
                 </div>
                 {f.result && (
-                  <div className="bg-slate-800 border border-slate-700 rounded-lg p-3 text-sm text-slate-400 leading-relaxed whitespace-pre-wrap">
-                    {f.result}
+                  <div className="bg-slate-800 border border-slate-700 rounded-lg p-3 text-sm text-slate-400 leading-relaxed prose prose-sm dark:prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{f.result}</ReactMarkdown>
                   </div>
                 )}
               </CardContent>
@@ -548,7 +556,7 @@ function InvestorTab() {
         </CardHeader>
         <CardContent>
           {pitch
-            ? <p className="text-slate-400 text-sm leading-relaxed whitespace-pre-wrap">{pitch}</p>
+            ? <div className="text-slate-400 text-sm leading-relaxed prose prose-sm dark:prose-invert max-w-none"><ReactMarkdown remarkPlugins={[remarkGfm]}>{pitch}</ReactMarkdown></div>
             : <p className="text-slate-600 text-sm">Click the button to generate an AI-powered investor pitch</p>
           }
         </CardContent>
@@ -647,7 +655,7 @@ function ClientTab() {
         </CardHeader>
         <CardContent>
           {report
-            ? <p className="text-slate-400 text-sm leading-relaxed whitespace-pre-wrap">{report}</p>
+            ? <div className="text-slate-400 text-sm leading-relaxed prose prose-sm dark:prose-invert max-w-none"><ReactMarkdown remarkPlugins={[remarkGfm]}>{report}</ReactMarkdown></div>
             : <p className="text-slate-600 text-sm">Click to generate an automated SGOM monthly report</p>
           }
         </CardContent>
