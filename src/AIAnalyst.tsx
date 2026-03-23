@@ -455,8 +455,8 @@ function UploadTab() {
                   )}
                 </div>
                 {f.result && (
-                  <div className="bg-slate-800 border border-slate-700 rounded-lg p-3 text-sm text-slate-400 leading-relaxed whitespace-pre-wrap">
-                    {f.result}
+                  <div className="bg-slate-800 border border-slate-700 rounded-lg p-3 text-sm text-slate-400 leading-relaxed prose prose-sm dark:prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{f.result}</ReactMarkdown>
                   </div>
                 )}
               </CardContent>
