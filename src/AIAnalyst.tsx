@@ -655,7 +655,7 @@ function ClientTab() {
         </CardHeader>
         <CardContent>
           {report
-            ? <p className="text-slate-400 text-sm leading-relaxed whitespace-pre-wrap">{report}</p>
+            ? <div className="text-slate-400 text-sm leading-relaxed prose prose-sm dark:prose-invert max-w-none"><ReactMarkdown remarkPlugins={[remarkGfm]}>{report}</ReactMarkdown></div>
             : <p className="text-slate-600 text-sm">Click to generate an automated SGOM monthly report</p>
           }
         </CardContent>
