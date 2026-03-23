@@ -36,7 +36,7 @@ interface UploadedFile {
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages";
-
+ANTHROPIC_API_KEY=sk-ant-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
 const SYSTEM_PROMPT = `You are SGOM AI, an expert geological analyst for the AI Smart Well platform.
 You analyze oil well data, interpret geological information, and assess the restoration potential of abandoned wells.
 
@@ -136,7 +136,7 @@ async function callClaude(messages: { role: string; content: string }[], system:
   const res = await fetch(ANTHROPIC_API_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json",
-  "x-api-key": import.meta.env.VITE_ANTHROPIC_API_KEY,
+  "x-api-key": ANTHROPIC_API_KEY,
   "anthropic-version": "2023-06-01",
   "anthropic-dangerous-direct-browser-access": "true", },
     body: JSON.stringify({
