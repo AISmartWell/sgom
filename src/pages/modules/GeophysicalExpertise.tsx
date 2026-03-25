@@ -1166,7 +1166,16 @@ const GeophysicalExpertise = () => {
           {STEPS.map(s => <TabsTrigger key={s.key} value={s.key}>{s.label}</TabsTrigger>)}
         </TabsList>
 
-        {/* Step 1: Raw Log */}
+        {/* Step 1: Lithology */}
+        <TabsContent value="lithology" className="mt-0">
+          {petroData.length > 0 ? (
+            <StepLithology data={petroData} />
+          ) : (
+            <div className="text-center py-16 text-muted-foreground">Loading well data...</div>
+          )}
+        </TabsContent>
+
+        {/* Step 2: Raw Log */}
         <TabsContent value="raw-log" className="mt-0">
           {selectedWell ? (
             <EnhancedWellLog
