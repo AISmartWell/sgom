@@ -668,7 +668,7 @@ function ClientTab() {
 
 const TABS = [
   { value: "overview", label: "Overview", icon: BarChart3 },
-  { value: "analysis", label: "SGOM Analysis", icon: Bot },
+  { value: "analysis", label: "AI Analysis", icon: Bot },
   { value: "upload", label: "Upload Data", icon: Upload },
   { value: "investor", label: "Investor Demo", icon: Presentation },
   { value: "client", label: "Client Portal", icon: User },
