@@ -229,7 +229,7 @@ const Dashboard = () => {
           Welcome{userName ? `, ${userName}` : ""}! 👋
         </h1>
         <p className="text-muted-foreground">
-          SGOM Platform — AI Smart Well & Maxxwell Production
+          AI Smart Well — Maxxwell Production
         </p>
       </div>
 
