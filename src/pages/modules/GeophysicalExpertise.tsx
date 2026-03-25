@@ -1801,7 +1801,7 @@ const GeophysicalExpertise = () => {
           )}
         </TabsContent>
 
-        {/* Step 5: Ko Ko Rules */}
+        {/* Step 7: Ko Ko Rules */}
         <TabsContent value="koko" className="mt-0">
           {petroData.length > 0 ? (
             <StepKoKo data={petroData} />
@@ -1810,7 +1810,7 @@ const GeophysicalExpertise = () => {
           )}
         </TabsContent>
 
-        {/* Step 6: Net Pay */}
+        {/* Step 8: Net Pay */}
         <TabsContent value="net-pay" className="mt-0">
           {interpretation ? (
             <StepNetPay summary={interpretation} />
@@ -1819,7 +1819,7 @@ const GeophysicalExpertise = () => {
           )}
         </TabsContent>
 
-        {/* Step 7: Report */}
+        {/* Step 9: Report */}
         <TabsContent value="report" className="mt-0">
           {selectedWell ? (
             <div className="space-y-4">
