@@ -268,7 +268,7 @@ function AnalysisTab() {
   const QUICK_PROMPTS = [
     "Assess restoration potential of well W-2841",
     "How does Slot Perforation Technology work?",
-    "Explain the SGOM Score methodology",
+    "Explain the Well Score methodology",
     "Top Eagle Ford SPT candidates",
   ];
 
