@@ -974,12 +974,12 @@ const StepKoKo = ({ data }: { data: PetroPoint[] }) => {
         <CardContent>
           <div className="grid grid-cols-2 gap-2 text-xs">
             {[
-              { pattern: "L-R-L-L", fluid: "🛢️ Oil", color: "#22c55e", desc: "Коллектор + высокое RT → нефть" },
-              { pattern: "L-R-L-R", fluid: "⛽ Gas", color: "#ef4444", desc: "Den-Neu кроссовер + высокое RT → газ" },
-              { pattern: "L-L-L-L", fluid: "💧 Water", color: "#3b82f6", desc: "Коллектор + низкое RT → вода" },
-              { pattern: "R-R-R-R", fluid: "🪨 Tight", color: "#6b7280", desc: "Высокий GR, высокое RT, плотная порода" },
-              { pattern: "R-R-R-L", fluid: "📐 Shale", color: "#8b8b2a", desc: "Высокий GR → глина (не коллектор)" },
-              { pattern: "L-R-*-*", fluid: "🔀 Transition", color: "#eab308", desc: "Неопределённость — требуется DST" },
+              { pattern: "L-R-L-L", fluid: "🛢️ Oil", color: "#22c55e", desc: "Reservoir + high RT → oil" },
+              { pattern: "L-R-L-R", fluid: "⛽ Gas", color: "#ef4444", desc: "Den-Neu crossover + high RT → gas" },
+              { pattern: "L-L-L-L", fluid: "💧 Water", color: "#3b82f6", desc: "Reservoir + low RT → water" },
+              { pattern: "R-R-R-R", fluid: "🪨 Tight", color: "#6b7280", desc: "High GR, high RT, dense rock" },
+              { pattern: "R-R-R-L", fluid: "📐 Shale", color: "#8b8b2a", desc: "High GR → shale (non-reservoir)" },
+              { pattern: "L-R-*-*", fluid: "🔀 Transition", color: "#eab308", desc: "Ambiguous — needs DST" },
             ].map((r, i) => (
               <div key={i} className="p-2.5 bg-muted/30 rounded-lg border border-border/20">
                 <div className="flex items-center justify-between mb-1">
@@ -991,7 +991,7 @@ const StepKoKo = ({ data }: { data: PetroPoint[] }) => {
             ))}
           </div>
           <p className="mt-2 text-[10px] text-muted-foreground">
-            L = отклонение влево (низкое значение), R = вправо (высокое). Порядок: GR → Res → Density → Neutron
+            L = deflects Left (lower value), R = deflects Right (higher value). Order: GR → Res → Density → Neutron
           </p>
         </CardContent>
       </Card>
