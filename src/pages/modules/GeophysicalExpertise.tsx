@@ -127,9 +127,9 @@ const classifyGR = (gr: number): LithInterval["lithology"] => {
 
 const lithColor = (lith: LithInterval["lithology"]): string => {
   switch (lith) {
-    case "Clean Sand": return "hsl(var(--success))";
-    case "Silty Sand": return "hsl(var(--warning))";
-    case "Shale": return "hsl(var(--destructive))";
+    case "Clean Sand": return "#facc15";
+    case "Silty Sand": return "#f97316";
+    case "Shale": return "#166534";
   }
 };
 
