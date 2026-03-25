@@ -140,6 +140,272 @@ const lithBg = (lith: LithInterval["lithology"]): string => {
   }
 };
 
+/* ── Interactive GR Log Track (vertical, SVG) ── */
+const GR_TRACK_W = 260;
+const GR_DEPTH_W = 55;
+const GR_LITH_W = 30;
+const GR_TOTAL_W = GR_LITH_W + GR_DEPTH_W + GR_TRACK_W + 10;
+const GR_HEADER = 50;
+const GR_PAD = 8;
+const GR_MIN = 0;
+const GR_MAX = 150;
+
+const GR_C = {
+  bg: "#0a0f1c",
+  headerBg: "#0d1527",
+  grid: "#152040",
+  gridMajor: "#1e2d55",
+  border: "#1a2d55",
+  text: "#8899bb",
+  textBright: "#d0daf0",
+  grLine: "#22c55e",
+  sandFill: "#d97706",
+  siltFill: "#6b7280",
+  shaleFill: "#8b8b2a",
+  cutoff45: "hsl(var(--success))",
+  cutoff75: "hsl(var(--destructive))",
+};
+
+const GRLogTrack = ({ data, intervals }: { data: PetroPoint[]; intervals: LithInterval[] }) => {
+  const [zoomFactor, setZoomFactor] = useState(2);
+  const [scrollOffset, setScrollOffset] = useState(0);
+  const [hoverPt, setHoverPt] = useState<PetroPoint | null>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
+
+  const depthMin = data.length > 0 ? data[0].depth : 0;
+  const depthMax = data.length > 0 ? data[data.length - 1].depth : 100;
+  const depthRange = depthMax - depthMin || 1;
+  const visibleSpan = depthRange / zoomFactor;
+  const maxOffset = Math.max(0, depthRange - visibleSpan);
+  const viewMin = depthMin + Math.min(scrollOffset, maxOffset);
+  const viewMax = viewMin + visibleSpan;
+  const visibleData = data.filter(p => p.depth >= viewMin && p.depth <= viewMax);
+
+  const plotH = Math.max(400, Math.min(900, visibleData.length * 8));
+  const totalH = GR_HEADER + plotH + GR_PAD;
+
+  const yForDepth = useCallback((d: number) =>
+    GR_HEADER + ((d - viewMin) / visibleSpan) * plotH
+  , [viewMin, visibleSpan, plotH]);
+
+  // Depth ticks
+  const depthStep = visibleSpan > 2000 ? 500 : visibleSpan > 800 ? 200 : visibleSpan > 300 ? 100 : visibleSpan > 100 ? 50 : visibleSpan > 40 ? 10 : 5;
+  const depthTicks: number[] = [];
+  for (let d = Math.ceil(viewMin / depthStep) * depthStep; d <= viewMax; d += depthStep) depthTicks.push(d);
+
+  const trackX = GR_LITH_W + GR_DEPTH_W;
+
+  // GR fill path (area under curve, colored by lithology)
+  const grFillSegments = useMemo(() => {
+    if (visibleData.length < 2) return [];
+    const segments: { path: string; fill: string }[] = [];
+    let curLith = classifyGR(visibleData[0].gr);
+    let segPts: PetroPoint[] = [visibleData[0]];
+
+    const buildFill = (pts: PetroPoint[], lith: LithInterval["lithology"]) => {
+      if (pts.length < 2) return null;
+      const baseX = trackX;
+      const points = pts.map(p => {
+        const x = trackX + (Math.min(p.gr, GR_MAX) / GR_MAX) * GR_TRACK_W;
+        return `${x},${yForDepth(p.depth)}`;
+      });
+      const topY = yForDepth(pts[0].depth);
+      const botY = yForDepth(pts[pts.length - 1].depth);
+      const fill = lith === "Clean Sand" ? GR_C.sandFill : lith === "Silty Sand" ? GR_C.siltFill : GR_C.shaleFill;
+      return {
+        path: `M${baseX},${topY} ${points.join(" ")} L${baseX},${botY} Z`,
+        fill,
+      };
+    };
+
+    for (let i = 1; i < visibleData.length; i++) {
+      const lith = classifyGR(visibleData[i].gr);
+      if (lith !== curLith) {
+        // close segment with current point
+        segPts.push(visibleData[i]);
+        const seg = buildFill(segPts, curLith);
+        if (seg) segments.push(seg);
+        curLith = lith;
+        segPts = [visibleData[i]];
+      } else {
+        segPts.push(visibleData[i]);
+      }
+    }
+    const last = buildFill(segPts, curLith);
+    if (last) segments.push(last);
+    return segments;
+  }, [visibleData, yForDepth, trackX]);
+
+  // GR line path
+  const grLinePath = useMemo(() => {
+    if (visibleData.length < 2) return "";
+    return "M" + visibleData.map(p => {
+      const x = trackX + (Math.min(p.gr, GR_MAX) / GR_MAX) * GR_TRACK_W;
+      return `${x},${yForDepth(p.depth)}`;
+    }).join(" L");
+  }, [visibleData, yForDepth, trackX]);
+
+  const handleWheel = useCallback((e: React.WheelEvent) => {
+    e.preventDefault();
+    if (e.ctrlKey || e.metaKey) {
+      setZoomFactor(prev => Math.max(1, Math.min(20, prev + (e.deltaY > 0 ? -0.5 : 0.5))));
+    } else {
+      setScrollOffset(prev => Math.max(0, Math.min(maxOffset, prev + e.deltaY * 2)));
+    }
+  }, [maxOffset]);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent<SVGSVGElement>) => {
+    if (!svgRef.current || visibleData.length === 0) return;
+    const rect = svgRef.current.getBoundingClientRect();
+    const my = ((e.clientY - rect.top) / rect.height) * totalH;
+    if (my < GR_HEADER || my > totalH - GR_PAD) { setHoverPt(null); return; }
+    const depthAtMouse = viewMin + ((my - GR_HEADER) / plotH) * visibleSpan;
+    let nearest = visibleData[0], minDist = Math.abs(visibleData[0].depth - depthAtMouse);
+    for (const pt of visibleData) {
+      const dist = Math.abs(pt.depth - depthAtMouse);
+      if (dist < minDist) { minDist = dist; nearest = pt; }
+    }
+    setHoverPt(nearest);
+  }, [visibleData, viewMin, visibleSpan, plotH, totalH]);
+
+  if (data.length < 2) return null;
+
+  return (
+    <div className="space-y-2">
+      {/* Zoom controls */}
+      <div className="flex items-center gap-2 text-xs">
+        <div className="flex items-center gap-1 border border-border/50 rounded px-2 py-1">
+          <button onClick={() => setZoomFactor(z => Math.min(20, z + 1))} className="p-0.5 hover:bg-muted rounded"><ZoomIn className="h-3.5 w-3.5" /></button>
+          <span className="text-muted-foreground min-w-[36px] text-center">{Math.round(zoomFactor * 100)}%</span>
+          <button onClick={() => setZoomFactor(z => Math.max(1, z - 1))} className="p-0.5 hover:bg-muted rounded"><ZoomOut className="h-3.5 w-3.5" /></button>
+          <button onClick={() => { setZoomFactor(2); setScrollOffset(0); }} className="p-0.5 hover:bg-muted rounded"><RotateCcw className="h-3.5 w-3.5" /></button>
+        </div>
+        <span className="text-muted-foreground">
+          {Math.round(viewMin)}–{Math.round(viewMax)} ft · {visibleData.length} pts
+        </span>
+      </div>
+
+      {/* SVG Track */}
+      <div className="overflow-hidden rounded-lg border border-border/40" style={{ backgroundColor: GR_C.bg }}>
+        <svg
+          ref={svgRef}
+          viewBox={`0 0 ${GR_TOTAL_W} ${totalH}`}
+          className="w-full"
+          style={{ minHeight: 420, maxHeight: 700 }}
+          onWheel={handleWheel}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={() => setHoverPt(null)}
+        >
+          {/* Header */}
+          <rect x={0} y={0} width={GR_TOTAL_W} height={GR_HEADER} fill={GR_C.headerBg} />
+          <text x={GR_LITH_W / 2} y={20} fill={GR_C.textBright} fontSize="7" textAnchor="middle" fontWeight="bold">LITH</text>
+          <text x={GR_LITH_W + GR_DEPTH_W / 2} y={20} fill={GR_C.textBright} fontSize="7" textAnchor="middle" fontWeight="bold">DEPTH</text>
+          <text x={trackX + GR_TRACK_W / 2} y={16} fill={GR_C.textBright} fontSize="8" textAnchor="middle" fontWeight="bold">GAMMA RAY</text>
+          <text x={trackX + GR_TRACK_W / 2} y={28} fill={GR_C.text} fontSize="6.5" textAnchor="middle">0 ————————— 150 API</text>
+          {/* Scale labels */}
+          <text x={trackX + 2} y={40} fill={GR_C.text} fontSize="6">0</text>
+          <text x={trackX + GR_TRACK_W / 2} y={40} fill={GR_C.text} fontSize="6" textAnchor="middle">75</text>
+          <text x={trackX + GR_TRACK_W - 2} y={40} fill={GR_C.text} fontSize="6" textAnchor="end">150</text>
+          {/* Cutoff labels */}
+          <text x={trackX + (45 / 150) * GR_TRACK_W} y={48} fill="#22c55e" fontSize="5.5" textAnchor="middle">45</text>
+          <text x={trackX + (75 / 150) * GR_TRACK_W} y={48} fill="#ef4444" fontSize="5.5" textAnchor="middle">75</text>
+
+          {/* Track border lines */}
+          <line x1={GR_LITH_W} y1={0} x2={GR_LITH_W} y2={totalH} stroke={GR_C.border} strokeWidth="0.5" />
+          <line x1={trackX} y1={0} x2={trackX} y2={totalH} stroke={GR_C.border} strokeWidth="0.5" />
+          <line x1={trackX + GR_TRACK_W} y1={0} x2={trackX + GR_TRACK_W} y2={totalH} stroke={GR_C.border} strokeWidth="0.5" />
+          <line x1={0} y1={GR_HEADER} x2={GR_TOTAL_W} y2={GR_HEADER} stroke={GR_C.border} strokeWidth="0.5" />
+
+          {/* Vertical grid in GR track */}
+          {[0, 15, 30, 45, 60, 75, 90, 105, 120, 135, 150].map(v => {
+            const x = trackX + (v / GR_MAX) * GR_TRACK_W;
+            return <line key={v} x1={x} y1={GR_HEADER} x2={x} y2={GR_HEADER + plotH}
+              stroke={v === 45 || v === 75 ? (v === 45 ? "#22c55e33" : "#ef444433") : GR_C.grid}
+              strokeWidth={v === 0 || v === 150 ? "0.5" : "0.25"}
+              strokeDasharray={v === 45 || v === 75 ? "4,3" : undefined} />;
+          })}
+
+          {/* Cutoff lines (45 and 75 API) */}
+          <line x1={trackX + (45 / 150) * GR_TRACK_W} y1={GR_HEADER} x2={trackX + (45 / 150) * GR_TRACK_W} y2={GR_HEADER + plotH}
+            stroke="#22c55e" strokeWidth="0.7" strokeDasharray="6,3" opacity={0.6} />
+          <line x1={trackX + (75 / 150) * GR_TRACK_W} y1={GR_HEADER} x2={trackX + (75 / 150) * GR_TRACK_W} y2={GR_HEADER + plotH}
+            stroke="#ef4444" strokeWidth="0.7" strokeDasharray="6,3" opacity={0.6} />
+
+          {/* Depth ticks & horizontal grid */}
+          {depthTicks.map(d => {
+            const y = yForDepth(d);
+            return (
+              <g key={d}>
+                <line x1={0} y1={y} x2={GR_TOTAL_W} y2={y} stroke={GR_C.grid} strokeWidth="0.25" />
+                <text x={GR_LITH_W + GR_DEPTH_W - 4} y={y + 3} fill={GR_C.textBright} fontSize="6.5" textAnchor="end" fontFamily="monospace">
+                  {d.toFixed(0)}'
+                </text>
+              </g>
+            );
+          })}
+
+          {/* Lithology column fill */}
+          {intervals
+            .filter(iv => iv.bottom >= viewMin && iv.top <= viewMax)
+            .map((iv, i) => {
+              const y1 = yForDepth(Math.max(iv.top, viewMin));
+              const y2 = yForDepth(Math.min(iv.bottom, viewMax));
+              const fill = iv.lithology === "Clean Sand" ? GR_C.sandFill : iv.lithology === "Silty Sand" ? GR_C.siltFill : GR_C.shaleFill;
+              return <rect key={i} x={0} y={y1} width={GR_LITH_W} height={y2 - y1} fill={fill} opacity={0.5} />;
+            })}
+
+          {/* GR area fill (colored by lithology) */}
+          {grFillSegments.map((seg, i) => (
+            <path key={i} d={seg.path} fill={seg.fill} opacity={0.25} />
+          ))}
+
+          {/* GR line */}
+          {grLinePath && <polyline points={grLinePath.replace(/^M/, "")} fill="none" stroke={GR_C.grLine} strokeWidth="1.2" />}
+
+          {/* Crosshair & tooltip */}
+          {hoverPt && (() => {
+            const y = yForDepth(hoverPt.depth);
+            const x = trackX + (Math.min(hoverPt.gr, GR_MAX) / GR_MAX) * GR_TRACK_W;
+            const lith = classifyGR(hoverPt.gr);
+            return (
+              <g>
+                <line x1={0} y1={y} x2={GR_TOTAL_W} y2={y} stroke="#60a5fa" strokeWidth="0.5" strokeDasharray="3,2" opacity={0.7} />
+                <circle cx={x} cy={y} r={3} fill={GR_C.grLine} stroke="#fff" strokeWidth="0.5" />
+                <rect x={trackX + GR_TRACK_W - 110} y={y - 28} width={108} height={24} rx={3} fill="#131d33" stroke={GR_C.border} strokeWidth="0.5" opacity={0.95} />
+                <text x={trackX + GR_TRACK_W - 106} y={y - 17} fill={GR_C.textBright} fontSize="6.5" fontWeight="bold">
+                  {hoverPt.depth.toFixed(1)}' — GR: {hoverPt.gr.toFixed(1)} API
+                </text>
+                <text x={trackX + GR_TRACK_W - 106} y={y - 8} fill={GR_C.text} fontSize="5.5">
+                  {lith}
+                </text>
+              </g>
+            );
+          })()}
+        </svg>
+      </div>
+
+      {/* Legend */}
+      <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
+        <div className="flex items-center gap-1.5">
+          <span className="w-3 h-[2px] rounded" style={{ backgroundColor: GR_C.grLine }} />
+          GR Curve
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="w-3 h-[2px] rounded" style={{ backgroundColor: "#22c55e" }} />
+          <span className="border-b border-dashed" style={{ borderColor: "#22c55e", width: 8 }} />
+          45 API (Sand cutoff)
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="w-3 h-[2px] rounded" style={{ backgroundColor: "#ef4444" }} />
+          <span className="border-b border-dashed" style={{ borderColor: "#ef4444", width: 8 }} />
+          75 API (Shale cutoff)
+        </div>
+        <span className="ml-auto text-[10px]">Scroll: pan · Ctrl+Scroll: zoom</span>
+      </div>
+    </div>
+  );
+};
+
 const StepLithology = ({ data }: { data: PetroPoint[] }) => {
   const { intervals, stats } = useMemo(() => {
     if (data.length < 2) return { intervals: [] as LithInterval[], stats: { sand: 0, silt: 0, shale: 0, total: 0 } };
