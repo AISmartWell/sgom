@@ -351,8 +351,27 @@ const GRLogTrack = ({ data, intervals }: { data: PetroPoint[]; intervals: LithIn
             .map((iv, i) => {
               const y1 = yForDepth(Math.max(iv.top, viewMin));
               const y2 = yForDepth(Math.min(iv.bottom, viewMax));
+              const h = y2 - y1;
               const fill = iv.lithology === "Clean Sand" ? GR_C.sandFill : iv.lithology === "Silty Sand" ? GR_C.siltFill : GR_C.shaleFill;
-              return <rect key={i} x={0} y={y1} width={GR_LITH_W} height={y2 - y1} fill={fill} opacity={0.5} />;
+              const abbr = iv.lithology === "Clean Sand" ? "Sd" : iv.lithology === "Silty Sand" ? "Si" : "Sh";
+              return (
+                <g key={i}>
+                  <rect x={0} y={y1} width={GR_LITH_W} height={h} fill={fill} opacity={0.6} />
+                  {h > 10 && (
+                    <text
+                      x={GR_LITH_W / 2}
+                      y={y1 + h / 2 + 2.5}
+                      fill="#fff"
+                      fontSize="6"
+                      fontWeight="bold"
+                      textAnchor="middle"
+                      style={{ textShadow: "0 0 3px rgba(0,0,0,0.8)" }}
+                    >
+                      {abbr}
+                    </text>
+                  )}
+                </g>
+              );
             })}
 
           {/* GR area fill (colored by lithology) */}
