@@ -1189,6 +1189,7 @@ const GeophysicalExpertise = () => {
   const [wellPickerOpen, setWellPickerOpen] = useState(false);
   const [searchResults, setSearchResults] = useState<WellOption[]>([]);
   const [searching, setSearching] = useState(false);
+  const [batchMode, setBatchMode] = useState(false);
 
   useEffect(() => {
     const loadCompany = async () => {
