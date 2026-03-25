@@ -253,7 +253,7 @@ function OverviewTab() {
   );
 }
 
-// ─── SGOM Analysis Tab ────────────────────────────────────────────────────────
+// ─── AI Smart Well Analysis Tab ───────────────────────────────────────────────
 
 function AnalysisTab() {
   const [messages, setMessages] = useState<Message[]>([
