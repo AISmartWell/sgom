@@ -330,38 +330,13 @@ const StepLithology = ({ data }: { data: PetroPoint[] }) => {
         </CardContent>
       </Card>
 
-      {/* GR Profile per point */}
+      {/* Interactive GR Well Log Track */}
       <Card className="bg-muted/20 border-border/30">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm">GR Profile with Classification</CardTitle>
+          <CardTitle className="text-sm">GR Log Track (Vertical Depth)</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-0.5 max-h-[300px] overflow-y-auto">
-            {data.filter((_, i) => i % Math.max(1, Math.floor(data.length / 40)) === 0).slice(0, 40).map((p, i) => {
-              const lith = classifyGR(p.gr);
-              const barWidth = Math.min(100, (p.gr / 150) * 100);
-              return (
-                <div key={i} className="flex items-center gap-2 text-xs">
-                  <span className="w-14 text-muted-foreground font-mono text-right flex-shrink-0">{p.depth.toFixed(0)}'</span>
-                  <div className="flex-1 h-4 bg-muted/20 rounded overflow-hidden relative">
-                    <div
-                      className="h-full rounded transition-all"
-                      style={{ width: `${barWidth}%`, backgroundColor: lithColor(lith), opacity: 0.7 }}
-                    />
-                    {/* 45 API line */}
-                    <div className="absolute top-0 bottom-0 border-l border-success/50 border-dashed" style={{ left: `${(45/150)*100}%` }} />
-                    {/* 75 API line */}
-                    <div className="absolute top-0 bottom-0 border-l border-destructive/50 border-dashed" style={{ left: `${(75/150)*100}%` }} />
-                  </div>
-                  <span className="w-10 text-right font-mono flex-shrink-0">{p.gr.toFixed(0)}</span>
-                </div>
-              );
-            })}
-          </div>
-          <div className="flex gap-4 mt-2 text-[10px] text-muted-foreground">
-            <span>--- 45 API (Sand cutoff)</span>
-            <span>--- 75 API (Shale cutoff)</span>
-          </div>
+          <GRLogTrack data={data} intervals={intervals} />
         </CardContent>
       </Card>
     </div>
