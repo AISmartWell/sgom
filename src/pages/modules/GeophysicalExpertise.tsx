@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { ComposedChart, Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, Legend } from "recharts";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -903,6 +904,26 @@ const StepDenNphi = ({ data }: { data: PetroPoint[] }) => {
       });
   }, [data]);
 
+  // Chart data — sample every Nth point for smooth rendering
+  const chartData = useMemo(() => {
+    const step = Math.max(1, Math.floor(data.length / 200));
+    return data
+      .filter((_, i) => i % step === 0)
+      .filter(p => p.rhob !== null && p.nphi !== null)
+      .map(p => {
+        const phiDen = ((2.65 - p.rhob!) / (2.65 - 1.0)) * 100;
+        const nphi = p.nphi!;
+        const { pattern } = classifyDenNphi(p.rhob, p.nphi, p.gr);
+        return {
+          depth: Math.round(p.depth),
+          phiDen: Math.round(phiDen * 10) / 10,
+          nphi: Math.round(nphi * 10) / 10,
+          separation: Math.round((nphi - phiDen) * 10) / 10,
+          pattern,
+        };
+      });
+  }, [data]);
+
   const patterns: Array<{ key: DenNphiPattern; title: string; desc: string; icon: string }> = [
     {
       key: "oil",
@@ -988,6 +1009,119 @@ const StepDenNphi = ({ data }: { data: PetroPoint[] }) => {
           </p>
         </CardContent>
       </Card>
+
+      {/* DEN-NPHI Crossover Chart */}
+      {chartData.length > 0 && (
+        <Card className="bg-muted/20 border-border/30">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <Activity className="h-4 w-4 text-primary" />
+              DEN-NPHI Overlay Chart
+            </CardTitle>
+            <p className="text-xs text-muted-foreground">
+              φ<sub>DEN</sub> (blue) vs NPHI (orange) — shaded area shows separation. Green = oil zone, Red = gas crossover, Amber = clay effect.
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[400px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <ComposedChart
+                  data={chartData}
+                  margin={{ top: 10, right: 20, left: 10, bottom: 10 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+                  <XAxis
+                    dataKey="depth"
+                    type="number"
+                    domain={["dataMin", "dataMax"]}
+                    tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+                    label={{ value: "Depth (ft)", position: "insideBottom", offset: -5, fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+                  />
+                  <YAxis
+                    domain={[-10, 45]}
+                    tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+                    label={{ value: "Porosity (%)", angle: -90, position: "insideLeft", offset: 5, fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "hsl(var(--background))",
+                      border: "1px solid hsl(var(--border))",
+                      borderRadius: "8px",
+                      fontSize: "11px",
+                    }}
+                    formatter={(value: number, name: string) => {
+                      const labels: Record<string, string> = {
+                        phiDen: "φ DEN",
+                        nphi: "NPHI",
+                        separation: "Separation",
+                      };
+                      return [`${value.toFixed(1)}%`, labels[name] || name];
+                    }}
+                    labelFormatter={(v) => `Depth: ${v} ft`}
+                  />
+                  <Legend
+                    wrapperStyle={{ fontSize: "11px" }}
+                    formatter={(value: string) => {
+                      const labels: Record<string, string> = {
+                        phiDen: "φ DEN (Density)",
+                        nphi: "NPHI (Neutron)",
+                      };
+                      return labels[value] || value;
+                    }}
+                  />
+                  <ReferenceLine y={0} stroke="hsl(var(--muted-foreground))" strokeDasharray="4 4" opacity={0.5} />
+                  {/* φDEN curve */}
+                  <Line
+                    type="monotone"
+                    dataKey="phiDen"
+                    stroke="#3b82f6"
+                    strokeWidth={2}
+                    dot={false}
+                    name="phiDen"
+                  />
+                  {/* NPHI curve */}
+                  <Line
+                    type="monotone"
+                    dataKey="nphi"
+                    stroke="#f97316"
+                    strokeWidth={2}
+                    dot={false}
+                    name="nphi"
+                  />
+                  {/* Separation area */}
+                  <Area
+                    type="monotone"
+                    dataKey="separation"
+                    fill="hsl(var(--primary))"
+                    fillOpacity={0.15}
+                    stroke="none"
+                    baseValue={0}
+                  />
+                </ComposedChart>
+              </ResponsiveContainer>
+            </div>
+            {/* Legend for crossover zones */}
+            <div className="flex flex-wrap gap-3 mt-3 justify-center text-xs">
+              <div className="flex items-center gap-1.5">
+                <div className="w-3 h-3 rounded-sm bg-red-500/60" />
+                <span className="text-muted-foreground">Gas Crossover (NPHI &lt; φDEN)</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div className="w-3 h-3 rounded-sm bg-emerald-500/60" />
+                <span className="text-muted-foreground">Oil / Water (close tracking)</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div className="w-3 h-3 rounded-sm bg-amber-500/60" />
+                <span className="text-muted-foreground">Clay Effect (NPHI &gt;&gt; φDEN)</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div className="w-3 h-3 rounded-sm bg-blue-500/60" />
+                <span className="text-muted-foreground">Clean Wet Sand</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Data table */}
       <Card className="bg-muted/20 border-border/30">
