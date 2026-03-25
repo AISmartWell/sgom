@@ -745,6 +745,23 @@ const StepVshale = ({ data }: { data: PetroPoint[] }) => {
 };
 
 const StepPorosity = ({ data }: { data: PetroPoint[] }) => {
+  const chartData = useMemo(() => {
+    const step = Math.max(1, Math.floor(data.length / 120));
+    return data
+      .filter((_, i) => i % step === 0)
+      .map(p => {
+        const vsh = calcVshale(p.gr);
+        const phiEff = p.por * (1 - vsh);
+        return {
+          depth: Math.round(p.depth),
+          phiTotal: Math.round(p.por * 10) / 10,
+          phiEff: Math.round(phiEff * 10) / 10,
+          vsh: Math.round(vsh * 100) / 100,
+          isReservoir: phiEff > 8,
+        };
+      });
+  }, [data]);
+
   const examples = useMemo(() => {
     return data
       .filter((_, i) => i % Math.max(1, Math.floor(data.length / 8)) === 0)
@@ -761,8 +778,21 @@ const StepPorosity = ({ data }: { data: PetroPoint[] }) => {
       });
   }, [data]);
 
+  // Stats
+  const stats = useMemo(() => {
+    const effVals = chartData.map(d => d.phiEff);
+    const resCount = chartData.filter(d => d.isReservoir).length;
+    return {
+      avgPhiTotal: chartData.reduce((s, d) => s + d.phiTotal, 0) / chartData.length,
+      avgPhiEff: effVals.reduce((s, v) => s + v, 0) / effVals.length,
+      maxPhiEff: Math.max(...effVals),
+      reservoirPct: Math.round((resCount / chartData.length) * 100),
+    };
+  }, [chartData]);
+
   return (
     <div className="space-y-4">
+      {/* Formula card */}
       <Card className="bg-muted/20 border-border/30">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm flex items-center gap-2">
@@ -780,6 +810,93 @@ const StepPorosity = ({ data }: { data: PetroPoint[] }) => {
         </CardContent>
       </Card>
 
+      {/* Stats row */}
+      <div className="grid grid-cols-4 gap-3">
+        {[
+          { label: "Avg φ total", val: `${stats.avgPhiTotal.toFixed(1)}%`, color: "text-blue-400" },
+          { label: "Avg φ eff", val: `${stats.avgPhiEff.toFixed(1)}%`, color: "text-emerald-400" },
+          { label: "Max φ eff", val: `${stats.maxPhiEff.toFixed(1)}%`, color: "text-yellow-400" },
+          { label: "Reservoir %", val: `${stats.reservoirPct}%`, color: "text-primary" },
+        ].map(s => (
+          <Card key={s.label} className="bg-muted/20 border-border/30">
+            <CardContent className="p-3 text-center">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{s.label}</p>
+              <p className={`text-lg font-bold ${s.color}`}>{s.val}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Porosity vs Depth chart */}
+      <Card className="bg-muted/20 border-border/30">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <BarChart3 className="h-4 w-4 text-primary" />
+            Porosity vs Depth — φ<sub>total</sub> vs φ<sub>eff</sub>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[420px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart data={chartData} layout="vertical" margin={{ top: 10, right: 20, bottom: 10, left: 10 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border) / 0.3)" />
+                <YAxis
+                  dataKey="depth"
+                  type="number"
+                  reversed
+                  domain={["dataMin", "dataMax"]}
+                  tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+                  label={{ value: "Depth (ft)", angle: -90, position: "insideLeft", offset: -5, fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+                  width={55}
+                />
+                <XAxis
+                  type="number"
+                  domain={[0, 35]}
+                  tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+                  label={{ value: "Porosity (%)", position: "insideBottom", offset: -5, fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "hsl(var(--card))",
+                    border: "1px solid hsl(var(--border))",
+                    borderRadius: 8,
+                    fontSize: 11,
+                  }}
+                  formatter={(val: number, name: string) => [
+                    `${val.toFixed(1)}%`,
+                    name === "phiTotal" ? "φ total" : name === "phiEff" ? "φ eff" : name,
+                  ]}
+                  labelFormatter={(v) => `Depth: ${v} ft`}
+                />
+                {/* Cutoff line at 8% */}
+                <ReferenceLine x={8} stroke="hsl(var(--destructive))" strokeDasharray="6 3" strokeWidth={1.5} label={{ value: "Cutoff 8%", fill: "hsl(var(--destructive))", fontSize: 10, position: "top" }} />
+                {/* Reservoir shading: area where φeff > 8 */}
+                <Area
+                  dataKey="phiEff"
+                  type="monotone"
+                  fill="hsl(var(--primary) / 0.15)"
+                  stroke="none"
+                  isAnimationActive={false}
+                />
+                <Line dataKey="phiTotal" type="monotone" stroke="#3b82f6" strokeWidth={1.5} dot={false} name="phiTotal" isAnimationActive={false} />
+                <Line dataKey="phiEff" type="monotone" stroke="#22c55e" strokeWidth={2} dot={false} name="phiEff" isAnimationActive={false} />
+                <Legend
+                  formatter={(value) => (value === "phiTotal" ? "φ total" : value === "phiEff" ? "φ eff" : value)}
+                  wrapperStyle={{ fontSize: 11 }}
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+          {/* Legend explanation */}
+          <div className="mt-3 flex flex-wrap gap-4 text-xs text-muted-foreground justify-center">
+            <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 bg-blue-500 inline-block rounded" /> φ total (log reading)</span>
+            <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 bg-emerald-500 inline-block rounded" /> φ eff (shale-corrected)</span>
+            <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 border-t-2 border-dashed border-destructive inline-block" /> Cutoff 8%</span>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Table */}
       <Card className="bg-muted/20 border-border/30">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm">Calculation by Intervals</CardTitle>
