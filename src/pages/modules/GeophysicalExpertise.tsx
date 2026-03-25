@@ -1291,6 +1291,18 @@ const StepDenNphi = ({ data }: { data: PetroPoint[] }) => {
 };
 
 const StepArchie = ({ data }: { data: PetroPoint[] }) => {
+  const chartData = useMemo(() => {
+    const step = Math.max(1, Math.floor(data.length / 120));
+    return data
+      .filter((_, i) => i % step === 0)
+      .map(p => {
+        const porFrac = p.por / 100;
+        const sw = calcArchieSwFromInputs(porFrac, p.res) * 100;
+        const sh = 100 - sw;
+        return { depth: p.depth, sw: Math.round(sw * 10) / 10, sh: Math.round(sh * 10) / 10, por: p.por, res: p.res };
+      });
+  }, [data]);
+
   const examples = useMemo(() => {
     return data
       .filter((_, i) => i % Math.max(1, Math.floor(data.length / 8)) === 0)
@@ -1298,16 +1310,19 @@ const StepArchie = ({ data }: { data: PetroPoint[] }) => {
       .map(p => {
         const porFrac = p.por / 100;
         const swArchie = calcArchieSwFromInputs(porFrac, p.res) * 100;
-        return {
-          depth: p.depth,
-          por: p.por,
-          res: p.res,
-          swLog: p.sw,
-          swArchie,
-          hydroSat: 100 - swArchie,
-        };
+        return { depth: p.depth, por: p.por, res: p.res, swLog: p.sw, swArchie, hydroSat: 100 - swArchie };
       });
   }, [data]);
+
+  // Summary stats
+  const stats = useMemo(() => {
+    const swVals = chartData.map(d => d.sw);
+    const avgSw = swVals.reduce((a, b) => a + b, 0) / swVals.length;
+    const payZones = chartData.filter(d => d.sw < 60).length;
+    const payPct = (payZones / chartData.length) * 100;
+    const minSw = Math.min(...swVals);
+    return { avgSw: avgSw.toFixed(1), payPct: payPct.toFixed(0), minSw: minSw.toFixed(1), avgSh: (100 - avgSw).toFixed(1) };
+  }, [chartData]);
 
   return (
     <div className="space-y-4">
@@ -1324,25 +1339,83 @@ const StepArchie = ({ data }: { data: PetroPoint[] }) => {
           </div>
           <div className="mt-3 grid grid-cols-4 gap-2 text-xs text-muted-foreground">
             <div className="p-2 bg-muted/30 rounded text-center">
-              <div className="font-semibold text-foreground">a</div>
-              <div>1.0</div>
+              <div className="font-semibold text-foreground">a</div><div>1.0</div>
             </div>
             <div className="p-2 bg-muted/30 rounded text-center">
-              <div className="font-semibold text-foreground">m</div>
-              <div>2.0</div>
+              <div className="font-semibold text-foreground">m</div><div>2.0</div>
             </div>
             <div className="p-2 bg-muted/30 rounded text-center">
-              <div className="font-semibold text-foreground">n</div>
-              <div>2.0</div>
+              <div className="font-semibold text-foreground">n</div><div>2.0</div>
             </div>
             <div className="p-2 bg-muted/30 rounded text-center">
-              <div className="font-semibold text-foreground">Rw</div>
-              <div>0.04 Ω·m</div>
+              <div className="font-semibold text-foreground">Rw</div><div>0.04 Ω·m</div>
             </div>
           </div>
         </CardContent>
       </Card>
 
+      {/* Summary Stats */}
+      <div className="grid grid-cols-4 gap-2">
+        {[
+          { label: "Avg Sw", value: `${stats.avgSw}%`, color: "text-blue-400" },
+          { label: "Avg Sh", value: `${stats.avgSh}%`, color: "text-amber-400" },
+          { label: "Min Sw", value: `${stats.minSw}%`, color: "text-emerald-400" },
+          { label: "Pay Zones", value: `${stats.payPct}%`, color: "text-primary" },
+        ].map(s => (
+          <Card key={s.label} className="bg-muted/20 border-border/30">
+            <CardContent className="p-3 text-center">
+              <div className="text-[10px] text-muted-foreground">{s.label}</div>
+              <div className={`text-lg font-bold ${s.color}`}>{s.value}</div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Sw vs Depth Chart */}
+      <Card className="bg-muted/20 border-border/30">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm">Water Saturation vs Depth — Archie</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[320px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart data={chartData} layout="vertical" margin={{ top: 5, right: 15, bottom: 5, left: 10 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+                <YAxis
+                  dataKey="depth"
+                  type="number"
+                  reversed
+                  domain={["dataMin", "dataMax"]}
+                  tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+                  label={{ value: "Depth (ft)", angle: -90, position: "insideLeft", style: { fontSize: 10, fill: "hsl(var(--muted-foreground))" } }}
+                />
+                <XAxis
+                  type="number"
+                  domain={[0, 100]}
+                  tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+                  label={{ value: "Saturation %", position: "insideBottom", offset: -2, style: { fontSize: 10, fill: "hsl(var(--muted-foreground))" } }}
+                />
+                <ReferenceLine x={60} stroke="#ef4444" strokeDasharray="6 3" strokeWidth={2} label={{ value: "Sw cutoff 60%", position: "top", style: { fontSize: 9, fill: "#ef4444" } }} />
+                <Area dataKey="sh" fill="#22c55e" fillOpacity={0.15} stroke="none" />
+                <Line dataKey="sw" stroke="#3b82f6" strokeWidth={2} dot={false} name="Sw (water)" />
+                <Line dataKey="sh" stroke="#22c55e" strokeWidth={2} dot={false} name="Sh (hydrocarbon)" />
+                <Tooltip
+                  contentStyle={{ background: "hsl(var(--background))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 11 }}
+                  formatter={(val: number, name: string) => [`${val.toFixed(1)}%`, name]}
+                  labelFormatter={(v: number) => `Depth: ${v.toFixed(0)} ft`}
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="mt-2 flex items-center gap-4 text-[10px] text-muted-foreground justify-center">
+            <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-blue-500 inline-block" /> Sw (water)</span>
+            <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-emerald-500 inline-block" /> Sh (hydrocarbon)</span>
+            <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-red-500 inline-block border-dashed" /> Cutoff 60%</span>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Data Table */}
       <Card className="bg-muted/20 border-border/30">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm">Sw Calculation by Depth</CardTitle>
