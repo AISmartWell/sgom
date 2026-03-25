@@ -40,7 +40,7 @@ interface UploadedFile {
 
 const AI_ANALYST_CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/spt-chat`;
 
-const SYSTEM_PROMPT = `You are SGOM AI, an expert geological analyst for the AI Smart Well platform.
+const SYSTEM_PROMPT = `You are AI Smart Well, an expert geological analyst for the AI Smart Well platform.
 You analyze oil well data, interpret geological information, and assess the restoration potential of abandoned wells.
 
 Platform context:
