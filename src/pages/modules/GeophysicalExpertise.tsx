@@ -14,6 +14,7 @@ import { LASUploadPanel } from "@/components/geophysical/LASUploadPanel";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import EnhancedWellLog from "@/components/well-log/EnhancedWellLog";
+import BatchLithologyAnalysis from "@/components/geophysical/BatchLithologyAnalysis";
 import { WellLogAnalysisDemo } from "@/components/geophysical/WellLogAnalysisDemo";
 import { supabase } from "@/integrations/supabase/client";
 import { useWellLogs } from "@/hooks/useWellLogs";
@@ -1188,6 +1189,7 @@ const GeophysicalExpertise = () => {
   const [wellPickerOpen, setWellPickerOpen] = useState(false);
   const [searchResults, setSearchResults] = useState<WellOption[]>([]);
   const [searching, setSearching] = useState(false);
+  const [batchMode, setBatchMode] = useState(false);
 
   useEffect(() => {
     const loadCompany = async () => {
@@ -1409,7 +1411,26 @@ const GeophysicalExpertise = () => {
 
         {/* Step 1: Lithology */}
         <TabsContent value="lithology" className="mt-0">
-          {petroData.length > 0 ? (
+          <div className="mb-4 flex gap-2">
+            <Button
+              variant={activeStep === "lithology" && !batchMode ? "default" : "outline"}
+              size="sm"
+              onClick={() => setBatchMode(false)}
+            >
+              Single Well
+            </Button>
+            <Button
+              variant={batchMode ? "default" : "outline"}
+              size="sm"
+              onClick={() => setBatchMode(true)}
+            >
+              <BarChart3 className="h-3.5 w-3.5 mr-1.5" />
+              Batch — All Wells
+            </Button>
+          </div>
+          {batchMode ? (
+            <BatchLithologyAnalysis />
+          ) : petroData.length > 0 ? (
             <StepLithology data={petroData} />
           ) : (
             <div className="text-center py-16 text-muted-foreground">Loading well data...</div>
