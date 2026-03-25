@@ -253,11 +253,11 @@ function OverviewTab() {
   );
 }
 
-// ─── SGOM Analysis Tab ────────────────────────────────────────────────────────
+// ─── AI Smart Well Analysis Tab ───────────────────────────────────────────────
 
 function AnalysisTab() {
   const [messages, setMessages] = useState<Message[]>([
-    { role: "assistant", content: "👋 Hello! I'm SGOM AI — your geological analyst powered by Claude. Ask me about well candidates, log interpretation, restoration potential, or Slot Perforation Technology. How can I help?" },
+    { role: "assistant", content: "👋 Hello! I'm your AI Smart Well geological analyst. Ask me about well candidates, log interpretation, restoration potential, or Slot Perforation Technology. How can I help?" },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -268,7 +268,7 @@ function AnalysisTab() {
   const QUICK_PROMPTS = [
     "Assess restoration potential of well W-2841",
     "How does Slot Perforation Technology work?",
-    "Explain the SGOM Score methodology",
+    "Explain the Well Score methodology",
     "Top Eagle Ford SPT candidates",
   ];
 
@@ -399,8 +399,8 @@ function UploadTab() {
     try {
       const text = await f.file.text().catch(() => null);
       const prompt = text
-        ? `Analyze the following well data from file "${f.name}":\n\n${text.slice(0, 3000)}\n\nProvide a concise professional analysis: data type, quality, key parameters, and SGOM recommendations.`
-        : `File "${f.name}" (${f.size}) uploaded for SGOM analysis. Describe what such files typically contain and how SGOM processes them.`;
+        ? `Analyze the following well data from file "${f.name}":\n\n${text.slice(0, 3000)}\n\nProvide a concise professional analysis: data type, quality, key parameters, and AI Smart Well recommendations.`
+        : `File "${f.name}" (${f.size}) uploaded for analysis. Describe what such files typically contain and how AI Smart Well processes them.`;
       const result = await callClaude([{ role: "user", content: prompt }], SYSTEM_PROMPT);
       setFiles((prev) => prev.map((x, i) => i === idx ? { ...x, status: "done", result } : x));
     } catch {
@@ -668,7 +668,7 @@ function ClientTab() {
 
 const TABS = [
   { value: "overview", label: "Overview", icon: BarChart3 },
-  { value: "analysis", label: "SGOM Analysis", icon: Bot },
+  { value: "analysis", label: "AI Analysis", icon: Bot },
   { value: "upload", label: "Upload Data", icon: Upload },
   { value: "investor", label: "Investor Demo", icon: Presentation },
   { value: "client", label: "Client Portal", icon: User },
