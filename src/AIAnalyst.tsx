@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
-import { Bot, Upload, BarChart3, Presentation, User, ChevronRight, Loader2, FileText, CheckCircle, TrendingUp, Drill, Cpu, Zap } from "lucide-react";
+import { Bot, Upload, BarChart3, Presentation, User, ChevronRight, Loader2, FileText, CheckCircle, TrendingUp, Drill, Cpu, Zap, Database } from "lucide-react";
+import RealDataTab from "@/components/ai-analyst/RealDataTab";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
