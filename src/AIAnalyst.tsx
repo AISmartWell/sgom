@@ -257,7 +257,7 @@ function OverviewTab() {
 
 function AnalysisTab() {
   const [messages, setMessages] = useState<Message[]>([
-    { role: "assistant", content: "👋 Hello! I'm SGOM AI — your geological analyst powered by Claude. Ask me about well candidates, log interpretation, restoration potential, or Slot Perforation Technology. How can I help?" },
+    { role: "assistant", content: "👋 Hello! I'm your AI Smart Well geological analyst. Ask me about well candidates, log interpretation, restoration potential, or Slot Perforation Technology. How can I help?" },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
