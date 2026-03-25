@@ -711,6 +711,7 @@ const AIAnalyst = () => {
           </TabsList>
 
           <TabsContent value="overview"><OverviewTab /></TabsContent>
+          <TabsContent value="realdata"><RealDataTab /></TabsContent>
           <TabsContent value="analysis"><AnalysisTab /></TabsContent>
           <TabsContent value="upload"><UploadTab /></TabsContent>
           <TabsContent value="investor"><InvestorTab /></TabsContent>
