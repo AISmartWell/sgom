@@ -620,8 +620,8 @@ function ClientTab() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-slate-800">
-                {["ID", "Region", "SGOM Score", "Status", "Action"].map((h) => (
-                  <th key={h} className="px-4 py-3 text-left text-[11px] uppercase tracking-wider text-slate-600 font-semibold">{h}</th>
+                {["ID", "Region", "AI Score", "Status", "Action"].map((h) => (
+                   <th key={h} className="px-4 py-3 text-left text-[11px] uppercase tracking-wider text-slate-600 font-semibold">{h}</th>
                 ))}
               </tr>
             </thead>
