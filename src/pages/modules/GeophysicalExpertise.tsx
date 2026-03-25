@@ -14,6 +14,7 @@ import { LASUploadPanel } from "@/components/geophysical/LASUploadPanel";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import EnhancedWellLog from "@/components/well-log/EnhancedWellLog";
+import BatchLithologyAnalysis from "@/components/geophysical/BatchLithologyAnalysis";
 import { WellLogAnalysisDemo } from "@/components/geophysical/WellLogAnalysisDemo";
 import { supabase } from "@/integrations/supabase/client";
 import { useWellLogs } from "@/hooks/useWellLogs";
