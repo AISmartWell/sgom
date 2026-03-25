@@ -292,8 +292,8 @@ function AnalysisTab() {
   return (
     <div className="flex flex-col gap-4 h-full">
       <div>
-        <h3 className="text-lg font-semibold text-white">SGOM AI Analyst</h3>
-        <p className="text-sm text-slate-500">Claude-powered geological well analysis in real time</p>
+        <h3 className="text-lg font-semibold text-white">AI Smart Well Analyst</h3>
+        <p className="text-sm text-slate-500">AI-powered geological well analysis in real time</p>
       </div>
 
       {/* Quick prompts */}
