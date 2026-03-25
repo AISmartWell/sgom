@@ -399,8 +399,8 @@ function UploadTab() {
     try {
       const text = await f.file.text().catch(() => null);
       const prompt = text
-        ? `Analyze the following well data from file "${f.name}":\n\n${text.slice(0, 3000)}\n\nProvide a concise professional analysis: data type, quality, key parameters, and SGOM recommendations.`
-        : `File "${f.name}" (${f.size}) uploaded for SGOM analysis. Describe what such files typically contain and how SGOM processes them.`;
+        ? `Analyze the following well data from file "${f.name}":\n\n${text.slice(0, 3000)}\n\nProvide a concise professional analysis: data type, quality, key parameters, and AI Smart Well recommendations.`
+        : `File "${f.name}" (${f.size}) uploaded for analysis. Describe what such files typically contain and how AI Smart Well processes them.`;
       const result = await callClaude([{ role: "user", content: prompt }], SYSTEM_PROMPT);
       setFiles((prev) => prev.map((x, i) => i === idx ? { ...x, status: "done", result } : x));
     } catch {
