@@ -939,7 +939,7 @@ const GeophysicalExpertise = () => {
   const navigate = useNavigate();
   const [wells, setWells] = useState<WellOption[]>([]);
   const [selectedWell, setSelectedWell] = useState<WellOption | null>(null);
-  const [activeStep, setActiveStep] = useState("raw-log");
+  const [activeStep, setActiveStep] = useState("lithology");
   const [addWellOpen, setAddWellOpen] = useState(false);
   const [lasUploadOpen, setLasUploadOpen] = useState(false);
   const [companyId, setCompanyId] = useState<string | null>(null);
