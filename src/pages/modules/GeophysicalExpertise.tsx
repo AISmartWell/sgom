@@ -931,35 +931,35 @@ const StepKoKo = ({ data }: { data: PetroPoint[] }) => {
         <CardHeader className="pb-2">
           <CardTitle className="text-sm flex items-center gap-2">
             <Zap className="h-4 w-4 text-primary" />
-            Определение флюида по кривой RT (удельное сопротивление)
+            Fluid Determination from RT (Resistivity) Curve
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
           <p className="text-xs text-muted-foreground">
-            В чистом коллекторе (GR ≤ 45 API, Vsh &lt; 40%) тип насыщающего флюида определяется по удельному сопротивлению:
+            In clean reservoir rock (GR ≤ 45 API, Vsh &lt; 40%), fluid type is determined by true resistivity:
           </p>
           <div className="grid grid-cols-2 gap-2 text-xs">
             <div className="p-2.5 bg-emerald-500/10 rounded-lg border border-emerald-500/30">
               <div className="flex items-center gap-2 mb-1">
                 <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                <span className="font-bold text-emerald-400">RT ≥ 10 Ω·m → Углеводороды</span>
+                <span className="font-bold text-emerald-400">RT ≥ 10 Ω·m → Hydrocarbons</span>
               </div>
               <p className="text-muted-foreground text-[10px]">
-                Высокое сопротивление в коллекторе указывает на нефть или газ. Углеводороды — диэлектрики, не проводят электрический ток.
+                High resistivity in reservoir indicates oil or gas. Hydrocarbons are dielectrics — they do not conduct electrical current.
               </p>
             </div>
             <div className="p-2.5 bg-blue-500/10 rounded-lg border border-blue-500/30">
               <div className="flex items-center gap-2 mb-1">
                 <div className="w-3 h-3 rounded-full bg-blue-500" />
-                <span className="font-bold text-blue-400">RT &lt; 8 Ω·m → Вода</span>
+                <span className="font-bold text-blue-400">RT &lt; 8 Ω·m → Water</span>
               </div>
               <p className="text-muted-foreground text-[10px]">
-                Низкое сопротивление в коллекторе — пластовая вода. Минерализованная вода — хороший проводник.
+                Low resistivity in reservoir — formation water. Mineralized water is a good conductor.
               </p>
             </div>
           </div>
           <div className="p-2 bg-yellow-500/10 rounded-lg border border-yellow-500/30 text-[10px] text-muted-foreground">
-            ⚠️ Зона 8–10 Ω·m — переходная (transition zone): возможна смесь воды и углеводородов. Требуется подтверждение по Sw (Арчи).
+            ⚠️ Zone 8–10 Ω·m — transition zone: possible mix of water and hydrocarbons. Requires Sw (Archie) confirmation.
           </div>
         </CardContent>
       </Card>
