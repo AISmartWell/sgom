@@ -998,7 +998,7 @@ const StepKoKo = ({ data }: { data: PetroPoint[] }) => {
 
       <Card className="bg-muted/20 border-border/30">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm">Результаты классификации (RT + Ko Ko)</CardTitle>
+          <CardTitle className="text-sm">Classification Results (RT + Ko Ko)</CardTitle>
         </CardHeader>
         <CardContent>
           <table className="w-full text-xs">
@@ -1007,7 +1007,7 @@ const StepKoKo = ({ data }: { data: PetroPoint[] }) => {
                 <th className="py-1.5 text-left">Depth</th>
                 <th className="py-1.5 text-center">GR</th>
                 <th className="py-1.5 text-center">RT (Ω·m)</th>
-                <th className="py-1.5 text-center">RT → Флюид</th>
+                <th className="py-1.5 text-center">RT → Fluid</th>
                 <th className="py-1.5 text-center">Pattern</th>
                 <th className="py-1.5 text-center">Ko Ko</th>
               </tr>
