@@ -207,7 +207,7 @@ function OverviewTab() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-800">
-                  {["Well ID", "Region", "Depth", "Potential", "SGOM Score", "Prod. Uplift"].map((h) => (
+                  {["Well ID", "Region", "Depth", "Potential", "AI Score", "Prod. Uplift"].map((h) => (
                     <th key={h} className="px-4 py-3 text-left text-[11px] uppercase tracking-wider text-slate-600 font-semibold">{h}</th>
                   ))}
                 </tr>
