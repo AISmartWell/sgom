@@ -1040,6 +1040,7 @@ const StepDenNphi = ({ data }: { data: PetroPoint[] }) => {
 };
 
 const StepArchie = ({ data }: { data: PetroPoint[] }) => {
+  const examples = useMemo(() => {
     return data
       .filter((_, i) => i % Math.max(1, Math.floor(data.length / 8)) === 0)
       .slice(0, 8)
