@@ -1730,9 +1730,36 @@ const StepNetPay = ({ summary }: { summary: InterpretationSummary }) => {
   const { intervals, grossPay, netPay, netToGross, avgPorosity, avgSw, dominantFluid, totalMissedPay } = summary;
   const netPayIntervals = intervals.filter(i => i.isNetPay);
   const missedIntervals = intervals.filter(i => i.isReservoir && !i.isNetPay);
+  const nonReservoir = intervals.filter(i => !i.isReservoir);
+
+  // Build depth-track data for visualization
+  const trackData = useMemo(() => {
+    const rows: { depth: number; netPay: number | null; missed: number | null; nonRes: number | null; porosity: number; sw: number; vsh: number }[] = [];
+    for (const iv of intervals) {
+      const midDepth = (iv.top + iv.bottom) / 2;
+      rows.push({
+        depth: midDepth,
+        netPay: iv.isNetPay ? 1 : null,
+        missed: (iv.isReservoir && !iv.isNetPay) ? 1 : null,
+        nonRes: !iv.isReservoir ? 1 : null,
+        porosity: iv.avgPor,
+        sw: iv.archieSwCalc ?? iv.avgSw,
+        vsh: Math.round(iv.vshale * 100),
+      });
+    }
+    return rows.sort((a, b) => a.depth - b.depth);
+  }, [intervals]);
+
+  // Stacked bar data for pay summary
+  const payBarData = [
+    { name: "Net Pay", value: netPay, fill: "hsl(var(--chart-2))" },
+    { name: "Missed Pay", value: totalMissedPay, fill: "#ef4444" },
+    { name: "Non-Reservoir", value: Math.max(0, grossPay - netPay), fill: "hsl(var(--muted))" },
+  ];
 
   return (
     <div className="space-y-4">
+      {/* Criteria banner */}
       <Card className="bg-muted/20 border-border/30">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm flex items-center gap-2">
@@ -1781,59 +1808,160 @@ const StepNetPay = ({ summary }: { summary: InterpretationSummary }) => {
         </Card>
       </div>
 
-      {/* Net pay intervals */}
-      {netPayIntervals.length > 0 && (
-        <Card className="bg-muted/20 border-border/30">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-emerald-400">✅ Net Pay Intervals ({netPayIntervals.length})</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <table className="w-full text-xs">
-              <thead>
-                <tr className="text-muted-foreground border-b border-border/30">
-                  <th className="py-1.5 text-left">Interval</th>
-                  <th className="py-1.5 text-center">Thick</th>
-                  <th className="py-1.5 text-center">φ%</th>
-                  <th className="py-1.5 text-center">Sw%</th>
-                  <th className="py-1.5 text-center">Fluid</th>
-                </tr>
-              </thead>
-              <tbody>
-                {netPayIntervals.map((iv, i) => (
-                  <tr key={i} className="border-b border-border/10">
-                    <td className="py-1.5 font-mono">{iv.top.toFixed(0)}–{iv.bottom.toFixed(0)}'</td>
-                    <td className="py-1.5 text-center">{iv.thickness} ft</td>
-                    <td className="py-1.5 text-center text-emerald-400">{iv.avgPor}%</td>
-                    <td className="py-1.5 text-center">{iv.archieSwCalc ?? iv.avgSw}%</td>
-                    <td className="py-1.5 text-center">
-                      <Badge variant="outline" className="text-[10px]" style={{ borderColor: fluidColor(iv.fluidType), color: fluidColor(iv.fluidType) }}>
-                        {fluidEmoji(iv.fluidType)} {iv.fluidType}
-                      </Badge>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </CardContent>
-        </Card>
-      )}
+      {/* Depth-based interval chart */}
+      <Card className="bg-muted/20 border-border/30">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm">Interval Classification by Depth</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[350px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart data={trackData} layout="vertical" margin={{ top: 5, right: 20, bottom: 5, left: 10 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+                <YAxis
+                  dataKey="depth"
+                  type="number"
+                  reversed
+                  domain={["dataMin", "dataMax"]}
+                  tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+                  label={{ value: "Depth (ft)", angle: -90, position: "insideLeft", style: { fontSize: 10, fill: "hsl(var(--muted-foreground))" } }}
+                  width={55}
+                />
+                <XAxis
+                  type="number"
+                  domain={[0, 100]}
+                  tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+                  label={{ value: "Porosity % / Sw %", position: "insideBottom", offset: -2, style: { fontSize: 10, fill: "hsl(var(--muted-foreground))" } }}
+                />
+                <Tooltip
+                  contentStyle={{ backgroundColor: "hsl(var(--background))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 11 }}
+                  formatter={(value: number, name: string) => {
+                    if (name === "porosity") return [`${value}%`, "Porosity"];
+                    if (name === "sw") return [`${value}%`, "Sw"];
+                    if (name === "vsh") return [`${value}%`, "Vshale"];
+                    return [value, name];
+                  }}
+                  labelFormatter={(v) => `Depth: ${Number(v).toFixed(0)} ft`}
+                />
+                <ReferenceLine x={8} stroke="#22c55e" strokeDasharray="5 5" strokeWidth={1.5} />
+                <ReferenceLine x={60} stroke="#3b82f6" strokeDasharray="5 5" strokeWidth={1.5} />
+                <Line dataKey="porosity" stroke="#22c55e" strokeWidth={2} dot={{ r: 3, fill: "#22c55e" }} name="porosity" />
+                <Line dataKey="sw" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3, fill: "#3b82f6" }} name="sw" />
+                <Line dataKey="vsh" stroke="#eab308" strokeWidth={1.5} dot={{ r: 2, fill: "#eab308" }} strokeDasharray="4 2" name="vsh" />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="flex items-center justify-center gap-4 mt-2 text-[10px] text-muted-foreground">
+            <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-emerald-500 inline-block" /> φ (8% cutoff)</span>
+            <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-blue-500 inline-block" /> Sw (60% cutoff)</span>
+            <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-yellow-500 inline-block border-dashed" /> Vsh</span>
+          </div>
+        </CardContent>
+      </Card>
 
-      {/* Missed pay */}
+      {/* Visual depth strip */}
+      <Card className="bg-muted/20 border-border/30">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm">Pay Zone Depth Strip</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-3">
+            {/* Strip visualization */}
+            <div className="w-16 flex flex-col rounded overflow-hidden border border-border/30" style={{ minHeight: 280 }}>
+              {intervals.map((iv, i) => {
+                const totalThickness = intervals.reduce((s, x) => s + x.thickness, 0) || 1;
+                const heightPct = Math.max(2, (iv.thickness / totalThickness) * 100);
+                let bg = "hsl(var(--muted))";
+                if (iv.isNetPay) bg = "#22c55e";
+                else if (iv.isReservoir && !iv.isNetPay) bg = "#ef4444";
+                else if (iv.vshale > 0.6) bg = "#8b8b2a";
+                return (
+                  <div
+                    key={i}
+                    style={{ height: `${heightPct}%`, backgroundColor: bg, minHeight: 4 }}
+                    title={`${iv.top.toFixed(0)}-${iv.bottom.toFixed(0)}' | ${iv.isNetPay ? "NET PAY" : iv.isReservoir ? "MISSED" : "Non-Res"} | φ=${iv.avgPor}% Sw=${iv.archieSwCalc ?? iv.avgSw}%`}
+                    className="transition-all hover:opacity-80 cursor-pointer"
+                  />
+                );
+              })}
+            </div>
+            {/* Legend + detail table */}
+            <div className="flex-1 space-y-2">
+              <div className="flex flex-wrap gap-3 text-[10px]">
+                <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-sm bg-emerald-500 inline-block" /> Net Pay</span>
+                <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-sm bg-red-500 inline-block" /> Missed Pay</span>
+                <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-sm inline-block" style={{ backgroundColor: "#8b8b2a" }} /> Shale</span>
+                <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-sm bg-muted inline-block border border-border/30" /> Non-Reservoir</span>
+              </div>
+
+              {/* All intervals table */}
+              <div className="max-h-[220px] overflow-y-auto">
+                <table className="w-full text-xs">
+                  <thead className="sticky top-0 bg-muted/80">
+                    <tr className="text-muted-foreground border-b border-border/30">
+                      <th className="py-1 text-left">Interval</th>
+                      <th className="py-1 text-center">Thick</th>
+                      <th className="py-1 text-center">φ%</th>
+                      <th className="py-1 text-center">Sw%</th>
+                      <th className="py-1 text-center">Vsh</th>
+                      <th className="py-1 text-center">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {intervals.map((iv, i) => (
+                      <tr key={i} className={`border-b border-border/10 ${iv.isNetPay ? "bg-emerald-500/5" : iv.isReservoir && !iv.isNetPay ? "bg-red-500/5" : ""}`}>
+                        <td className="py-1 font-mono text-[10px]">{iv.top.toFixed(0)}–{iv.bottom.toFixed(0)}'</td>
+                        <td className="py-1 text-center">{iv.thickness} ft</td>
+                        <td className="py-1 text-center" style={{ color: iv.avgPor > 8 ? "#22c55e" : undefined }}>{iv.avgPor}%</td>
+                        <td className="py-1 text-center" style={{ color: (iv.archieSwCalc ?? iv.avgSw) < 60 ? "#3b82f6" : undefined }}>{iv.archieSwCalc ?? iv.avgSw}%</td>
+                        <td className="py-1 text-center">{(iv.vshale * 100).toFixed(0)}%</td>
+                        <td className="py-1 text-center">
+                          {iv.isNetPay ? (
+                            <Badge className="text-[9px] bg-emerald-500/20 text-emerald-400 border-emerald-500/30">NET PAY</Badge>
+                          ) : iv.isReservoir && !iv.isNetPay ? (
+                            <Badge className="text-[9px] bg-red-500/20 text-red-400 border-red-500/30">MISSED</Badge>
+                          ) : (
+                            <Badge variant="outline" className="text-[9px]">{iv.vshale > 0.6 ? "Shale" : "Non-Res"}</Badge>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Missed pay detail */}
       {missedIntervals.length > 0 && (
         <Card className="bg-muted/20 border-red-500/30">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm text-red-400">⚠️ Missed Pay Zones ({missedIntervals.length})</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-1 text-xs">
-              {missedIntervals.map((iv, i) => (
-                <div key={i} className="flex items-center justify-between p-1.5 bg-red-500/5 rounded">
-                  <span className="font-mono">{iv.top.toFixed(0)}–{iv.bottom.toFixed(0)}'</span>
-                  <span>{iv.thickness} ft</span>
-                  <span>φ={iv.avgPor}%, Sw={iv.archieSwCalc ?? iv.avgSw}%</span>
-                  <Badge variant="outline" className="text-[10px]">{iv.kokoPattern}</Badge>
-                </div>
-              ))}
+            <div className="space-y-1.5">
+              {missedIntervals.map((iv, i) => {
+                const failPor = iv.avgPor <= 8;
+                const failSw = (iv.archieSwCalc ?? iv.avgSw) >= 60;
+                const failVsh = iv.vshale >= 0.4;
+                return (
+                  <div key={i} className="flex items-center justify-between p-2 bg-red-500/5 rounded text-xs gap-2">
+                    <span className="font-mono whitespace-nowrap">{iv.top.toFixed(0)}–{iv.bottom.toFixed(0)}'</span>
+                    <span>{iv.thickness} ft</span>
+                    <span className={failPor ? "text-red-400" : "text-emerald-400"}>φ={iv.avgPor}%</span>
+                    <span className={failSw ? "text-red-400" : "text-blue-400"}>Sw={iv.archieSwCalc ?? iv.avgSw}%</span>
+                    <span className={failVsh ? "text-red-400" : "text-amber-400"}>Vsh={Math.round(iv.vshale * 100)}%</span>
+                    <Badge variant="outline" className="text-[9px]">
+                      {fluidEmoji(iv.fluidType)} {iv.fluidType}
+                    </Badge>
+                  </div>
+                );
+              })}
+              <p className="text-[10px] text-muted-foreground mt-2 italic">
+                Missed pay zones are reservoir intervals that fail one or more net pay cutoffs. Consider re-evaluation for secondary recovery targets (SPT/EOR).
+              </p>
             </div>
           </CardContent>
         </Card>
