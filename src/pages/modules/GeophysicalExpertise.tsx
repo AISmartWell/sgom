@@ -127,9 +127,9 @@ const classifyGR = (gr: number): LithInterval["lithology"] => {
 
 const lithColor = (lith: LithInterval["lithology"]): string => {
   switch (lith) {
-    case "Clean Sand": return "hsl(var(--success))";
-    case "Silty Sand": return "hsl(var(--warning))";
-    case "Shale": return "hsl(var(--destructive))";
+    case "Clean Sand": return "#facc15";
+    case "Silty Sand": return "#f97316";
+    case "Shale": return "#166534";
   }
 };
 
@@ -160,9 +160,9 @@ const GR_C = {
   text: "#8899bb",
   textBright: "#d0daf0",
   grLine: "#22c55e",
-  sandFill: "#d97706",
-  siltFill: "#6b7280",
-  shaleFill: "#8b8b2a",
+  sandFill: "#facc15",
+  siltFill: "#f97316",
+  shaleFill: "#166534",
   cutoff45: "hsl(var(--success))",
   cutoff75: "hsl(var(--destructive))",
 };
