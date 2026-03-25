@@ -160,9 +160,9 @@ const GR_C = {
   text: "#8899bb",
   textBright: "#d0daf0",
   grLine: "#22c55e",
-  sandFill: "#d97706",
-  siltFill: "#6b7280",
-  shaleFill: "#8b8b2a",
+  sandFill: "#facc15",
+  siltFill: "#f97316",
+  shaleFill: "#166534",
   cutoff45: "hsl(var(--success))",
   cutoff75: "hsl(var(--destructive))",
 };
