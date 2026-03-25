@@ -657,7 +657,7 @@ function ClientTab() {
         <CardContent>
           {report
             ? <div className="text-slate-400 text-sm leading-relaxed prose prose-sm dark:prose-invert max-w-none"><ReactMarkdown remarkPlugins={[remarkGfm]}>{report}</ReactMarkdown></div>
-            : <p className="text-slate-600 text-sm">Click to generate an automated SGOM monthly report</p>
+            : <p className="text-slate-600 text-sm">Click to generate an automated monthly report</p>
           }
         </CardContent>
       </Card>
