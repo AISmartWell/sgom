@@ -1063,7 +1063,7 @@ const GeophysicalExpertise = () => {
         </div>
         <Badge variant="outline" className="text-primary border-primary">
           <Calculator className="mr-1 h-3 w-3" />
-          7-Step Algorithm
+          8-Step Algorithm
         </Badge>
       </div>
 
