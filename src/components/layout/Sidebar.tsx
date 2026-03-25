@@ -313,7 +313,7 @@ const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
               <h1 className="text-lg font-bold text-sidebar-foreground">
                 AI Smart Well
               </h1>
-              <p className="text-xs text-muted-foreground">SGOM Platform</p>
+              <p className="text-xs text-muted-foreground">AI-Powered Analytics</p>
             </div>
           )}
         </div>

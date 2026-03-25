@@ -321,8 +321,6 @@ const Index = () => {
           <div className="flex items-center gap-3">
             <Droplets className="h-5 w-5 text-primary" />
             <span className="font-semibold">AI Smart Well</span>
-            <span className="text-muted-foreground/40">·</span>
-            <span className="text-xs text-muted-foreground">SGOM Platform</span>
           </div>
           <p className="text-sm text-muted-foreground">
             © 2026 AI Smart Well & Maxxwell Production. All rights reserved.

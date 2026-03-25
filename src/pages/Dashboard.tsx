@@ -229,7 +229,7 @@ const Dashboard = () => {
           Welcome{userName ? `, ${userName}` : ""}! 👋
         </h1>
         <p className="text-muted-foreground">
-          SGOM Platform — AI Smart Well & Maxxwell Production
+          AI Smart Well — Maxxwell Production
         </p>
       </div>
 
@@ -270,7 +270,7 @@ const Dashboard = () => {
 
       {/* Modules Grid */}
       <div className="mb-6">
-        <h2 className="text-xl font-semibold mb-4">SGOM Modules</h2>
+        <h2 className="text-xl font-semibold mb-4">Platform Modules</h2>
         <p className="text-sm text-muted-foreground mb-6">
           Complete cycle of oil production analysis and optimization
         </p>
