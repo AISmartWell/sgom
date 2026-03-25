@@ -74,11 +74,19 @@ const STEPS = [
   },
   {
     num: 5,
+    key: "den-nphi",
+    label: "DEN-NPHI",
+    icon: Activity,
+    formula: "RHOB vs NPHI overlay → crossover analysis",
+    description: "Reservoir quality evaluation by Density-Neutron curve overlay: oil, gas crossover, reverse crossover, shale",
+  },
+  {
+    num: 6,
     key: "archie-sw",
     label: "Sw (Archie)",
     icon: Droplets,
     formula: "Sw² = (a · Rw) / (φᵐ · Rt)",
-    description: "Уравнение Арчи (1942): a=1, m=2, n=2, Rw=0.04 Ω·м. Кондиция: Sw < 60%",
+    description: "Archie Equation (1942): a=1, m=2, n=2, Rw=0.04 Ω·m. Cutoff: Sw < 60%",
   },
   {
     num: 6,
