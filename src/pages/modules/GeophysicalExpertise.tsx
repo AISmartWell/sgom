@@ -1783,7 +1783,16 @@ const GeophysicalExpertise = () => {
           )}
         </TabsContent>
 
-        {/* Step 4: Archie Sw */}
+        {/* Step 5: DEN-NPHI Crossover */}
+        <TabsContent value="den-nphi" className="mt-0">
+          {petroData.length > 0 ? (
+            <StepDenNphi data={petroData} />
+          ) : (
+            <div className="text-center py-16 text-muted-foreground">Loading well data...</div>
+          )}
+        </TabsContent>
+
+        {/* Step 6: Archie Sw */}
         <TabsContent value="archie-sw" className="mt-0">
           {petroData.length > 0 ? (
             <StepArchie data={petroData} />
