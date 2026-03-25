@@ -577,7 +577,7 @@ function ClientTab() {
     try {
       const reply = await callClaude([{
         role: "user",
-        content: "Generate a professional monthly SGOM report for client Maxxwell Production — March 2026. Include: well analysis status (10 wells processed), TOP-3 SPT candidates with SGOM Scores, prioritization recommendations, and production uplift forecast.",
+        content: "Generate a professional monthly report for client Maxxwell Production — March 2026. Include: well analysis status (10 wells processed), TOP-3 SPT candidates with AI Scores, prioritization recommendations, and production uplift forecast.",
       }], SYSTEM_PROMPT);
       setReport(reply);
     } catch { setReport("Generation error."); }
