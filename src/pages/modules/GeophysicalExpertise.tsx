@@ -41,6 +41,14 @@ interface WellOption {
 const STEPS = [
   {
     num: 1,
+    key: "lithology",
+    label: "Lithology (GR)",
+    icon: Layers,
+    formula: "GR ≤ 45 → Sand | 45–75 → Silt | > 75 → Shale",
+    description: "Stage 1: Identification of lithological intervals from the GR curve (API cutoffs)",
+  },
+  {
+    num: 2,
     key: "raw-log",
     label: "Raw Curves",
     icon: Eye,
@@ -48,7 +56,7 @@ const STEPS = [
     description: "Visualization of well log curves: GR, SP, Resistivity, Porosity, Density, Neutron",
   },
   {
-    num: 2,
+    num: 3,
     key: "vshale",
     label: "Vshale",
     icon: Layers,
@@ -56,7 +64,7 @@ const STEPS = [
     description: "Linear GR method. GRclean = 45 API (clean sand), GRshale = 75 API (shale). American standard.",
   },
   {
-    num: 3,
+    num: 4,
     key: "porosity",
     label: "Porosity",
     icon: Target,
@@ -64,7 +72,7 @@ const STEPS = [
     description: "Effective porosity with shale volume correction. Cutoff: φ > 8%",
   },
   {
-    num: 4,
+    num: 5,
     key: "archie-sw",
     label: "Sw (Archie)",
     icon: Droplets,
@@ -72,7 +80,7 @@ const STEPS = [
     description: "Уравнение Арчи (1942): a=1, m=2, n=2, Rw=0.04 Ω·м. Кондиция: Sw < 60%",
   },
   {
-    num: 5,
+    num: 6,
     key: "koko",
     label: "Ko Ko Rules",
     icon: Zap,
@@ -80,7 +88,7 @@ const STEPS = [
     description: "Ko Ko Rules — fluid identification by 4-curve deflection patterns",
   },
   {
-    num: 6,
+    num: 7,
     key: "net-pay",
     label: "Net Pay",
     icon: BarChart3,
@@ -88,7 +96,7 @@ const STEPS = [
     description: "Productive interval determination and Missed Pay zone detection",
   },
   {
-    num: 7,
+    num: 8,
     key: "report",
     label: "Report",
     icon: FileText,
