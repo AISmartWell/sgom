@@ -107,6 +107,267 @@ const STEPS = [
 
 /* ── Step detail components ── */
 
+interface LithInterval {
+  top: number;
+  bottom: number;
+  thickness: number;
+  lithology: "Clean Sand" | "Silty Sand" | "Shale";
+  avgGR: number;
+  minGR: number;
+  maxGR: number;
+  pointCount: number;
+}
+
+const classifyGR = (gr: number): LithInterval["lithology"] => {
+  if (gr <= 45) return "Clean Sand";
+  if (gr <= 75) return "Silty Sand";
+  return "Shale";
+};
+
+const lithColor = (lith: LithInterval["lithology"]): string => {
+  switch (lith) {
+    case "Clean Sand": return "hsl(var(--success))";
+    case "Silty Sand": return "hsl(var(--warning))";
+    case "Shale": return "hsl(var(--destructive))";
+  }
+};
+
+const lithBg = (lith: LithInterval["lithology"]): string => {
+  switch (lith) {
+    case "Clean Sand": return "bg-success/10 border-success/30";
+    case "Silty Sand": return "bg-warning/10 border-warning/30";
+    case "Shale": return "bg-destructive/10 border-destructive/30";
+  }
+};
+
+const StepLithology = ({ data }: { data: PetroPoint[] }) => {
+  const { intervals, stats } = useMemo(() => {
+    if (data.length < 2) return { intervals: [] as LithInterval[], stats: { sand: 0, silt: 0, shale: 0, total: 0 } };
+
+    const results: LithInterval[] = [];
+    let curLith = classifyGR(data[0].gr);
+    let startIdx = 0;
+
+    for (let i = 1; i <= data.length; i++) {
+      const lith = i < data.length ? classifyGR(data[i].gr) : null;
+      if (lith !== curLith || i === data.length) {
+        const pts = data.slice(startIdx, i);
+        const grs = pts.map(p => p.gr);
+        const top = pts[0].depth;
+        const bottom = pts[pts.length - 1].depth;
+        const thickness = Math.round((bottom - top) * 10) / 10;
+        if (thickness >= 0.5 || pts.length >= 2) {
+          results.push({
+            top,
+            bottom,
+            thickness: Math.max(thickness, 0.5),
+            lithology: curLith,
+            avgGR: Math.round(grs.reduce((a, b) => a + b, 0) / grs.length * 10) / 10,
+            minGR: Math.round(Math.min(...grs) * 10) / 10,
+            maxGR: Math.round(Math.max(...grs) * 10) / 10,
+            pointCount: pts.length,
+          });
+        }
+        if (lith) { curLith = lith; startIdx = i; }
+      }
+    }
+
+    // Merge thin intervals (< 2 ft) into neighbors
+    const merged: LithInterval[] = [];
+    for (const iv of results) {
+      if (iv.thickness < 2 && merged.length > 0) {
+        const prev = merged[merged.length - 1];
+        prev.bottom = iv.bottom;
+        prev.thickness = Math.round((prev.bottom - prev.top) * 10) / 10;
+        prev.pointCount += iv.pointCount;
+        // recalc weighted GR
+        const totalPts = prev.pointCount;
+        prev.avgGR = Math.round(((prev.avgGR * (totalPts - iv.pointCount)) + (iv.avgGR * iv.pointCount)) / totalPts * 10) / 10;
+        prev.minGR = Math.min(prev.minGR, iv.minGR);
+        prev.maxGR = Math.max(prev.maxGR, iv.maxGR);
+      } else {
+        merged.push({ ...iv });
+      }
+    }
+
+    const totalThick = merged.reduce((s, iv) => s + iv.thickness, 0);
+    const sand = merged.filter(iv => iv.lithology === "Clean Sand").reduce((s, iv) => s + iv.thickness, 0);
+    const silt = merged.filter(iv => iv.lithology === "Silty Sand").reduce((s, iv) => s + iv.thickness, 0);
+    const shale = merged.filter(iv => iv.lithology === "Shale").reduce((s, iv) => s + iv.thickness, 0);
+
+    return { intervals: merged, stats: { sand, silt, shale, total: totalThick } };
+  }, [data]);
+
+  if (data.length < 2) {
+    return <div className="text-center py-16 text-muted-foreground">Not enough data points for lithological analysis.</div>;
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* API Classification Criteria */}
+      <Card className="bg-muted/20 border-border/30">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <Layers className="h-4 w-4 text-primary" />
+            GR Lithological Classification (US API Standard)
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="p-3 bg-success/10 border border-success/30 rounded-lg text-center">
+              <div className="text-lg font-bold text-success">≤ 45 API</div>
+              <div className="text-xs font-semibold mt-1">Clean Sand</div>
+              <div className="text-[10px] text-muted-foreground">Reservoir rock</div>
+            </div>
+            <div className="p-3 bg-warning/10 border border-warning/30 rounded-lg text-center">
+              <div className="text-lg font-bold text-warning">45–75 API</div>
+              <div className="text-xs font-semibold mt-1">Silty Sand</div>
+              <div className="text-[10px] text-muted-foreground">Transition zone</div>
+            </div>
+            <div className="p-3 bg-destructive/10 border border-destructive/30 rounded-lg text-center">
+              <div className="text-lg font-bold text-destructive">&gt; 75 API</div>
+              <div className="text-xs font-semibold mt-1">Shale</div>
+              <div className="text-[10px] text-muted-foreground">Non-reservoir</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Summary Statistics */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <Card className="bg-muted/20 border-border/30">
+          <CardContent className="p-3 text-center">
+            <div className="text-lg font-bold">{intervals.length}</div>
+            <div className="text-[10px] text-muted-foreground">Total Intervals</div>
+          </CardContent>
+        </Card>
+        <Card className="bg-success/10 border-success/30">
+          <CardContent className="p-3 text-center">
+            <div className="text-lg font-bold text-success">{Math.round(stats.sand)} ft</div>
+            <div className="text-[10px] text-muted-foreground">Clean Sand ({stats.total > 0 ? Math.round(stats.sand / stats.total * 100) : 0}%)</div>
+          </CardContent>
+        </Card>
+        <Card className="bg-warning/10 border-warning/30">
+          <CardContent className="p-3 text-center">
+            <div className="text-lg font-bold text-warning">{Math.round(stats.silt)} ft</div>
+            <div className="text-[10px] text-muted-foreground">Silty Sand ({stats.total > 0 ? Math.round(stats.silt / stats.total * 100) : 0}%)</div>
+          </CardContent>
+        </Card>
+        <Card className="bg-destructive/10 border-destructive/30">
+          <CardContent className="p-3 text-center">
+            <div className="text-lg font-bold text-destructive">{Math.round(stats.shale)} ft</div>
+            <div className="text-[10px] text-muted-foreground">Shale ({stats.total > 0 ? Math.round(stats.shale / stats.total * 100) : 0}%)</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Visual Lithology Column */}
+      <Card className="bg-muted/20 border-border/30">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm">Lithological Column</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex rounded-lg overflow-hidden h-10 border border-border/50">
+            {intervals.map((iv, i) => {
+              const width = stats.total > 0 ? (iv.thickness / stats.total) * 100 : 0;
+              return (
+                <div
+                  key={i}
+                  className="relative group cursor-default transition-opacity hover:opacity-100"
+                  style={{
+                    width: `${Math.max(width, 2)}%`,
+                    backgroundColor: lithColor(iv.lithology),
+                    opacity: 0.7,
+                  }}
+                  title={`${iv.lithology}: ${iv.top}–${iv.bottom} ft (GR avg ${iv.avgGR} API)`}
+                >
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block bg-background border border-border rounded px-2 py-1 text-[10px] whitespace-nowrap z-10 shadow-lg">
+                    <strong>{iv.lithology}</strong> · {iv.top}–{iv.bottom} ft · GR {iv.avgGR} API
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="flex gap-4 mt-2 text-xs">
+            <div className="flex items-center gap-1.5">
+              <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: lithColor("Clean Sand"), opacity: 0.7 }} />
+              Clean Sand
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: lithColor("Silty Sand"), opacity: 0.7 }} />
+              Silty Sand
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: lithColor("Shale"), opacity: 0.7 }} />
+              Shale
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Interval Table */}
+      <Card className="bg-muted/20 border-border/30">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm">Identified Intervals ({intervals.length})</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-1.5 max-h-[400px] overflow-y-auto">
+            {intervals.map((iv, i) => (
+              <div
+                key={i}
+                className={`flex items-center gap-3 p-2.5 rounded-lg border text-xs ${lithBg(iv.lithology)}`}
+              >
+                <span className="w-3 h-3 rounded-sm flex-shrink-0" style={{ backgroundColor: lithColor(iv.lithology), opacity: 0.8 }} />
+                <span className="font-mono font-semibold w-28 flex-shrink-0">{iv.top.toFixed(1)}–{iv.bottom.toFixed(1)}'</span>
+                <Badge variant="outline" className="text-[10px] flex-shrink-0">{iv.lithology}</Badge>
+                <span className="text-muted-foreground flex-shrink-0">{iv.thickness} ft</span>
+                <span className="text-muted-foreground ml-auto flex-shrink-0">
+                  GR: {iv.minGR}–{iv.maxGR} (avg {iv.avgGR}) API
+                </span>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* GR Profile per point */}
+      <Card className="bg-muted/20 border-border/30">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm">GR Profile with Classification</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-0.5 max-h-[300px] overflow-y-auto">
+            {data.filter((_, i) => i % Math.max(1, Math.floor(data.length / 40)) === 0).slice(0, 40).map((p, i) => {
+              const lith = classifyGR(p.gr);
+              const barWidth = Math.min(100, (p.gr / 150) * 100);
+              return (
+                <div key={i} className="flex items-center gap-2 text-xs">
+                  <span className="w-14 text-muted-foreground font-mono text-right flex-shrink-0">{p.depth.toFixed(0)}'</span>
+                  <div className="flex-1 h-4 bg-muted/20 rounded overflow-hidden relative">
+                    <div
+                      className="h-full rounded transition-all"
+                      style={{ width: `${barWidth}%`, backgroundColor: lithColor(lith), opacity: 0.7 }}
+                    />
+                    {/* 45 API line */}
+                    <div className="absolute top-0 bottom-0 border-l border-success/50 border-dashed" style={{ left: `${(45/150)*100}%` }} />
+                    {/* 75 API line */}
+                    <div className="absolute top-0 bottom-0 border-l border-destructive/50 border-dashed" style={{ left: `${(75/150)*100}%` }} />
+                  </div>
+                  <span className="w-10 text-right font-mono flex-shrink-0">{p.gr.toFixed(0)}</span>
+                </div>
+              );
+            })}
+          </div>
+          <div className="flex gap-4 mt-2 text-[10px] text-muted-foreground">
+            <span>--- 45 API (Sand cutoff)</span>
+            <span>--- 75 API (Shale cutoff)</span>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
 const StepVshale = ({ data }: { data: PetroPoint[] }) => {
   const examples = useMemo(() => {
     const sampled = data.filter((_, i) => i % Math.max(1, Math.floor(data.length / 8)) === 0).slice(0, 8);
