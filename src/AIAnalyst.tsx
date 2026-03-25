@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
-import { Bot, Upload, BarChart3, Presentation, User, ChevronRight, Loader2, FileText, CheckCircle, TrendingUp, Drill, Cpu, Zap } from "lucide-react";
+import { Bot, Upload, BarChart3, Presentation, User, ChevronRight, Loader2, FileText, CheckCircle, TrendingUp, Drill, Cpu, Zap, Database } from "lucide-react";
+import RealDataTab from "@/components/ai-analyst/RealDataTab";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -39,11 +40,11 @@ interface UploadedFile {
 
 const AI_ANALYST_CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/spt-chat`;
 
-const SYSTEM_PROMPT = `You are SGOM AI, an expert geological analyst for the AI Smart Well platform.
+const SYSTEM_PROMPT = `You are AI Smart Well, an expert geological analyst for the AI Smart Well platform.
 You analyze oil well data, interpret geological information, and assess the restoration potential of abandoned wells.
 
 Platform context:
-- SGOM (Self-Learning Geological Object Model) — 9-module AI platform using computer vision and machine learning
+- AI Smart Well — 9-module AI platform using computer vision and machine learning
 - Partnership with Maxxwell Production, Slot Perforation Technology (US Patent #8,863,823)
 - Production uplift with SPT: 75%+
 - Analysis cost: $6K vs $50–200K via traditional methods (90% savings)
@@ -206,7 +207,7 @@ function OverviewTab() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-800">
-                  {["Well ID", "Region", "Depth", "Potential", "SGOM Score", "Prod. Uplift"].map((h) => (
+                  {["Well ID", "Region", "Depth", "Potential", "AI Score", "Prod. Uplift"].map((h) => (
                     <th key={h} className="px-4 py-3 text-left text-[11px] uppercase tracking-wider text-slate-600 font-semibold">{h}</th>
                   ))}
                 </tr>
@@ -283,7 +284,7 @@ function AnalysisTab() {
       const reply = await callClaude(newMsgs, SYSTEM_PROMPT);
       setMessages([...newMsgs, { role: "assistant", content: reply }]);
     } catch {
-      setMessages([...newMsgs, { role: "assistant", content: "⚠️ Connection error to SGOM AI." }]);
+      setMessages([...newMsgs, { role: "assistant", content: "⚠️ Connection error to AI Smart Well." }]);
     }
     setLoading(false);
   }
@@ -291,8 +292,8 @@ function AnalysisTab() {
   return (
     <div className="flex flex-col gap-4 h-full">
       <div>
-        <h3 className="text-lg font-semibold text-white">SGOM AI Analyst</h3>
-        <p className="text-sm text-slate-500">Claude-powered geological well analysis in real time</p>
+        <h3 className="text-lg font-semibold text-white">AI Smart Well Analyst</h3>
+        <p className="text-sm text-slate-500">AI-powered geological well analysis in real time</p>
       </div>
 
       {/* Quick prompts */}
@@ -576,7 +577,7 @@ function ClientTab() {
     try {
       const reply = await callClaude([{
         role: "user",
-        content: "Generate a professional monthly SGOM report for client Maxxwell Production — March 2026. Include: well analysis status (10 wells processed), TOP-3 SPT candidates with SGOM Scores, prioritization recommendations, and production uplift forecast.",
+        content: "Generate a professional monthly report for client Maxxwell Production — March 2026. Include: well analysis status (10 wells processed), TOP-3 SPT candidates with AI Scores, prioritization recommendations, and production uplift forecast.",
       }], SYSTEM_PROMPT);
       setReport(reply);
     } catch { setReport("Generation error."); }
@@ -619,8 +620,8 @@ function ClientTab() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-slate-800">
-                {["ID", "Region", "SGOM Score", "Status", "Action"].map((h) => (
-                  <th key={h} className="px-4 py-3 text-left text-[11px] uppercase tracking-wider text-slate-600 font-semibold">{h}</th>
+                {["ID", "Region", "AI Score", "Status", "Action"].map((h) => (
+                   <th key={h} className="px-4 py-3 text-left text-[11px] uppercase tracking-wider text-slate-600 font-semibold">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -648,7 +649,7 @@ function ClientTab() {
       {/* Monthly report */}
       <Card className="bg-slate-900 border-slate-800">
         <CardHeader className="flex flex-row items-center justify-between pb-3">
-          <CardTitle className="text-base text-white">Monthly SGOM Report</CardTitle>
+          <CardTitle className="text-base text-white">Monthly Report</CardTitle>
           <Button onClick={generateReport} disabled={loading} className="bg-amber-500 hover:bg-amber-400 text-black font-bold">
             {loading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Generating...</> : "✨ Generate Report"}
           </Button>
@@ -656,7 +657,7 @@ function ClientTab() {
         <CardContent>
           {report
             ? <div className="text-slate-400 text-sm leading-relaxed prose prose-sm dark:prose-invert max-w-none"><ReactMarkdown remarkPlugins={[remarkGfm]}>{report}</ReactMarkdown></div>
-            : <p className="text-slate-600 text-sm">Click to generate an automated SGOM monthly report</p>
+            : <p className="text-slate-600 text-sm">Click to generate an automated monthly report</p>
           }
         </CardContent>
       </Card>
@@ -668,6 +669,7 @@ function ClientTab() {
 
 const TABS = [
   { value: "overview", label: "Overview", icon: BarChart3 },
+  { value: "realdata", label: "Real Data", icon: Database },
   { value: "analysis", label: "AI Analysis", icon: Bot },
   { value: "upload", label: "Upload Data", icon: Upload },
   { value: "investor", label: "Investor Demo", icon: Presentation },
@@ -682,7 +684,7 @@ const AIAnalyst = () => {
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div>
             <div className="text-[11px] font-bold uppercase tracking-[0.15em] text-amber-500">AI Smart Well</div>
-            <div className="text-xl font-extrabold tracking-tight">SGOM Platform</div>
+            <div className="text-xl font-extrabold tracking-tight">Analytics Platform</div>
           </div>
           <div className="flex items-center gap-2 text-xs text-slate-500">
             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -709,6 +711,7 @@ const AIAnalyst = () => {
           </TabsList>
 
           <TabsContent value="overview"><OverviewTab /></TabsContent>
+          <TabsContent value="realdata"><RealDataTab /></TabsContent>
           <TabsContent value="analysis"><AnalysisTab /></TabsContent>
           <TabsContent value="upload"><UploadTab /></TabsContent>
           <TabsContent value="investor"><InvestorTab /></TabsContent>
