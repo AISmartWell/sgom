@@ -1410,7 +1410,26 @@ const GeophysicalExpertise = () => {
 
         {/* Step 1: Lithology */}
         <TabsContent value="lithology" className="mt-0">
-          {petroData.length > 0 ? (
+          <div className="mb-4 flex gap-2">
+            <Button
+              variant={activeStep === "lithology" && !batchMode ? "default" : "outline"}
+              size="sm"
+              onClick={() => setBatchMode(false)}
+            >
+              Single Well
+            </Button>
+            <Button
+              variant={batchMode ? "default" : "outline"}
+              size="sm"
+              onClick={() => setBatchMode(true)}
+            >
+              <BarChart3 className="h-3.5 w-3.5 mr-1.5" />
+              Batch — All Wells
+            </Button>
+          </div>
+          {batchMode ? (
+            <BatchLithologyAnalysis />
+          ) : petroData.length > 0 ? (
             <StepLithology data={petroData} />
           ) : (
             <div className="text-center py-16 text-muted-foreground">Loading well data...</div>
