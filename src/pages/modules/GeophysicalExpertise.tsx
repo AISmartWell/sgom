@@ -818,7 +818,228 @@ const StepPorosity = ({ data }: { data: PetroPoint[] }) => {
   );
 };
 
-const StepArchie = ({ data }: { data: PetroPoint[] }) => {
+type DenNphiPattern = "oil" | "gas_crossover" | "reverse_crossover" | "shale" | "clean_wet";
+
+const classifyDenNphi = (
+  rhob: number | null,
+  nphi: number | null,
+  gr: number
+): { pattern: DenNphiPattern; separation: number | null; label: string } => {
+  if (rhob === null || nphi === null) {
+    return { pattern: gr > 75 ? "shale" : "clean_wet", separation: null, label: "N/A" };
+  }
+
+  // Convert NPHI to density-porosity equivalent for comparison
+  // Matrix density ~2.65 (sandstone), fluid density ~1.0
+  const phiDen = ((2.65 - rhob) / (2.65 - 1.0)) * 100; // density porosity %
+  const phiNeu = nphi; // already in %
+
+  const separation = phiNeu - phiDen;
+
+  // Shale: GR > 75, high NPHI, high RHOB
+  if (gr > 75) {
+    return { pattern: "shale", separation, label: "Shale Effect" };
+  }
+
+  // Gas crossover: NPHI < PHID (NPHI reads low in gas due to low hydrogen index)
+  // Separation < -3% indicates gas
+  if (separation < -3) {
+    return { pattern: "gas_crossover", separation, label: "Gas Crossover" };
+  }
+
+  // Reverse crossover (shale effect in reservoir): NPHI >> PHID
+  // Separation > 8% in reservoir rock
+  if (separation > 8 && gr <= 75) {
+    return { pattern: "reverse_crossover", separation, label: "Reverse Crossover" };
+  }
+
+  // Oil-bearing: curves track closely, slight NPHI > PHID (2-8%)
+  if (separation >= 0 && separation <= 8) {
+    return { pattern: "oil", separation, label: "Oil / Water" };
+  }
+
+  // Clean wet sand: curves nearly overlay (-3 to 0)
+  return { pattern: "clean_wet", separation, label: "Clean Wet Sand" };
+};
+
+const denNphiColor = (p: DenNphiPattern): string => {
+  switch (p) {
+    case "oil": return "text-emerald-400";
+    case "gas_crossover": return "text-red-400";
+    case "reverse_crossover": return "text-amber-400";
+    case "shale": return "text-muted-foreground";
+    case "clean_wet": return "text-blue-400";
+  }
+};
+
+const denNphiBadgeClass = (p: DenNphiPattern): string => {
+  switch (p) {
+    case "oil": return "bg-emerald-500/20 text-emerald-400 border-emerald-500/30";
+    case "gas_crossover": return "bg-red-500/20 text-red-400 border-red-500/30";
+    case "reverse_crossover": return "bg-amber-500/20 text-amber-400 border-amber-500/30";
+    case "shale": return "bg-muted text-muted-foreground border-border/30";
+    case "clean_wet": return "bg-blue-500/20 text-blue-400 border-blue-500/30";
+  }
+};
+
+const StepDenNphi = ({ data }: { data: PetroPoint[] }) => {
+  const analysis = useMemo(() => {
+    return data
+      .filter((_, i) => i % Math.max(1, Math.floor(data.length / 10)) === 0)
+      .slice(0, 10)
+      .map(p => {
+        const { pattern, separation, label } = classifyDenNphi(p.rhob, p.nphi, p.gr);
+        const phiDen = p.rhob !== null ? ((2.65 - p.rhob) / (2.65 - 1.0)) * 100 : null;
+        return {
+          depth: p.depth,
+          rhob: p.rhob,
+          nphi: p.nphi,
+          gr: p.gr,
+          phiDen,
+          separation,
+          pattern,
+          label,
+        };
+      });
+  }, [data]);
+
+  const patterns: Array<{ key: DenNphiPattern; title: string; desc: string; icon: string }> = [
+    {
+      key: "oil",
+      title: "Oil-Bearing Interval",
+      desc: "RHOB and NPHI curves track closely with slight positive separation (NPHI > φDEN by 2–8%). Hydrocarbon effect on density is moderate — oil density (~0.8 g/cc) is close to water.",
+      icon: "🛢️",
+    },
+    {
+      key: "gas_crossover",
+      title: "Gas Crossover",
+      desc: "NPHI reads anomalously LOW (gas has very low hydrogen index) while RHOB also drops — NPHI crosses to the LEFT of φDEN. Classic gas indicator: separation < −3%.",
+      icon: "⛽",
+    },
+    {
+      key: "reverse_crossover",
+      title: "Reverse Crossover (Clay Effect)",
+      desc: "NPHI reads anomalously HIGH (clay-bound water) while RHOB is moderate. NPHI >> φDEN with separation > 8%. Indicates shaly sand or clay-rich intervals — not true porosity.",
+      icon: "🔀",
+    },
+    {
+      key: "shale",
+      title: "Shale Baseline",
+      desc: "High GR (> 75 API), high NPHI (clay-bound water response), high RHOB. Both curves deflect in the same direction — no crossover. Non-reservoir.",
+      icon: "📐",
+    },
+    {
+      key: "clean_wet",
+      title: "Clean Wet Sand",
+      desc: "RHOB and NPHI curves nearly overlay (separation −3% to 0%). Clean, water-saturated sandstone — no hydrocarbon effect on either curve.",
+      icon: "💧",
+    },
+  ];
+
+  return (
+    <div className="space-y-4">
+      {/* Theory cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        {patterns.map(p => (
+          <Card key={p.key} className="bg-muted/20 border-border/30">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <span>{p.icon}</span>
+                <span className={denNphiColor(p.key)}>{p.title}</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-xs text-muted-foreground leading-relaxed">{p.desc}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Principle card */}
+      <Card className="bg-muted/20 border-border/30">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <Activity className="h-4 w-4 text-primary" />
+            DEN-NPHI Crossover Principle
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="bg-background/50 p-4 rounded-lg text-center space-y-2">
+            <div className="font-mono text-lg">
+              Separation = φ<sub>NPHI</sub> − φ<sub>DEN</sub>
+            </div>
+            <div className="grid grid-cols-3 gap-2 text-xs mt-3">
+              <div className="p-2 bg-red-500/10 rounded border border-red-500/20">
+                <div className="font-semibold text-red-400">&lt; −3%</div>
+                <div className="text-muted-foreground">Gas</div>
+              </div>
+              <div className="p-2 bg-emerald-500/10 rounded border border-emerald-500/20">
+                <div className="font-semibold text-emerald-400">0 to +8%</div>
+                <div className="text-muted-foreground">Oil / Water</div>
+              </div>
+              <div className="p-2 bg-amber-500/10 rounded border border-amber-500/20">
+                <div className="font-semibold text-amber-400">&gt; +8%</div>
+                <div className="text-muted-foreground">Clay Effect</div>
+              </div>
+            </div>
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground text-center">
+            φ<sub>DEN</sub> = (ρ<sub>ma</sub> − ρ<sub>b</sub>) / (ρ<sub>ma</sub> − ρ<sub>fl</sub>)  •  ρ<sub>ma</sub> = 2.65 g/cc (sandstone)  •  ρ<sub>fl</sub> = 1.0 g/cc
+          </p>
+        </CardContent>
+      </Card>
+
+      {/* Data table */}
+      <Card className="bg-muted/20 border-border/30">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm">Crossover Analysis by Depth</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="text-muted-foreground border-b border-border/30">
+                <th className="py-1.5 text-left">Depth</th>
+                <th className="py-1.5 text-center">RHOB</th>
+                <th className="py-1.5 text-center">NPHI %</th>
+                <th className="py-1.5 text-center">φ DEN %</th>
+                <th className="py-1.5 text-center">Separation</th>
+                <th className="py-1.5 text-center">Pattern</th>
+              </tr>
+            </thead>
+            <tbody>
+              {analysis.map((e, i) => (
+                <tr key={i} className="border-b border-border/10">
+                  <td className="py-1.5 font-mono">{e.depth.toFixed(0)}</td>
+                  <td className="py-1.5 text-center">
+                    {e.rhob !== null ? e.rhob.toFixed(2) : "—"}
+                  </td>
+                  <td className="py-1.5 text-center">
+                    {e.nphi !== null ? e.nphi.toFixed(1) : "—"}
+                  </td>
+                  <td className="py-1.5 text-center">
+                    {e.phiDen !== null ? e.phiDen.toFixed(1) : "—"}
+                  </td>
+                  <td className="py-1.5 text-center font-semibold">
+                    <span className={denNphiColor(e.pattern)}>
+                      {e.separation !== null ? `${e.separation > 0 ? "+" : ""}${e.separation.toFixed(1)}%` : "—"}
+                    </span>
+                  </td>
+                  <td className="py-1.5 text-center">
+                    <Badge variant="outline" className={denNphiBadgeClass(e.pattern)}>
+                      {e.label}
+                    </Badge>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+
   const examples = useMemo(() => {
     return data
       .filter((_, i) => i % Math.max(1, Math.floor(data.length / 8)) === 0)
