@@ -284,7 +284,7 @@ function AnalysisTab() {
       const reply = await callClaude(newMsgs, SYSTEM_PROMPT);
       setMessages([...newMsgs, { role: "assistant", content: reply }]);
     } catch {
-      setMessages([...newMsgs, { role: "assistant", content: "⚠️ Connection error to SGOM AI." }]);
+      setMessages([...newMsgs, { role: "assistant", content: "⚠️ Connection error to AI Smart Well." }]);
     }
     setLoading(false);
   }
