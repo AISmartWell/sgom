@@ -89,7 +89,7 @@ const STEPS = [
     description: "Archie Equation (1942): a=1, m=2, n=2, Rw=0.04 Ω·m. Cutoff: Sw < 60%",
   },
   {
-    num: 6,
+    num: 7,
     key: "koko",
     label: "Ko Ko Rules",
     icon: Zap,
@@ -97,7 +97,7 @@ const STEPS = [
     description: "Ko Ko Rules — fluid identification by 4-curve deflection patterns",
   },
   {
-    num: 7,
+    num: 8,
     key: "net-pay",
     label: "Net Pay",
     icon: BarChart3,
@@ -105,7 +105,7 @@ const STEPS = [
     description: "Productive interval determination and Missed Pay zone detection",
   },
   {
-    num: 8,
+    num: 9,
     key: "report",
     label: "Report",
     icon: FileText,
