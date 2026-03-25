@@ -931,35 +931,35 @@ const StepKoKo = ({ data }: { data: PetroPoint[] }) => {
         <CardHeader className="pb-2">
           <CardTitle className="text-sm flex items-center gap-2">
             <Zap className="h-4 w-4 text-primary" />
-            Определение флюида по кривой RT (удельное сопротивление)
+            Fluid Determination from RT (Resistivity) Curve
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
           <p className="text-xs text-muted-foreground">
-            В чистом коллекторе (GR ≤ 45 API, Vsh &lt; 40%) тип насыщающего флюида определяется по удельному сопротивлению:
+            In clean reservoir rock (GR ≤ 45 API, Vsh &lt; 40%), fluid type is determined by true resistivity:
           </p>
           <div className="grid grid-cols-2 gap-2 text-xs">
             <div className="p-2.5 bg-emerald-500/10 rounded-lg border border-emerald-500/30">
               <div className="flex items-center gap-2 mb-1">
                 <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                <span className="font-bold text-emerald-400">RT ≥ 10 Ω·m → Углеводороды</span>
+                <span className="font-bold text-emerald-400">RT ≥ 10 Ω·m → Hydrocarbons</span>
               </div>
               <p className="text-muted-foreground text-[10px]">
-                Высокое сопротивление в коллекторе указывает на нефть или газ. Углеводороды — диэлектрики, не проводят электрический ток.
+                High resistivity in reservoir indicates oil or gas. Hydrocarbons are dielectrics — they do not conduct electrical current.
               </p>
             </div>
             <div className="p-2.5 bg-blue-500/10 rounded-lg border border-blue-500/30">
               <div className="flex items-center gap-2 mb-1">
                 <div className="w-3 h-3 rounded-full bg-blue-500" />
-                <span className="font-bold text-blue-400">RT &lt; 8 Ω·m → Вода</span>
+                <span className="font-bold text-blue-400">RT &lt; 8 Ω·m → Water</span>
               </div>
               <p className="text-muted-foreground text-[10px]">
-                Низкое сопротивление в коллекторе — пластовая вода. Минерализованная вода — хороший проводник.
+                Low resistivity in reservoir — formation water. Mineralized water is a good conductor.
               </p>
             </div>
           </div>
           <div className="p-2 bg-yellow-500/10 rounded-lg border border-yellow-500/30 text-[10px] text-muted-foreground">
-            ⚠️ Зона 8–10 Ω·m — переходная (transition zone): возможна смесь воды и углеводородов. Требуется подтверждение по Sw (Арчи).
+            ⚠️ Zone 8–10 Ω·m — transition zone: possible mix of water and hydrocarbons. Requires Sw (Archie) confirmation.
           </div>
         </CardContent>
       </Card>
@@ -974,12 +974,12 @@ const StepKoKo = ({ data }: { data: PetroPoint[] }) => {
         <CardContent>
           <div className="grid grid-cols-2 gap-2 text-xs">
             {[
-              { pattern: "L-R-L-L", fluid: "🛢️ Oil", color: "#22c55e", desc: "Коллектор + высокое RT → нефть" },
-              { pattern: "L-R-L-R", fluid: "⛽ Gas", color: "#ef4444", desc: "Den-Neu кроссовер + высокое RT → газ" },
-              { pattern: "L-L-L-L", fluid: "💧 Water", color: "#3b82f6", desc: "Коллектор + низкое RT → вода" },
-              { pattern: "R-R-R-R", fluid: "🪨 Tight", color: "#6b7280", desc: "Высокий GR, высокое RT, плотная порода" },
-              { pattern: "R-R-R-L", fluid: "📐 Shale", color: "#8b8b2a", desc: "Высокий GR → глина (не коллектор)" },
-              { pattern: "L-R-*-*", fluid: "🔀 Transition", color: "#eab308", desc: "Неопределённость — требуется DST" },
+              { pattern: "L-R-L-L", fluid: "🛢️ Oil", color: "#22c55e", desc: "Reservoir + high RT → oil" },
+              { pattern: "L-R-L-R", fluid: "⛽ Gas", color: "#ef4444", desc: "Den-Neu crossover + high RT → gas" },
+              { pattern: "L-L-L-L", fluid: "💧 Water", color: "#3b82f6", desc: "Reservoir + low RT → water" },
+              { pattern: "R-R-R-R", fluid: "🪨 Tight", color: "#6b7280", desc: "High GR, high RT, dense rock" },
+              { pattern: "R-R-R-L", fluid: "📐 Shale", color: "#8b8b2a", desc: "High GR → shale (non-reservoir)" },
+              { pattern: "L-R-*-*", fluid: "🔀 Transition", color: "#eab308", desc: "Ambiguous — needs DST" },
             ].map((r, i) => (
               <div key={i} className="p-2.5 bg-muted/30 rounded-lg border border-border/20">
                 <div className="flex items-center justify-between mb-1">
@@ -991,14 +991,14 @@ const StepKoKo = ({ data }: { data: PetroPoint[] }) => {
             ))}
           </div>
           <p className="mt-2 text-[10px] text-muted-foreground">
-            L = отклонение влево (низкое значение), R = вправо (высокое). Порядок: GR → Res → Density → Neutron
+            L = deflects Left (lower value), R = deflects Right (higher value). Order: GR → Res → Density → Neutron
           </p>
         </CardContent>
       </Card>
 
       <Card className="bg-muted/20 border-border/30">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm">Результаты классификации (RT + Ko Ko)</CardTitle>
+          <CardTitle className="text-sm">Classification Results (RT + Ko Ko)</CardTitle>
         </CardHeader>
         <CardContent>
           <table className="w-full text-xs">
@@ -1007,7 +1007,7 @@ const StepKoKo = ({ data }: { data: PetroPoint[] }) => {
                 <th className="py-1.5 text-left">Depth</th>
                 <th className="py-1.5 text-center">GR</th>
                 <th className="py-1.5 text-center">RT (Ω·m)</th>
-                <th className="py-1.5 text-center">RT → Флюид</th>
+                <th className="py-1.5 text-center">RT → Fluid</th>
                 <th className="py-1.5 text-center">Pattern</th>
                 <th className="py-1.5 text-center">Ko Ko</th>
               </tr>
