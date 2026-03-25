@@ -684,7 +684,7 @@ const AIAnalyst = () => {
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div>
             <div className="text-[11px] font-bold uppercase tracking-[0.15em] text-amber-500">AI Smart Well</div>
-            <div className="text-xl font-extrabold tracking-tight">SGOM Platform</div>
+            <div className="text-xl font-extrabold tracking-tight">Analytics Platform</div>
           </div>
           <div className="flex items-center gap-2 text-xs text-slate-500">
             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
