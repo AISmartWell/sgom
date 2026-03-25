@@ -1458,8 +1458,45 @@ const StepArchie = ({ data }: { data: PetroPoint[] }) => {
 };
 
 const StepKoKo = ({ data }: { data: PetroPoint[] }) => {
-  const RES_HC_CUTOFF = 10; // Ω·m — above = hydrocarbons in reservoir
-  const RES_WATER_CUTOFF = 8; // Ω·m — below = water-bearing
+  const RES_HC_CUTOFF = 10;
+  const RES_WATER_CUTOFF = 8;
+
+  // Chart data — fluid type encoded as numeric for stacked visualization
+  const chartData = useMemo(() => {
+    const step = Math.max(1, Math.floor(data.length / 150));
+    return data
+      .filter((_, i) => i % step === 0)
+      .map(p => {
+        const { fluidType, pattern } = applyKoKoRules(p.gr, p.res, p.rhob, p.nphi, p.por);
+        const fluidNum: Record<string, number> = { oil: 5, gas: 4, water: 3, transition: 2, tight: 1, shale: 0 };
+        return {
+          depth: p.depth,
+          gr: p.gr,
+          res: p.res,
+          fluidType,
+          pattern,
+          fluidVal: fluidNum[fluidType] ?? 0,
+          // For bar coloring
+          oil: fluidType === "oil" ? 1 : 0,
+          gas: fluidType === "gas" ? 1 : 0,
+          water: fluidType === "water" ? 1 : 0,
+          transition: fluidType === "transition" ? 1 : 0,
+          tight: fluidType === "tight" ? 1 : 0,
+          shale: fluidType === "shale" ? 1 : 0,
+        };
+      });
+  }, [data]);
+
+  // Distribution stats
+  const distrib = useMemo(() => {
+    const counts: Record<string, number> = { oil: 0, gas: 0, water: 0, transition: 0, tight: 0, shale: 0 };
+    chartData.forEach(d => { counts[d.fluidType] = (counts[d.fluidType] || 0) + 1; });
+    const total = chartData.length;
+    return Object.entries(counts)
+      .filter(([, v]) => v > 0)
+      .map(([k, v]) => ({ type: k as any, count: v, pct: ((v / total) * 100).toFixed(1) }))
+      .sort((a, b) => b.count - a.count);
+  }, [chartData]);
 
   const examples = useMemo(() => {
     return data
@@ -1517,6 +1554,92 @@ const StepKoKo = ({ data }: { data: PetroPoint[] }) => {
         </CardContent>
       </Card>
 
+      {/* Distribution Summary */}
+      <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+        {distrib.map(d => (
+          <Card key={d.type} className="bg-muted/20 border-border/30">
+            <CardContent className="p-2.5 text-center">
+              <div className="text-lg">{fluidEmoji(d.type)}</div>
+              <div className="text-sm font-bold" style={{ color: fluidColor(d.type) }}>{d.pct}%</div>
+              <div className="text-[9px] text-muted-foreground capitalize">{d.type}</div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Fluid Type vs Depth Chart */}
+      <Card className="bg-muted/20 border-border/30">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm">Fluid Classification vs Depth — Ko Ko Rules</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[340px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart data={chartData} layout="vertical" margin={{ top: 5, right: 15, bottom: 5, left: 10 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+                <YAxis
+                  dataKey="depth"
+                  type="number"
+                  reversed
+                  domain={["dataMin", "dataMax"]}
+                  tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+                  label={{ value: "Depth (ft)", angle: -90, position: "insideLeft", style: { fontSize: 10, fill: "hsl(var(--muted-foreground))" } }}
+                />
+                <XAxis
+                  type="number"
+                  domain={[0, 5.5]}
+                  ticks={[0, 1, 2, 3, 4, 5]}
+                  tickFormatter={(v: number) => {
+                    const labels: Record<number, string> = { 0: "Shale", 1: "Tight", 2: "Trans", 3: "Water", 4: "Gas", 5: "Oil" };
+                    return labels[v] || "";
+                  }}
+                  tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }}
+                />
+                <Line
+                  dataKey="fluidVal"
+                  stroke="none"
+                  dot={(props: any) => {
+                    const { cx, cy, payload } = props;
+                    if (!cx || !cy) return <circle key={payload?.depth} />;
+                    return (
+                      <circle
+                        key={payload?.depth}
+                        cx={cx}
+                        cy={cy}
+                        r={4}
+                        fill={fluidColor(payload?.fluidType || "shale")}
+                        fillOpacity={0.8}
+                        stroke={fluidColor(payload?.fluidType || "shale")}
+                        strokeWidth={1}
+                      />
+                    );
+                  }}
+                  isAnimationActive={false}
+                />
+                <Tooltip
+                  contentStyle={{ background: "hsl(var(--background))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 11 }}
+                  formatter={(_: any, __: any, props: any) => {
+                    const p = props?.payload;
+                    if (!p) return ["", ""];
+                    return [`${fluidEmoji(p.fluidType)} ${p.fluidType} [${p.pattern}]`, "Fluid"];
+                  }}
+                  labelFormatter={(v: number) => `Depth: ${v.toFixed(0)} ft`}
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="mt-2 flex flex-wrap items-center gap-3 text-[10px] text-muted-foreground justify-center">
+            {(["oil", "gas", "water", "transition", "tight", "shale"] as const).map(ft => (
+              <span key={ft} className="flex items-center gap-1">
+                <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ backgroundColor: fluidColor(ft) }} />
+                {fluidLabel(ft)}
+              </span>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Ko Ko Pattern Reference */}
       <Card className="bg-muted/20 border-border/30">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm flex items-center gap-2">
@@ -1549,6 +1672,7 @@ const StepKoKo = ({ data }: { data: PetroPoint[] }) => {
         </CardContent>
       </Card>
 
+      {/* Classification Table */}
       <Card className="bg-muted/20 border-border/30">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm">Classification Results (RT + Ko Ko)</CardTitle>
