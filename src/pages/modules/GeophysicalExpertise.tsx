@@ -905,18 +905,65 @@ const StepArchie = ({ data }: { data: PetroPoint[] }) => {
 };
 
 const StepKoKo = ({ data }: { data: PetroPoint[] }) => {
+  const RES_HC_CUTOFF = 10; // Ω·m — above = hydrocarbons in reservoir
+  const RES_WATER_CUTOFF = 8; // Ω·m — below = water-bearing
+
   const examples = useMemo(() => {
     return data
-      .filter((_, i) => i % Math.max(1, Math.floor(data.length / 6)) === 0)
-      .slice(0, 6)
+      .filter((_, i) => i % Math.max(1, Math.floor(data.length / 8)) === 0)
+      .slice(0, 8)
       .map(p => {
         const { fluidType, pattern } = applyKoKoRules(p.gr, p.res, p.rhob, p.nphi, p.por);
-        return { depth: p.depth, gr: p.gr, res: p.res, rhob: p.rhob, nphi: p.nphi, pattern, fluidType };
+        const isReservoir = p.gr <= 45;
+        const vsh = calcVshale(p.gr);
+        let rtFluid: "HC" | "Water" | "Non-res" = "Non-res";
+        if (isReservoir && vsh < 0.4) {
+          rtFluid = p.res >= RES_HC_CUTOFF ? "HC" : "Water";
+        }
+        return { depth: p.depth, gr: p.gr, res: p.res, rhob: p.rhob, nphi: p.nphi, pattern, fluidType, rtFluid, isReservoir };
       });
   }, [data]);
 
   return (
     <div className="space-y-4">
+      {/* RT Fluid Determination principle */}
+      <Card className="bg-muted/20 border-border/30 border-l-4 border-l-primary">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <Zap className="h-4 w-4 text-primary" />
+            Определение флюида по кривой RT (удельное сопротивление)
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          <p className="text-xs text-muted-foreground">
+            В чистом коллекторе (GR ≤ 45 API, Vsh &lt; 40%) тип насыщающего флюида определяется по удельному сопротивлению:
+          </p>
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            <div className="p-2.5 bg-emerald-500/10 rounded-lg border border-emerald-500/30">
+              <div className="flex items-center gap-2 mb-1">
+                <div className="w-3 h-3 rounded-full bg-emerald-500" />
+                <span className="font-bold text-emerald-400">RT ≥ 10 Ω·m → Углеводороды</span>
+              </div>
+              <p className="text-muted-foreground text-[10px]">
+                Высокое сопротивление в коллекторе указывает на нефть или газ. Углеводороды — диэлектрики, не проводят электрический ток.
+              </p>
+            </div>
+            <div className="p-2.5 bg-blue-500/10 rounded-lg border border-blue-500/30">
+              <div className="flex items-center gap-2 mb-1">
+                <div className="w-3 h-3 rounded-full bg-blue-500" />
+                <span className="font-bold text-blue-400">RT &lt; 8 Ω·m → Вода</span>
+              </div>
+              <p className="text-muted-foreground text-[10px]">
+                Низкое сопротивление в коллекторе — пластовая вода. Минерализованная вода — хороший проводник.
+              </p>
+            </div>
+          </div>
+          <div className="p-2 bg-yellow-500/10 rounded-lg border border-yellow-500/30 text-[10px] text-muted-foreground">
+            ⚠️ Зона 8–10 Ω·m — переходная (transition zone): возможна смесь воды и углеводородов. Требуется подтверждение по Sw (Арчи).
+          </div>
+        </CardContent>
+      </Card>
+
       <Card className="bg-muted/20 border-border/30">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm flex items-center gap-2">
@@ -927,12 +974,12 @@ const StepKoKo = ({ data }: { data: PetroPoint[] }) => {
         <CardContent>
           <div className="grid grid-cols-2 gap-2 text-xs">
             {[
-              { pattern: "L-R-L-L", fluid: "🛢️ Oil", color: "#22c55e", desc: "Clean sand, high Res, porous" },
-              { pattern: "L-R-L-R", fluid: "⛽ Gas", color: "#ef4444", desc: "Den-Neu crossover (gas effect)" },
-              { pattern: "L-L-L-L", fluid: "💧 Water", color: "#3b82f6", desc: "Clean sand, low Res, porous" },
-              { pattern: "R-R-R-R", fluid: "🪨 Tight", color: "#6b7280", desc: "High GR, high Res, dense" },
-              { pattern: "R-R-R-L", fluid: "📐 Shale", color: "#8b8b2a", desc: "High GR, high apparent Neu" },
-              { pattern: "L-R-*-*", fluid: "🔀 Transition", color: "#eab308", desc: "Ambiguous — needs DST" },
+              { pattern: "L-R-L-L", fluid: "🛢️ Oil", color: "#22c55e", desc: "Коллектор + высокое RT → нефть" },
+              { pattern: "L-R-L-R", fluid: "⛽ Gas", color: "#ef4444", desc: "Den-Neu кроссовер + высокое RT → газ" },
+              { pattern: "L-L-L-L", fluid: "💧 Water", color: "#3b82f6", desc: "Коллектор + низкое RT → вода" },
+              { pattern: "R-R-R-R", fluid: "🪨 Tight", color: "#6b7280", desc: "Высокий GR, высокое RT, плотная порода" },
+              { pattern: "R-R-R-L", fluid: "📐 Shale", color: "#8b8b2a", desc: "Высокий GR → глина (не коллектор)" },
+              { pattern: "L-R-*-*", fluid: "🔀 Transition", color: "#eab308", desc: "Неопределённость — требуется DST" },
             ].map((r, i) => (
               <div key={i} className="p-2.5 bg-muted/30 rounded-lg border border-border/20">
                 <div className="flex items-center justify-between mb-1">
@@ -944,14 +991,14 @@ const StepKoKo = ({ data }: { data: PetroPoint[] }) => {
             ))}
           </div>
           <p className="mt-2 text-[10px] text-muted-foreground">
-            L = deflects Left (lower value), R = deflects Right (higher value). Order: GR → Res → Density → Neutron
+            L = отклонение влево (низкое значение), R = вправо (высокое). Порядок: GR → Res → Density → Neutron
           </p>
         </CardContent>
       </Card>
 
       <Card className="bg-muted/20 border-border/30">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm">Classification Results</CardTitle>
+          <CardTitle className="text-sm">Результаты классификации (RT + Ko Ko)</CardTitle>
         </CardHeader>
         <CardContent>
           <table className="w-full text-xs">
@@ -959,9 +1006,10 @@ const StepKoKo = ({ data }: { data: PetroPoint[] }) => {
               <tr className="text-muted-foreground border-b border-border/30">
                 <th className="py-1.5 text-left">Depth</th>
                 <th className="py-1.5 text-center">GR</th>
-                <th className="py-1.5 text-center">Res</th>
+                <th className="py-1.5 text-center">RT (Ω·m)</th>
+                <th className="py-1.5 text-center">RT → Флюид</th>
                 <th className="py-1.5 text-center">Pattern</th>
-                <th className="py-1.5 text-center">Fluid</th>
+                <th className="py-1.5 text-center">Ko Ko</th>
               </tr>
             </thead>
             <tbody>
@@ -969,7 +1017,22 @@ const StepKoKo = ({ data }: { data: PetroPoint[] }) => {
                 <tr key={i} className="border-b border-border/10">
                   <td className="py-1.5 font-mono">{e.depth.toFixed(0)}</td>
                   <td className="py-1.5 text-center">{e.gr.toFixed(0)}</td>
-                  <td className="py-1.5 text-center">{e.res.toFixed(1)}</td>
+                  <td className="py-1.5 text-center font-mono font-bold" style={{
+                    color: e.isReservoir ? (e.res >= RES_HC_CUTOFF ? "#22c55e" : e.res < RES_WATER_CUTOFF ? "#3b82f6" : "#eab308") : "inherit"
+                  }}>
+                    {e.res.toFixed(1)}
+                  </td>
+                  <td className="py-1.5 text-center">
+                    {e.rtFluid === "HC" && (
+                      <Badge variant="outline" className="text-[10px] border-emerald-500/50 text-emerald-400">🛢️ HC</Badge>
+                    )}
+                    {e.rtFluid === "Water" && (
+                      <Badge variant="outline" className="text-[10px] border-blue-500/50 text-blue-400">💧 Water</Badge>
+                    )}
+                    {e.rtFluid === "Non-res" && (
+                      <span className="text-muted-foreground text-[10px]">—</span>
+                    )}
+                  </td>
                   <td className="py-1.5 text-center font-mono font-bold">{e.pattern}</td>
                   <td className="py-1.5 text-center">
                     <Badge variant="outline" className="text-[10px] gap-1" style={{ borderColor: fluidColor(e.fluidType), color: fluidColor(e.fluidType) }}>
