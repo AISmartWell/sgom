@@ -903,6 +903,26 @@ const StepDenNphi = ({ data }: { data: PetroPoint[] }) => {
       });
   }, [data]);
 
+  // Chart data — sample every Nth point for smooth rendering
+  const chartData = useMemo(() => {
+    const step = Math.max(1, Math.floor(data.length / 200));
+    return data
+      .filter((_, i) => i % step === 0)
+      .filter(p => p.rhob !== null && p.nphi !== null)
+      .map(p => {
+        const phiDen = ((2.65 - p.rhob!) / (2.65 - 1.0)) * 100;
+        const nphi = p.nphi!;
+        const { pattern } = classifyDenNphi(p.rhob, p.nphi, p.gr);
+        return {
+          depth: Math.round(p.depth),
+          phiDen: Math.round(phiDen * 10) / 10,
+          nphi: Math.round(nphi * 10) / 10,
+          separation: Math.round((nphi - phiDen) * 10) / 10,
+          pattern,
+        };
+      });
+  }, [data]);
+
   const patterns: Array<{ key: DenNphiPattern; title: string; desc: string; icon: string }> = [
     {
       key: "oil",
