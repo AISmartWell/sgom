@@ -649,7 +649,7 @@ function ClientTab() {
       {/* Monthly report */}
       <Card className="bg-slate-900 border-slate-800">
         <CardHeader className="flex flex-row items-center justify-between pb-3">
-          <CardTitle className="text-base text-white">Monthly SGOM Report</CardTitle>
+          <CardTitle className="text-base text-white">Monthly Report</CardTitle>
           <Button onClick={generateReport} disabled={loading} className="bg-amber-500 hover:bg-amber-400 text-black font-bold">
             {loading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Generating...</> : "✨ Generate Report"}
           </Button>
