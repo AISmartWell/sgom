@@ -435,6 +435,57 @@ const GRLogTrack = ({ data, intervals }: { data: PetroPoint[]; intervals: LithIn
   );
 };
 
+/** Larionov (1969) Vshale for old (consolidated) rocks */
+const calcLarionovVshale = (gr: number, grClean = 45, grShale = 75): number => {
+  const igr = Math.max(0, Math.min(1, (gr - grClean) / (grShale - grClean)));
+  return Math.max(0, Math.min(1, 0.33 * (Math.pow(2, 2 * igr) - 1)));
+};
+
+const VshaleComparisonChart = ({ data }: { data: PetroPoint[] }) => {
+  const chartData = useMemo(() => {
+    const step = Math.max(1, Math.floor(data.length / 60));
+    return data
+      .filter((_, i) => i % step === 0)
+      .map(p => {
+        const igr = Math.max(0, Math.min(1, (p.gr - 45) / (75 - 45)));
+        const larionov = 0.33 * (Math.pow(2, 2 * igr) - 1);
+        return {
+          depth: Math.round(p.depth),
+          linear: Math.round(Math.max(0, Math.min(1, igr)) * 1000) / 10,
+          larionov: Math.round(Math.max(0, Math.min(1, larionov)) * 1000) / 10,
+          diff: Math.round(Math.abs(igr - Math.max(0, Math.min(1, larionov))) * 1000) / 10,
+        };
+      });
+  }, [data]);
+
+  return (
+    <div className="space-y-3">
+      <div style={{ height: 400 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <ComposedChart data={chartData} layout="vertical" margin={{ top: 5, right: 20, bottom: 5, left: 10 }}>
+            <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
+            <XAxis type="number" domain={[0, 100]} tickFormatter={v => `${v}%`} fontSize={10} />
+            <YAxis dataKey="depth" type="number" reversed domain={["dataMin", "dataMax"]} fontSize={10} label={{ value: "Depth (ft)", angle: -90, position: "insideLeft", fontSize: 10 }} />
+            <Tooltip
+              formatter={(v: number, name: string) => [`${v}%`, name === "linear" ? "Linear Vsh" : name === "larionov" ? "Larionov Vsh" : "Difference"]}
+              labelFormatter={l => `${l} ft`}
+              contentStyle={{ fontSize: 11, background: "hsl(var(--background))", border: "1px solid hsl(var(--border))" }}
+            />
+            <Legend wrapperStyle={{ fontSize: 11 }} />
+            <ReferenceLine x={40} stroke="hsl(var(--destructive))" strokeDasharray="5 5" label={{ value: "Cutoff 40%", fontSize: 9, fill: "hsl(var(--destructive))" }} />
+            <Area dataKey="diff" fill="hsl(var(--primary) / 0.15)" stroke="none" name="Difference" />
+            <Line dataKey="linear" stroke="hsl(var(--muted-foreground))" strokeWidth={1.5} dot={false} name="Linear Vsh" strokeDasharray="4 2" />
+            <Line dataKey="larionov" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} name="Larionov Vsh (1969)" />
+          </ComposedChart>
+        </ResponsiveContainer>
+      </div>
+      <div className="text-[10px] text-muted-foreground text-center">
+        Larionov correction reduces Vshale in clean sands and increases precision for Paleozoic formations
+      </div>
+    </div>
+  );
+};
+
 const StepLithology = ({ data }: { data: PetroPoint[] }) => {
   const { intervals, stats } = useMemo(() => {
     if (data.length < 2) return { intervals: [] as LithInterval[], stats: { sand: 0, silt: 0, shale: 0, total: 0 } };
