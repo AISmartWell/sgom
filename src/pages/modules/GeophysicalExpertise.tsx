@@ -634,6 +634,29 @@ const StepLithology = ({ data }: { data: PetroPoint[] }) => {
           <GRLogTrack data={data} intervals={intervals} />
         </CardContent>
       </Card>
+
+      {/* Linear vs Larionov Vshale Comparison */}
+      <Card className="bg-muted/20 border-border/30">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <Calculator className="h-4 w-4 text-primary" />
+            Vshale Comparison: Linear vs Larionov (1969)
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            <div className="p-3 bg-muted/30 rounded-lg text-center">
+              <div className="font-mono text-sm">V<sub>sh(linear)</sub> = IGR</div>
+              <div className="text-[10px] text-muted-foreground mt-1">Simple gamma-ray index</div>
+            </div>
+            <div className="p-3 bg-primary/10 border border-primary/30 rounded-lg text-center">
+              <div className="font-mono text-sm">V<sub>sh(Larionov)</sub> = 0.33 × (2<sup>2·IGR</sup> − 1)</div>
+              <div className="text-[10px] text-muted-foreground mt-1">Old rocks correction (1969)</div>
+            </div>
+          </div>
+          <VshaleComparisonChart data={data} />
+        </CardContent>
+      </Card>
     </div>
   );
 };
