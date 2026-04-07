@@ -126,14 +126,16 @@ const TechnicalSpec = () => {
 
         {/* 4. Database */}
         <Section icon={Database} title="4. Database Structure">
-          <h4 className="font-semibold text-foreground mb-3">All Tables (12 total)</h4>
+          <h4 className="font-semibold text-foreground mb-3">All Tables (14 total)</h4>
           <div className="space-y-4">
             {[
               { table: "wells", desc: "Core well records — API number, operator, coordinates, depth, formation, production, status", cols: 22, rls: "CRUD by company_id", fk: "companies" },
               { table: "companies", desc: "Operator organizations", cols: 4, rls: "SELECT/UPDATE/DELETE by membership, INSERT by authenticated", fk: "—" },
               { table: "user_companies", desc: "Multi-tenant junction: maps users ↔ companies", cols: 4, rls: "CRUD by user_id = auth.uid()", fk: "companies" },
+              { table: "user_roles", desc: "Role-based access control (admin, investor). Security definer function has_role() for RLS policies", cols: 4, rls: "SELECT by authenticated", fk: "auth.users" },
               { table: "production_history", desc: "Monthly production data: oil (bbl), gas (mcf), water (bbl), days on", cols: 8, rls: "CRUD by company_id", fk: "companies, wells" },
-              { table: "well_logs", desc: "Digitized well logs: GR, resistivity, porosity, Sw, SP, density, neutron", cols: 12, rls: "SELECT/INSERT/DELETE by company_id", fk: "companies, wells" },
+              { table: "well_logs", desc: "Digitized well logs: GR, resistivity, porosity, Sw, SP, density, neutron_porosity. Supports PDF-digitized and LAS-imported data", cols: 12, rls: "SELECT/INSERT/DELETE by company_id", fk: "companies, wells" },
+              { table: "well_perforations", desc: "Perforation records: depth intervals, hole diameter, shots/ft, phasing, status, date. Used in Net Pay visualization and missed pay detection", cols: 12, rls: "CRUD by company_id", fk: "companies, wells" },
               { table: "well_analyses", desc: "9-stage pipeline results (JSONB stage_results), batch tracking", cols: 8, rls: "SELECT/INSERT by company_id, DELETE by user_id", fk: "companies, wells" },
               { table: "well_alerts", desc: "Auto-generated alerts: production drops, water cut thresholds, status changes", cols: 10, rls: "CRUD by company_id", fk: "companies, wells" },
               { table: "core_images", desc: "Uploaded core sample images with depth, formation, rock_type metadata", cols: 14, rls: "CRUD by company_id/user_id", fk: "companies, wells" },
