@@ -283,6 +283,7 @@ const TechnicalSpec = () => {
               { name: "analyze-well-stage", desc: "Run individual pipeline stage analysis for a well (used in 9-stage EOR pipeline).", input: "{ wellId, stageNumber, wellData }", output: "{ stageResult }" },
               { name: "rank-wells", desc: "ML-based well ranking. Calculate scores by multiple parameters.", input: "{ wells[], criteria }", output: "{ ranked: [{ id, score, ... }] }" },
               { name: "get-oil-price", desc: "Fetch current WTI oil price for financial calculations.", input: "{}", output: "{ price, currency, date }" },
+              { name: "lookup-well-by-api", desc: "Look up well data by API number from OCC ArcGIS. Used for well import and validation.", input: "{ apiNumber }", output: "{ well }" },
               { name: "spt-chat", desc: "AI chatbot for SPT technology Q&A. Context-aware responses about slot-perforation treatment.", input: "{ message, history[] }", output: "{ response }" },
             ].map((fn) => (
               <div key={fn.name} className="p-3 rounded-lg bg-muted/20 border border-border/30">
