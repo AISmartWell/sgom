@@ -270,7 +270,7 @@ const TechnicalSpec = () => {
         </Section>
 
         {/* 6. Edge Functions */}
-        <Section icon={Cpu} title="6. Edge Functions (11 total)">
+        <Section icon={Cpu} title="6. Edge Functions (12 total)">
           <div className="space-y-3">
             {[
               { name: "fetch-wells", desc: "Fetch well data from OCC ArcGIS REST API. Filter by county/type. Upsert to wells table.", input: "{ county?, wellType?, limit?, offset? }", output: "{ success, fetched, stored, skipped, sample }" },
