@@ -37,7 +37,7 @@ const TechnicalSpec = () => {
             </h1>
             <p className="text-muted-foreground mt-1">AI Smartwell SGOM Platform — Developer Specification</p>
           </div>
-          <Badge className="ml-auto text-xs" variant="outline">v2.0 — March 2026</Badge>
+          <Badge className="ml-auto text-xs" variant="outline">v3.0 — April 2026</Badge>
         </div>
 
         <Separator />
@@ -126,14 +126,16 @@ const TechnicalSpec = () => {
 
         {/* 4. Database */}
         <Section icon={Database} title="4. Database Structure">
-          <h4 className="font-semibold text-foreground mb-3">All Tables (12 total)</h4>
+          <h4 className="font-semibold text-foreground mb-3">All Tables (14 total)</h4>
           <div className="space-y-4">
             {[
               { table: "wells", desc: "Core well records — API number, operator, coordinates, depth, formation, production, status", cols: 22, rls: "CRUD by company_id", fk: "companies" },
               { table: "companies", desc: "Operator organizations", cols: 4, rls: "SELECT/UPDATE/DELETE by membership, INSERT by authenticated", fk: "—" },
               { table: "user_companies", desc: "Multi-tenant junction: maps users ↔ companies", cols: 4, rls: "CRUD by user_id = auth.uid()", fk: "companies" },
+              { table: "user_roles", desc: "Role-based access control (admin, investor). Security definer function has_role() for RLS policies", cols: 4, rls: "SELECT by authenticated", fk: "auth.users" },
               { table: "production_history", desc: "Monthly production data: oil (bbl), gas (mcf), water (bbl), days on", cols: 8, rls: "CRUD by company_id", fk: "companies, wells" },
-              { table: "well_logs", desc: "Digitized well logs: GR, resistivity, porosity, Sw, SP, density, neutron", cols: 12, rls: "SELECT/INSERT/DELETE by company_id", fk: "companies, wells" },
+              { table: "well_logs", desc: "Digitized well logs: GR, resistivity, porosity, Sw, SP, density, neutron_porosity. Supports PDF-digitized and LAS-imported data", cols: 12, rls: "SELECT/INSERT/DELETE by company_id", fk: "companies, wells" },
+              { table: "well_perforations", desc: "Perforation records: depth intervals, hole diameter, shots/ft, phasing, status, date. Used in Net Pay visualization and missed pay detection", cols: 12, rls: "CRUD by company_id", fk: "companies, wells" },
               { table: "well_analyses", desc: "9-stage pipeline results (JSONB stage_results), batch tracking", cols: 8, rls: "SELECT/INSERT by company_id, DELETE by user_id", fk: "companies, wells" },
               { table: "well_alerts", desc: "Auto-generated alerts: production drops, water cut thresholds, status changes", cols: 10, rls: "CRUD by company_id", fk: "companies, wells" },
               { table: "core_images", desc: "Uploaded core sample images with depth, formation, rock_type metadata", cols: 14, rls: "CRUD by company_id/user_id", fk: "companies, wells" },
@@ -250,7 +252,7 @@ const TechnicalSpec = () => {
               { icon: "🧠", name: "ML Training", route: "/dashboard/ml-training",
                 desc: "Machine learning model training on well data. Parameter tuning and process visualization." },
               { icon: "📊", name: "Geophysical Expertise (Stage 6)", route: "/dashboard/geophysical",
-                desc: "AI-powered well log interpretation and formation evaluation. 5-stage analysis pipeline: data loading, curve analysis (GR, Resistivity, Porosity, Sw), zone detection, missed pay identification, and LLM-based report generation. Automatically detects productive zones, missed thin-bed intervals, and water-bearing formations. Generates perforation recommendations and reserve estimates." },
+                desc: "Professional 9-step well log interpretation workflow following Schlumberger methodology. Step 1: Lithology (GR) — Linear vs Larionov (1969) Vshale comparison, interactive Sand/Silt/Shale segmentation with lithology labels on GR track. Step 2: Fluid ID (Resistivity) — HC vs Water classification (Rt ≥ 10 Ω·m = hydrocarbons, < 8 = water). Step 3: DEN-NPHI Crossover — shaded overlay plot showing Gas Effect (separation < −3%), Oil (0–8%), Clay (> 8%). Step 4: Porosity — Total vs Effective porosity with 8% cutoff reference line. Step 5: DEN-NPHI Crossover Chart — visual RHOB vs NPHI curve separation graphic. Step 6: Archie Equation (1942) — Sw calculation (a=1, m=2, n=2, Rw=0.04 Ω·m), 60% Sw cutoff visualization. Step 7: Ko Ko Rules — 4-curve deflection pattern fluid identification (L-R-L-L = oil, L-R-L-R = gas). Step 8: Net Pay & Missed Pay — productive interval detection (φ_eff > 8%, Sw < 60%, Vsh < 40%) with Pay Zone Depth Strip. Step 9: Final Log Export. Supports PDF log digitization (e.g., WELEX 1961 Radioactivity Logs), LAS file import, and batch analysis across all wells for regional lithology comparison." },
                { icon: "🛰️", name: "Field Scanning (Stage 1)", route: "/dashboard/field-scanning",
                  desc: "Automated field surveillance Stage 1 with configurable schedule (daily/weekly/monthly). Loads real satellite imagery (ESRI World Imagery) with GIS grid overlay. Scans 24 predefined field squares across Permian and Anadarko basins, detecting all wells via coordinates. Flags low-productive wells (< 10 bbl/day, water cut > 60%) and automatically purges closed/plugged wells from the active database. 5-stage pipeline: Initialize → Scan Fields → Analyze Wells → Flag Low-Prod → Remove Closed." },
               { icon: "📄", name: "Reports", route: "/dashboard/reports",
@@ -268,7 +270,7 @@ const TechnicalSpec = () => {
         </Section>
 
         {/* 6. Edge Functions */}
-        <Section icon={Cpu} title="6. Edge Functions (11 total)">
+        <Section icon={Cpu} title="6. Edge Functions (12 total)">
           <div className="space-y-3">
             {[
               { name: "fetch-wells", desc: "Fetch well data from OCC ArcGIS REST API. Filter by county/type. Upsert to wells table.", input: "{ county?, wellType?, limit?, offset? }", output: "{ success, fetched, stored, skipped, sample }" },
@@ -281,6 +283,7 @@ const TechnicalSpec = () => {
               { name: "analyze-well-stage", desc: "Run individual pipeline stage analysis for a well (used in 9-stage EOR pipeline).", input: "{ wellId, stageNumber, wellData }", output: "{ stageResult }" },
               { name: "rank-wells", desc: "ML-based well ranking. Calculate scores by multiple parameters.", input: "{ wells[], criteria }", output: "{ ranked: [{ id, score, ... }] }" },
               { name: "get-oil-price", desc: "Fetch current WTI oil price for financial calculations.", input: "{}", output: "{ price, currency, date }" },
+              { name: "lookup-well-by-api", desc: "Look up well data by API number from OCC ArcGIS. Used for well import and validation.", input: "{ apiNumber }", output: "{ well }" },
               { name: "spt-chat", desc: "AI chatbot for SPT technology Q&A. Context-aware responses about slot-perforation treatment.", input: "{ message, history[] }", output: "{ response }" },
             ].map((fn) => (
               <div key={fn.name} className="p-3 rounded-lg bg-muted/20 border border-border/30">
