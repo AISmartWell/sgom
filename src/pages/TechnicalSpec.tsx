@@ -37,7 +37,7 @@ const TechnicalSpec = () => {
             </h1>
             <p className="text-muted-foreground mt-1">AI Smartwell SGOM Platform — Developer Specification</p>
           </div>
-          <Badge className="ml-auto text-xs" variant="outline">v2.0 — March 2026</Badge>
+          <Badge className="ml-auto text-xs" variant="outline">v3.0 — April 2026</Badge>
         </div>
 
         <Separator />
