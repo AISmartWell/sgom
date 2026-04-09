@@ -270,10 +270,60 @@ const EconomicAnalysisDemo = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="sensitivity">
+        <TabsContent value="sensitivity" className="space-y-6">
+          {/* 2D Heatmap Matrix */}
           <Card>
             <CardHeader>
-              <CardTitle>Sensitivity Analysis — ROI vs Oil Price</CardTitle>
+              <CardTitle>ROI Matrix — Oil Price × CAPEX (Portfolio Average)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm border-collapse">
+                  <thead>
+                    <tr>
+                      <th className="p-2 text-left text-muted-foreground border border-border/40">Oil Price ↓ / CAPEX →</th>
+                      {CAPEX_MATRIX.map((c) => (
+                        <th key={c} className={`p-2 text-center border border-border/40 ${c === treatmentCost ? 'bg-primary/20 font-bold' : 'text-muted-foreground'}`}>
+                          ${(c / 1000).toFixed(0)}K
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sensitivityMatrix.map((row) => (
+                      <tr key={row.price}>
+                        <td className={`p-2 font-medium border border-border/40 ${row.price === oilPrice ? 'bg-primary/20 font-bold' : ''}`}>
+                          ${row.price}/bbl
+                        </td>
+                        {CAPEX_MATRIX.map((capex) => {
+                          const val = row[`capex_${capex}`];
+                          const bg = val >= 300 ? 'bg-green-500/30 text-green-200'
+                            : val >= 150 ? 'bg-green-500/15 text-green-300'
+                            : val >= 50 ? 'bg-yellow-500/15 text-yellow-300'
+                            : val >= 0 ? 'bg-orange-500/15 text-orange-300'
+                            : 'bg-red-500/20 text-red-300';
+                          const isCurrentCell = row.price === oilPrice && capex === treatmentCost;
+                          return (
+                            <td key={capex} className={`p-2 text-center font-mono border border-border/40 ${bg} ${isCurrentCell ? 'ring-2 ring-primary font-bold' : ''}`}>
+                              {val}%
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p className="text-xs text-muted-foreground mt-3">
+                Highlighted cell = current scenario (${oilPrice}/bbl, ${(treatmentCost / 1000).toFixed(0)}K CAPEX). Green ≥150%, Yellow ≥50%, Orange ≥0%, Red = negative.
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Line Chart */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Sensitivity — ROI vs Oil Price (at current CAPEX ${(treatmentCost / 1000).toFixed(0)}K)</CardTitle>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={400}>
