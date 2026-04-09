@@ -7,7 +7,7 @@ import {
 } from "recharts";
 import {
   DEFAULT_OIL_PRICE, DEFAULT_OPEX_PER_BBL, DEFAULT_TREATMENT_COST,
-  sptGainByWaterCut, ROI_THRESHOLDS, ARPS_DEFAULTS, arpsRate, calcFiveYearROI,
+  sptGainByWaterCut, ROI_THRESHOLDS, ARPS_DEFAULTS, arpsRate, calcFiveYearROI, calcNPV,
 } from "@/lib/economics-config";
 
 interface WellRecord {
@@ -56,7 +56,7 @@ const EconomicStageViz = ({ well }: Props) => {
       totalOpex5yr += rate * 30.44 * opex;
     }
 
-    const npv = fiveYearNet * 0.85; // simplified NPV proxy
+    const npv = calcNPV(sptGain, oilPrice, opex, capex, 0.10, ARPS_DEFAULTS.Di, ARPS_DEFAULTS.b);
 
     return {
       capex, sptGain, dailyRevenue, dailyCost, dailyProfit,
