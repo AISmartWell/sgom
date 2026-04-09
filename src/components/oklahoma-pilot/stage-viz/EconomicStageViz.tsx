@@ -7,7 +7,7 @@ import {
 } from "recharts";
 import {
   DEFAULT_OIL_PRICE, DEFAULT_OPEX_PER_BBL, DEFAULT_TREATMENT_COST,
-  sptGainByWaterCut, ROI_THRESHOLDS, ARPS_DEFAULTS, arpsRate, calcFiveYearROI,
+  sptGainByWaterCut, ROI_THRESHOLDS, ARPS_DEFAULTS, arpsRate, calcFiveYearROI, calcNPV,
 } from "@/lib/economics-config";
 
 interface WellRecord {

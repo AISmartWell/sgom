@@ -55,6 +55,27 @@ export function arpsRate(qi: number, Di: number, b: number, t: number): number {
   return qi / Math.pow(denom, 1 / b);
 }
 
+/** NPV with monthly discounting: Σ cashFlow_m / (1 + r_monthly)^m */
+export function calcNPV(
+  addedProdBPD: number,
+  oilPrice: number,
+  opex: number,
+  capex: number,
+  annualRate: number = 0.10,
+  Di: number = ARPS_DEFAULTS.Di,
+  b: number = ARPS_DEFAULTS.b,
+  months: number = 60,
+): number {
+  const rMonthly = Math.pow(1 + annualRate, 1 / 12) - 1;
+  let npv = -capex;
+  for (let m = 1; m <= months; m++) {
+    const rate = arpsRate(addedProdBPD, Di, b, m);
+    const cashFlow = rate * 30.44 * (oilPrice - opex);
+    npv += cashFlow / Math.pow(1 + rMonthly, m);
+  }
+  return npv;
+}
+
 /** 5-Year ROI with Arps decline: (cumNetProfit - capex) / capex * 100 */
 export function calcFiveYearROI(
   addedProdBPD: number,
