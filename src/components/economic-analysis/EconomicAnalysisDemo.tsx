@@ -155,6 +155,30 @@ const EconomicAnalysisDemo = () => {
     return prices;
   }, [treatmentCost, opexPerBbl]);
 
+  // 2D Sensitivity: Oil Price × CAPEX matrix (portfolio average ROI)
+  const OIL_PRICES_MATRIX = [50, 60, 72, 85, 100];
+  const CAPEX_MATRIX = [50000, 65000, 85000, 120000, 150000];
+
+  const sensitivityMatrix = useMemo(() => {
+    return OIL_PRICES_MATRIX.map((price) => {
+      const row: { price: number; [key: string]: number } = { price };
+      CAPEX_MATRIX.forEach((capex) => {
+        let totalROI = 0;
+        SPT_CANDIDATES.forEach((well) => {
+          const addedProd = well.projectedInflow - well.currentProd;
+          let fiveYearNet = 0;
+          for (let m = 1; m <= 60; m++) {
+            const rate = arpsRate(addedProd, well.Di, well.b, m);
+            fiveYearNet += rate * 30.44 * (price - opexPerBbl);
+          }
+          totalROI += (fiveYearNet - capex) / capex * 100;
+        });
+        row[`capex_${capex}`] = Math.round(totalROI / SPT_CANDIDATES.length);
+      });
+      return row;
+    });
+  }, [opexPerBbl]);
+
   const colors = ["hsl(var(--primary))", "#22c55e", "#f59e0b", "#8b5cf6", "#ec4899", "#06b6d4"];
 
   return (
