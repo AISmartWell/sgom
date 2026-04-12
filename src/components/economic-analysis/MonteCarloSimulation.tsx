@@ -7,6 +7,7 @@ import {
 } from "recharts";
 import { Dice5, TrendingUp, AlertTriangle, ShieldCheck } from "lucide-react";
 import { arpsRate } from "@/lib/economics-config";
+import TornadoChart from "./TornadoChart";
 
 interface Props {
   baseOilPrice: number;
@@ -223,6 +224,14 @@ const MonteCarloSimulation = ({ baseOilPrice, baseTreatmentCost, baseOpex, wells
           </p>
         </CardContent>
       </Card>
+
+      {/* Tornado Chart */}
+      <TornadoChart
+        baseOilPrice={baseOilPrice}
+        baseTreatmentCost={baseTreatmentCost}
+        baseOpex={baseOpex}
+        wells={wells}
+      />
     </div>
   );
 };
