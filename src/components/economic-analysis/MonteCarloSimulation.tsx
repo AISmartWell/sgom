@@ -8,6 +8,7 @@ import {
 import { Dice5, TrendingUp, AlertTriangle, ShieldCheck } from "lucide-react";
 import { arpsRate } from "@/lib/economics-config";
 import TornadoChart from "./TornadoChart";
+import { useMonteCarloExport, ExportPDFButton } from "./MonteCarloExport";
 
 interface Props {
   baseOilPrice: number;
@@ -76,9 +77,11 @@ function runSimulation(
 
 const MonteCarloSimulation = ({ baseOilPrice, baseTreatmentCost, baseOpex, wells }: Props) => {
   const [iterations, setIterations] = useState(5000);
-  const [priceVolatility, setPriceVolatility] = useState(15); // $/bbl std dev
-  const [costVolatility, setCostVolatility] = useState(15000); // $ std dev
+  const [priceVolatility, setPriceVolatility] = useState(15);
+  const [costVolatility, setCostVolatility] = useState(15000);
   const [seed, setSeed] = useState(42);
+
+  const { exporting, exportPDF, refs } = useMonteCarloExport();
 
   const results = useMemo(() => {
     const rois = runSimulation(
@@ -87,7 +90,6 @@ const MonteCarloSimulation = ({ baseOilPrice, baseTreatmentCost, baseOpex, wells
       iterations, seed,
     );
 
-    // Histogram bins
     const min = Math.floor(rois[0] / 25) * 25;
     const max = Math.ceil(rois[rois.length - 1] / 25) * 25;
     const bins: { range: string; count: number; midpoint: number }[] = [];
@@ -113,125 +115,141 @@ const MonteCarloSimulation = ({ baseOilPrice, baseTreatmentCost, baseOpex, wells
 
   return (
     <div className="space-y-6">
-      {/* Parameters */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm flex items-center gap-2">
-            <Dice5 className="h-4 w-4 text-primary" />
-            Simulation Parameters
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-              <label className="text-sm text-muted-foreground mb-2 block">
-                Oil Price σ: <span className="font-semibold text-foreground">±${priceVolatility}/bbl</span>
-              </label>
-              <Slider value={[priceVolatility]} onValueChange={([v]) => setPriceVolatility(v)} min={5} max={30} step={1} />
-            </div>
-            <div>
-              <label className="text-sm text-muted-foreground mb-2 block">
-                CAPEX σ: <span className="font-semibold text-foreground">±${(costVolatility / 1000).toFixed(0)}K</span>
-              </label>
-              <Slider value={[costVolatility]} onValueChange={([v]) => setCostVolatility(v)} min={5000} max={50000} step={5000} />
-            </div>
-            <div>
-              <label className="text-sm text-muted-foreground mb-2 block">
-                Iterations: <span className="font-semibold text-foreground">{iterations.toLocaleString()}</span>
-              </label>
-              <Slider value={[iterations]} onValueChange={([v]) => setIterations(v)} min={1000} max={10000} step={1000} />
-            </div>
-          </div>
-          <p className="text-[10px] text-muted-foreground mt-3 italic">
-            Parameters varied: Oil Price (N(μ={baseOilPrice}, σ={priceVolatility})), CAPEX (N(μ={baseTreatmentCost/1000}K, σ={costVolatility/1000}K)), OPEX (N(μ={baseOpex}, σ=4)), Di (N(μ=well.Di, σ=0.008))
-          </p>
-        </CardContent>
-      </Card>
+      {/* Header with Export */}
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-semibold">Monte Carlo Risk Analysis</h3>
+        <ExportPDFButton exporting={exporting} onClick={exportPDF} />
+      </div>
 
-      {/* KPI row */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="bg-primary/5 border-primary/20">
-          <CardContent className="pt-4 pb-3 text-center">
-            <TrendingUp className="h-5 w-5 text-primary mx-auto mb-1" />
-            <p className="text-xs text-muted-foreground">Mean ROI</p>
-            <p className="text-2xl font-bold">{results.mean.toFixed(0)}%</p>
-            <p className="text-[10px] text-muted-foreground">σ = {results.stdDev.toFixed(0)}%</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-green-500/10 border-green-500/20">
-          <CardContent className="pt-4 pb-3 text-center">
-            <ShieldCheck className="h-5 w-5 text-green-500 mx-auto mb-1" />
-            <p className="text-xs text-muted-foreground">P(ROI &gt; 0%)</p>
-            <p className="text-2xl font-bold">{results.probPositive.toFixed(1)}%</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-green-500/10 border-green-500/20">
-          <CardContent className="pt-4 pb-3 text-center">
-            <TrendingUp className="h-5 w-5 text-green-500 mx-auto mb-1" />
-            <p className="text-xs text-muted-foreground">P(ROI &gt; 100%)</p>
-            <p className="text-2xl font-bold">{results.probOver100.toFixed(1)}%</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-yellow-500/10 border-yellow-500/20">
-          <CardContent className="pt-4 pb-3 text-center">
-            <AlertTriangle className="h-5 w-5 text-yellow-500 mx-auto mb-1" />
-            <p className="text-xs text-muted-foreground">P(ROI &gt; 200%)</p>
-            <p className="text-2xl font-bold">{results.probOver200.toFixed(1)}%</p>
+      {/* Parameters */}
+      <div ref={refs.paramsRef}>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm flex items-center gap-2">
+              <Dice5 className="h-4 w-4 text-primary" />
+              Simulation Parameters
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <label className="text-sm text-muted-foreground mb-2 block">
+                  Oil Price σ: <span className="font-semibold text-foreground">±${priceVolatility}/bbl</span>
+                </label>
+                <Slider value={[priceVolatility]} onValueChange={([v]) => setPriceVolatility(v)} min={5} max={30} step={1} />
+              </div>
+              <div>
+                <label className="text-sm text-muted-foreground mb-2 block">
+                  CAPEX σ: <span className="font-semibold text-foreground">±${(costVolatility / 1000).toFixed(0)}K</span>
+                </label>
+                <Slider value={[costVolatility]} onValueChange={([v]) => setCostVolatility(v)} min={5000} max={50000} step={5000} />
+              </div>
+              <div>
+                <label className="text-sm text-muted-foreground mb-2 block">
+                  Iterations: <span className="font-semibold text-foreground">{iterations.toLocaleString()}</span>
+                </label>
+                <Slider value={[iterations]} onValueChange={([v]) => setIterations(v)} min={1000} max={10000} step={1000} />
+              </div>
+            </div>
+            <p className="text-[10px] text-muted-foreground mt-3 italic">
+              Parameters varied: Oil Price (N(μ={baseOilPrice}, σ={priceVolatility})), CAPEX (N(μ={baseTreatmentCost/1000}K, σ={costVolatility/1000}K)), OPEX (N(μ={baseOpex}, σ=4)), Di (N(μ=well.Di, σ=0.008))
+            </p>
           </CardContent>
         </Card>
       </div>
 
+      {/* KPI row */}
+      <div ref={refs.kpiRef}>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Card className="bg-primary/5 border-primary/20">
+            <CardContent className="pt-4 pb-3 text-center">
+              <TrendingUp className="h-5 w-5 text-primary mx-auto mb-1" />
+              <p className="text-xs text-muted-foreground">Mean ROI</p>
+              <p className="text-2xl font-bold">{results.mean.toFixed(0)}%</p>
+              <p className="text-[10px] text-muted-foreground">σ = {results.stdDev.toFixed(0)}%</p>
+            </CardContent>
+          </Card>
+          <Card className="bg-green-500/10 border-green-500/20">
+            <CardContent className="pt-4 pb-3 text-center">
+              <ShieldCheck className="h-5 w-5 text-green-500 mx-auto mb-1" />
+              <p className="text-xs text-muted-foreground">P(ROI &gt; 0%)</p>
+              <p className="text-2xl font-bold">{results.probPositive.toFixed(1)}%</p>
+            </CardContent>
+          </Card>
+          <Card className="bg-green-500/10 border-green-500/20">
+            <CardContent className="pt-4 pb-3 text-center">
+              <TrendingUp className="h-5 w-5 text-green-500 mx-auto mb-1" />
+              <p className="text-xs text-muted-foreground">P(ROI &gt; 100%)</p>
+              <p className="text-2xl font-bold">{results.probOver100.toFixed(1)}%</p>
+            </CardContent>
+          </Card>
+          <Card className="bg-yellow-500/10 border-yellow-500/20">
+            <CardContent className="pt-4 pb-3 text-center">
+              <AlertTriangle className="h-5 w-5 text-yellow-500 mx-auto mb-1" />
+              <p className="text-xs text-muted-foreground">P(ROI &gt; 200%)</p>
+              <p className="text-2xl font-bold">{results.probOver200.toFixed(1)}%</p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
       {/* Histogram */}
-      <Card>
-        <CardHeader>
-          <CardTitle>ROI Distribution ({iterations.toLocaleString()} simulations)</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={350}>
-            <BarChart data={results.bins} margin={{ bottom: 60 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="range" angle={-45} textAnchor="end" height={80} interval={0} tick={{ fontSize: 10 }} />
-              <YAxis label={{ value: "Frequency", angle: -90, position: "insideLeft" }} />
-              <Tooltip />
-              <ReferenceLine x={results.bins.findIndex(b => b.midpoint >= results.p50) >= 0 ? results.bins[results.bins.findIndex(b => b.midpoint >= results.p50)]?.range : undefined} stroke="hsl(var(--primary))" strokeWidth={2} strokeDasharray="4 4" label={{ value: "P50", position: "top", fill: "hsl(var(--primary))" }} />
-              <Bar dataKey="count" name="Scenarios" fill="hsl(var(--primary))" radius={[2, 2, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
+      <div ref={refs.histogramRef}>
+        <Card>
+          <CardHeader>
+            <CardTitle>ROI Distribution ({iterations.toLocaleString()} simulations)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={350}>
+              <BarChart data={results.bins} margin={{ bottom: 60 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="range" angle={-45} textAnchor="end" height={80} interval={0} tick={{ fontSize: 10 }} />
+                <YAxis label={{ value: "Frequency", angle: -90, position: "insideLeft" }} />
+                <Tooltip />
+                <ReferenceLine x={results.bins.findIndex(b => b.midpoint >= results.p50) >= 0 ? results.bins[results.bins.findIndex(b => b.midpoint >= results.p50)]?.range : undefined} stroke="hsl(var(--primary))" strokeWidth={2} strokeDasharray="4 4" label={{ value: "P50", position: "top", fill: "hsl(var(--primary))" }} />
+                <Bar dataKey="count" name="Scenarios" fill="hsl(var(--primary))" radius={[2, 2, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Percentiles table */}
-      <Card>
-        <CardHeader><CardTitle className="text-sm">Percentile Summary</CardTitle></CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-5 gap-4 text-center">
-            {[
-              { label: "P10 (Downside)", value: results.p10, color: "text-red-400" },
-              { label: "P25", value: results.p25, color: "text-orange-400" },
-              { label: "P50 (Median)", value: results.p50, color: "text-foreground" },
-              { label: "P75", value: results.p75, color: "text-green-400" },
-              { label: "P90 (Upside)", value: results.p90, color: "text-green-500" },
-            ].map((p) => (
-              <div key={p.label} className="p-3 rounded-lg bg-muted/30">
-                <p className="text-xs text-muted-foreground mb-1">{p.label}</p>
-                <p className={`text-xl font-bold font-mono ${p.color}`}>{p.value.toFixed(0)}%</p>
-              </div>
-            ))}
-          </div>
-          <p className="text-xs text-muted-foreground mt-3">
-            P10 = 90% chance of doing better. P90 = only 10% chance of exceeding this ROI.
-            <button onClick={() => setSeed(s => s + 1)} className="ml-2 underline text-primary hover:text-primary/80">Re-roll seed</button>
-          </p>
-        </CardContent>
-      </Card>
+      <div ref={refs.percentilesRef}>
+        <Card>
+          <CardHeader><CardTitle className="text-sm">Percentile Summary</CardTitle></CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-5 gap-4 text-center">
+              {[
+                { label: "P10 (Downside)", value: results.p10, color: "text-red-400" },
+                { label: "P25", value: results.p25, color: "text-orange-400" },
+                { label: "P50 (Median)", value: results.p50, color: "text-foreground" },
+                { label: "P75", value: results.p75, color: "text-green-400" },
+                { label: "P90 (Upside)", value: results.p90, color: "text-green-500" },
+              ].map((p) => (
+                <div key={p.label} className="p-3 rounded-lg bg-muted/30">
+                  <p className="text-xs text-muted-foreground mb-1">{p.label}</p>
+                  <p className={`text-xl font-bold font-mono ${p.color}`}>{p.value.toFixed(0)}%</p>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground mt-3">
+              P10 = 90% chance of doing better. P90 = only 10% chance of exceeding this ROI.
+              <button onClick={() => setSeed(s => s + 1)} className="ml-2 underline text-primary hover:text-primary/80">Re-roll seed</button>
+            </p>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Tornado Chart */}
-      <TornadoChart
-        baseOilPrice={baseOilPrice}
-        baseTreatmentCost={baseTreatmentCost}
-        baseOpex={baseOpex}
-        wells={wells}
-      />
+      <div ref={refs.tornadoRef}>
+        <TornadoChart
+          baseOilPrice={baseOilPrice}
+          baseTreatmentCost={baseTreatmentCost}
+          baseOpex={baseOpex}
+          wells={wells}
+        />
+      </div>
     </div>
   );
 };
