@@ -102,3 +102,49 @@ export function calcFiveYearROI(
   const roi = capex > 0 ? ((fiveYearNet - capex) / capex) * 100 : 0;
   return { roi, fiveYearNet, paybackMonths: paybackMonths === Infinity ? 999 : paybackMonths };
 }
+
+// ── IRR (Internal Rate of Return) via bisection ─────────────────────
+/**
+ * Calculates annualized IRR using bisection on NPV = 0.
+ * Cash flows: -CAPEX at t=0, then monthly net revenue with Arps decline.
+ * Returns annual rate as percentage (e.g. 85 = 85%/yr).
+ */
+export function calcIRR(
+  addedProdBPD: number,
+  oilPrice: number,
+  opex: number,
+  capex: number,
+  Di: number = ARPS_DEFAULTS.Di,
+  b: number = ARPS_DEFAULTS.b,
+  months: number = 60,
+  tolerance: number = 0.0001,
+  maxIter: number = 200,
+): number {
+  if (capex <= 0) return 0;
+
+  // Helper: NPV at a given annual rate
+  const npvAt = (annualRate: number): number => {
+    const rM = Math.pow(1 + annualRate, 1 / 12) - 1;
+    let npv = -capex;
+    for (let m = 1; m <= months; m++) {
+      const rate = arpsRate(addedProdBPD, Di, b, m);
+      const cf = rate * 30.44 * (oilPrice - opex);
+      npv += cf / Math.pow(1 + rM, m);
+    }
+    return npv;
+  };
+
+  // Quick check: if NPV at 0% is negative, IRR doesn't exist
+  if (npvAt(0) <= 0) return 0;
+
+  let lo = -0.5; // -50% floor
+  let hi = 50.0; // 5000% ceiling
+  for (let i = 0; i < maxIter; i++) {
+    const mid = (lo + hi) / 2;
+    const npvMid = npvAt(mid);
+    if (Math.abs(npvMid) < tolerance) return mid * 100;
+    if (npvMid > 0) lo = mid;
+    else hi = mid;
+  }
+  return ((lo + hi) / 2) * 100;
+}
