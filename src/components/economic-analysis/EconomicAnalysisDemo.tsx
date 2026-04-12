@@ -364,7 +364,7 @@ const EconomicAnalysisDemo = () => {
           />
         </TabsContent>
 
-
+        <TabsContent value="profit">
           <Card>
             <CardHeader><CardTitle>Annual Gross vs. Net Profit per Well</CardTitle></CardHeader>
             <CardContent>
