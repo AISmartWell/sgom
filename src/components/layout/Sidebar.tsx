@@ -36,8 +36,8 @@ import {
   Import,
   ShieldCheck,
   Zap,
+  Globe,
 } from "lucide-react";
-import { Globe } from "lucide-react";
 import { useState } from "react";
 
 const menuItems = [
