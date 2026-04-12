@@ -425,9 +425,12 @@ const EconomicAnalysisDemo = () => {
                         </p>
                         <p className="text-xs text-muted-foreground">Initial added: +{w.addedProd} bbl/d (Di={SPT_CANDIDATES.find(c=>c.id===w.id)?.Di}, b={SPT_CANDIDATES.find(c=>c.id===w.id)?.b})</p>
                       </div>
-                      <Badge variant="default" className="bg-primary">ROI (5yr) {w.fiveYearROI}%</Badge>
+                      <div className="flex gap-2">
+                        <Badge variant="default" className="bg-primary">ROI {w.fiveYearROI}%</Badge>
+                        <Badge variant="outline" className="text-amber-500 border-amber-500/40">IRR {w.irr.toFixed(0)}%</Badge>
+                      </div>
                     </div>
-                    <div className="grid grid-cols-5 gap-4 text-sm">
+                    <div className="grid grid-cols-6 gap-4 text-sm">
                       <div>
                         <p className="text-muted-foreground text-xs">Payback</p>
                         <p className="font-semibold">{w.paybackMonths} mo</p>
@@ -439,6 +442,10 @@ const EconomicAnalysisDemo = () => {
                       <div>
                         <p className="text-muted-foreground text-xs">Annual Net</p>
                         <p className="font-semibold">${(w.annualNet / 1000).toFixed(0)}k</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground text-xs">IRR</p>
+                        <p className="font-semibold text-amber-500">{w.irr.toFixed(1)}%</p>
                       </div>
                       <div>
                         <p className="text-muted-foreground text-xs">Timeline</p>
