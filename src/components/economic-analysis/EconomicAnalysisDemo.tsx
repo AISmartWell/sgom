@@ -243,9 +243,10 @@ const EconomicAnalysisDemo = () => {
 
       {/* Tabs */}
       <Tabs defaultValue="roi" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="roi">ROI & Payback</TabsTrigger>
           <TabsTrigger value="sensitivity">Sensitivity</TabsTrigger>
+          <TabsTrigger value="montecarlo">Monte Carlo</TabsTrigger>
           <TabsTrigger value="profit">Profit</TabsTrigger>
           <TabsTrigger value="cumulative">Cumulative</TabsTrigger>
           <TabsTrigger value="details">Well Details</TabsTrigger>
