@@ -101,7 +101,8 @@ const EconomicAnalysisDemo = () => {
     const totalAnnualNet = economics.reduce((s, w) => s + w.annualNet, 0);
     const avgPayback = +(economics.reduce((s, w) => s + w.paybackMonths, 0) / economics.length).toFixed(1);
     const totalFullPeriod = economics.reduce((s, w) => s + w.fullPeriodNet, 0);
-    return { totalInvestment, totalAnnualGross, totalAnnualNet, avgPayback, totalFullPeriod };
+    const avgIRR = +(economics.reduce((s, w) => s + w.irr, 0) / economics.length).toFixed(0);
+    return { totalInvestment, totalAnnualGross, totalAnnualNet, avgPayback, totalFullPeriod, avgIRR };
   }, [economics, treatmentCost]);
 
   const roiChartData = economics.map((w) => ({
