@@ -44,6 +44,7 @@ import AnalysisReports from "./pages/modules/AnalysisReports";
 import AIEOROptimization from "./pages/modules/AIEOROptimization";
 import NvidiaInception from "./pages/NvidiaInception";
 import NvidiaShowcase from "./pages/NvidiaShowcase";
+import NvidiaCosmos from "./pages/NvidiaCosmos";
 import AWSActivate from "./pages/AWSActivate";
 import InvestorDeck from "./pages/InvestorDeck";
 import TechnicalSpec from "./pages/TechnicalSpec";
@@ -111,6 +112,7 @@ const App = () => (
           </Route>
            <Route path="/nvidia-inception" element={<NvidiaInception />} />
            <Route path="/nvidia-showcase" element={<NvidiaShowcase />} />
+           <Route path="/nvidia-cosmos" element={<NvidiaCosmos />} />
            <Route path="/aws-activate" element={<AWSActivate />} />
            <Route path="/investor-deck" element={<InvestorDeck />} />
            <Route path="/docs" element={<TechnicalSpec />} />

@@ -36,6 +36,7 @@ import {
   Import,
   ShieldCheck,
   Zap,
+  Globe,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -273,6 +274,12 @@ const menuItems = [
     icon: FileText,
     href: "/docs",
     badge: "📄",
+  },
+  {
+    title: "NVIDIA Cosmos",
+    icon: Globe,
+    href: "/nvidia-cosmos",
+    badge: "🌐",
   },
 ];
 
