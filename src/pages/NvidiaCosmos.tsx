@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import CosmosPredictDemo from "@/components/cosmos/CosmosPredictDemo";
 import {
   ArrowLeft,
   Brain,
@@ -265,6 +266,9 @@ const NvidiaCosmos = () => {
             </TabsContent>
           ))}
         </Tabs>
+
+        {/* Cosmos Predict Interactive Demo */}
+        <CosmosPredictDemo />
 
         {/* Pipeline Integration Map */}
         <Card className="glass-card border-primary/20">
