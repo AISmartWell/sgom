@@ -8,7 +8,7 @@ import {
 } from "recharts";
 import { DollarSign, TrendingUp, Clock, Calculator, CheckCircle2 } from "lucide-react";
 import {
-  DEFAULT_OIL_PRICE, DEFAULT_OPEX_PER_BBL, DEFAULT_TREATMENT_COST, arpsRate,
+  DEFAULT_OIL_PRICE, DEFAULT_OPEX_PER_BBL, DEFAULT_TREATMENT_COST, arpsRate, calcIRR,
 } from "@/lib/economics-config";
 import MonteCarloSimulation from "./MonteCarloSimulation";
 
@@ -84,11 +84,13 @@ const EconomicAnalysisDemo = () => {
       }
       const fiveYearROI = +((fiveYearNet - treatmentCost) / treatmentCost * 100).toFixed(0);
 
+      const irr = calcIRR(addedProd, oilPrice, opexPerBbl, treatmentCost, well.Di, well.b);
+
       return {
         ...well, addedProd, annualGross, annualNet,
         paybackMonths: +(paybackMonths).toFixed(1),
-        fiveYearROI, fullPeriodNet: totalNet,
-        dailyProfit: addedProd * (oilPrice - opexPerBbl), // initial daily (for cumulative chart)
+        fiveYearROI, irr, fullPeriodNet: totalNet,
+        dailyProfit: addedProd * (oilPrice - opexPerBbl),
       };
     });
   }, [oilPrice, treatmentCost, opexPerBbl]);
