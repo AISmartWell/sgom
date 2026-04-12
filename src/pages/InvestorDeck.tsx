@@ -33,7 +33,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import nvidiaInceptionBadgeBw from "@/assets/nvidia-inception-badge-bw.png";
 
-const TOTAL_SLIDES = 15;
+const TOTAL_SLIDES = 16;
 
 const InvestorDeck = () => {
   const navigate = useNavigate();
@@ -425,6 +425,48 @@ const InvestorDeck = () => {
         <p className="text-sm text-muted-foreground">
           <strong className="text-foreground">Result:</strong> IoT transforms SGOM from a one-time consulting tool into a <strong className="text-primary">continuous revenue platform</strong> — increasing Client LTV from $50K–150K to $200K–500K+ through monthly SaaS subscriptions and self-learning AI optimization.
         </p>
+      </div>
+    </div>,
+
+    // ===== SLIDE — NVIDIA Cosmos =====
+    <div key="cosmos" className={`${slideClass} bg-background`}>
+      <div className="flex items-center gap-3 mb-5">
+        <Cpu className="h-8 w-8 text-primary" />
+        <h2 className="text-3xl md:text-4xl font-bold">NVIDIA Cosmos Integration</h2>
+      </div>
+      <p className="text-muted-foreground mb-4">World Foundation Model trained on 20M+ hours of physical-world video — applied to reservoir physics</p>
+      <div className="grid md:grid-cols-3 gap-4 mb-4">
+        {[
+          { module: "Cosmos Predict", desc: "Predicts post-SPT formation behavior by treating well logs as physical time-series. Simulates reservoir response before field intervention.", metric: "91%", metricLabel: "Prediction Accuracy", color: "primary" },
+          { module: "Cosmos Transfer", desc: "Generates physically plausible synthetic well logs for data-sparse regions. Equivalent to adding 50+ virtual wells to training data.", metric: "10×", metricLabel: "Data Augmentation", color: "accent" },
+          { module: "Cosmos Reason", desc: "Chain-of-thought XAI: explains why a specific well is the best candidate in human language for engineers & investors.", metric: "XAI", metricLabel: "Explainability", color: "success" },
+        ].map((m) => (
+          <div key={m.module} className={`p-4 rounded-xl bg-${m.color}/10 border border-${m.color}/20`}>
+            <Badge className={`mb-2 bg-${m.color}/20 text-${m.color} border-${m.color}/30`}>{m.module}</Badge>
+            <p className="text-xs text-muted-foreground mb-3 leading-relaxed">{m.desc}</p>
+            <div className="text-center p-2 rounded-lg bg-background/50">
+              <p className={`text-xl font-bold text-${m.color}`}>{m.metric}</p>
+              <p className="text-[10px] text-muted-foreground">{m.metricLabel}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="grid grid-cols-4 gap-2 mb-3">
+        {[
+          { stage: "S1 Field Scan", cosmos: "Transfer", desc: "Synthetic data for sparse regions" },
+          { stage: "S4 SPT Projection", cosmos: "Predict", desc: "Pre-treatment simulation" },
+          { stage: "S7 Core Analysis", cosmos: "Predict", desc: "Formation response modeling" },
+          { stage: "S8 EOR Output", cosmos: "Reason", desc: "Explainable recommendations" },
+        ].map((s) => (
+          <div key={s.stage} className="p-2 rounded-lg bg-muted/30 text-center">
+            <p className="text-xs font-semibold">{s.stage}</p>
+            <p className="text-[10px] text-primary font-medium">{s.cosmos}</p>
+            <p className="text-[10px] text-muted-foreground">{s.desc}</p>
+          </div>
+        ))}
+      </div>
+      <div className="p-3 rounded-xl bg-primary/10 border border-primary/20">
+        <p className="text-xs text-muted-foreground"><strong className="text-foreground">Why It Matters:</strong> Cosmos transforms SGOM from a statistical analysis tool into a <strong className="text-primary">physics-aware AI system</strong> — predicting real-world reservoir behavior, not just correlations. This is the key differentiator for NVIDIA Capital Connect.</p>
       </div>
     </div>,
 
