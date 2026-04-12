@@ -274,6 +274,12 @@ const menuItems = [
     href: "/docs",
     badge: "📄",
   },
+  {
+    title: "NVIDIA Cosmos",
+    icon: Globe,
+    href: "/nvidia-cosmos",
+    badge: "🌐",
+  },
 ];
 
 interface SidebarProps {
