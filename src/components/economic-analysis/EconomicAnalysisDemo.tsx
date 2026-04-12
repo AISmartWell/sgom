@@ -10,6 +10,7 @@ import { DollarSign, TrendingUp, Clock, Calculator, CheckCircle2 } from "lucide-
 import {
   DEFAULT_OIL_PRICE, DEFAULT_OPEX_PER_BBL, DEFAULT_TREATMENT_COST, arpsRate,
 } from "@/lib/economics-config";
+import MonteCarloSimulation from "./MonteCarloSimulation";
 
 // Cumulative production for Arps: Np(t) integral
 function arpsCumulative(qi: number, Di: number, b: number, months: number): number {
