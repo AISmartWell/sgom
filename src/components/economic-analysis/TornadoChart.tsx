@@ -1,5 +1,6 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, Cell } from "recharts";
 import { ArrowDownUp } from "lucide-react";
 import { arpsRate } from "@/lib/economics-config";
@@ -32,42 +33,47 @@ function calcROI(
   return totalCapex > 0 ? ((totalNet - totalCapex) / totalCapex) * 100 : 0;
 }
 
+const VARIATION_OPTIONS = [0.1, 0.2, 0.3, 0.5] as const;
+
 const TornadoChart = ({ baseOilPrice, baseTreatmentCost, baseOpex, wells }: Props) => {
+  const [variation, setVariation] = useState(0.3);
+
   const data = useMemo(() => {
     const baseROI = calcROI(wells, baseOilPrice, baseTreatmentCost, baseOpex, 1);
+    const lo = 1 - variation;
+    const hi = 1 + variation;
 
     const params = [
       {
         name: "Oil Price",
-        low: calcROI(wells, baseOilPrice * 0.7, baseTreatmentCost, baseOpex, 1),
-        high: calcROI(wells, baseOilPrice * 1.3, baseTreatmentCost, baseOpex, 1),
-        lowLabel: `$${(baseOilPrice * 0.7).toFixed(0)}`,
-        highLabel: `$${(baseOilPrice * 1.3).toFixed(0)}`,
+        low: calcROI(wells, baseOilPrice * lo, baseTreatmentCost, baseOpex, 1),
+        high: calcROI(wells, baseOilPrice * hi, baseTreatmentCost, baseOpex, 1),
+        lowLabel: `$${(baseOilPrice * lo).toFixed(0)}`,
+        highLabel: `$${(baseOilPrice * hi).toFixed(0)}`,
       },
       {
         name: "CAPEX",
-        low: calcROI(wells, baseOilPrice, baseTreatmentCost * 1.3, baseOpex, 1),
-        high: calcROI(wells, baseOilPrice, baseTreatmentCost * 0.7, baseOpex, 1),
-        lowLabel: `$${((baseTreatmentCost * 1.3) / 1000).toFixed(0)}K`,
-        highLabel: `$${((baseTreatmentCost * 0.7) / 1000).toFixed(0)}K`,
+        low: calcROI(wells, baseOilPrice, baseTreatmentCost * hi, baseOpex, 1),
+        high: calcROI(wells, baseOilPrice, baseTreatmentCost * lo, baseOpex, 1),
+        lowLabel: `$${((baseTreatmentCost * hi) / 1000).toFixed(0)}K`,
+        highLabel: `$${((baseTreatmentCost * lo) / 1000).toFixed(0)}K`,
       },
       {
         name: "OPEX",
-        low: calcROI(wells, baseOilPrice, baseTreatmentCost, baseOpex * 1.5, 1),
-        high: calcROI(wells, baseOilPrice, baseTreatmentCost, baseOpex * 0.5, 1),
-        lowLabel: `$${(baseOpex * 1.5).toFixed(0)}`,
-        highLabel: `$${(baseOpex * 0.5).toFixed(0)}`,
+        low: calcROI(wells, baseOilPrice, baseTreatmentCost, baseOpex * hi, 1),
+        high: calcROI(wells, baseOilPrice, baseTreatmentCost, baseOpex * lo, 1),
+        lowLabel: `$${(baseOpex * hi).toFixed(0)}`,
+        highLabel: `$${(baseOpex * lo).toFixed(0)}`,
       },
       {
         name: "Decline Rate",
-        low: calcROI(wells, baseOilPrice, baseTreatmentCost, baseOpex, 1.5),
-        high: calcROI(wells, baseOilPrice, baseTreatmentCost, baseOpex, 0.5),
-        lowLabel: "×1.5",
-        highLabel: "×0.5",
+        low: calcROI(wells, baseOilPrice, baseTreatmentCost, baseOpex, hi),
+        high: calcROI(wells, baseOilPrice, baseTreatmentCost, baseOpex, lo),
+        lowLabel: `×${hi.toFixed(1)}`,
+        highLabel: `×${lo.toFixed(1)}`,
       },
     ];
 
-    // Sort by total swing descending
     return params
       .map((p) => ({
         name: p.name,
@@ -80,11 +86,10 @@ const TornadoChart = ({ baseOilPrice, baseTreatmentCost, baseOpex, wells }: Prop
       .sort((a, b) => b.swing - a.swing)
       .map((p) => ({
         ...p,
-        // For the stacked bar: negative side and positive side
         negative: Math.min(p.lowDelta, p.highDelta),
         positive: Math.max(p.lowDelta, p.highDelta),
       }));
-  }, [wells, baseOilPrice, baseTreatmentCost, baseOpex]);
+  }, [wells, baseOilPrice, baseTreatmentCost, baseOpex, variation]);
 
   const baseROI = useMemo(
     () => calcROI(wells, baseOilPrice, baseTreatmentCost, baseOpex, 1),
@@ -94,12 +99,26 @@ const TornadoChart = ({ baseOilPrice, baseTreatmentCost, baseOpex, wells }: Prop
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-sm flex items-center gap-2">
-          <ArrowDownUp className="h-4 w-4 text-primary" />
-          Tornado Chart — Parameter Sensitivity on ROI
-        </CardTitle>
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <ArrowDownUp className="h-4 w-4 text-primary" />
+            Tornado Chart — Parameter Sensitivity on ROI
+          </CardTitle>
+          <div className="flex items-center gap-1.5">
+            {VARIATION_OPTIONS.map((v) => (
+              <Badge
+                key={v}
+                variant={variation === v ? "default" : "outline"}
+                className="cursor-pointer text-xs"
+                onClick={() => setVariation(v)}
+              >
+                ±{(v * 100).toFixed(0)}%
+              </Badge>
+            ))}
+          </div>
+        </div>
         <p className="text-xs text-muted-foreground">
-          Shows how ±30% variation in each parameter affects ROI (base: {baseROI.toFixed(0)}%)
+          Shows how ±{(variation * 100).toFixed(0)}% variation in each parameter affects ROI (base: {baseROI.toFixed(0)}%)
         </p>
       </CardHeader>
       <CardContent>
