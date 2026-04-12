@@ -8,7 +8,7 @@ import {
 } from "recharts";
 import { DollarSign, TrendingUp, Clock, Calculator, CheckCircle2 } from "lucide-react";
 import {
-  DEFAULT_OIL_PRICE, DEFAULT_OPEX_PER_BBL, DEFAULT_TREATMENT_COST, arpsRate,
+  DEFAULT_OIL_PRICE, DEFAULT_OPEX_PER_BBL, DEFAULT_TREATMENT_COST, arpsRate, calcIRR,
 } from "@/lib/economics-config";
 import MonteCarloSimulation from "./MonteCarloSimulation";
 
@@ -84,11 +84,13 @@ const EconomicAnalysisDemo = () => {
       }
       const fiveYearROI = +((fiveYearNet - treatmentCost) / treatmentCost * 100).toFixed(0);
 
+      const irr = calcIRR(addedProd, oilPrice, opexPerBbl, treatmentCost, well.Di, well.b);
+
       return {
         ...well, addedProd, annualGross, annualNet,
         paybackMonths: +(paybackMonths).toFixed(1),
-        fiveYearROI, fullPeriodNet: totalNet,
-        dailyProfit: addedProd * (oilPrice - opexPerBbl), // initial daily (for cumulative chart)
+        fiveYearROI, irr, fullPeriodNet: totalNet,
+        dailyProfit: addedProd * (oilPrice - opexPerBbl),
       };
     });
   }, [oilPrice, treatmentCost, opexPerBbl]);
@@ -99,13 +101,15 @@ const EconomicAnalysisDemo = () => {
     const totalAnnualNet = economics.reduce((s, w) => s + w.annualNet, 0);
     const avgPayback = +(economics.reduce((s, w) => s + w.paybackMonths, 0) / economics.length).toFixed(1);
     const totalFullPeriod = economics.reduce((s, w) => s + w.fullPeriodNet, 0);
-    return { totalInvestment, totalAnnualGross, totalAnnualNet, avgPayback, totalFullPeriod };
+    const avgIRR = +(economics.reduce((s, w) => s + w.irr, 0) / economics.length).toFixed(0);
+    return { totalInvestment, totalAnnualGross, totalAnnualNet, avgPayback, totalFullPeriod, avgIRR };
   }, [economics, treatmentCost]);
 
   const roiChartData = economics.map((w) => ({
     name: w.name,
     paybackMonths: w.paybackMonths,
     fiveYearROI: w.fiveYearROI,
+    irr: Math.round(w.irr),
   }));
 
   const profitChartData = economics.map((w) => ({
@@ -195,12 +199,13 @@ const EconomicAnalysisDemo = () => {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
         {[
           { label: "Total Investment", value: `$${(totals.totalInvestment / 1000).toFixed(0)}k`, icon: Calculator },
           { label: "Annual Gross Revenue", value: `$${(totals.totalAnnualGross / 1e6).toFixed(2)}M`, icon: TrendingUp },
           { label: "Annual Net Profit", value: `$${(totals.totalAnnualNet / 1e6).toFixed(2)}M`, icon: DollarSign },
           { label: "Avg Payback", value: `${totals.avgPayback} mo`, icon: Clock },
+          { label: "Avg IRR", value: `${totals.avgIRR}%`, icon: TrendingUp },
           { label: "Full Period Net", value: `$${(totals.totalFullPeriod / 1e6).toFixed(1)}M`, icon: CheckCircle2 },
         ].map((kpi) => {
           const Icon = kpi.icon;
@@ -266,6 +271,7 @@ const EconomicAnalysisDemo = () => {
                   <Legend />
                   <Bar yAxisId="left" dataKey="paybackMonths" fill="hsl(var(--primary))" name="Payback (months)" />
                   <Bar yAxisId="right" dataKey="fiveYearROI" fill="#22c55e" name="5-Year ROI %" />
+                  <Bar yAxisId="right" dataKey="irr" fill="#f59e0b" name="IRR % (Annual)" />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
@@ -419,9 +425,12 @@ const EconomicAnalysisDemo = () => {
                         </p>
                         <p className="text-xs text-muted-foreground">Initial added: +{w.addedProd} bbl/d (Di={SPT_CANDIDATES.find(c=>c.id===w.id)?.Di}, b={SPT_CANDIDATES.find(c=>c.id===w.id)?.b})</p>
                       </div>
-                      <Badge variant="default" className="bg-primary">ROI (5yr) {w.fiveYearROI}%</Badge>
+                      <div className="flex gap-2">
+                        <Badge variant="default" className="bg-primary">ROI {w.fiveYearROI}%</Badge>
+                        <Badge variant="outline" className="text-amber-500 border-amber-500/40">IRR {w.irr.toFixed(0)}%</Badge>
+                      </div>
                     </div>
-                    <div className="grid grid-cols-5 gap-4 text-sm">
+                    <div className="grid grid-cols-6 gap-4 text-sm">
                       <div>
                         <p className="text-muted-foreground text-xs">Payback</p>
                         <p className="font-semibold">{w.paybackMonths} mo</p>
@@ -433,6 +442,10 @@ const EconomicAnalysisDemo = () => {
                       <div>
                         <p className="text-muted-foreground text-xs">Annual Net</p>
                         <p className="font-semibold">${(w.annualNet / 1000).toFixed(0)}k</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground text-xs">IRR</p>
+                        <p className="font-semibold text-amber-500">{w.irr.toFixed(1)}%</p>
                       </div>
                       <div>
                         <p className="text-muted-foreground text-xs">Timeline</p>
