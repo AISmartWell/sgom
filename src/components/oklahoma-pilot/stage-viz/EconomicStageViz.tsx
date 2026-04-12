@@ -7,7 +7,7 @@ import {
 } from "recharts";
 import {
   DEFAULT_OIL_PRICE, DEFAULT_OPEX_PER_BBL, DEFAULT_TREATMENT_COST,
-  sptGainByWaterCut, ROI_THRESHOLDS, ARPS_DEFAULTS, arpsRate, calcFiveYearROI, calcNPV,
+  sptGainByWaterCut, ROI_THRESHOLDS, ARPS_DEFAULTS, arpsRate, calcFiveYearROI, calcNPV, calcIRR,
 } from "@/lib/economics-config";
 
 interface WellRecord {
@@ -57,11 +57,12 @@ const EconomicStageViz = ({ well }: Props) => {
     }
 
     const npv = calcNPV(sptGain, oilPrice, opex, capex, 0.10, ARPS_DEFAULTS.Di, ARPS_DEFAULTS.b);
+    const irr = calcIRR(sptGain, oilPrice, opex, capex, ARPS_DEFAULTS.Di, ARPS_DEFAULTS.b);
 
     return {
       capex, sptGain, dailyRevenue, dailyCost, dailyProfit,
       annualProfit, paybackMonths, fiveYearProfit: fiveYearNet - capex,
-      roi, npv, totalRevenue5yr, totalOpex5yr,
+      roi, npv, irr, totalRevenue5yr, totalOpex5yr,
     };
   }, [wc]);
 
@@ -128,6 +129,10 @@ const EconomicStageViz = ({ well }: Props) => {
           <div className="p-2 bg-muted/20 rounded text-center">
             <p className="text-lg font-bold text-primary">${(economics.npv / 1000).toFixed(0)}K</p>
             <p className="text-[9px] text-muted-foreground">NPV (10%)</p>
+          </div>
+          <div className="p-2 bg-muted/20 rounded text-center">
+            <p className="text-lg font-bold text-accent">{economics.irr.toFixed(0)}%</p>
+            <p className="text-[9px] text-muted-foreground">IRR (Annual)</p>
           </div>
           <div className="p-2 bg-muted/20 rounded text-center">
             <p className="text-lg font-bold">${(economics.capex / 1000).toFixed(1)}K</p>
