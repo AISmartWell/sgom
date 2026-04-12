@@ -109,6 +109,7 @@ const EconomicAnalysisDemo = () => {
     name: w.name,
     paybackMonths: w.paybackMonths,
     fiveYearROI: w.fiveYearROI,
+    irr: Math.round(w.irr),
   }));
 
   const profitChartData = economics.map((w) => ({
@@ -198,12 +199,13 @@ const EconomicAnalysisDemo = () => {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
         {[
           { label: "Total Investment", value: `$${(totals.totalInvestment / 1000).toFixed(0)}k`, icon: Calculator },
           { label: "Annual Gross Revenue", value: `$${(totals.totalAnnualGross / 1e6).toFixed(2)}M`, icon: TrendingUp },
           { label: "Annual Net Profit", value: `$${(totals.totalAnnualNet / 1e6).toFixed(2)}M`, icon: DollarSign },
           { label: "Avg Payback", value: `${totals.avgPayback} mo`, icon: Clock },
+          { label: "Avg IRR", value: `${totals.avgIRR}%`, icon: TrendingUp },
           { label: "Full Period Net", value: `$${(totals.totalFullPeriod / 1e6).toFixed(1)}M`, icon: CheckCircle2 },
         ].map((kpi) => {
           const Icon = kpi.icon;
