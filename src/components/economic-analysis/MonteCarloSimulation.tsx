@@ -224,6 +224,14 @@ const MonteCarloSimulation = ({ baseOilPrice, baseTreatmentCost, baseOpex, wells
           </p>
         </CardContent>
       </Card>
+
+      {/* Tornado Chart */}
+      <TornadoChart
+        baseOilPrice={baseOilPrice}
+        baseTreatmentCost={baseTreatmentCost}
+        baseOpex={baseOpex}
+        wells={wells}
+      />
     </div>
   );
 };
