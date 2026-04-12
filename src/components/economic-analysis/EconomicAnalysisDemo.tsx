@@ -350,7 +350,21 @@ const EconomicAnalysisDemo = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="profit">
+        <TabsContent value="montecarlo">
+          <MonteCarloSimulation
+            baseOilPrice={oilPrice}
+            baseTreatmentCost={treatmentCost}
+            baseOpex={opexPerBbl}
+            wells={SPT_CANDIDATES.map((w) => ({
+              name: w.name,
+              addedProd: w.projectedInflow - w.currentProd,
+              Di: w.Di,
+              b: w.b,
+            }))}
+          />
+        </TabsContent>
+
+
           <Card>
             <CardHeader><CardTitle>Annual Gross vs. Net Profit per Well</CardTitle></CardHeader>
             <CardContent>
