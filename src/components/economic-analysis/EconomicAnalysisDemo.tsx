@@ -10,6 +10,7 @@ import { DollarSign, TrendingUp, Clock, Calculator, CheckCircle2 } from "lucide-
 import {
   DEFAULT_OIL_PRICE, DEFAULT_OPEX_PER_BBL, DEFAULT_TREATMENT_COST, arpsRate,
 } from "@/lib/economics-config";
+import MonteCarloSimulation from "./MonteCarloSimulation";
 
 // Cumulative production for Arps: Np(t) integral
 function arpsCumulative(qi: number, Di: number, b: number, months: number): number {
@@ -242,9 +243,10 @@ const EconomicAnalysisDemo = () => {
 
       {/* Tabs */}
       <Tabs defaultValue="roi" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="roi">ROI & Payback</TabsTrigger>
           <TabsTrigger value="sensitivity">Sensitivity</TabsTrigger>
+          <TabsTrigger value="montecarlo">Monte Carlo</TabsTrigger>
           <TabsTrigger value="profit">Profit</TabsTrigger>
           <TabsTrigger value="cumulative">Cumulative</TabsTrigger>
           <TabsTrigger value="details">Well Details</TabsTrigger>
@@ -346,6 +348,20 @@ const EconomicAnalysisDemo = () => {
               </p>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="montecarlo">
+          <MonteCarloSimulation
+            baseOilPrice={oilPrice}
+            baseTreatmentCost={treatmentCost}
+            baseOpex={opexPerBbl}
+            wells={SPT_CANDIDATES.map((w) => ({
+              name: w.name,
+              addedProd: w.projectedInflow - w.currentProd,
+              Di: w.Di,
+              b: w.b,
+            }))}
+          />
         </TabsContent>
 
         <TabsContent value="profit">
