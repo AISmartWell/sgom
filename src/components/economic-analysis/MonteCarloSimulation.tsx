@@ -7,6 +7,7 @@ import {
 } from "recharts";
 import { Dice5, TrendingUp, AlertTriangle, ShieldCheck } from "lucide-react";
 import { arpsRate } from "@/lib/economics-config";
+import TornadoChart from "./TornadoChart";
 
 interface Props {
   baseOilPrice: number;
