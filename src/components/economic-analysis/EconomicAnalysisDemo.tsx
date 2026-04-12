@@ -271,6 +271,7 @@ const EconomicAnalysisDemo = () => {
                   <Legend />
                   <Bar yAxisId="left" dataKey="paybackMonths" fill="hsl(var(--primary))" name="Payback (months)" />
                   <Bar yAxisId="right" dataKey="fiveYearROI" fill="#22c55e" name="5-Year ROI %" />
+                  <Bar yAxisId="right" dataKey="irr" fill="#f59e0b" name="IRR % (Annual)" />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
