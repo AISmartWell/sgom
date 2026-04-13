@@ -1,419 +1,590 @@
-import { useState, useEffect, useCallback } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Slider } from "@/components/ui/slider";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
+import { useState, useRef, useCallback } from "react";
 import {
-  Eye, Play, RotateCcw, TrendingUp, Droplets, Zap,
-  ArrowRight, CheckCircle2, Loader2, BarChart3,
-} from "lucide-react";
-import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, ReferenceLine, Area, AreaChart, Legend,
+  LineChart, Line, XAxis, YAxis, ResponsiveContainer,
+  Tooltip, AreaChart, Area,
 } from "recharts";
 
-// ── Well presets ────────────────────────────────────────
-const WELL_PRESETS = [
-  {
-    id: "well-5",
-    name: "Well #5 — Mississippian Limestone",
-    formation: "Mississippian Limestone",
-    depth: 4850,
-    porosity: 12.3,
-    permeability: 8.5,
-    waterCut: 45,
-    currentOil: 18,
-    gammaRay: 65,
-    resistivity: 22,
-  },
-  {
-    id: "well-3",
-    name: "Well #3 — Hunton Group",
-    formation: "Hunton Group",
-    depth: 5200,
-    porosity: 10.7,
-    permeability: 5.2,
-    waterCut: 62,
-    currentOil: 11,
-    gammaRay: 48,
-    resistivity: 18,
-  },
-  {
-    id: "well-9",
-    name: "Well #9 — Arbuckle Dolomite",
-    formation: "Arbuckle Dolomite",
-    depth: 6100,
-    porosity: 8.1,
-    permeability: 3.8,
-    waterCut: 71,
-    currentOil: 7,
-    gammaRay: 35,
-    resistivity: 30,
-  },
-];
+// ── Well log data (Brawner 10-15 style, Oklahoma Anadarko Basin) ──
+const WELL_DATA = Array.from({ length: 80 }, (_, i) => {
+  const depth = 4200 + i * 20;
+  const zone = i < 20 ? "shale" : i < 35 ? "sand_A" : i < 45 ? "shale" : i < 62 ? "sand_B" : "shale";
+  return {
+    depth,
+    zone,
+    GR:   zone === "shale" ? 85 + Math.sin(i * 0.7) * 12 + Math.random() * 8
+                           : 28 + Math.sin(i * 1.2) * 6  + Math.random() * 6,
+    RT:   zone === "shale" ? 2  + Math.random() * 1.5
+                           : 18 + Math.sin(i * 0.9) * 8  + Math.random() * 4,
+    NPHI: zone === "shale" ? 0.32 + Math.random() * 0.06
+                           : 0.18 + Math.sin(i * 0.8) * 0.04 + Math.random() * 0.02,
+    RHOB: zone === "shale" ? 2.55 + Math.random() * 0.08
+                           : 2.25 + Math.random() * 0.06,
+    SW:   zone === "shale" ? 0.85 + Math.random() * 0.1
+                           : 0.42 + Math.random() * 0.12,
+  };
+});
 
-// ── Generate synthetic log data ────────────────────────
-function generateLogData(preset: typeof WELL_PRESETS[0]) {
-  const points = [];
-  const baseDepth = preset.depth - 200;
-  for (let i = 0; i <= 80; i++) {
-    const d = baseDepth + i * 5;
-    const noise = () => (Math.random() - 0.5) * 2;
-    const zoneCenter = preset.depth;
-    const distFromCenter = Math.abs(d - zoneCenter);
-    const inZone = distFromCenter < 60;
+const SPT_ZONE_DEFAULT = { top: 4680, bottom: 4860 };
 
-    points.push({
-      depth: d,
-      grBefore: preset.gammaRay + noise() * 8 + (inZone ? -15 : 10),
-      grAfter: preset.gammaRay + noise() * 6 + (inZone ? -20 : 8),
-      rtBefore: preset.resistivity + noise() * 3 + (inZone ? 5 : -2),
-      rtAfter: preset.resistivity + noise() * 2 + (inZone ? 12 : -1),
-      phiBefore: preset.porosity + noise() * 1.5 + (inZone ? 2 : -1),
-      phiAfter: preset.porosity + noise() * 1.2 + (inZone ? 4.5 : -0.5),
-    });
-  }
-  return points;
+const C = {
+  bg:      "#07080a",
+  panel:   "#0d1117",
+  border:  "#1c2530",
+  border2: "#243040",
+  nvidia:  "#76b900",
+  orange:  "#f28c00",
+  blue:    "#38bdf8",
+  red:     "#ef4444",
+  teal:    "#2dd4bf",
+  muted:   "#4a6070",
+  text:    "#d4dde6",
+  dimText: "#6b8899",
+};
+
+// ── Tiny well log track ──
+function LogTrack({ data, accessor, color, label, unit, domain, width = 100 }: {
+  data: typeof WELL_DATA;
+  accessor: keyof typeof WELL_DATA[0];
+  color: string;
+  label: string;
+  unit: string;
+  domain: [number, number];
+  width?: number;
+}) {
+  const pts = data.map(d => ({ depth: d.depth, v: d[accessor] as number }));
+  return (
+    <div style={{ width, flexShrink: 0 }}>
+      <div style={{ fontSize: 9, fontFamily: "monospace", color: C.dimText, textAlign: "center",
+        borderBottom: `1px solid ${C.border2}`, paddingBottom: 2, marginBottom: 0 }}>
+        <span style={{ color }}>{label}</span>
+        <span style={{ color: C.muted, marginLeft: 4 }}>{unit}</span>
+      </div>
+      <ResponsiveContainer width="100%" height={600}>
+        <LineChart data={pts} layout="vertical" margin={{ top: 0, right: 4, bottom: 0, left: 0 }}>
+          <XAxis type="number" domain={domain} hide />
+          <YAxis type="number" dataKey="depth" domain={[4200, 5800]} reversed hide />
+          <Line type="monotone" dataKey="v" stroke={color} strokeWidth={1.5} dot={false} />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  );
 }
 
-// ── Production forecast ────────────────────────────────
-function generateProductionForecast(preset: typeof WELL_PRESETS[0]) {
-  const months: { month: number; label: string; baseline: number; postSPT: number }[] = [];
-  const upliftFactor = 1 + (preset.porosity / 100) * 15 + (1 - preset.waterCut / 100) * 8;
-
-  for (let m = -6; m <= 18; m++) {
-    const baseDecline = preset.currentOil * Math.exp(-0.015 * (m + 6));
-    let postSPT: number;
-    if (m < 0) {
-      postSPT = baseDecline;
-    } else if (m === 0) {
-      postSPT = preset.currentOil * upliftFactor * 0.6;
-    } else {
-      const peakOil = preset.currentOil * upliftFactor;
-      postSPT = peakOil * Math.exp(-0.02 * m) + baseDecline * 0.3;
-    }
-    months.push({
-      month: m,
-      label: m === 0 ? "SPT" : `${m > 0 ? "+" : ""}${m}`,
-      baseline: Math.max(1, Math.round(baseDecline * 10) / 10),
-      postSPT: Math.max(1, Math.round(postSPT * 10) / 10),
-    });
-  }
-  return months;
+// ── Build production data ──
+function buildProduction(uplift: number) {
+  return Array.from({ length: 24 }, (_, m) => ({
+    month: m + 1,
+    before: Math.max(2, 12 * Math.exp(-0.08 * m) + (Math.random() - 0.5)),
+    after:  Math.max(5, 12 * uplift * Math.exp(-0.05 * m) + (Math.random() - 0.5) * 2),
+  }));
 }
 
-// ── Component ──────────────────────────────────────────
+interface PredictResult {
+  formation_name: string;
+  formation_type: string;
+  net_pay_ft: number;
+  porosity_pct: number;
+  water_saturation_pct: number;
+  permeability_md: number;
+  pre_spt_bbl_day: number;
+  post_spt_bbl_day: number;
+  uplift_factor: number;
+  pressure_increase_pct: number;
+  recovery_factor_pct: number;
+  spt_slot_depth_ft: number;
+  spt_slots_recommended: number;
+  co2_reduction_tons_year: number;
+  confidence_pct: number;
+  reasoning: string;
+  prodData: { month: number; before: number; after: number }[];
+}
+
+type Phase = "idle" | "encoding" | "predicting" | "reasoning" | "done";
+
+// ── Main demo ──
 const CosmosPredictDemo = () => {
-  const [selectedWell, setSelectedWell] = useState(WELL_PRESETS[0]);
-  const [porosity, setPorosity] = useState(WELL_PRESETS[0].porosity);
-  const [waterCut, setWaterCut] = useState(WELL_PRESETS[0].waterCut);
-  const [isRunning, setIsRunning] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [showResults, setShowResults] = useState(false);
-  const [logData, setLogData] = useState<ReturnType<typeof generateLogData>>([]);
-  const [forecastData, setForecastData] = useState<ReturnType<typeof generateProductionForecast>>([]);
+  const [sptZone, setSptZone] = useState(SPT_ZONE_DEFAULT);
+  const [dragging, setDragging] = useState<"top" | "bottom" | "body" | null>(null);
+  const [running, setRunning] = useState(false);
+  const [result, setResult] = useState<PredictResult | null>(null);
+  const [streamText, setStreamText] = useState("");
+  const [phase, setPhase] = useState<Phase>("idle");
+  const logRef = useRef<HTMLDivElement>(null);
 
-  const handleWellChange = useCallback((wellId: string) => {
-    const preset = WELL_PRESETS.find((w) => w.id === wellId) ?? WELL_PRESETS[0];
-    setSelectedWell(preset);
-    setPorosity(preset.porosity);
-    setWaterCut(preset.waterCut);
-    setShowResults(false);
-    setProgress(0);
+  // ── Drag handlers ──
+  const getDepthFromY = useCallback((clientY: number) => {
+    if (!logRef.current) return 4200;
+    const rect = logRef.current.getBoundingClientRect();
+    const frac = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
+    return Math.round(4200 + frac * (5800 - 4200));
   }, []);
 
-  const runPrediction = useCallback(() => {
-    setIsRunning(true);
-    setShowResults(false);
-    setProgress(0);
-
-    const well = { ...selectedWell, porosity, waterCut };
-
-    const steps = [10, 25, 40, 55, 70, 85, 95, 100];
-    steps.forEach((p, i) => {
-      setTimeout(() => {
-        setProgress(p);
-        if (p === 100) {
-          setLogData(generateLogData(well));
-          setForecastData(generateProductionForecast(well));
-          setIsRunning(false);
-          setShowResults(true);
-        }
-      }, (i + 1) * 350);
+  const onMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!dragging) return;
+    const d = getDepthFromY(e.clientY);
+    setSptZone(z => {
+      if (dragging === "top")    return { ...z, top: Math.min(d, z.bottom - 40) };
+      if (dragging === "bottom") return { ...z, bottom: Math.max(d, z.top + 40) };
+      if (dragging === "body") {
+        const h = z.bottom - z.top;
+        const newTop = Math.max(4200, Math.min(d - h / 2, 5800 - h));
+        return { top: newTop, bottom: newTop + h };
+      }
+      return z;
     });
-  }, [selectedWell, porosity, waterCut]);
+  }, [dragging, getDepthFromY]);
 
-  const reset = () => {
-    setShowResults(false);
-    setProgress(0);
-    handleWellChange(selectedWell.id);
+  const onMouseUp = useCallback(() => setDragging(null), []);
+
+  const depthToFrac = (d: number) => (d - 4200) / (5800 - 4200);
+  const topFrac  = depthToFrac(sptZone.top);
+  const botFrac  = depthToFrac(sptZone.bottom);
+
+  // ── Run prediction (uses Lovable AI edge function or fallback) ──
+  const runPredict = async () => {
+    setRunning(true);
+    setResult(null);
+    setStreamText("");
+    setPhase("encoding");
+
+    const targetZoneData = WELL_DATA.filter(
+      d => d.depth >= sptZone.top && d.depth <= sptZone.bottom
+    );
+    const avgGR   = (targetZoneData.reduce((s, d) => s + d.GR,   0) / targetZoneData.length).toFixed(1);
+    const avgRT   = (targetZoneData.reduce((s, d) => s + d.RT,   0) / targetZoneData.length).toFixed(1);
+    const avgNPHI = (targetZoneData.reduce((s, d) => s + d.NPHI, 0) / targetZoneData.length).toFixed(3);
+    const avgSW   = (targetZoneData.reduce((s, d) => s + d.SW,   0) / targetZoneData.length).toFixed(2);
+    const thickness = sptZone.bottom - sptZone.top;
+
+    await new Promise(r => setTimeout(r, 900));
+    setPhase("predicting");
+    await new Promise(r => setTimeout(r, 700));
+    setPhase("reasoning");
+
+    // Generate physics-based fallback using zone data
+    const isCleanSand = parseFloat(avgGR) < 45;
+    const isHCBearing = parseFloat(avgRT) > 10;
+    const porosity = parseFloat(avgNPHI) * 92;
+    const sw = parseFloat(avgSW) * 100;
+    const uplift = isCleanSand && isHCBearing ? 8.5 + Math.random() * 3 : 3.5 + Math.random() * 2;
+
+    const fallback: PredictResult = {
+      formation_name: isCleanSand ? "Tonkawa Sand" : "Red Fork Siltstone",
+      formation_type: isCleanSand ? "Fluvial channel sand" : "Marginal marine siltstone",
+      net_pay_ft: Math.round(thickness * (isCleanSand ? 0.65 : 0.4)),
+      porosity_pct: parseFloat(porosity.toFixed(1)),
+      water_saturation_pct: parseFloat(sw.toFixed(1)),
+      permeability_md: isCleanSand ? 38 + Math.round(Math.random() * 20) : 8 + Math.round(Math.random() * 10),
+      pre_spt_bbl_day: isCleanSand ? 6 : 3,
+      post_spt_bbl_day: Math.round((isCleanSand ? 6 : 3) * uplift),
+      uplift_factor: parseFloat(uplift.toFixed(1)),
+      pressure_increase_pct: Math.round(200 + uplift * 30),
+      recovery_factor_pct: Math.round(45 + uplift * 3),
+      spt_slot_depth_ft: 4,
+      spt_slots_recommended: Math.max(3, Math.round(thickness / 30)),
+      co2_reduction_tons_year: Math.round(80 + uplift * 10),
+      confidence_pct: isCleanSand && isHCBearing ? 87 : 72,
+      reasoning: isCleanSand && isHCBearing
+        ? `The ${isCleanSand ? "Tonkawa Sand" : "Red Fork"} interval shows clean gamma ray signature (avg ${avgGR} API) combined with elevated resistivity (${avgRT} Ω·m), indicating bypassed hydrocarbon accumulation. Slot Perforation Technology at 4 ft depth will bypass near-wellbore damage and connect with natural fracture network, restoring reservoir pressure communication. Cosmos physics simulation projects ${uplift.toFixed(1)}× production uplift with ${Math.round(45 + uplift * 3)}% ultimate recovery factor over 18-year production horizon.`
+        : `The interval at ${Math.round(sptZone.top)}–${Math.round(sptZone.bottom)} ft shows moderate reservoir quality (GR ${avgGR} API, RT ${avgRT} Ω·m). SPT intervention can still improve drainage geometry and bypass near-wellbore damage, but the ${sw.toFixed(0)}% water saturation limits peak uplift potential. Recommend selective slot placement to target the cleanest sub-intervals within the zone.`,
+      prodData: buildProduction(uplift),
+    };
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/spt-chat`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({
+            message: `You are NVIDIA Cosmos Predict. Analyze this well zone and respond ONLY with valid JSON (no markdown):
+WELL: Brawner 10-15 | Oklahoma Anadarko Basin
+SPT TARGET ZONE: ${sptZone.top}–${sptZone.bottom} ft MD, ${thickness} ft thick
+AVG GR: ${avgGR} API, AVG RT: ${avgRT} Ω·m, AVG NPHI: ${avgNPHI}, AVG SW: ${avgSW}
+Return JSON: {"formation_name","formation_type","net_pay_ft","porosity_pct","water_saturation_pct","permeability_md","pre_spt_bbl_day","post_spt_bbl_day","uplift_factor","pressure_increase_pct","recovery_factor_pct","spt_slot_depth_ft","spt_slots_recommended","co2_reduction_tons_year","confidence_pct","reasoning"}`,
+          }),
+        }
+      );
+      if (response.ok) {
+        const data = await response.json();
+        const text = typeof data === "string" ? data : data.response || data.content || "";
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          const parsed = JSON.parse(jsonMatch[0]);
+          Object.assign(fallback, parsed, { prodData: buildProduction(parsed.uplift_factor || uplift) });
+        }
+      }
+    } catch {
+      // Use physics-based fallback
+    }
+
+    // Stream reasoning text
+    const fullText = fallback.reasoning;
+    for (let i = 0; i <= fullText.length; i++) {
+      setStreamText(fullText.slice(0, i));
+      await new Promise(r => setTimeout(r, 14));
+    }
+
+    setResult(fallback);
+    setPhase("done");
+    setRunning(false);
   };
 
-  // Derived metrics
-  const peakUplift = showResults
-    ? Math.round(
-        ((Math.max(...forecastData.filter((d) => d.month >= 0).map((d) => d.postSPT)) /
-          selectedWell.currentOil -
-          1) *
-          100)
-      )
-    : 0;
-
-  const cumulativeGain = showResults
-    ? Math.round(
-        forecastData
-          .filter((d) => d.month >= 0)
-          .reduce((sum, d) => sum + (d.postSPT - d.baseline) * 30, 0)
-      )
-    : 0;
-
-  const estimatedROI = showResults ? Math.round(cumulativeGain * 65 / 15000 * 100) : 0;
-
   return (
-    <Card className="glass-card border-green-500/30">
-      <CardHeader>
-        <div className="flex items-center gap-3">
-          <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-green-500/20 to-emerald-500/20 flex items-center justify-center">
-            <Eye className="h-6 w-6 text-green-400" />
-          </div>
-          <div>
-            <CardTitle className="text-xl">Cosmos Predict — Interactive Demo</CardTitle>
-            <CardDescription>
-              Simulate post-SPT formation behavior before Maxxwell arrives on site
-            </CardDescription>
-          </div>
+    <div
+      onMouseMove={onMouseMove}
+      onMouseUp={onMouseUp}
+      style={{
+        background: C.bg,
+        fontFamily: "'IBM Plex Mono', 'JetBrains Mono', monospace",
+        color: C.text,
+        userSelect: dragging ? "none" : "auto",
+        borderRadius: 8,
+        overflow: "hidden",
+        border: `1px solid ${C.border}`,
+      }}
+    >
+      {/* Header */}
+      <div style={{
+        borderBottom: `1px solid ${C.border}`,
+        padding: "14px 24px",
+        display: "flex",
+        alignItems: "center",
+        gap: 16,
+        background: C.panel,
+      }}>
+        <div style={{
+          background: C.nvidia,
+          color: "#000",
+          fontWeight: 700,
+          fontSize: 10,
+          letterSpacing: "0.12em",
+          padding: "4px 10px",
+          borderRadius: 3,
+        }}>NVIDIA COSMOS</div>
+        <div style={{ color: C.muted, fontSize: 11 }}>×</div>
+        <div style={{ color: C.blue, fontSize: 11, letterSpacing: "0.1em" }}>SGOM · PREDICT</div>
+        <div style={{ marginLeft: "auto", color: C.muted, fontSize: 10 }}>
+          Brawner 10-15 · Oklahoma Anadarko Basin
         </div>
-      </CardHeader>
+        <div style={{
+          width: 7, height: 7, borderRadius: "50%",
+          background: phase === "done" ? C.nvidia : phase !== "idle" ? C.orange : C.muted,
+          boxShadow: phase !== "idle" && phase !== "done" ? `0 0 8px ${C.orange}` : undefined,
+        }} />
+      </div>
 
-      <CardContent className="space-y-6">
-        {/* ── Input Panel ─────────────────────────── */}
-        <div className="grid md:grid-cols-3 gap-4">
-          {/* Well selector */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Select Well</label>
-            <Select value={selectedWell.id} onValueChange={handleWellChange}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {WELL_PRESETS.map((w) => (
-                  <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+      <div style={{ display: "flex", minHeight: 700, overflow: "hidden" }}>
+
+        {/* LEFT: Well Log Panel */}
+        <div style={{
+          width: 360,
+          flexShrink: 0,
+          borderRight: `1px solid ${C.border}`,
+          display: "flex",
+          flexDirection: "column",
+          background: C.panel,
+        }}>
+          <div style={{
+            padding: "10px 14px",
+            borderBottom: `1px solid ${C.border}`,
+            fontSize: 10,
+            color: C.dimText,
+            letterSpacing: "0.1em",
+          }}>
+            WELL LOG TRACKS · DRAG ZONE TO SET SPT TARGET
           </div>
 
-          {/* Porosity slider */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Porosity: {porosity.toFixed(1)}%</label>
-            <Slider
-              value={[porosity]}
-              min={3}
-              max={25}
-              step={0.1}
-              onValueChange={([v]) => setPorosity(v)}
-            />
-          </div>
-
-          {/* Water cut slider */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Water Cut: {waterCut}%</label>
-            <Slider
-              value={[waterCut]}
-              min={10}
-              max={95}
-              step={1}
-              onValueChange={([v]) => setWaterCut(v)}
-            />
-          </div>
-        </div>
-
-        {/* Well info badges */}
-        <div className="flex flex-wrap gap-2">
-          <Badge variant="outline">Formation: {selectedWell.formation}</Badge>
-          <Badge variant="outline">Depth: {selectedWell.depth} ft</Badge>
-          <Badge variant="outline">Perm: {selectedWell.permeability} mD</Badge>
-          <Badge variant="outline">Current: {selectedWell.currentOil} BOPD</Badge>
-          <Badge variant="outline">GR: {selectedWell.gammaRay} API</Badge>
-          <Badge variant="outline">RT: {selectedWell.resistivity} Ω·m</Badge>
-        </div>
-
-        {/* Run / Reset */}
-        <div className="flex items-center gap-3">
-          <Button
-            onClick={runPrediction}
-            disabled={isRunning}
-            className="gap-2 bg-green-600 hover:bg-green-700"
-          >
-            {isRunning ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
-            {isRunning ? "Running Cosmos Predict…" : "Run Prediction"}
-          </Button>
-          {showResults && (
-            <Button variant="outline" onClick={reset} className="gap-2">
-              <RotateCcw className="h-4 w-4" /> Reset
-            </Button>
-          )}
-        </div>
-
-        {/* Progress */}
-        {isRunning && (
-          <div className="space-y-2">
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>
-                {progress < 30
-                  ? "Loading well state into Cosmos…"
-                  : progress < 60
-                  ? "Physics-aware simulation running…"
-                  : progress < 90
-                  ? "Generating post-SPT log response…"
-                  : "Finalizing production forecast…"}
-              </span>
-              <span>{progress}%</span>
-            </div>
-            <div className="h-2 rounded-full bg-muted overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-green-500 to-emerald-400 transition-all duration-300"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-          </div>
-        )}
-
-        {/* ── Results ─────────────────────────── */}
-        {showResults && (
-          <>
-            <Separator />
-
-            {/* KPI Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {[
-                { label: "Peak Uplift", value: `+${peakUplift}%`, icon: TrendingUp, color: "text-green-400" },
-                { label: "18-mo Cum. Gain", value: `${cumulativeGain.toLocaleString()} bbl`, icon: BarChart3, color: "text-blue-400" },
-                { label: "Est. ROI", value: `${estimatedROI}%`, icon: Zap, color: "text-yellow-400" },
-                { label: "Water Cut Δ", value: `−${Math.round(waterCut * 0.18)}%`, icon: Droplets, color: "text-cyan-400" },
-              ].map((kpi) => (
-                <div key={kpi.label} className="p-3 rounded-xl bg-muted/20 border border-border/30 text-center">
-                  <kpi.icon className={`h-5 w-5 mx-auto mb-1 ${kpi.color}`} />
-                  <div className="text-lg font-bold">{kpi.value}</div>
-                  <div className="text-xs text-muted-foreground">{kpi.label}</div>
-                </div>
+          <div style={{ flex: 1, overflow: "hidden", position: "relative", display: "flex" }}>
+            {/* Depth labels */}
+            <div style={{ width: 44, flexShrink: 0, position: "relative", borderRight: `1px solid ${C.border}` }}>
+              {[4200, 4400, 4600, 4800, 5000, 5200, 5400, 5600, 5800].map(d => (
+                <div key={d} style={{
+                  position: "absolute",
+                  top: `${depthToFrac(d) * 100}%`,
+                  right: 4,
+                  fontSize: 8,
+                  color: C.muted,
+                  transform: "translateY(-50%)",
+                  letterSpacing: "0.05em",
+                }}>{d}</div>
               ))}
             </div>
 
-            {/* Log Curves: Before vs After */}
-            <Card className="border-border/30">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <Eye className="h-4 w-4 text-green-400" />
-                  Predicted Log Response — Before vs After SPT
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid md:grid-cols-3 gap-4">
-                  {/* GR */}
-                  <div>
-                    <p className="text-xs text-center text-muted-foreground mb-1">Gamma Ray (API)</p>
-                    <ResponsiveContainer width="100%" height={250}>
-                      <LineChart data={logData} layout="vertical">
-                        <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
-                        <XAxis type="number" domain={[0, 120]} tick={{ fontSize: 10 }} />
-                        <YAxis dataKey="depth" type="number" reversed tick={{ fontSize: 10 }} domain={["dataMin", "dataMax"]} />
-                        <Tooltip />
-                        <Line dataKey="grBefore" stroke="hsl(var(--muted-foreground))" dot={false} strokeWidth={1.5} name="Before" />
-                        <Line dataKey="grAfter" stroke="#22c55e" dot={false} strokeWidth={2} name="After SPT" />
-                        <ReferenceLine y={selectedWell.depth} stroke="#f59e0b" strokeDasharray="4 4" label={{ value: "SPT Zone", fontSize: 10, fill: "#f59e0b" }} />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </div>
+            {/* Tracks */}
+            <div
+              ref={logRef}
+              style={{ flex: 1, position: "relative", display: "flex", overflow: "hidden" }}
+            >
+              <div style={{ display: "flex", width: "100%", height: "100%" }}>
+                <LogTrack data={WELL_DATA} accessor="GR"   color={C.nvidia} label="GR"   unit="API"  domain={[0, 150]}   width={72} />
+                <LogTrack data={WELL_DATA} accessor="RT"   color={C.orange} label="RT"   unit="Ω·m"  domain={[0.1, 100]} width={72} />
+                <LogTrack data={WELL_DATA} accessor="NPHI" color={C.blue}   label="NPHI" unit="v/v"  domain={[0.4, 0]}   width={72} />
+                <LogTrack data={WELL_DATA} accessor="SW"   color={C.red}    label="Sw"   unit="v/v"  domain={[1, 0]}     width={52} />
+              </div>
 
-                  {/* Resistivity */}
-                  <div>
-                    <p className="text-xs text-center text-muted-foreground mb-1">Resistivity (Ω·m)</p>
-                    <ResponsiveContainer width="100%" height={250}>
-                      <LineChart data={logData} layout="vertical">
-                        <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
-                        <XAxis type="number" tick={{ fontSize: 10 }} />
-                        <YAxis dataKey="depth" type="number" reversed tick={{ fontSize: 10 }} domain={["dataMin", "dataMax"]} />
-                        <Tooltip />
-                        <Line dataKey="rtBefore" stroke="hsl(var(--muted-foreground))" dot={false} strokeWidth={1.5} name="Before" />
-                        <Line dataKey="rtAfter" stroke="#3b82f6" dot={false} strokeWidth={2} name="After SPT" />
-                        <ReferenceLine y={selectedWell.depth} stroke="#f59e0b" strokeDasharray="4 4" />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </div>
+              {/* SPT zone overlay */}
+              <div style={{
+                position: "absolute",
+                left: 0, right: 0,
+                top: `${topFrac * 100}%`,
+                height: `${(botFrac - topFrac) * 100}%`,
+                background: `${C.nvidia}18`,
+                border: `1px solid ${C.nvidia}60`,
+                cursor: "grab",
+              }}
+                onMouseDown={e => { e.stopPropagation(); setDragging("body"); }}
+              >
+                <div style={{
+                  position: "absolute", top: -4, left: 0, right: 0,
+                  height: 8, cursor: "ns-resize",
+                  background: C.nvidia,
+                  opacity: 0.8,
+                }}
+                  onMouseDown={e => { e.stopPropagation(); setDragging("top"); }}
+                />
+                <div style={{
+                  position: "absolute", top: "50%", left: "50%",
+                  transform: "translate(-50%,-50%)",
+                  fontSize: 9, color: C.nvidia, letterSpacing: "0.12em",
+                  whiteSpace: "nowrap", fontWeight: 600,
+                  textAlign: "center",
+                }}>
+                  SPT ZONE<br />
+                  <span style={{ color: C.text, fontWeight: 400 }}>
+                    {Math.round(sptZone.top)}–{Math.round(sptZone.bottom)} ft
+                  </span>
+                </div>
+                <div style={{
+                  position: "absolute", bottom: -4, left: 0, right: 0,
+                  height: 8, cursor: "ns-resize",
+                  background: C.nvidia,
+                  opacity: 0.8,
+                }}
+                  onMouseDown={e => { e.stopPropagation(); setDragging("bottom"); }}
+                />
+              </div>
+            </div>
+          </div>
 
-                  {/* Porosity */}
-                  <div>
-                    <p className="text-xs text-center text-muted-foreground mb-1">Porosity (%)</p>
-                    <ResponsiveContainer width="100%" height={250}>
-                      <LineChart data={logData} layout="vertical">
-                        <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
-                        <XAxis type="number" tick={{ fontSize: 10 }} />
-                        <YAxis dataKey="depth" type="number" reversed tick={{ fontSize: 10 }} domain={["dataMin", "dataMax"]} />
-                        <Tooltip />
-                        <Line dataKey="phiBefore" stroke="hsl(var(--muted-foreground))" dot={false} strokeWidth={1.5} name="Before" />
-                        <Line dataKey="phiAfter" stroke="#a855f7" dot={false} strokeWidth={2} name="After SPT" />
-                        <ReferenceLine y={selectedWell.depth} stroke="#f59e0b" strokeDasharray="4 4" />
-                      </LineChart>
-                    </ResponsiveContainer>
+          {/* Run button */}
+          <div style={{ padding: "14px 16px", borderTop: `1px solid ${C.border}` }}>
+            <button
+              onClick={runPredict}
+              disabled={running}
+              style={{
+                width: "100%",
+                padding: "12px 0",
+                background: running ? C.border : C.nvidia,
+                color: running ? C.muted : "#000",
+                border: "none",
+                borderRadius: 4,
+                fontFamily: "'IBM Plex Mono', monospace",
+                fontSize: 11,
+                fontWeight: 700,
+                letterSpacing: "0.14em",
+                cursor: running ? "not-allowed" : "pointer",
+                transition: "all 0.2s",
+              }}
+            >
+              {running ? "PREDICTING..." : "▶  RUN COSMOS PREDICT"}
+            </button>
+            <div style={{ fontSize: 9, color: C.muted, marginTop: 8, textAlign: "center" }}>
+              Drag green zone to select SPT target interval
+            </div>
+          </div>
+        </div>
+
+        {/* RIGHT: Results Panel */}
+        <div style={{ flex: 1, overflow: "auto", padding: "20px 24px" }}>
+
+          {/* Processing phases */}
+          {running && (
+            <div style={{
+              background: C.panel,
+              border: `1px solid ${C.border}`,
+              borderRadius: 6,
+              padding: "20px 24px",
+              marginBottom: 20,
+            }}>
+              <div style={{ fontSize: 10, color: C.nvidia, letterSpacing: "0.15em", marginBottom: 14 }}>
+                COSMOS PREDICT · INFERENCE PIPELINE
+              </div>
+              {(["encoding", "predicting", "reasoning"] as const).map((p, i) => {
+                const phases: Phase[] = ["encoding", "predicting", "reasoning"];
+                const idx = phases.indexOf(phase);
+                const done = phases.indexOf(p) < idx;
+                const active = p === phase;
+                return (
+                  <div key={p} style={{
+                    display: "flex", alignItems: "center", gap: 12,
+                    marginBottom: 10, opacity: phases.indexOf(p) > idx ? 0.3 : 1,
+                  }}>
+                    <div style={{
+                      width: 16, height: 16, borderRadius: "50%",
+                      border: `2px solid ${done ? C.nvidia : active ? C.orange : C.border}`,
+                      background: done ? C.nvidia : "transparent",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      fontSize: 8, color: "#000", fontWeight: 700,
+                      flexShrink: 0,
+                      boxShadow: active ? `0 0 10px ${C.orange}` : undefined,
+                    }}>{done ? "✓" : ""}</div>
+                    <div style={{ fontSize: 11, color: active ? C.text : done ? C.nvidia : C.muted }}>
+                      {[
+                        "Cosmos Tokenizer · Encoding well log sequence",
+                        "Cosmos Predict · Physics-aware subsurface simulation",
+                        "Cosmos Reason · Geological chain-of-thought",
+                      ][i]}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Streaming reasoning */}
+          {streamText && (
+            <div style={{
+              background: "#0a1020",
+              border: `1px solid #1a3050`,
+              borderRadius: 6,
+              padding: "16px 20px",
+              marginBottom: 20,
+              fontSize: 12,
+              lineHeight: 1.7,
+              color: C.blue,
+            }}>
+              <div style={{ fontSize: 9, color: C.muted, marginBottom: 8, letterSpacing: "0.12em" }}>
+                COSMOS REASON · GEOLOGICAL ANALYSIS
+              </div>
+              {streamText}
+              {phase === "reasoning" && <span style={{ opacity: 0.6 }}>█</span>}
+            </div>
+          )}
+
+          {/* Results */}
+          {result && (
+            <>
+              <div style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+                gap: 10,
+                marginBottom: 20,
+              }}>
+                {[
+                  { label: "Formation",        value: result.formation_name,              color: C.text },
+                  { label: "Net Pay",           value: `${result.net_pay_ft} ft`,          color: C.nvidia },
+                  { label: "Porosity",          value: `${result.porosity_pct}%`,          color: C.blue },
+                  { label: "Water Saturation",  value: `${result.water_saturation_pct}%`,  color: C.red },
+                  { label: "Pre-SPT Rate",      value: `${result.pre_spt_bbl_day} bbl/d`,  color: C.muted },
+                  { label: "Post-SPT Rate",     value: `${result.post_spt_bbl_day} bbl/d`, color: C.nvidia },
+                  { label: "Uplift Factor",     value: `${result.uplift_factor}×`,         color: C.orange },
+                  { label: "Pressure +",        value: `+${result.pressure_increase_pct}%`,color: C.teal },
+                  { label: "Recovery Factor",   value: `${result.recovery_factor_pct}%`,   color: C.nvidia },
+                  { label: "Slots Recommended", value: `${result.spt_slots_recommended}`,  color: C.text },
+                  { label: "CO₂ Reduction",     value: `${result.co2_reduction_tons_year} t/yr`, color: C.teal },
+                  { label: "Confidence",        value: `${result.confidence_pct}%`,        color: result.confidence_pct > 80 ? C.nvidia : C.orange },
+                ].map(m => (
+                  <div key={m.label} style={{
+                    background: C.panel,
+                    border: `1px solid ${C.border}`,
+                    borderRadius: 5,
+                    padding: "12px 14px",
+                  }}>
+                    <div style={{ fontSize: 9, color: C.muted, letterSpacing: "0.1em", marginBottom: 5 }}>
+                      {m.label}
+                    </div>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: m.color, letterSpacing: "0.04em" }}>
+                      {m.value}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Production curve */}
+              <div style={{
+                background: C.panel,
+                border: `1px solid ${C.border}`,
+                borderRadius: 6,
+                padding: "18px 20px",
+                marginBottom: 20,
+              }}>
+                <div style={{ fontSize: 10, color: C.muted, letterSpacing: "0.12em", marginBottom: 16 }}>
+                  PRODUCTION FORECAST · 24 MONTHS · bbl/day
+                </div>
+                <div style={{ display: "flex", gap: 20, marginBottom: 10 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 9, color: C.muted }}>
+                    <div style={{ width: 24, height: 2, background: C.muted, opacity: 0.5 }} />
+                    Pre-SPT (baseline)
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 9, color: C.nvidia }}>
+                    <div style={{ width: 24, height: 2, background: C.nvidia }} />
+                    Post-SPT (Cosmos prediction)
                   </div>
                 </div>
-                <div className="flex justify-center gap-6 mt-2 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-muted-foreground inline-block" /> Before SPT</span>
-                  <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-green-500 inline-block" /> After SPT (predicted)</span>
-                  <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-yellow-500 inline-block border-dashed" /> SPT Zone</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Production Forecast */}
-            <Card className="border-border/30">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4 text-green-400" />
-                  Production Forecast — 18-Month Outlook
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={280}>
-                  <AreaChart data={forecastData}>
-                    <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
-                    <XAxis dataKey="label" tick={{ fontSize: 10 }} />
-                    <YAxis tick={{ fontSize: 10 }} label={{ value: "BOPD", angle: -90, position: "insideLeft", fontSize: 11 }} />
-                    <Tooltip />
-                    <Legend />
-                    <ReferenceLine x="SPT" stroke="#f59e0b" strokeDasharray="4 4" label={{ value: "SPT Treatment", fontSize: 11, fill: "#f59e0b", position: "top" }} />
-                    <Area dataKey="baseline" stroke="hsl(var(--muted-foreground))" fill="hsl(var(--muted-foreground))" fillOpacity={0.1} strokeWidth={1.5} name="Baseline (no SPT)" />
-                    <Area dataKey="postSPT" stroke="#22c55e" fill="#22c55e" fillOpacity={0.15} strokeWidth={2} name="Post-SPT (Cosmos)" />
+                <ResponsiveContainer width="100%" height={200}>
+                  <AreaChart data={result.prodData} margin={{ top: 4, right: 8, bottom: 4, left: 0 }}>
+                    <XAxis dataKey="month" stroke={C.muted} tick={{ fontSize: 9, fill: C.muted }} />
+                    <YAxis stroke={C.muted} tick={{ fontSize: 9, fill: C.muted }} />
+                    <Tooltip
+                      contentStyle={{ background: "#0d1117", border: `1px solid ${C.border}`, fontSize: 11, fontFamily: "IBM Plex Mono" }}
+                      formatter={(v: number, n: string) => [`${v.toFixed(1)} bbl/d`, n]}
+                    />
+                    <Area type="monotone" dataKey="before" stroke={C.muted} strokeWidth={1.5} fill={`${C.muted}10`} strokeDasharray="4 2" name="Pre-SPT" />
+                    <Area type="monotone" dataKey="after"  stroke={C.nvidia} strokeWidth={2} fill={`${C.nvidia}15`} name="Post-SPT" />
                   </AreaChart>
                 </ResponsiveContainer>
-              </CardContent>
-            </Card>
+              </div>
 
-            {/* Cosmos Reasoning */}
-            <div className="p-4 rounded-xl bg-green-500/5 border border-green-500/20 space-y-2">
-              <h4 className="font-semibold flex items-center gap-2 text-green-400">
-                <CheckCircle2 className="h-4 w-4" /> Cosmos Predict — Verdict
-              </h4>
-              <p className="text-sm text-muted-foreground">
-                <span className="text-foreground font-medium">{selectedWell.name}</span> shows
-                strong SPT candidacy. The {selectedWell.formation} at {selectedWell.depth} ft has{" "}
-                {porosity.toFixed(1)}% porosity and {selectedWell.permeability} mD permeability —
-                physics simulation predicts <span className="text-green-400 font-semibold">+{peakUplift}% peak production uplift</span> with{" "}
-                <span className="text-blue-400 font-semibold">{cumulativeGain.toLocaleString()} bbl</span> cumulative gain
-                over 18 months. Estimated ROI: <span className="text-yellow-400 font-semibold">{estimatedROI}%</span>.
-                Water cut expected to decrease by ~{Math.round(waterCut * 0.18)}% due to improved drainage geometry.
-              </p>
-              <p className="text-xs text-muted-foreground italic">
-                Powered by NVIDIA Cosmos World Foundation Model — physics-aware temporal simulation
-              </p>
+              {/* SPT Parameters */}
+              <div style={{
+                background: "#0a1205",
+                border: `1px solid ${C.nvidia}30`,
+                borderRadius: 6,
+                padding: "16px 20px",
+              }}>
+                <div style={{ fontSize: 10, color: C.nvidia, letterSpacing: "0.12em", marginBottom: 10 }}>
+                  RECOMMENDED SPT PARAMETERS · US PATENT #8,863,823
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px 24px", fontSize: 11, color: C.muted }}>
+                  <div>Target interval: <span style={{ color: C.text }}>{Math.round(sptZone.top)}–{Math.round(sptZone.bottom)} ft MD</span></div>
+                  <div>Slot depth: <span style={{ color: C.text }}>{result.spt_slot_depth_ft} ft</span></div>
+                  <div>Number of slots: <span style={{ color: C.text }}>{result.spt_slots_recommended}</span></div>
+                  <div>Formation type: <span style={{ color: C.text }}>{result.formation_type}</span></div>
+                  <div>Fluid: <span style={{ color: C.text }}>Water + Sand · No chemicals</span></div>
+                  <div>Est. duration: <span style={{ color: C.text }}>15–20 years</span></div>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Idle state */}
+          {phase === "idle" && (
+            <div style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              height: "60vh",
+              color: C.muted,
+              gap: 16,
+              textAlign: "center",
+            }}>
+              <div style={{ fontSize: 40, opacity: 0.15 }}>⬡</div>
+              <div style={{ fontSize: 11, letterSpacing: "0.1em" }}>
+                Drag the green zone on the well log<br />to select SPT target interval,<br />then press RUN COSMOS PREDICT
+              </div>
+              <div style={{ fontSize: 9, color: C.border, letterSpacing: "0.12em", marginTop: 8 }}>
+                NVIDIA COSMOS WFM · PHYSICS-AWARE SUBSURFACE SIMULATION
+              </div>
             </div>
-          </>
-        )}
-      </CardContent>
-    </Card>
+          )}
+        </div>
+      </div>
+    </div>
   );
 };
 
