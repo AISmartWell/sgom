@@ -191,7 +191,7 @@ export default function CosmosTransferDemo() {
   const previewWells = syntheticWells.slice(0, 3);
 
   return (
-    <Card className="border-blue-500/30 bg-card/80 backdrop-blur-sm overflow-hidden">
+    <Card className="border-blue-500/30 bg-card/80 backdrop-blur-sm">
       <CardHeader>
         <div className="flex items-center gap-3">
           <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 flex items-center justify-center">
