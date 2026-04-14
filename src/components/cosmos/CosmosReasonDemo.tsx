@@ -403,12 +403,17 @@ const CosmosReasonDemo = () => {
           </div>
         )}
 
-        {/* Radar Chart — Multi-Well Comparison */}
-        {showSummary && (
+        {/* Radar Chart — Multi-Well Comparison (unfolds as CoT steps complete) */}
+        {completedSteps.length > 0 && (
           <div className="space-y-3 animate-in fade-in duration-500">
             <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
               <Radar className="h-4 w-4" />
               Parameter Comparison — Radar View
+              {!showSummary && (
+                <Badge variant="outline" className="text-[10px] ml-2 animate-pulse">
+                  {completedSteps.length}/{steps.length} parameters revealed
+                </Badge>
+              )}
             </h4>
             <div className="p-4 rounded-xl bg-muted/20 border border-border/30">
               <div className="h-[340px]">
@@ -417,16 +422,21 @@ const CosmosReasonDemo = () => {
                     data={(() => {
                       const normalize = (val: number, min: number, max: number) => Math.round(((val - min) / (max - min)) * 100);
                       const params = [
-                        { param: "Porosity", key: "porosity" as const, min: 0, max: 25 },
-                        { param: "Permeability", key: "permeability" as const, min: 0, max: 55 },
-                        { param: "Low Water Cut", key: "waterCut" as const, min: 0, max: 100, invert: true },
-                        { param: "Optimal Depth", key: "depth" as const, min: 2000, max: 8000, invert: true },
-                        { param: "Low GOR", key: "gor" as const, min: 0, max: 1000, invert: true },
-                        { param: "Production", key: "oil" as const, min: 0, max: 30 },
+                        { param: "Production", key: "oil" as const, min: 0, max: 30, stepIndex: 0 },
+                        { param: "Low Water Cut", key: "waterCut" as const, min: 0, max: 100, invert: true, stepIndex: 1 },
+                        { param: "Optimal Depth", key: "depth" as const, min: 2000, max: 8000, invert: true, stepIndex: 2 },
+                        { param: "Porosity", key: "porosity" as const, min: 0, max: 25, stepIndex: 3 },
+                        { param: "Low GOR", key: "gor" as const, min: 0, max: 1000, invert: true, stepIndex: 5 },
+                        { param: "Permeability", key: "permeability" as const, min: 0, max: 55, stepIndex: 3 },
                       ];
                       return params.map(p => {
+                        const revealed = completedSteps.includes(p.stepIndex);
                         const row: any = { param: p.param };
                         WELLS.forEach(w => {
+                          if (!revealed) {
+                            row[w.name] = 0;
+                            return;
+                          }
                           const raw = w[p.key] as number;
                           const n = normalize(raw, p.min, p.max);
                           row[w.name] = (p as any).invert ? Math.max(0, 100 - n) : Math.min(100, n);
@@ -455,6 +465,8 @@ const CosmosReasonDemo = () => {
                           fillOpacity={isSelected ? 0.25 : 0.05}
                           strokeWidth={isSelected ? 2.5 : 1}
                           strokeOpacity={isSelected ? 1 : 0.4}
+                          animationDuration={600}
+                          animationEasing="ease-out"
                         />
                       );
                     })}
@@ -470,7 +482,10 @@ const CosmosReasonDemo = () => {
                 </ResponsiveContainer>
               </div>
               <p className="text-xs text-muted-foreground text-center mt-2">
-                Selected well highlighted · All values normalized 0–100 (higher = better SPT fit)
+                {showSummary
+                  ? "Selected well highlighted · All values normalized 0–100 (higher = better SPT fit)"
+                  : "Rays unfold as each Chain-of-Thought step completes…"
+                }
               </p>
             </div>
           </div>
