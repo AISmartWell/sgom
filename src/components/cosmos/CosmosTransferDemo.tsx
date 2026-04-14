@@ -25,6 +25,7 @@ interface Region {
   avgPorosity: number;
   avgPerm: number;
   baseAccuracy: number;
+  referenceWell?: { name: string; api: string; formation: string };
 }
 
 const REGIONS: Region[] = [
@@ -39,6 +40,7 @@ const REGIONS: Region[] = [
     avgPorosity: 15.2,
     avgPerm: 24,
     baseAccuracy: 61,
+    referenceWell: { name: "Brawner 10-15", api: "42-467-30979", formation: "Rodessa / James Lime" },
   },
   {
     id: "anadarko",
@@ -224,6 +226,13 @@ export default function CosmosTransferDemo() {
               >
                 <div className="font-semibold text-sm">{r.name}</div>
                 <div className="text-xs text-muted-foreground mt-1">{r.realWells} real wells</div>
+                {r.referenceWell && (
+                  <div className="text-xs mt-1 flex items-center gap-1">
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-green-500" />
+                    <span className="text-green-400 font-medium">{r.referenceWell.name}</span>
+                    <span className="text-muted-foreground">· ref well</span>
+                  </div>
+                )}
                 <div className="flex items-center gap-2 mt-2">
                   <Badge variant="outline" className="text-xs">{r.basin}</Badge>
                   <span className="text-xs text-muted-foreground">Accuracy: {r.baseAccuracy}%</span>
