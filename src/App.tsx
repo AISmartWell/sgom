@@ -56,6 +56,7 @@ import NvidiaCapitalConnectLetter from "./pages/NvidiaCapitalConnectLetter";
 import DiversifiedEnergyProposal from "./pages/DiversifiedEnergyProposal";
 import KazakhstanTemplate from "./pages/KazakhstanTemplate";
 import KazakhstanProcess from "./pages/KazakhstanProcess";
+import CosmosDemo from "./pages/CosmosDemo";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
@@ -123,7 +124,8 @@ const App = () => (
             <Route path="/nvidia-capital-connect" element={<NvidiaCapitalConnectLetter />} />
              <Route path="/diversified-energy-proposal" element={<DiversifiedEnergyProposal />} />
              <Route path="/kazakhstan-template" element={<KazakhstanTemplate />} />
-             <Route path="/kazakhstan-process" element={<KazakhstanProcess />} />
+              <Route path="/kazakhstan-process" element={<KazakhstanProcess />} />
+              <Route path="/cosmos-demo" element={<CosmosDemo />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
