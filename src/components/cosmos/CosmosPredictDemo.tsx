@@ -45,17 +45,29 @@ const C = {
   dimText: "#6b8899",
 };
 
+// ── Well data point type ──
+interface WellDataPoint {
+  depth: number;
+  GR: number;
+  RT: number;
+  NPHI: number;
+  RHOB?: number;
+  SW: number;
+  zone?: string;
+}
+
 // ── Tiny well log track ──
-function LogTrack({ data, accessor, color, label, unit, domain, width = 100 }: {
-  data: typeof WELL_DATA;
-  accessor: keyof typeof WELL_DATA[0];
+function LogTrack({ data, accessor, color, label, unit, domain, depthDomain, width = 100 }: {
+  data: WellDataPoint[];
+  accessor: keyof WellDataPoint;
   color: string;
   label: string;
   unit: string;
   domain: [number, number];
+  depthDomain: [number, number];
   width?: number;
 }) {
-  const pts = data.map(d => ({ depth: d.depth, v: d[accessor] as number }));
+  const pts = data.map(d => ({ depth: d.depth, v: (d[accessor] ?? 0) as number }));
   return (
     <div style={{ width, flexShrink: 0 }}>
       <div style={{ fontSize: 9, fontFamily: "monospace", color: C.dimText, textAlign: "center",
@@ -66,7 +78,7 @@ function LogTrack({ data, accessor, color, label, unit, domain, width = 100 }: {
       <ResponsiveContainer width="100%" height={600}>
         <LineChart data={pts} layout="vertical" margin={{ top: 0, right: 4, bottom: 0, left: 0 }}>
           <XAxis type="number" domain={domain} hide />
-          <YAxis type="number" dataKey="depth" domain={[4200, 5800]} reversed hide />
+          <YAxis type="number" dataKey="depth" domain={depthDomain} reversed hide />
           <Line type="monotone" dataKey="v" stroke={color} strokeWidth={1.5} dot={false} />
         </LineChart>
       </ResponsiveContainer>
