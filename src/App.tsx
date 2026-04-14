@@ -59,6 +59,7 @@ import KazakhstanProcess from "./pages/KazakhstanProcess";
 import CosmosDemo from "./pages/CosmosDemo";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import FluidPhysicsSimulation from "./pages/FluidPhysicsSimulation";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
