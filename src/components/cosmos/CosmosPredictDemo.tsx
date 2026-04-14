@@ -252,7 +252,7 @@ const CosmosPredictDemo = () => {
           },
           body: JSON.stringify({
             message: `You are NVIDIA Cosmos Predict. Analyze this well zone and respond ONLY with valid JSON (no markdown):
-WELL: Brawner 10-15 | Oklahoma Anadarko Basin
+WELL: Brawner 10-15 | East Texas Basin, Van Zandt County | API 42-467-30979 | Rodessa/James Lime formation
 SPT TARGET ZONE: ${sptZone.top}–${sptZone.bottom} ft MD, ${thickness} ft thick
 AVG GR: ${avgGR} API, AVG RT: ${avgRT} Ω·m, AVG NPHI: ${avgNPHI}, AVG SW: ${avgSW}
 Return JSON: {"formation_name","formation_type","net_pay_ft","porosity_pct","water_saturation_pct","permeability_md","pre_spt_bbl_day","post_spt_bbl_day","uplift_factor","pressure_increase_pct","recovery_factor_pct","spt_slot_depth_ft","spt_slots_recommended","co2_reduction_tons_year","confidence_pct","reasoning"}`,
