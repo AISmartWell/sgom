@@ -3,7 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { MessageSquare, Play, ChevronRight, CheckCircle2, AlertTriangle, TrendingUp, Droplets, Layers, DollarSign, Target, Brain, Zap } from "lucide-react";
+import { MessageSquare, Play, ChevronRight, CheckCircle2, AlertTriangle, TrendingUp, Droplets, Layers, DollarSign, Target, Brain, Zap, Radar } from "lucide-react";
+import {
+  RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar as RechartsRadar,
+  ResponsiveContainer, Legend, Tooltip,
+} from "recharts";
 import { cn } from "@/lib/utils";
 
 interface WellCandidate {
@@ -394,6 +398,79 @@ const CosmosReasonDemo = () => {
               <p className="text-sm text-muted-foreground leading-relaxed">
                 {streamedSummary}
                 {isRunning && <span className="inline-block w-1.5 h-4 bg-purple-400 animate-pulse ml-0.5 align-text-bottom" />}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Radar Chart — Multi-Well Comparison */}
+        {showSummary && (
+          <div className="space-y-3 animate-in fade-in duration-500">
+            <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+              <Radar className="h-4 w-4" />
+              Parameter Comparison — Radar View
+            </h4>
+            <div className="p-4 rounded-xl bg-muted/20 border border-border/30">
+              <div className="h-[340px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadarChart
+                    data={(() => {
+                      const normalize = (val: number, min: number, max: number) => Math.round(((val - min) / (max - min)) * 100);
+                      const params = [
+                        { param: "Porosity", key: "porosity" as const, min: 0, max: 25 },
+                        { param: "Permeability", key: "permeability" as const, min: 0, max: 55 },
+                        { param: "Low Water Cut", key: "waterCut" as const, min: 0, max: 100, invert: true },
+                        { param: "Optimal Depth", key: "depth" as const, min: 2000, max: 8000, invert: true },
+                        { param: "Low GOR", key: "gor" as const, min: 0, max: 1000, invert: true },
+                        { param: "Production", key: "oil" as const, min: 0, max: 30 },
+                      ];
+                      return params.map(p => {
+                        const row: any = { param: p.param };
+                        WELLS.forEach(w => {
+                          const raw = w[p.key] as number;
+                          const n = normalize(raw, p.min, p.max);
+                          row[w.name] = (p as any).invert ? Math.max(0, 100 - n) : Math.min(100, n);
+                        });
+                        return row;
+                      });
+                    })()}
+                  >
+                    <PolarGrid stroke="hsl(var(--border))" />
+                    <PolarAngleAxis dataKey="param" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
+                    <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: "hsl(var(--background))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
+                      formatter={(v: number) => [`${v}`, ""]}
+                    />
+                    {WELLS.map((w, i) => {
+                      const colors = ["#a855f7", "#3b82f6", "#22c55e", "#eab308", "#ef4444"];
+                      const isSelected = w.id === selectedWell.id;
+                      return (
+                        <RechartsRadar
+                          key={w.id}
+                          name={w.name}
+                          dataKey={w.name}
+                          stroke={colors[i]}
+                          fill={colors[i]}
+                          fillOpacity={isSelected ? 0.25 : 0.05}
+                          strokeWidth={isSelected ? 2.5 : 1}
+                          strokeOpacity={isSelected ? 1 : 0.4}
+                        />
+                      );
+                    })}
+                    <Legend
+                      wrapperStyle={{ fontSize: 11 }}
+                      formatter={(value) => (
+                        <span style={{ color: value === selectedWell.name ? "#a855f7" : "hsl(var(--muted-foreground))" }}>
+                          {value}
+                        </span>
+                      )}
+                    />
+                  </RadarChart>
+                </ResponsiveContainer>
+              </div>
+              <p className="text-xs text-muted-foreground text-center mt-2">
+                Selected well highlighted · All values normalized 0–100 (higher = better SPT fit)
               </p>
             </div>
           </div>
