@@ -336,8 +336,17 @@ Return JSON: {"formation_name","formation_type","net_pay_ft","porosity_pct","wat
         }}>NVIDIA COSMOS</div>
         <div style={{ color: C.muted, fontSize: 11 }}>×</div>
         <div style={{ color: C.blue, fontSize: 11, letterSpacing: "0.1em" }}>SGOM · PREDICT</div>
-        <div style={{ marginLeft: "auto", color: C.muted, fontSize: 10 }}>
-          Brawner 10-15 · Oklahoma Anadarko Basin
+        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8 }}>
+          {hasRealData && (
+            <span style={{
+              background: "#76b90030", color: C.nvidia, fontSize: 8, fontWeight: 700,
+              padding: "2px 6px", borderRadius: 3, letterSpacing: "0.1em",
+              border: "1px solid #76b90050",
+            }}>REAL DATA</span>
+          )}
+          <span style={{ color: C.muted, fontSize: 10 }}>
+            Brawner 10-15 · East Texas Basin
+          </span>
         </div>
         <div style={{
           width: 7, height: 7, borderRadius: "50%",
