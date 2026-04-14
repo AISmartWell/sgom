@@ -270,19 +270,13 @@ const NvidiaCosmos = () => {
         </Tabs>
 
         {/* Cosmos Predict Interactive Demo */}
-        <div style={{ minHeight: 200 }}>
-          <CosmosPredictDemo />
-        </div>
+        <CosmosPredictDemo />
 
         {/* Cosmos Transfer Interactive Demo */}
-        <div style={{ minHeight: 200 }}>
-          <CosmosTransferDemo />
-        </div>
+        <CosmosTransferDemo />
 
         {/* Cosmos Reason Interactive Demo */}
-        <div style={{ minHeight: 200 }}>
-          <CosmosReasonDemo />
-        </div>
+        <CosmosReasonDemo />
 
         {/* Pipeline Integration Map */}
         <Card className="glass-card border-primary/20">
