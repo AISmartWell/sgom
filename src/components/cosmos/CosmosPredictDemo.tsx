@@ -119,7 +119,35 @@ type Phase = "idle" | "encoding" | "predicting" | "reasoning" | "done";
 
 // ── Main demo ──
 const CosmosPredictDemo = () => {
-  const [sptZone, setSptZone] = useState(SPT_ZONE_DEFAULT);
+  const { data: realLogs, isLoading: logsLoading, hasRealData } = useWellLogs(BRAWNER_WELL_ID);
+
+  // Convert real DB logs → component format, or use synthetic fallback
+  const wellData: WellDataPoint[] = useMemo(() => {
+    if (hasRealData && realLogs) {
+      return realLogs.map(r => ({
+        depth: r.measured_depth,
+        GR: r.gamma_ray ?? 50,
+        RT: r.resistivity ?? 5,
+        NPHI: r.porosity != null ? r.porosity / 100 : (r.neutron_porosity ?? 0.2),
+        RHOB: r.density ?? 2.4,
+        SW: r.water_saturation != null ? r.water_saturation / 100 : 0.5,
+      }));
+    }
+    return SYNTHETIC_WELL_DATA;
+  }, [realLogs, hasRealData]);
+
+  // Dynamic depth range from actual data
+  const depthRange = useMemo(() => {
+    if (wellData.length === 0) return { min: 4200, max: 5800 };
+    const depths = wellData.map(d => d.depth);
+    const min = Math.min(...depths);
+    const max = Math.max(...depths);
+    const padding = Math.max(50, (max - min) * 0.15);
+    return { min: Math.floor((min - padding) / 50) * 50, max: Math.ceil((max + padding) / 50) * 50 };
+  }, [wellData]);
+
+  const defaultSptZone = hasRealData ? SPT_ZONE_DEFAULT_REAL : SPT_ZONE_DEFAULT_SYNTHETIC;
+  const [sptZone, setSptZone] = useState(defaultSptZone);
   const [dragging, setDragging] = useState<"top" | "bottom" | "body" | null>(null);
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<PredictResult | null>(null);
@@ -127,13 +155,20 @@ const CosmosPredictDemo = () => {
   const [phase, setPhase] = useState<Phase>("idle");
   const logRef = useRef<HTMLDivElement>(null);
 
+  // Reset SPT zone when data source changes
+  const prevHasReal = useRef(hasRealData);
+  if (prevHasReal.current !== hasRealData) {
+    prevHasReal.current = hasRealData;
+    setSptZone(hasRealData ? SPT_ZONE_DEFAULT_REAL : SPT_ZONE_DEFAULT_SYNTHETIC);
+  }
+
   // ── Drag handlers ──
   const getDepthFromY = useCallback((clientY: number) => {
-    if (!logRef.current) return 4200;
+    if (!logRef.current) return depthRange.min;
     const rect = logRef.current.getBoundingClientRect();
     const frac = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
-    return Math.round(4200 + frac * (5800 - 4200));
-  }, []);
+    return Math.round(depthRange.min + frac * (depthRange.max - depthRange.min));
+  }, [depthRange]);
 
   const onMouseMove = useCallback((e: React.MouseEvent) => {
     if (!dragging) return;
@@ -143,16 +178,16 @@ const CosmosPredictDemo = () => {
       if (dragging === "bottom") return { ...z, bottom: Math.max(d, z.top + 40) };
       if (dragging === "body") {
         const h = z.bottom - z.top;
-        const newTop = Math.max(4200, Math.min(d - h / 2, 5800 - h));
+        const newTop = Math.max(depthRange.min, Math.min(d - h / 2, depthRange.max - h));
         return { top: newTop, bottom: newTop + h };
       }
       return z;
     });
-  }, [dragging, getDepthFromY]);
+  }, [dragging, getDepthFromY, depthRange]);
 
   const onMouseUp = useCallback(() => setDragging(null), []);
 
-  const depthToFrac = (d: number) => (d - 4200) / (5800 - 4200);
+  const depthToFrac = (d: number) => (d - depthRange.min) / (depthRange.max - depthRange.min);
   const topFrac  = depthToFrac(sptZone.top);
   const botFrac  = depthToFrac(sptZone.bottom);
 
