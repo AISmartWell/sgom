@@ -396,6 +396,118 @@ const CosmosReasonDemo = () => {
             </div>
           </div>
         )}
+
+        {/* Comparative Ranking Table */}
+        {showSummary && (
+          <div className="space-y-3 animate-in fade-in duration-500">
+            <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+              <Target className="h-4 w-4" />
+              Comparative Ranking — All {WELLS.length} Wells
+            </h4>
+            <div className="overflow-x-auto rounded-xl border border-border/50">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border/50 bg-muted/30">
+                    <th className="p-3 text-left font-medium text-muted-foreground">Rank</th>
+                    <th className="p-3 text-left font-medium text-muted-foreground">Well</th>
+                    <th className="p-3 text-center font-medium text-muted-foreground">Score</th>
+                    <th className="p-3 text-center font-medium text-muted-foreground">Oil</th>
+                    <th className="p-3 text-center font-medium text-muted-foreground">WC</th>
+                    <th className="p-3 text-center font-medium text-muted-foreground">Depth</th>
+                    <th className="p-3 text-center font-medium text-muted-foreground">Formation</th>
+                    <th className="p-3 text-center font-medium text-muted-foreground">GOR</th>
+                    <th className="p-3 text-center font-medium text-muted-foreground">Post-SPT</th>
+                    <th className="p-3 text-center font-medium text-muted-foreground">12m Revenue</th>
+                    <th className="p-3 text-center font-medium text-muted-foreground">Decision</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(() => {
+                    const ranked = WELLS.map(w => {
+                      const r = computeReasoning(w);
+                      const uplift = w.waterCut < 30 ? 7 : w.waterCut <= 50 ? 5 : w.waterCut <= 70 ? 3 : 1.5;
+                      const postSPT = Math.min(w.oil + uplift, 25);
+                      const rev12 = Math.round((postSPT - w.oil) * 30 * 12 * 65);
+                      return { well: w, ...r, uplift, postSPT, rev12 };
+                    }).sort((a, b) => b.totalScore - a.totalScore);
+
+                    return ranked.map((item, idx) => {
+                      const isSelected = item.well.id === selectedWell.id;
+                      return (
+                        <tr
+                          key={item.well.id}
+                          className={cn(
+                            "border-b border-border/20 transition-colors cursor-pointer",
+                            isSelected ? "bg-purple-500/10 border-purple-500/30" : "hover:bg-muted/20"
+                          )}
+                          onClick={() => selectWell(item.well)}
+                        >
+                          <td className="p-3">
+                            <span className={cn(
+                              "inline-flex items-center justify-center h-7 w-7 rounded-full text-xs font-bold",
+                              idx === 0 ? "bg-yellow-500/20 text-yellow-400" : idx === 1 ? "bg-gray-400/20 text-gray-300" : idx === 2 ? "bg-amber-700/20 text-amber-500" : "bg-muted/30 text-muted-foreground"
+                            )}>
+                              {idx + 1}
+                            </span>
+                          </td>
+                          <td className="p-3">
+                            <div className="font-semibold">{item.well.name}</div>
+                            <div className="text-xs text-muted-foreground">{item.well.county} Co.</div>
+                          </td>
+                          <td className="p-3 text-center">
+                            <div className="flex items-center justify-center gap-2">
+                              <Progress value={item.totalScore} className="w-12 h-1.5" />
+                              <span className={cn(
+                                "font-bold text-sm",
+                                item.totalScore >= 75 ? "text-green-400" : item.totalScore >= 55 ? "text-yellow-400" : "text-red-400"
+                              )}>
+                                {item.totalScore}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="p-3 text-center text-muted-foreground">{item.well.oil} bbl/d</td>
+                          <td className="p-3 text-center">
+                            <span className={cn(
+                              "font-medium",
+                              item.well.waterCut > 60 ? "text-red-400" : item.well.waterCut > 40 ? "text-yellow-400" : "text-green-400"
+                            )}>
+                              {item.well.waterCut}%
+                            </span>
+                          </td>
+                          <td className="p-3 text-center text-muted-foreground">{item.well.depth.toLocaleString()}'</td>
+                          <td className="p-3 text-center">
+                            <Badge variant="outline" className="text-[10px]">{item.well.formation.split(" ")[0]}</Badge>
+                          </td>
+                          <td className="p-3 text-center text-muted-foreground">{item.well.gor}</td>
+                          <td className="p-3 text-center">
+                            <span className="text-green-400 font-semibold">{item.postSPT.toFixed(1)}</span>
+                            <span className="text-muted-foreground text-xs ml-1">(+{item.uplift})</span>
+                          </td>
+                          <td className="p-3 text-center">
+                            <span className="font-semibold text-green-400">${(item.rev12 / 1000).toFixed(0)}k</span>
+                          </td>
+                          <td className="p-3 text-center">
+                            <Badge className={cn(
+                              "text-[10px]",
+                              item.totalScore >= 75 ? "bg-green-500/20 text-green-400 border-green-500/30" :
+                              item.totalScore >= 55 ? "bg-yellow-500/20 text-yellow-400 border-yellow-500/30" :
+                              "bg-red-500/20 text-red-400 border-red-500/30"
+                            )}>
+                              {item.totalScore >= 75 ? "✅ Go" : item.totalScore >= 55 ? "⚠️ Review" : "❌ No"}
+                            </Badge>
+                          </td>
+                        </tr>
+                      );
+                    });
+                  })()}
+                </tbody>
+              </table>
+            </div>
+            <p className="text-xs text-muted-foreground text-center">
+              Click any row to run detailed Chain-of-Thought analysis for that well
+            </p>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
