@@ -198,7 +198,7 @@ const CosmosPredictDemo = () => {
     setStreamText("");
     setPhase("encoding");
 
-    const targetZoneData = WELL_DATA.filter(
+    const targetZoneData = wellData.filter(
       d => d.depth >= sptZone.top && d.depth <= sptZone.bottom
     );
     const avgGR   = (targetZoneData.reduce((s, d) => s + d.GR,   0) / targetZoneData.length).toFixed(1);
@@ -352,7 +352,7 @@ Return JSON: {"formation_name","formation_type","net_pay_ft","porosity_pct","wat
           <div style={{ flex: 1, overflow: "hidden", position: "relative", display: "flex" }}>
             {/* Depth labels */}
             <div style={{ width: 44, flexShrink: 0, position: "relative", borderRight: `1px solid ${C.border}` }}>
-              {[4200, 4400, 4600, 4800, 5000, 5200, 5400, 5600, 5800].map(d => (
+              {depthLabels.map(d => (
                 <div key={d} style={{
                   position: "absolute",
                   top: `${depthToFrac(d) * 100}%`,
@@ -371,10 +371,10 @@ Return JSON: {"formation_name","formation_type","net_pay_ft","porosity_pct","wat
               style={{ flex: 1, position: "relative", display: "flex", overflow: "hidden" }}
             >
               <div style={{ display: "flex", width: "100%", height: "100%" }}>
-                <LogTrack data={WELL_DATA} accessor="GR"   color={C.nvidia} label="GR"   unit="API"  domain={[0, 150]}   width={72} />
-                <LogTrack data={WELL_DATA} accessor="RT"   color={C.orange} label="RT"   unit="Ω·m"  domain={[0.1, 100]} width={72} />
-                <LogTrack data={WELL_DATA} accessor="NPHI" color={C.blue}   label="NPHI" unit="v/v"  domain={[0.4, 0]}   width={72} />
-                <LogTrack data={WELL_DATA} accessor="SW"   color={C.red}    label="Sw"   unit="v/v"  domain={[1, 0]}     width={52} />
+                <LogTrack data={wellData} accessor="GR"   color={C.nvidia} label="GR"   unit="API"  domain={[0, 150]}   depthDomain={[depthRange.min, depthRange.max]} width={72} />
+                <LogTrack data={wellData} accessor="RT"   color={C.orange} label="RT"   unit="Ω·m"  domain={[0.1, 100]} depthDomain={[depthRange.min, depthRange.max]} width={72} />
+                <LogTrack data={wellData} accessor="NPHI" color={C.blue}   label="NPHI" unit="v/v"  domain={[0.4, 0]}   depthDomain={[depthRange.min, depthRange.max]} width={72} />
+                <LogTrack data={wellData} accessor="SW"   color={C.red}    label="Sw"   unit="v/v"  domain={[1, 0]}     depthDomain={[depthRange.min, depthRange.max]} width={52} />
               </div>
 
               {/* SPT zone overlay */}
