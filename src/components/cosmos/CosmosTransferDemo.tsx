@@ -112,11 +112,11 @@ function genAccuracyCurve(base: number, realWells: number, syntheticWells: numbe
 type Phase = "idle" | "encoding" | "generating" | "validating" | "complete";
 
 const PHASE_LABELS: Record<Phase, string> = {
-  idle: "Готов к генерации",
-  encoding: "Кодирование реальных каротажей →  латентное пространство",
-  generating: "Генерация синтетических кривых из WFM",
-  validating: "Валидация петрофизической согласованности",
-  complete: "Генерация завершена",
+  idle: "Ready to generate",
+  encoding: "Encoding real logs → latent space",
+  generating: "Generating synthetic curves from WFM",
+  validating: "Validating petrophysical consistency",
+  complete: "Generation complete",
 };
 
 const PHASE_PROGRESS: Record<Phase, number> = {
@@ -147,7 +147,6 @@ export default function CosmosTransferDemo() {
     timerRef.current = setTimeout(() => {
       setPhase("generating");
 
-      // Generate synthetic wells progressively
       const wells: ReturnType<typeof genLogData>[] = [];
       const batchSize = Math.ceil(syntheticCount / 4);
       let batch = 0;
@@ -175,7 +174,6 @@ export default function CosmosTransferDemo() {
     };
   }, []);
 
-  // Pick 3 wells to show in mini log preview
   const previewWells = syntheticWells.slice(0, 3);
 
   return (
@@ -191,7 +189,7 @@ export default function CosmosTransferDemo() {
               <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">Data Augmentation</Badge>
             </CardTitle>
             <CardDescription>
-              Генерация синтетических каротажных данных для регионов с дефицитом скважин
+              Synthetic well log generation for data-scarce regions
             </CardDescription>
           </div>
         </div>
@@ -199,7 +197,7 @@ export default function CosmosTransferDemo() {
       <CardContent className="space-y-6">
         {/* Region selector */}
         <div className="space-y-2">
-          <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Выберите регион</h4>
+          <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Select Region</h4>
           <div className="grid md:grid-cols-3 gap-3">
             {REGIONS.map((r) => (
               <button
@@ -213,10 +211,10 @@ export default function CosmosTransferDemo() {
                 )}
               >
                 <div className="font-semibold text-sm">{r.name}</div>
-                <div className="text-xs text-muted-foreground mt-1">{r.realWells} реальных скважин</div>
+                <div className="text-xs text-muted-foreground mt-1">{r.realWells} real wells</div>
                 <div className="flex items-center gap-2 mt-2">
                   <Badge variant="outline" className="text-xs">{r.basin}</Badge>
-                  <span className="text-xs text-muted-foreground">Точность: {r.baseAccuracy}%</span>
+                  <span className="text-xs text-muted-foreground">Accuracy: {r.baseAccuracy}%</span>
                 </div>
               </button>
             ))}
@@ -226,11 +224,11 @@ export default function CosmosTransferDemo() {
         {/* Region stats */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           {[
-            { label: "Реальные скважины", value: region.realWells, icon: Globe },
-            { label: "К генерации", value: syntheticCount, icon: Sparkles },
-            { label: "Целевой объём", value: region.targetWells, icon: Database },
-            { label: "Ср. пористость", value: `${region.avgPorosity}%`, icon: Layers },
-            { label: "Базовая точность", value: `${region.baseAccuracy}%`, icon: BarChart3 },
+            { label: "Real Wells", value: region.realWells, icon: Globe },
+            { label: "To Generate", value: syntheticCount, icon: Sparkles },
+            { label: "Target Volume", value: region.targetWells, icon: Database },
+            { label: "Avg. Porosity", value: `${region.avgPorosity}%`, icon: Layers },
+            { label: "Base Accuracy", value: `${region.baseAccuracy}%`, icon: BarChart3 },
           ].map((s) => (
             <div key={s.label} className="p-3 rounded-lg bg-muted/20 border border-border/30 text-center">
               <s.icon className="h-4 w-4 mx-auto mb-1 text-blue-400" />
@@ -242,7 +240,7 @@ export default function CosmosTransferDemo() {
 
         {/* Formations */}
         <div className="flex flex-wrap gap-2">
-          <span className="text-xs text-muted-foreground">Формации:</span>
+          <span className="text-xs text-muted-foreground">Formations:</span>
           {region.formations.map((f) => (
             <Badge key={f} variant="outline" className="text-xs">{f}</Badge>
           ))}
@@ -259,7 +257,7 @@ export default function CosmosTransferDemo() {
             className="bg-blue-600 hover:bg-blue-700 gap-2"
           >
             <Play className="h-4 w-4" />
-            {phase === "complete" ? "Перегенерировать" : "Запустить Cosmos Transfer"}
+            {phase === "complete" ? "Regenerate" : "Run Cosmos Transfer"}
           </Button>
           {phase !== "idle" && (
             <div className="flex-1 space-y-1">
@@ -278,7 +276,7 @@ export default function CosmosTransferDemo() {
             <div className="flex items-center justify-between">
               <h4 className="font-semibold flex items-center gap-2">
                 <Cpu className="h-4 w-4 text-blue-400" />
-                Генерация синтетических скважин
+                Synthetic Well Generation
               </h4>
               <Badge className={cn(
                 phase === "complete"
@@ -326,7 +324,7 @@ export default function CosmosTransferDemo() {
             <div className="p-4 rounded-xl bg-muted/20 border border-border/30 space-y-3">
               <h4 className="font-semibold flex items-center gap-2">
                 <TrendingUp className="h-4 w-4 text-green-400" />
-                Рост точности ML-модели при добавлении синтетических данных
+                ML Model Accuracy Growth with Synthetic Data
               </h4>
               <div className="h-56">
                 <ResponsiveContainer width="100%" height="100%">
@@ -335,7 +333,7 @@ export default function CosmosTransferDemo() {
                     <XAxis
                       dataKey="wells"
                       tick={{ fontSize: 11, fill: "#6b8899" }}
-                      label={{ value: "Всего скважин в обучающей выборке", position: "insideBottom", offset: -5, fill: "#6b8899", fontSize: 11 }}
+                      label={{ value: "Total wells in training set", position: "insideBottom", offset: -5, fill: "#6b8899", fontSize: 11 }}
                     />
                     <YAxis
                       domain={[50, 100]}
@@ -344,8 +342,8 @@ export default function CosmosTransferDemo() {
                     />
                     <Tooltip
                       contentStyle={{ backgroundColor: "#0d1117", border: "1px solid #1c2530", borderRadius: 8, fontSize: 12 }}
-                      labelFormatter={(v) => `${v} скважин`}
-                      formatter={(v: number) => [`${v}%`, "Точность"]}
+                      labelFormatter={(v) => `${v} wells`}
+                      formatter={(v: number) => [`${v}%`, "Accuracy"]}
                     />
                     <Area
                       type="monotone"
@@ -368,10 +366,10 @@ export default function CosmosTransferDemo() {
             {/* Key metrics */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {[
-                { label: "Итого скважин", value: region.targetWells, sub: `${region.realWells} реальных + ${syntheticCount} синтетических`, color: "text-blue-400" },
-                { label: "Рост точности", value: `+${(finalAccuracy - region.baseAccuracy).toFixed(0)}%`, sub: `${region.baseAccuracy}% → ${finalAccuracy.toFixed(0)}%`, color: "text-green-400" },
-                { label: "Data Augmentation", value: `${(syntheticCount / region.realWells).toFixed(0)}×`, sub: "Коэффициент расширения", color: "text-purple-400" },
-                { label: "Время генерации", value: "<3s", sub: "На NVIDIA A100 GPU", color: "text-yellow-400" },
+                { label: "Total Wells", value: region.targetWells, sub: `${region.realWells} real + ${syntheticCount} synthetic`, color: "text-blue-400" },
+                { label: "Accuracy Gain", value: `+${(finalAccuracy - region.baseAccuracy).toFixed(0)}%`, sub: `${region.baseAccuracy}% → ${finalAccuracy.toFixed(0)}%`, color: "text-green-400" },
+                { label: "Data Augmentation", value: `${(syntheticCount / region.realWells).toFixed(0)}×`, sub: "Expansion factor", color: "text-purple-400" },
+                { label: "Generation Time", value: "<3s", sub: "On NVIDIA A100 GPU", color: "text-yellow-400" },
               ].map((m) => (
                 <div key={m.label} className="p-4 rounded-xl bg-muted/20 border border-border/30 text-center">
                   <div className={cn("text-2xl font-bold", m.color)}>{m.value}</div>
@@ -385,24 +383,24 @@ export default function CosmosTransferDemo() {
             <div className="p-4 rounded-xl bg-green-500/5 border border-green-500/20 space-y-3">
               <h4 className="font-semibold flex items-center gap-2 text-green-400">
                 <CheckCircle2 className="h-4 w-4" />
-                Валидация петрофизической согласованности
+                Petrophysical Consistency Validation
               </h4>
               <div className="grid md:grid-cols-3 gap-3">
                 {[
                   {
-                    check: "Распределение GR",
+                    check: "GR Distribution",
                     result: "KL-divergence < 0.05",
-                    status: "Реальные и синтетические распределения статистически неразличимы",
+                    status: "Real and synthetic distributions are statistically indistinguishable",
                   },
                   {
-                    check: "Корреляция RT–NPHI",
+                    check: "RT–NPHI Correlation",
                     result: "r² = 0.91",
-                    status: "Петрофизические зависимости сохранены через латентное пространство WFM",
+                    status: "Petrophysical relationships preserved through WFM latent space",
                   },
                   {
                     check: "Blind test (withheld wells)",
                     result: "RMSE = 3.2 API",
-                    status: "Синтетические данные воспроизводят каротажные кривые в пределах ±5% отклонения",
+                    status: "Synthetic data reproduces log curves within ±5% deviation",
                   },
                 ].map((v) => (
                   <div key={v.check} className="p-3 rounded-lg bg-background/50 border border-border/30">
@@ -421,18 +419,18 @@ export default function CosmosTransferDemo() {
             <div className="p-4 rounded-xl bg-blue-500/5 border border-blue-500/20">
               <h4 className="font-semibold flex items-center gap-2 mb-3">
                 <Zap className="h-4 w-4 text-blue-400" />
-                Cosmos Transfer — Вердикт
+                Cosmos Transfer — Verdict
               </h4>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Для региона <span className="text-foreground font-medium">{region.name}</span> сгенерировано{" "}
-                <span className="text-blue-400 font-semibold">{syntheticCount} синтетических скважин</span> на основе{" "}
-                {region.realWells} реальных каротажей. World Foundation Model кодирует реальные кривые GR, RT, NPHI в латентное
-                пространство физических свойств, затем генерирует новые кривые, сохраняя геологическую согласованность формаций{" "}
-                {region.formations.join(", ")}. Точность ML-модели прогнозирования добычи возросла с{" "}
-                <span className="text-yellow-400">{region.baseAccuracy}%</span> до{" "}
-                <span className="text-green-400 font-semibold">{finalAccuracy.toFixed(0)}%</span> — эквивалент бурения{" "}
-                {syntheticCount} разведочных скважин стоимостью ~${(syntheticCount * 850000).toLocaleString()}, полученный за{" "}
-                <span className="text-blue-400">3 секунды GPU-вычислений</span>.
+                For region <span className="text-foreground font-medium">{region.name}</span>, generated{" "}
+                <span className="text-blue-400 font-semibold">{syntheticCount} synthetic wells</span> based on{" "}
+                {region.realWells} real logs. The World Foundation Model encodes real GR, RT, NPHI curves into a latent
+                space of physical properties, then generates new curves while preserving geological consistency of formations{" "}
+                {region.formations.join(", ")}. ML production forecasting model accuracy increased from{" "}
+                <span className="text-yellow-400">{region.baseAccuracy}%</span> to{" "}
+                <span className="text-green-400 font-semibold">{finalAccuracy.toFixed(0)}%</span> — equivalent to drilling{" "}
+                {syntheticCount} exploration wells worth ~${(syntheticCount * 850000).toLocaleString()}, obtained in{" "}
+                <span className="text-blue-400">3 seconds of GPU compute</span>.
               </p>
             </div>
           </div>
