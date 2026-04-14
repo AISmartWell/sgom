@@ -25,6 +25,7 @@ interface Region {
   avgPorosity: number;
   avgPerm: number;
   baseAccuracy: number;
+  referenceWell?: { name: string; api: string; formation: string };
 }
 
 const REGIONS: Region[] = [
@@ -39,6 +40,7 @@ const REGIONS: Region[] = [
     avgPorosity: 15.2,
     avgPerm: 24,
     baseAccuracy: 61,
+    referenceWell: { name: "Brawner 10-15", api: "42-467-30979", formation: "Rodessa / James Lime" },
   },
   {
     id: "anadarko",
