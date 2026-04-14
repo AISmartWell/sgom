@@ -143,14 +143,13 @@ const Auth = () => {
             </div>
             <CardTitle className="text-2xl">SGOM Platform</CardTitle>
             <CardDescription>
-              Sign in or create an account to access the system
+              Sign in to access the system
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="login" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-6">
+              <TabsList className="grid w-full grid-cols-1 mb-6">
                 <TabsTrigger value="login">Sign In</TabsTrigger>
-                <TabsTrigger value="register">Sign Up</TabsTrigger>
               </TabsList>
               
               <TabsContent value="login">
