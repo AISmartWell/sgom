@@ -1,11 +1,14 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useMemo } from "react";
 import {
   LineChart, Line, XAxis, YAxis, ResponsiveContainer,
   Tooltip, AreaChart, Area,
 } from "recharts";
+import { useWellLogs } from "@/hooks/useWellLogs";
 
-// ── Well log data (Brawner 10-15 style, Oklahoma Anadarko Basin) ──
-const WELL_DATA = Array.from({ length: 80 }, (_, i) => {
+const BRAWNER_WELL_ID = "51e4b111-58ae-40d5-9b3d-fbec2ad9aaea";
+
+// ── Synthetic fallback (used only when real data unavailable) ──
+const SYNTHETIC_WELL_DATA = Array.from({ length: 80 }, (_, i) => {
   const depth = 4200 + i * 20;
   const zone = i < 20 ? "shale" : i < 35 ? "sand_A" : i < 45 ? "shale" : i < 62 ? "sand_B" : "shale";
   return {
@@ -24,7 +27,8 @@ const WELL_DATA = Array.from({ length: 80 }, (_, i) => {
   };
 });
 
-const SPT_ZONE_DEFAULT = { top: 4680, bottom: 4860 };
+const SPT_ZONE_DEFAULT_SYNTHETIC = { top: 4680, bottom: 4860 };
+const SPT_ZONE_DEFAULT_REAL = { top: 4940, bottom: 5020 };
 
 const C = {
   bg:      "#07080a",
