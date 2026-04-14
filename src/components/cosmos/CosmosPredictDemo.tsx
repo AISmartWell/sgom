@@ -284,6 +284,24 @@ Return JSON: {"formation_name","formation_type","net_pay_ft","porosity_pct","wat
     setRunning(false);
   };
 
+  // Generate depth labels dynamically
+  const depthLabels = useMemo(() => {
+    const step = Math.max(50, Math.round((depthRange.max - depthRange.min) / 8 / 50) * 50);
+    const labels: number[] = [];
+    for (let d = Math.ceil(depthRange.min / step) * step; d <= depthRange.max; d += step) {
+      labels.push(d);
+    }
+    return labels;
+  }, [depthRange]);
+
+  if (logsLoading) {
+    return (
+      <div style={{ background: C.bg, padding: 40, textAlign: "center", color: C.dimText, borderRadius: 8, border: `1px solid ${C.border}` }}>
+        Loading Brawner 10-15 real well log data...
+      </div>
+    );
+  }
+
   return (
     <div
       onMouseMove={onMouseMove}
