@@ -312,8 +312,8 @@ Return JSON: {"formation_name","formation_type","net_pay_ft","porosity_pct","wat
         color: C.text,
         userSelect: dragging ? "none" : "auto",
         borderRadius: 8,
-        overflow: "hidden",
         border: `1px solid ${C.border}`,
+        minHeight: 750,
       }}
     >
       {/* Header */}
