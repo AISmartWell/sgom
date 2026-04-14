@@ -220,8 +220,8 @@ const CosmosPredictDemo = () => {
     const uplift = isCleanSand && isHCBearing ? 8.5 + Math.random() * 3 : 3.5 + Math.random() * 2;
 
     const fallback: PredictResult = {
-      formation_name: isCleanSand ? "Tonkawa Sand" : "Red Fork Siltstone",
-      formation_type: isCleanSand ? "Fluvial channel sand" : "Marginal marine siltstone",
+      formation_name: isCleanSand ? "Rodessa / James Lime" : "Upper Carlisle Shale",
+      formation_type: isCleanSand ? "Reef/shelf carbonate with vuggy porosity" : "Marginal marine shale/siltstone",
       net_pay_ft: Math.round(thickness * (isCleanSand ? 0.65 : 0.4)),
       porosity_pct: parseFloat(porosity.toFixed(1)),
       water_saturation_pct: parseFloat(sw.toFixed(1)),
