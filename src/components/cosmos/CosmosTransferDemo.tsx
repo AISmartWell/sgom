@@ -29,6 +29,18 @@ interface Region {
 
 const REGIONS: Region[] = [
   {
+    id: "east-texas",
+    name: "East Texas Basin — Van Zandt County",
+    basin: "East Texas",
+    realWells: 6,
+    targetWells: 45,
+    formations: ["Rodessa / James Lime", "Upper Carlisle", "Sub-Rodessa"],
+    depthRange: [3800, 5285],
+    avgPorosity: 15.2,
+    avgPerm: 24,
+    baseAccuracy: 61,
+  },
+  {
     id: "anadarko",
     name: "Anadarko Basin — Caddo County",
     basin: "Anadarko",

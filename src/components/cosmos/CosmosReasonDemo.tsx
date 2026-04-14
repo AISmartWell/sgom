@@ -22,11 +22,11 @@ interface WellCandidate {
 }
 
 const WELLS: WellCandidate[] = [
-  { id: "1", name: "Rogers 1-14", api: "35-017-23456", formation: "Mississippian Limestone", depth: 4200, oil: 12, waterCut: 35, gor: 450, status: "Active", porosity: 14.2, permeability: 8.5, county: "Caddo" },
-  { id: "2", name: "Harrison 3-8", api: "35-017-23891", formation: "Hunton Dolomite", depth: 5800, oil: 8, waterCut: 52, gor: 620, status: "Active", porosity: 7.8, permeability: 2.1, county: "Caddo" },
+  { id: "1", name: "Brawner 10-15", api: "42-467-30979", formation: "Rodessa / James Lime", depth: 4915, oil: 8, waterCut: 28, gor: 340, status: "Active", porosity: 20.2, permeability: 48, county: "Van Zandt" },
+  { id: "2", name: "Rogers 1-14", api: "35-017-23456", formation: "Mississippian Limestone", depth: 4200, oil: 12, waterCut: 35, gor: 450, status: "Active", porosity: 14.2, permeability: 8.5, county: "Caddo" },
   { id: "3", name: "Thompson 2-5", api: "35-017-24102", formation: "Arbuckle Dolomite", depth: 6200, oil: 22, waterCut: 28, gor: 380, status: "Active", porosity: 11.5, permeability: 15.3, county: "Grady" },
-  { id: "4", name: "Mitchell 4-11", api: "35-017-24567", formation: "Woodford Shale", depth: 7100, oil: 5, waterCut: 68, gor: 890, status: "Active", porosity: 4.2, permeability: 0.08, county: "Canadian" },
-  { id: "5", name: "Baker 1-9", api: "35-017-24890", formation: "Mississippian Limestone", depth: 3800, oil: 18, waterCut: 22, gor: 320, status: "Active", porosity: 16.1, permeability: 22.4, county: "Caddo" },
+  { id: "4", name: "Harrison 3-8", api: "35-017-23891", formation: "Hunton Dolomite", depth: 5800, oil: 8, waterCut: 52, gor: 620, status: "Active", porosity: 7.8, permeability: 2.1, county: "Caddo" },
+  { id: "5", name: "Mitchell 4-11", api: "35-017-24567", formation: "Woodford Shale", depth: 7100, oil: 5, waterCut: 68, gor: 890, status: "Active", porosity: 4.2, permeability: 0.08, county: "Canadian" },
 ];
 
 interface ReasonStep {
@@ -103,14 +103,16 @@ function computeReasoning(well: WellCandidate): { steps: ReasonStep[]; totalScor
       value: well.formation,
       score: formationScore,
       maxScore: 80,
-      reasoning: well.formation.includes("Mississippian")
+      reasoning: well.formation.includes("Rodessa") || well.formation.includes("James Lime")
+        ? `${well.formation} (φ 15–22%, k 10–60 mD) — High-porosity carbonate with exceptional SPT response potential. Porosity ${well.porosity}% and permeability ${well.permeability} mD indicate excellent reservoir quality. Missed pay interval at 4750–4915 ft with Sw=28% confirms bypassed oil. Hydro-slotting can access 165 ft of untreated net pay.`
+        : well.formation.includes("Mississippian")
         ? `${well.formation} (φ 5–18%, k 0.01–50 mD) — Cherty limestone with excellent SPT response. Porosity of ${well.porosity}% and permeability of ${well.permeability} mD confirm treatable matrix. Historical SPT treatments in Mississippian show 2.3× average inflow increase.`
         : well.formation.includes("Hunton")
         ? `${well.formation} (φ 3–12%, k 0.1–100 mD) — Dolomite/limestone with variable SPT response. Porosity ${well.porosity}% is ${well.porosity > 8 ? "above average" : "below average"} for Hunton. Natural fractures may enhance or complicate slot performance.`
         : well.formation.includes("Arbuckle")
         ? `${well.formation} (φ 3–15%, k 0.1–100 mD) — Deep dolomite with known vuggy porosity. Porosity ${well.porosity}% and permeability ${well.permeability} mD suggest good connectivity. SPT hydro-slotting can access additional vuggy zones.`
         : `${well.formation} — Limited SPT treatment history for this formation. Porosity ${well.porosity}% and permeability ${well.permeability} mD require detailed core analysis before recommending SPT treatment.`,
-      verdict: well.formation.includes("Mississippian") || well.formation.includes("Arbuckle") ? "positive" : well.formation.includes("Hunton") ? "neutral" : "negative",
+      verdict: well.formation.includes("Rodessa") || well.formation.includes("James Lime") || well.formation.includes("Mississippian") || well.formation.includes("Arbuckle") ? "positive" : well.formation.includes("Hunton") ? "neutral" : "negative",
     },
     {
       title: "Well Status Verification",
