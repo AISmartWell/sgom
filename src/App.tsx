@@ -126,8 +126,10 @@ const App = () => (
              <Route path="/diversified-energy-proposal" element={<DiversifiedEnergyProposal />} />
              <Route path="/kazakhstan-template" element={<KazakhstanTemplate />} />
               <Route path="/kazakhstan-process" element={<KazakhstanProcess />} />
-              <Route path="/cosmos-demo" element={<CosmosDemo />} />
+               <Route path="/cosmos-demo" element={<CosmosDemo />} />
+               <Route path="/fluid-simulation" element={<FluidPhysicsSimulation />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<NotFound />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
