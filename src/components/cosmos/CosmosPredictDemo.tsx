@@ -1,11 +1,14 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useMemo } from "react";
 import {
   LineChart, Line, XAxis, YAxis, ResponsiveContainer,
   Tooltip, AreaChart, Area,
 } from "recharts";
+import { useWellLogs } from "@/hooks/useWellLogs";
 
-// ── Well log data (Brawner 10-15 style, Oklahoma Anadarko Basin) ──
-const WELL_DATA = Array.from({ length: 80 }, (_, i) => {
+const BRAWNER_WELL_ID = "51e4b111-58ae-40d5-9b3d-fbec2ad9aaea";
+
+// ── Synthetic fallback (used only when real data unavailable) ──
+const SYNTHETIC_WELL_DATA = Array.from({ length: 80 }, (_, i) => {
   const depth = 4200 + i * 20;
   const zone = i < 20 ? "shale" : i < 35 ? "sand_A" : i < 45 ? "shale" : i < 62 ? "sand_B" : "shale";
   return {
@@ -24,7 +27,8 @@ const WELL_DATA = Array.from({ length: 80 }, (_, i) => {
   };
 });
 
-const SPT_ZONE_DEFAULT = { top: 4680, bottom: 4860 };
+const SPT_ZONE_DEFAULT_SYNTHETIC = { top: 4680, bottom: 4860 };
+const SPT_ZONE_DEFAULT_REAL = { top: 4940, bottom: 5020 };
 
 const C = {
   bg:      "#07080a",
@@ -41,17 +45,29 @@ const C = {
   dimText: "#6b8899",
 };
 
+// ── Well data point type ──
+interface WellDataPoint {
+  depth: number;
+  GR: number;
+  RT: number;
+  NPHI: number;
+  RHOB?: number;
+  SW: number;
+  zone?: string;
+}
+
 // ── Tiny well log track ──
-function LogTrack({ data, accessor, color, label, unit, domain, width = 100 }: {
-  data: typeof WELL_DATA;
-  accessor: keyof typeof WELL_DATA[0];
+function LogTrack({ data, accessor, color, label, unit, domain, depthDomain, width = 100 }: {
+  data: WellDataPoint[];
+  accessor: keyof WellDataPoint;
   color: string;
   label: string;
   unit: string;
   domain: [number, number];
+  depthDomain: [number, number];
   width?: number;
 }) {
-  const pts = data.map(d => ({ depth: d.depth, v: d[accessor] as number }));
+  const pts = data.map(d => ({ depth: d.depth, v: (d[accessor] ?? 0) as number }));
   return (
     <div style={{ width, flexShrink: 0 }}>
       <div style={{ fontSize: 9, fontFamily: "monospace", color: C.dimText, textAlign: "center",
@@ -62,7 +78,7 @@ function LogTrack({ data, accessor, color, label, unit, domain, width = 100 }: {
       <ResponsiveContainer width="100%" height={600}>
         <LineChart data={pts} layout="vertical" margin={{ top: 0, right: 4, bottom: 0, left: 0 }}>
           <XAxis type="number" domain={domain} hide />
-          <YAxis type="number" dataKey="depth" domain={[4200, 5800]} reversed hide />
+          <YAxis type="number" dataKey="depth" domain={depthDomain} reversed hide />
           <Line type="monotone" dataKey="v" stroke={color} strokeWidth={1.5} dot={false} />
         </LineChart>
       </ResponsiveContainer>
@@ -103,7 +119,35 @@ type Phase = "idle" | "encoding" | "predicting" | "reasoning" | "done";
 
 // ── Main demo ──
 const CosmosPredictDemo = () => {
-  const [sptZone, setSptZone] = useState(SPT_ZONE_DEFAULT);
+  const { data: realLogs, isLoading: logsLoading, hasRealData } = useWellLogs(BRAWNER_WELL_ID);
+
+  // Convert real DB logs → component format, or use synthetic fallback
+  const wellData: WellDataPoint[] = useMemo(() => {
+    if (hasRealData && realLogs) {
+      return realLogs.map(r => ({
+        depth: r.measured_depth,
+        GR: r.gamma_ray ?? 50,
+        RT: r.resistivity ?? 5,
+        NPHI: r.porosity != null ? r.porosity / 100 : (r.neutron_porosity ?? 0.2),
+        RHOB: r.density ?? 2.4,
+        SW: r.water_saturation != null ? r.water_saturation / 100 : 0.5,
+      }));
+    }
+    return SYNTHETIC_WELL_DATA;
+  }, [realLogs, hasRealData]);
+
+  // Dynamic depth range from actual data
+  const depthRange = useMemo(() => {
+    if (wellData.length === 0) return { min: 4200, max: 5800 };
+    const depths = wellData.map(d => d.depth);
+    const min = Math.min(...depths);
+    const max = Math.max(...depths);
+    const padding = Math.max(50, (max - min) * 0.15);
+    return { min: Math.floor((min - padding) / 50) * 50, max: Math.ceil((max + padding) / 50) * 50 };
+  }, [wellData]);
+
+  const defaultSptZone = hasRealData ? SPT_ZONE_DEFAULT_REAL : SPT_ZONE_DEFAULT_SYNTHETIC;
+  const [sptZone, setSptZone] = useState(defaultSptZone);
   const [dragging, setDragging] = useState<"top" | "bottom" | "body" | null>(null);
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<PredictResult | null>(null);
@@ -111,13 +155,20 @@ const CosmosPredictDemo = () => {
   const [phase, setPhase] = useState<Phase>("idle");
   const logRef = useRef<HTMLDivElement>(null);
 
+  // Reset SPT zone when data source changes
+  const prevHasReal = useRef(hasRealData);
+  if (prevHasReal.current !== hasRealData) {
+    prevHasReal.current = hasRealData;
+    setSptZone(hasRealData ? SPT_ZONE_DEFAULT_REAL : SPT_ZONE_DEFAULT_SYNTHETIC);
+  }
+
   // ── Drag handlers ──
   const getDepthFromY = useCallback((clientY: number) => {
-    if (!logRef.current) return 4200;
+    if (!logRef.current) return depthRange.min;
     const rect = logRef.current.getBoundingClientRect();
     const frac = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
-    return Math.round(4200 + frac * (5800 - 4200));
-  }, []);
+    return Math.round(depthRange.min + frac * (depthRange.max - depthRange.min));
+  }, [depthRange]);
 
   const onMouseMove = useCallback((e: React.MouseEvent) => {
     if (!dragging) return;
@@ -127,16 +178,16 @@ const CosmosPredictDemo = () => {
       if (dragging === "bottom") return { ...z, bottom: Math.max(d, z.top + 40) };
       if (dragging === "body") {
         const h = z.bottom - z.top;
-        const newTop = Math.max(4200, Math.min(d - h / 2, 5800 - h));
+        const newTop = Math.max(depthRange.min, Math.min(d - h / 2, depthRange.max - h));
         return { top: newTop, bottom: newTop + h };
       }
       return z;
     });
-  }, [dragging, getDepthFromY]);
+  }, [dragging, getDepthFromY, depthRange]);
 
   const onMouseUp = useCallback(() => setDragging(null), []);
 
-  const depthToFrac = (d: number) => (d - 4200) / (5800 - 4200);
+  const depthToFrac = (d: number) => (d - depthRange.min) / (depthRange.max - depthRange.min);
   const topFrac  = depthToFrac(sptZone.top);
   const botFrac  = depthToFrac(sptZone.bottom);
 
@@ -147,7 +198,7 @@ const CosmosPredictDemo = () => {
     setStreamText("");
     setPhase("encoding");
 
-    const targetZoneData = WELL_DATA.filter(
+    const targetZoneData = wellData.filter(
       d => d.depth >= sptZone.top && d.depth <= sptZone.bottom
     );
     const avgGR   = (targetZoneData.reduce((s, d) => s + d.GR,   0) / targetZoneData.length).toFixed(1);
@@ -169,8 +220,8 @@ const CosmosPredictDemo = () => {
     const uplift = isCleanSand && isHCBearing ? 8.5 + Math.random() * 3 : 3.5 + Math.random() * 2;
 
     const fallback: PredictResult = {
-      formation_name: isCleanSand ? "Tonkawa Sand" : "Red Fork Siltstone",
-      formation_type: isCleanSand ? "Fluvial channel sand" : "Marginal marine siltstone",
+      formation_name: isCleanSand ? "Rodessa / James Lime" : "Upper Carlisle Shale",
+      formation_type: isCleanSand ? "Reef/shelf carbonate with vuggy porosity" : "Marginal marine shale/siltstone",
       net_pay_ft: Math.round(thickness * (isCleanSand ? 0.65 : 0.4)),
       porosity_pct: parseFloat(porosity.toFixed(1)),
       water_saturation_pct: parseFloat(sw.toFixed(1)),
@@ -185,8 +236,8 @@ const CosmosPredictDemo = () => {
       co2_reduction_tons_year: Math.round(80 + uplift * 10),
       confidence_pct: isCleanSand && isHCBearing ? 87 : 72,
       reasoning: isCleanSand && isHCBearing
-        ? `The ${isCleanSand ? "Tonkawa Sand" : "Red Fork"} interval shows clean gamma ray signature (avg ${avgGR} API) combined with elevated resistivity (${avgRT} Ω·m), indicating bypassed hydrocarbon accumulation. Slot Perforation Technology at 4 ft depth will bypass near-wellbore damage and connect with natural fracture network, restoring reservoir pressure communication. Cosmos physics simulation projects ${uplift.toFixed(1)}× production uplift with ${Math.round(45 + uplift * 3)}% ultimate recovery factor over 18-year production horizon.`
-        : `The interval at ${Math.round(sptZone.top)}–${Math.round(sptZone.bottom)} ft shows moderate reservoir quality (GR ${avgGR} API, RT ${avgRT} Ω·m). SPT intervention can still improve drainage geometry and bypass near-wellbore damage, but the ${sw.toFixed(0)}% water saturation limits peak uplift potential. Recommend selective slot placement to target the cleanest sub-intervals within the zone.`,
+        ? `The Rodessa/James Lime interval at ${Math.round(sptZone.top)}–${Math.round(sptZone.bottom)} ft shows clean gamma ray signature (avg ${avgGR} API) combined with elevated resistivity (${avgRT} Ω·m), indicating bypassed hydrocarbon accumulation in the reef/shelf carbonate. Slot Perforation Technology at 4 ft depth will bypass near-wellbore damage and connect with vuggy/fracture porosity network, restoring reservoir pressure communication. Cosmos physics simulation projects ${uplift.toFixed(1)}× production uplift with ${Math.round(45 + uplift * 3)}% ultimate recovery factor over 18-year production horizon.`
+        : `The interval at ${Math.round(sptZone.top)}–${Math.round(sptZone.bottom)} ft shows moderate reservoir quality (GR ${avgGR} API, RT ${avgRT} Ω·m). SPT intervention can still improve drainage geometry and bypass near-wellbore damage, but the ${sw.toFixed(0)}% water saturation limits peak uplift potential. Recommend selective slot placement to target the cleanest sub-intervals within the Upper Carlisle zone.`,
       prodData: buildProduction(uplift),
     };
 
@@ -201,7 +252,7 @@ const CosmosPredictDemo = () => {
           },
           body: JSON.stringify({
             message: `You are NVIDIA Cosmos Predict. Analyze this well zone and respond ONLY with valid JSON (no markdown):
-WELL: Brawner 10-15 | Oklahoma Anadarko Basin
+WELL: Brawner 10-15 | East Texas Basin, Van Zandt County | API 42-467-30979 | Rodessa/James Lime formation
 SPT TARGET ZONE: ${sptZone.top}–${sptZone.bottom} ft MD, ${thickness} ft thick
 AVG GR: ${avgGR} API, AVG RT: ${avgRT} Ω·m, AVG NPHI: ${avgNPHI}, AVG SW: ${avgSW}
 Return JSON: {"formation_name","formation_type","net_pay_ft","porosity_pct","water_saturation_pct","permeability_md","pre_spt_bbl_day","post_spt_bbl_day","uplift_factor","pressure_increase_pct","recovery_factor_pct","spt_slot_depth_ft","spt_slots_recommended","co2_reduction_tons_year","confidence_pct","reasoning"}`,
@@ -232,6 +283,24 @@ Return JSON: {"formation_name","formation_type","net_pay_ft","porosity_pct","wat
     setPhase("done");
     setRunning(false);
   };
+
+  // Generate depth labels dynamically
+  const depthLabels = useMemo(() => {
+    const step = Math.max(50, Math.round((depthRange.max - depthRange.min) / 8 / 50) * 50);
+    const labels: number[] = [];
+    for (let d = Math.ceil(depthRange.min / step) * step; d <= depthRange.max; d += step) {
+      labels.push(d);
+    }
+    return labels;
+  }, [depthRange]);
+
+  if (logsLoading) {
+    return (
+      <div style={{ background: C.bg, padding: 40, textAlign: "center", color: C.dimText, borderRadius: 8, border: `1px solid ${C.border}` }}>
+        Loading Brawner 10-15 real well log data...
+      </div>
+    );
+  }
 
   return (
     <div
@@ -267,8 +336,17 @@ Return JSON: {"formation_name","formation_type","net_pay_ft","porosity_pct","wat
         }}>NVIDIA COSMOS</div>
         <div style={{ color: C.muted, fontSize: 11 }}>×</div>
         <div style={{ color: C.blue, fontSize: 11, letterSpacing: "0.1em" }}>SGOM · PREDICT</div>
-        <div style={{ marginLeft: "auto", color: C.muted, fontSize: 10 }}>
-          Brawner 10-15 · Oklahoma Anadarko Basin
+        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8 }}>
+          {hasRealData && (
+            <span style={{
+              background: "#76b90030", color: C.nvidia, fontSize: 8, fontWeight: 700,
+              padding: "2px 6px", borderRadius: 3, letterSpacing: "0.1em",
+              border: "1px solid #76b90050",
+            }}>REAL DATA</span>
+          )}
+          <span style={{ color: C.muted, fontSize: 10 }}>
+            Brawner 10-15 · East Texas Basin
+          </span>
         </div>
         <div style={{
           width: 7, height: 7, borderRadius: "50%",
@@ -301,7 +379,7 @@ Return JSON: {"formation_name","formation_type","net_pay_ft","porosity_pct","wat
           <div style={{ flex: 1, overflow: "hidden", position: "relative", display: "flex" }}>
             {/* Depth labels */}
             <div style={{ width: 44, flexShrink: 0, position: "relative", borderRight: `1px solid ${C.border}` }}>
-              {[4200, 4400, 4600, 4800, 5000, 5200, 5400, 5600, 5800].map(d => (
+              {depthLabels.map(d => (
                 <div key={d} style={{
                   position: "absolute",
                   top: `${depthToFrac(d) * 100}%`,
@@ -320,10 +398,10 @@ Return JSON: {"formation_name","formation_type","net_pay_ft","porosity_pct","wat
               style={{ flex: 1, position: "relative", display: "flex", overflow: "hidden" }}
             >
               <div style={{ display: "flex", width: "100%", height: "100%" }}>
-                <LogTrack data={WELL_DATA} accessor="GR"   color={C.nvidia} label="GR"   unit="API"  domain={[0, 150]}   width={72} />
-                <LogTrack data={WELL_DATA} accessor="RT"   color={C.orange} label="RT"   unit="Ω·m"  domain={[0.1, 100]} width={72} />
-                <LogTrack data={WELL_DATA} accessor="NPHI" color={C.blue}   label="NPHI" unit="v/v"  domain={[0.4, 0]}   width={72} />
-                <LogTrack data={WELL_DATA} accessor="SW"   color={C.red}    label="Sw"   unit="v/v"  domain={[1, 0]}     width={52} />
+                <LogTrack data={wellData} accessor="GR"   color={C.nvidia} label="GR"   unit="API"  domain={[0, 150]}   depthDomain={[depthRange.min, depthRange.max]} width={72} />
+                <LogTrack data={wellData} accessor="RT"   color={C.orange} label="RT"   unit="Ω·m"  domain={[0.1, 100]} depthDomain={[depthRange.min, depthRange.max]} width={72} />
+                <LogTrack data={wellData} accessor="NPHI" color={C.blue}   label="NPHI" unit="v/v"  domain={[0.4, 0]}   depthDomain={[depthRange.min, depthRange.max]} width={72} />
+                <LogTrack data={wellData} accessor="SW"   color={C.red}    label="Sw"   unit="v/v"  domain={[1, 0]}     depthDomain={[depthRange.min, depthRange.max]} width={52} />
               </div>
 
               {/* SPT zone overlay */}
