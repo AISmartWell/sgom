@@ -1,7 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Droplets, ArrowRight, BarChart3, Target, Cpu, FileText, Zap, TrendingUp, Shield, Lightbulb } from "lucide-react";
+import { Droplets, ArrowRight, BarChart3, Target, Cpu, FileText, Zap, TrendingUp, Shield, Lightbulb, Play } from "lucide-react";
 import nvidiaInceptionBadgeBw from "@/assets/nvidia-inception-badge-bw.png";
+import horizontalWellVideo from "@/assets/horizontal-well-video.mp4";
 
 const pipelineStages = [
   { emoji: "🛰️", stage: 1, title: "Field Scanning", desc: "Automated satellite imagery analysis & well detection across oil fields with weekly scan cycles", path: "/dashboard/field-scanning" },
