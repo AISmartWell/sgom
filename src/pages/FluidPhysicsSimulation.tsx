@@ -155,14 +155,20 @@ const FluidPhysicsSimulation = () => {
       });
       // Create longitudinal slots — narrow rectangular cuts through casing/cement
       if (slotsRef.current.length === 0) {
-        const count = 4; // typical SPT: 4 longitudinal slots at 90° intervals
-        for (let i = 0; i < count; i++) {
+        // 4 slots: exactly vertical (up/down) and horizontal (left/right)
+        const angles = [
+          -Math.PI / 2,  // top (12 o'clock) — vertical
+          Math.PI / 2,   // bottom (6 o'clock) — vertical
+          0,             // right (3 o'clock) — horizontal
+          Math.PI,       // left (9 o'clock) — horizontal
+        ];
+        for (const ang of angles) {
           slotsRef.current.push({
-            angle: (i / count) * Math.PI * 2 + Math.PI / 8, // offset so not axis-aligned
-            penetration: DAMAGE_R + 15 + Math.random() * 30, // penetrates through damage zone
+            angle: ang,
+            penetration: DAMAGE_R + 15 + Math.random() * 30,
             progress: 0,
-            arcSpan: 0.08 + Math.random() * 0.03, // narrow arc at casing wall (~4-6°)
-            slotWidth: 2.5 + Math.random() * 1,   // very narrow radial cut
+            arcSpan: 0.08 + Math.random() * 0.03,
+            slotWidth: 2.5 + Math.random() * 1,
           });
         }
       }
