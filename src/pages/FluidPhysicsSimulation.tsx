@@ -296,12 +296,11 @@ const FluidPhysicsSimulation = () => {
         slotsRef.current.forEach((slot) => {
           if (slot.progress <= 0 || slot.progress >= 1) return;
           if (Math.random() < 0.35) {
-            const a = slot.angle + slot.offsetAngle;
-            const startR = WELLBORE_R + 1;
-            const endR = startR + (slot.length - startR) * slot.progress;
+            const a = slot.angle;
+            const startR = CASING_R;
+            const endR = startR + (slot.penetration - startR) * slot.progress;
             const tipX = CX + Math.cos(a) * endR;
             const tipY = CY + Math.sin(a) * endR;
-            // Sparks fly outward and sideways from cutting point
             const sparkAngle = a + (Math.random() - 0.5) * 1.2;
             const sparkSpeed = 1 + Math.random() * 2.5;
             particles.push({
@@ -314,7 +313,6 @@ const FluidPhysicsSimulation = () => {
               life: 0,
               maxLife: 15 + Math.random() * 20,
             });
-            // Debris chunks (slower, larger)
             if (Math.random() < 0.3) {
               const debrisAngle = a + (Math.random() - 0.5) * 0.8;
               particles.push({
