@@ -13,9 +13,11 @@ interface Particle {
 }
 
 interface SlotLine {
-  angle: number;
-  length: number;
-  progress: number;
+  angle: number;       // radial direction of the cut
+  length: number;      // max penetration depth from wellbore wall
+  progress: number;    // 0-1 animation progress
+  width: number;       // slot opening width in pixels (narrow cut)
+  offsetAngle: number; // slight angular offset for visual variety
 }
 
 type Phase = "pre-spt" | "injection" | "mobilisation" | "post-spt";
@@ -151,12 +153,16 @@ const FluidPhysicsSimulation = () => {
       });
       // Create slots
       if (slotsRef.current.length === 0) {
-        const count = 6 + Math.floor(Math.random() * 3);
+        // SPT creates narrow rectangular slots cut through casing into formation
+        // Typically 4-8 slots distributed around the wellbore
+        const count = 4 + Math.floor(Math.random() * 3);
         for (let i = 0; i < count; i++) {
           slotsRef.current.push({
-            angle: (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.3,
+            angle: (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.15,
             length: DAMAGE_R + 30 + Math.random() * 60,
             progress: 0,
+            width: 3 + Math.random() * 2, // narrow slot width
+            offsetAngle: (Math.random() - 0.5) * 0.05,
           });
         }
       }
@@ -342,31 +348,64 @@ const FluidPhysicsSimulation = () => {
     // SPT Slots
     slotsRef.current.forEach((slot) => {
       if (slot.progress <= 0) return;
-      const startR = WELLBORE_R + 2;
+      const startR = WELLBORE_R + 1;
       const endR = startR + (slot.length - startR) * slot.progress;
+      const a = slot.angle + slot.offsetAngle;
+      const halfW = slot.width / 2;
+
+      // Perpendicular direction for slot width
+      const px = -Math.sin(a);
+      const py = Math.cos(a);
+
+      // Draw narrow rectangular slot channel
       ctx.beginPath();
       ctx.moveTo(
-        CX + Math.cos(slot.angle) * startR,
-        CY + Math.sin(slot.angle) * startR
+        CX + Math.cos(a) * startR + px * halfW,
+        CY + Math.sin(a) * startR + py * halfW
       );
       ctx.lineTo(
-        CX + Math.cos(slot.angle) * endR,
-        CY + Math.sin(slot.angle) * endR
+        CX + Math.cos(a) * endR + px * halfW,
+        CY + Math.sin(a) * endR + py * halfW
       );
+      ctx.lineTo(
+        CX + Math.cos(a) * endR - px * halfW,
+        CY + Math.sin(a) * endR - py * halfW
+      );
+      ctx.lineTo(
+        CX + Math.cos(a) * startR - px * halfW,
+        CY + Math.sin(a) * startR - py * halfW
+      );
+      ctx.closePath();
+
+      // Fill with gradient along the slot
+      const gradSlot = ctx.createLinearGradient(
+        CX + Math.cos(a) * startR,
+        CY + Math.sin(a) * startR,
+        CX + Math.cos(a) * endR,
+        CY + Math.sin(a) * endR
+      );
+      gradSlot.addColorStop(0, "rgba(118, 185, 71, 0.9)");
+      gradSlot.addColorStop(0.7, "rgba(118, 185, 71, 0.5)");
+      gradSlot.addColorStop(1, "rgba(118, 185, 71, 0.15)");
+      ctx.fillStyle = gradSlot;
+      ctx.globalAlpha = 0.85;
+      ctx.fill();
+
+      // Slot border
       ctx.strokeStyle = COLORS.slot;
-      ctx.lineWidth = 2;
-      ctx.globalAlpha = 0.8;
+      ctx.lineWidth = 0.5;
+      ctx.globalAlpha = 0.4;
       ctx.stroke();
       ctx.globalAlpha = 1;
 
-      // Slot glow
-      const gx = CX + Math.cos(slot.angle) * endR;
-      const gy = CY + Math.sin(slot.angle) * endR;
-      const grad = ctx.createRadialGradient(gx, gy, 0, gx, gy, 8);
-      grad.addColorStop(0, "rgba(118, 185, 71, 0.4)");
+      // Subtle glow at the cutting tip
+      const gx = CX + Math.cos(a) * endR;
+      const gy = CY + Math.sin(a) * endR;
+      const grad = ctx.createRadialGradient(gx, gy, 0, gx, gy, 6);
+      grad.addColorStop(0, "rgba(118, 185, 71, 0.5)");
       grad.addColorStop(1, "transparent");
       ctx.beginPath();
-      ctx.arc(gx, gy, 8, 0, Math.PI * 2);
+      ctx.arc(gx, gy, 6, 0, Math.PI * 2);
       ctx.fillStyle = grad;
       ctx.fill();
     });
@@ -722,7 +761,7 @@ const FluidPhysicsSimulation = () => {
             <LegendItem color={COLORS.water} label="Formation water" />
             <LegendItem color={COLORS.mobilised} label="Mobilised oil (SPT)" />
             <LegendItem color={COLORS.gas} label="Gas (liberated)" />
-            <LegendItem color={COLORS.slot} label="SPT slot front" type="line" />
+            <LegendItem color={COLORS.slot} label="SPT slot cut" type="line" />
             <LegendItem color="rgba(180,60,40,0.4)" label="Damaged zone" type="dashed" />
           </PanelCard>
 
