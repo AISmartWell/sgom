@@ -749,6 +749,8 @@ const FluidPhysicsSimulation = () => {
       pressure: 840,
     });
     initParticles();
+    slotHistoryRef.current = [[], [], [], []];
+    setSelectedSlot(null);
   };
 
   const formatTime = (t: number) => {
