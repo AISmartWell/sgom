@@ -11,6 +11,7 @@ import {
   DEFAULT_OIL_PRICE, DEFAULT_OPEX_PER_BBL, DEFAULT_TREATMENT_COST, arpsRate, calcIRR,
 } from "@/lib/economics-config";
 import MonteCarloSimulation from "./MonteCarloSimulation";
+import QuantumMonteCarloSimulation from "./QuantumMonteCarloSimulation";
 import { useFullReportExport, ExportFullReportButton } from "./FullReportExport";
 
 function arpsCumulative(qi: number, Di: number, b: number, months: number): number {
@@ -249,10 +250,11 @@ const EconomicAnalysisDemo = () => {
 
       {/* Tabs */}
       <Tabs defaultValue="roi" className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="roi">ROI & Payback</TabsTrigger>
           <TabsTrigger value="sensitivity">Sensitivity</TabsTrigger>
           <TabsTrigger value="montecarlo">Monte Carlo</TabsTrigger>
+          <TabsTrigger value="quantum">⚛ Quantum MC</TabsTrigger>
           <TabsTrigger value="profit">Profit</TabsTrigger>
           <TabsTrigger value="cumulative">Cumulative</TabsTrigger>
           <TabsTrigger value="details">Well Details</TabsTrigger>
@@ -373,6 +375,20 @@ const EconomicAnalysisDemo = () => {
               }))}
             />
           </div>
+        </TabsContent>
+
+        <TabsContent value="quantum">
+          <QuantumMonteCarloSimulation
+            baseOilPrice={oilPrice}
+            baseTreatmentCost={treatmentCost}
+            baseOpex={opexPerBbl}
+            wells={SPT_CANDIDATES.map((w) => ({
+              name: w.name,
+              addedProd: w.projectedInflow - w.currentProd,
+              Di: w.Di,
+              b: w.b,
+            }))}
+          />
         </TabsContent>
 
         <TabsContent value="profit">
