@@ -201,7 +201,7 @@ const Index = () => {
             <div className="group relative rounded-2xl overflow-hidden border border-border/40 bg-card/50 backdrop-blur-sm hover:border-primary/30 transition-all duration-300">
               <div className="aspect-video relative">
                 <video
-                  src={horizontalWellVideo}
+                  src={horizontalWellVideoAsset.url}
                   className="w-full h-full object-cover"
                   autoPlay
                   loop
