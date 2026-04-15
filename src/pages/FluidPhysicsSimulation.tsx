@@ -79,6 +79,8 @@ const FluidPhysicsSimulation = () => {
     pressure: 840,
   });
   const [showCosmosModal, setShowCosmosModal] = useState(false);
+  const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
+  const slotHistoryRef = useRef<Array<Array<{ time: number; progress: number; depth: number }>>>([[], [], [], []]);
 
   // Canvas dimensions
   const W = 900;
