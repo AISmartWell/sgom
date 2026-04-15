@@ -135,15 +135,18 @@ const QuantumMonteCarloSimulation = ({ baseOilPrice, baseTreatmentCost, baseOpex
       quantumAmplitudeEstimation(wells, baseOilPrice, baseTreatmentCost, baseOpex, priceVolatility, costVolatility, qubits, seed);
 
     // Build histogram bins
-    const allVals = [...oracleSamples, ...amplifiedSamples];
-    const minV = Math.floor(Math.min(...allVals) / 25) * 25;
-    const maxV = Math.ceil(Math.max(...allVals) / 25) * 25;
+    // Use percentiles to clip outliers for cleaner visualization
+    const cP1 = oracleSamples[Math.floor(oracleSamples.length * 0.02)];
+    const cP99 = oracleSamples[Math.floor(oracleSamples.length * 0.98)];
+    const clipMin = Math.floor(cP1 / 25) * 25;
+    const clipMax = Math.ceil(cP99 / 25) * 25;
+    const binSize = Math.max(25, Math.round((clipMax - clipMin) / 20 / 25) * 25) || 25;
     const bins: { range: string; classical: number; quantum: number }[] = [];
-    for (let lo = minV; lo < maxV; lo += 25) {
+    for (let lo = clipMin; lo < clipMax; lo += binSize) {
       bins.push({
-        range: `${lo}–${lo + 25}%`,
-        classical: oracleSamples.filter(r => r >= lo && r < lo + 25).length,
-        quantum: amplifiedSamples.filter(r => r >= lo && r < lo + 25).length,
+        range: `${lo}–${lo + binSize}%`,
+        classical: oracleSamples.filter(r => r >= lo && r < lo + binSize).length,
+        quantum: amplifiedSamples.filter(r => r >= lo && r < lo + binSize).length,
       });
     }
 
