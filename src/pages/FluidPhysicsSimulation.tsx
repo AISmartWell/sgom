@@ -6,7 +6,7 @@ interface Particle {
   y: number;
   vx: number;
   vy: number;
-  type: "oil" | "water" | "gas" | "mobilised";
+  type: "oil" | "water" | "gas" | "mobilised" | "spark" | "debris";
   radius: number;
   life: number;
   maxLife: number;
@@ -153,21 +153,21 @@ const FluidPhysicsSimulation = () => {
       });
       // Create slots
       if (slotsRef.current.length === 0) {
-        // SPT creates narrow rectangular slots cut through casing into formation
-        // Typically 4-8 slots distributed around the wellbore
         const count = 4 + Math.floor(Math.random() * 3);
         for (let i = 0; i < count; i++) {
           slotsRef.current.push({
             angle: (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.15,
             length: DAMAGE_R + 30 + Math.random() * 60,
             progress: 0,
-            width: 3 + Math.random() * 2, // narrow slot width
+            width: 3 + Math.random() * 2,
             offsetAngle: (Math.random() - 0.5) * 0.05,
           });
         }
       }
+      // Smooth eased progress for cutting animation
+      const easedProg = prog < 0.1 ? prog * 5 : Math.min(1, 0.5 + (prog - 0.1) * 0.56);
       slotsRef.current.forEach((s) => {
-        s.progress = Math.min(1, prog * 1.5);
+        s.progress = Math.min(1, easedProg * 1.5);
       });
     } else if (t < 18) {
       setPhase("mobilisation");
@@ -289,8 +289,54 @@ const FluidPhysicsSimulation = () => {
         });
       }
 
-      // Remove expired gas
-      particlesRef.current = particles.filter((p) => p.type !== "gas" || p.life < p.maxLife);
+      // Spawn sparks and debris at cutting tips during injection
+      if (currentPhase === "injection") {
+        slotsRef.current.forEach((slot) => {
+          if (slot.progress <= 0 || slot.progress >= 1) return;
+          if (Math.random() < 0.35) {
+            const a = slot.angle + slot.offsetAngle;
+            const startR = WELLBORE_R + 1;
+            const endR = startR + (slot.length - startR) * slot.progress;
+            const tipX = CX + Math.cos(a) * endR;
+            const tipY = CY + Math.sin(a) * endR;
+            // Sparks fly outward and sideways from cutting point
+            const sparkAngle = a + (Math.random() - 0.5) * 1.2;
+            const sparkSpeed = 1 + Math.random() * 2.5;
+            particles.push({
+              x: tipX + (Math.random() - 0.5) * 3,
+              y: tipY + (Math.random() - 0.5) * 3,
+              vx: Math.cos(sparkAngle) * sparkSpeed,
+              vy: Math.sin(sparkAngle) * sparkSpeed,
+              type: "spark",
+              radius: 0.8 + Math.random() * 1.2,
+              life: 0,
+              maxLife: 15 + Math.random() * 20,
+            });
+            // Debris chunks (slower, larger)
+            if (Math.random() < 0.3) {
+              const debrisAngle = a + (Math.random() - 0.5) * 0.8;
+              particles.push({
+                x: tipX,
+                y: tipY,
+                vx: Math.cos(debrisAngle) * (0.3 + Math.random() * 0.8),
+                vy: Math.sin(debrisAngle) * (0.3 + Math.random() * 0.8),
+                type: "debris",
+                radius: 1.5 + Math.random() * 2,
+                life: 0,
+                maxLife: 30 + Math.random() * 30,
+              });
+            }
+          }
+        });
+      }
+
+      // Remove expired particles
+      particlesRef.current = particles.filter((p) => {
+        if (p.type === "gas" || p.type === "spark" || p.type === "debris") {
+          return p.life < p.maxLife;
+        }
+        return true;
+      });
     },
     [phase, CX, CY]
   );
@@ -345,31 +391,37 @@ const FluidPhysicsSimulation = () => {
       ctx.setLineDash([]);
     }
 
-    // SPT Slots
+    // SPT Slots with cutting tool animation
+    const time = timeRef.current;
     slotsRef.current.forEach((slot) => {
       if (slot.progress <= 0) return;
       const startR = WELLBORE_R + 1;
       const endR = startR + (slot.length - startR) * slot.progress;
       const a = slot.angle + slot.offsetAngle;
       const halfW = slot.width / 2;
+      const isCutting = slot.progress > 0 && slot.progress < 1 && phase === "injection";
 
       // Perpendicular direction for slot width
       const px = -Math.sin(a);
       const py = Math.cos(a);
 
-      // Draw narrow rectangular slot channel
+      // Vibration effect while cutting
+      const vibX = isCutting ? Math.sin(time * 45) * 0.6 : 0;
+      const vibY = isCutting ? Math.cos(time * 52) * 0.6 : 0;
+
+      // Draw the cut channel (already cut portion)
       ctx.beginPath();
       ctx.moveTo(
         CX + Math.cos(a) * startR + px * halfW,
         CY + Math.sin(a) * startR + py * halfW
       );
       ctx.lineTo(
-        CX + Math.cos(a) * endR + px * halfW,
-        CY + Math.sin(a) * endR + py * halfW
+        CX + Math.cos(a) * endR + px * halfW + vibX,
+        CY + Math.sin(a) * endR + py * halfW + vibY
       );
       ctx.lineTo(
-        CX + Math.cos(a) * endR - px * halfW,
-        CY + Math.sin(a) * endR - py * halfW
+        CX + Math.cos(a) * endR - px * halfW + vibX,
+        CY + Math.sin(a) * endR - py * halfW + vibY
       );
       ctx.lineTo(
         CX + Math.cos(a) * startR - px * halfW,
@@ -377,37 +429,85 @@ const FluidPhysicsSimulation = () => {
       );
       ctx.closePath();
 
-      // Fill with gradient along the slot
+      // Fill with gradient — darker near wellbore (already cut), brighter at tip
       const gradSlot = ctx.createLinearGradient(
         CX + Math.cos(a) * startR,
         CY + Math.sin(a) * startR,
         CX + Math.cos(a) * endR,
         CY + Math.sin(a) * endR
       );
-      gradSlot.addColorStop(0, "rgba(118, 185, 71, 0.9)");
-      gradSlot.addColorStop(0.7, "rgba(118, 185, 71, 0.5)");
-      gradSlot.addColorStop(1, "rgba(118, 185, 71, 0.15)");
+      gradSlot.addColorStop(0, "rgba(118, 185, 71, 0.7)");
+      gradSlot.addColorStop(0.6, "rgba(118, 185, 71, 0.4)");
+      gradSlot.addColorStop(1, isCutting ? "rgba(255, 200, 60, 0.6)" : "rgba(118, 185, 71, 0.15)");
       ctx.fillStyle = gradSlot;
       ctx.globalAlpha = 0.85;
       ctx.fill();
 
-      // Slot border
-      ctx.strokeStyle = COLORS.slot;
+      // Slot border — scored edges
+      ctx.strokeStyle = "rgba(118, 185, 71, 0.35)";
       ctx.lineWidth = 0.5;
-      ctx.globalAlpha = 0.4;
+      ctx.globalAlpha = 0.5;
       ctx.stroke();
       ctx.globalAlpha = 1;
 
-      // Subtle glow at the cutting tip
-      const gx = CX + Math.cos(a) * endR;
-      const gy = CY + Math.sin(a) * endR;
-      const grad = ctx.createRadialGradient(gx, gy, 0, gx, gy, 6);
-      grad.addColorStop(0, "rgba(118, 185, 71, 0.5)");
-      grad.addColorStop(1, "transparent");
-      ctx.beginPath();
-      ctx.arc(gx, gy, 6, 0, Math.PI * 2);
-      ctx.fillStyle = grad;
-      ctx.fill();
+      // Cutting tool head at the tip
+      if (isCutting) {
+        const tipX = CX + Math.cos(a) * endR + vibX;
+        const tipY = CY + Math.sin(a) * endR + vibY;
+
+        // Tool body — small rectangle at cutting front
+        const toolLen = 8;
+        const toolW = slot.width + 3;
+        ctx.save();
+        ctx.translate(tipX, tipY);
+        ctx.rotate(a);
+
+        // Tool housing
+        ctx.fillStyle = "#c0c8d0";
+        ctx.fillRect(-toolLen / 2, -toolW / 2, toolLen, toolW);
+        ctx.strokeStyle = "#8090a0";
+        ctx.lineWidth = 0.8;
+        ctx.strokeRect(-toolLen / 2, -toolW / 2, toolLen, toolW);
+
+        // Cutting blade edge (bright line at front)
+        ctx.fillStyle = "#ffe080";
+        ctx.globalAlpha = 0.7 + Math.sin(time * 30) * 0.3;
+        ctx.fillRect(toolLen / 2 - 1.5, -toolW / 2, 1.5, toolW);
+        ctx.globalAlpha = 1;
+
+        ctx.restore();
+
+        // Hot glow at cutting point
+        const glowR = 10 + Math.sin(time * 20) * 3;
+        const grad = ctx.createRadialGradient(tipX, tipY, 0, tipX, tipY, glowR);
+        grad.addColorStop(0, "rgba(255, 220, 80, 0.6)");
+        grad.addColorStop(0.4, "rgba(255, 160, 40, 0.25)");
+        grad.addColorStop(1, "transparent");
+        ctx.beginPath();
+        ctx.arc(tipX, tipY, glowR, 0, Math.PI * 2);
+        ctx.fillStyle = grad;
+        ctx.fill();
+
+        // Secondary heat glow
+        const grad2 = ctx.createRadialGradient(tipX, tipY, 0, tipX, tipY, 18);
+        grad2.addColorStop(0, "rgba(255, 100, 30, 0.15)");
+        grad2.addColorStop(1, "transparent");
+        ctx.beginPath();
+        ctx.arc(tipX, tipY, 18, 0, Math.PI * 2);
+        ctx.fillStyle = grad2;
+        ctx.fill();
+      } else {
+        // Completed slot — subtle glow at tip
+        const gx = CX + Math.cos(a) * endR;
+        const gy = CY + Math.sin(a) * endR;
+        const grad = ctx.createRadialGradient(gx, gy, 0, gx, gy, 5);
+        grad.addColorStop(0, "rgba(118, 185, 71, 0.4)");
+        grad.addColorStop(1, "transparent");
+        ctx.beginPath();
+        ctx.arc(gx, gy, 5, 0, Math.PI * 2);
+        ctx.fillStyle = grad;
+        ctx.fill();
+      }
     });
 
     // Particles
@@ -423,6 +523,28 @@ const FluidPhysicsSimulation = () => {
       } else if (p.type === "mobilised") {
         color = COLORS.mobilised;
         alpha = 0.85;
+      } else if (p.type === "spark") {
+        const fade = 1 - p.life / p.maxLife;
+        color = `rgb(${255}, ${180 + Math.random() * 40}, ${40})`;
+        alpha = fade * 0.9;
+        // Draw spark with a trail
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius * fade, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.globalAlpha = alpha;
+        ctx.fill();
+        // Bright core
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius * fade * 0.4, 0, Math.PI * 2);
+        ctx.fillStyle = "#fff";
+        ctx.globalAlpha = alpha * 0.8;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+        return;
+      } else if (p.type === "debris") {
+        const fade = 1 - p.life / p.maxLife;
+        color = "#8b7355";
+        alpha = fade * 0.7;
       }
 
       ctx.beginPath();
