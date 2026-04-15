@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState, useCallback } from "react";
+import LongitudinalCrossSection from "@/components/simulation/LongitudinalCrossSection";
 
 // ─── Types ──────────────────────────────────────────────────────────
 interface Particle {
