@@ -391,31 +391,37 @@ const FluidPhysicsSimulation = () => {
       ctx.setLineDash([]);
     }
 
-    // SPT Slots
+    // SPT Slots with cutting tool animation
+    const time = timeRef.current;
     slotsRef.current.forEach((slot) => {
       if (slot.progress <= 0) return;
       const startR = WELLBORE_R + 1;
       const endR = startR + (slot.length - startR) * slot.progress;
       const a = slot.angle + slot.offsetAngle;
       const halfW = slot.width / 2;
+      const isCutting = slot.progress > 0 && slot.progress < 1 && phase === "injection";
 
       // Perpendicular direction for slot width
       const px = -Math.sin(a);
       const py = Math.cos(a);
 
-      // Draw narrow rectangular slot channel
+      // Vibration effect while cutting
+      const vibX = isCutting ? Math.sin(time * 45) * 0.6 : 0;
+      const vibY = isCutting ? Math.cos(time * 52) * 0.6 : 0;
+
+      // Draw the cut channel (already cut portion)
       ctx.beginPath();
       ctx.moveTo(
         CX + Math.cos(a) * startR + px * halfW,
         CY + Math.sin(a) * startR + py * halfW
       );
       ctx.lineTo(
-        CX + Math.cos(a) * endR + px * halfW,
-        CY + Math.sin(a) * endR + py * halfW
+        CX + Math.cos(a) * endR + px * halfW + vibX,
+        CY + Math.sin(a) * endR + py * halfW + vibY
       );
       ctx.lineTo(
-        CX + Math.cos(a) * endR - px * halfW,
-        CY + Math.sin(a) * endR - py * halfW
+        CX + Math.cos(a) * endR - px * halfW + vibX,
+        CY + Math.sin(a) * endR - py * halfW + vibY
       );
       ctx.lineTo(
         CX + Math.cos(a) * startR - px * halfW,
@@ -423,37 +429,85 @@ const FluidPhysicsSimulation = () => {
       );
       ctx.closePath();
 
-      // Fill with gradient along the slot
+      // Fill with gradient — darker near wellbore (already cut), brighter at tip
       const gradSlot = ctx.createLinearGradient(
         CX + Math.cos(a) * startR,
         CY + Math.sin(a) * startR,
         CX + Math.cos(a) * endR,
         CY + Math.sin(a) * endR
       );
-      gradSlot.addColorStop(0, "rgba(118, 185, 71, 0.9)");
-      gradSlot.addColorStop(0.7, "rgba(118, 185, 71, 0.5)");
-      gradSlot.addColorStop(1, "rgba(118, 185, 71, 0.15)");
+      gradSlot.addColorStop(0, "rgba(118, 185, 71, 0.7)");
+      gradSlot.addColorStop(0.6, "rgba(118, 185, 71, 0.4)");
+      gradSlot.addColorStop(1, isCutting ? "rgba(255, 200, 60, 0.6)" : "rgba(118, 185, 71, 0.15)");
       ctx.fillStyle = gradSlot;
       ctx.globalAlpha = 0.85;
       ctx.fill();
 
-      // Slot border
-      ctx.strokeStyle = COLORS.slot;
+      // Slot border — scored edges
+      ctx.strokeStyle = "rgba(118, 185, 71, 0.35)";
       ctx.lineWidth = 0.5;
-      ctx.globalAlpha = 0.4;
+      ctx.globalAlpha = 0.5;
       ctx.stroke();
       ctx.globalAlpha = 1;
 
-      // Subtle glow at the cutting tip
-      const gx = CX + Math.cos(a) * endR;
-      const gy = CY + Math.sin(a) * endR;
-      const grad = ctx.createRadialGradient(gx, gy, 0, gx, gy, 6);
-      grad.addColorStop(0, "rgba(118, 185, 71, 0.5)");
-      grad.addColorStop(1, "transparent");
-      ctx.beginPath();
-      ctx.arc(gx, gy, 6, 0, Math.PI * 2);
-      ctx.fillStyle = grad;
-      ctx.fill();
+      // Cutting tool head at the tip
+      if (isCutting) {
+        const tipX = CX + Math.cos(a) * endR + vibX;
+        const tipY = CY + Math.sin(a) * endR + vibY;
+
+        // Tool body — small rectangle at cutting front
+        const toolLen = 8;
+        const toolW = slot.width + 3;
+        ctx.save();
+        ctx.translate(tipX, tipY);
+        ctx.rotate(a);
+
+        // Tool housing
+        ctx.fillStyle = "#c0c8d0";
+        ctx.fillRect(-toolLen / 2, -toolW / 2, toolLen, toolW);
+        ctx.strokeStyle = "#8090a0";
+        ctx.lineWidth = 0.8;
+        ctx.strokeRect(-toolLen / 2, -toolW / 2, toolLen, toolW);
+
+        // Cutting blade edge (bright line at front)
+        ctx.fillStyle = "#ffe080";
+        ctx.globalAlpha = 0.7 + Math.sin(time * 30) * 0.3;
+        ctx.fillRect(toolLen / 2 - 1.5, -toolW / 2, 1.5, toolW);
+        ctx.globalAlpha = 1;
+
+        ctx.restore();
+
+        // Hot glow at cutting point
+        const glowR = 10 + Math.sin(time * 20) * 3;
+        const grad = ctx.createRadialGradient(tipX, tipY, 0, tipX, tipY, glowR);
+        grad.addColorStop(0, "rgba(255, 220, 80, 0.6)");
+        grad.addColorStop(0.4, "rgba(255, 160, 40, 0.25)");
+        grad.addColorStop(1, "transparent");
+        ctx.beginPath();
+        ctx.arc(tipX, tipY, glowR, 0, Math.PI * 2);
+        ctx.fillStyle = grad;
+        ctx.fill();
+
+        // Secondary heat glow
+        const grad2 = ctx.createRadialGradient(tipX, tipY, 0, tipX, tipY, 18);
+        grad2.addColorStop(0, "rgba(255, 100, 30, 0.15)");
+        grad2.addColorStop(1, "transparent");
+        ctx.beginPath();
+        ctx.arc(tipX, tipY, 18, 0, Math.PI * 2);
+        ctx.fillStyle = grad2;
+        ctx.fill();
+      } else {
+        // Completed slot — subtle glow at tip
+        const gx = CX + Math.cos(a) * endR;
+        const gy = CY + Math.sin(a) * endR;
+        const grad = ctx.createRadialGradient(gx, gy, 0, gx, gy, 5);
+        grad.addColorStop(0, "rgba(118, 185, 71, 0.4)");
+        grad.addColorStop(1, "transparent");
+        ctx.beginPath();
+        ctx.arc(gx, gy, 5, 0, Math.PI * 2);
+        ctx.fillStyle = grad;
+        ctx.fill();
+      }
     });
 
     // Particles
