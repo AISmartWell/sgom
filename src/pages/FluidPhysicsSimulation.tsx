@@ -882,10 +882,21 @@ const FluidPhysicsSimulation = () => {
             ref={canvasRef}
             width={W}
             height={H}
+            onMouseMove={(e) => {
+              const canvas = canvasRef.current;
+              if (!canvas) return;
+              const rect = canvas.getBoundingClientRect();
+              mouseRef.current = {
+                x: (e.clientX - rect.left) * (W / rect.width),
+                y: (e.clientY - rect.top) * (H / rect.height),
+              };
+            }}
+            onMouseLeave={() => { mouseRef.current = null; }}
             style={{
               maxWidth: "100%",
               maxHeight: "100%",
               borderRadius: 8,
+              cursor: "crosshair",
             }}
           />
 
