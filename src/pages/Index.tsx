@@ -184,6 +184,67 @@ const Index = () => {
         </div>
       </div>
 
+      {/* ===== VIDEO HERO SECTION ===== */}
+      <section className="relative py-24 px-6">
+        <div className="absolute inset-0 bg-gradient-to-b from-background via-primary/[0.03] to-background" />
+        <div className="relative max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <span className="text-primary font-semibold text-sm tracking-widest uppercase">Physics-Aware Visualization</span>
+            <h2 className="text-4xl md:text-5xl font-bold mt-3 mb-4">Reservoir Fluid Dynamics</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
+              AI-generated simulations of wellbore fluid behavior — from SPT treatment injection to production restoration
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Horizontal Well Video */}
+            <div className="group relative rounded-2xl overflow-hidden border border-border/40 bg-card/50 backdrop-blur-sm hover:border-primary/30 transition-all duration-300">
+              <div className="aspect-video relative">
+                <video
+                  src={horizontalWellVideo}
+                  className="w-full h-full object-cover"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+              </div>
+              <div className="absolute bottom-0 left-0 right-0 p-6">
+                <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-primary/20 text-primary border border-primary/30 mb-2">
+                  Horizontal Well
+                </span>
+                <h3 className="text-lg font-bold text-white">Drilling & Completion Visualization</h3>
+                <p className="text-sm text-white/60 mt-1">Cinematic cross-section of horizontal wellbore through geological formations</p>
+              </div>
+            </div>
+
+            {/* SPT Treatment Video — links to fluid simulation */}
+            <div
+              className="group relative rounded-2xl overflow-hidden border border-border/40 bg-card/50 backdrop-blur-sm hover:border-primary/30 transition-all duration-300 cursor-pointer"
+              onClick={() => navigate("/fluid-simulation")}
+            >
+              <div className="aspect-video relative bg-gradient-to-br from-[hsl(200,25%,8%)] to-[hsl(220,30%,12%)] flex items-center justify-center">
+                <div className="text-center">
+                  <div className="h-16 w-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                    <Play className="h-8 w-8 text-primary ml-1" />
+                  </div>
+                  <p className="text-sm text-muted-foreground">Launch Interactive Simulation</p>
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+              </div>
+              <div className="absolute bottom-0 left-0 right-0 p-6">
+                <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-success/20 text-success border border-success/30 mb-2">
+                  SPT Treatment
+                </span>
+                <h3 className="text-lg font-bold text-white">Fluid Physics Simulation</h3>
+                <p className="text-sm text-white/60 mt-1">Interactive particle simulation of reservoir fluid behavior during SPT treatment</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ===== 8-STAGE PIPELINE ===== */}
       <section className="relative py-28 px-6">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/[0.02] to-transparent" />
