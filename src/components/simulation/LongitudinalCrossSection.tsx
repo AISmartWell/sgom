@@ -53,6 +53,8 @@ const LongitudinalCrossSection = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animRef = useRef<number>(0);
   const localTimeRef = useRef(0);
+  const mouseRef = useRef<{ x: number; y: number } | null>(null);
+  const [hoveredSlot, setHoveredSlot] = useState<number | null>(null);
 
   const W = 340;
   const H = 500;
