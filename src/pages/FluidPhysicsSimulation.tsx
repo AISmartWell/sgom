@@ -178,8 +178,17 @@ const FluidPhysicsSimulation = () => {
       }
       // Smooth eased progress for cutting animation
       const easedProg = prog < 0.15 ? prog * 4 : Math.min(1, 0.6 + (prog - 0.15) * 0.47);
-      slotsRef.current.forEach((s) => {
+      slotsRef.current.forEach((s, idx) => {
+        const prevProg = s.progress;
         s.progress = Math.min(1, easedProg * 1.3);
+        // Record history every ~0.3s of progress change
+        const hist = slotHistoryRef.current[idx];
+        if (hist && (hist.length === 0 || t - hist[hist.length - 1].time > 0.3)) {
+          const startR = WELLBORE_R + 2;
+          const depthPx = (s.penetration - startR) * s.progress;
+          const depthFt = (depthPx / (DAMAGE_R + 45 - startR)) * 5;
+          hist.push({ time: t, progress: s.progress, depth: depthFt });
+        }
       });
     } else if (t < 18) {
       setPhase("mobilisation");
