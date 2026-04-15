@@ -523,6 +523,28 @@ const FluidPhysicsSimulation = () => {
       } else if (p.type === "mobilised") {
         color = COLORS.mobilised;
         alpha = 0.85;
+      } else if (p.type === "spark") {
+        const fade = 1 - p.life / p.maxLife;
+        color = `rgb(${255}, ${180 + Math.random() * 40}, ${40})`;
+        alpha = fade * 0.9;
+        // Draw spark with a trail
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius * fade, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.globalAlpha = alpha;
+        ctx.fill();
+        // Bright core
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius * fade * 0.4, 0, Math.PI * 2);
+        ctx.fillStyle = "#fff";
+        ctx.globalAlpha = alpha * 0.8;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+        return;
+      } else if (p.type === "debris") {
+        const fade = 1 - p.life / p.maxLife;
+        color = "#8b7355";
+        alpha = fade * 0.7;
       }
 
       ctx.beginPath();
