@@ -79,6 +79,8 @@ const FluidPhysicsSimulation = () => {
     pressure: 840,
   });
   const [showCosmosModal, setShowCosmosModal] = useState(false);
+  const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
+  const slotHistoryRef = useRef<Array<Array<{ time: number; progress: number; depth: number }>>>([[], [], [], []]);
 
   // Canvas dimensions
   const W = 900;
@@ -176,8 +178,17 @@ const FluidPhysicsSimulation = () => {
       }
       // Smooth eased progress for cutting animation
       const easedProg = prog < 0.15 ? prog * 4 : Math.min(1, 0.6 + (prog - 0.15) * 0.47);
-      slotsRef.current.forEach((s) => {
+      slotsRef.current.forEach((s, idx) => {
+        const prevProg = s.progress;
         s.progress = Math.min(1, easedProg * 1.3);
+        // Record history every ~0.3s of progress change
+        const hist = slotHistoryRef.current[idx];
+        if (hist && (hist.length === 0 || t - hist[hist.length - 1].time > 0.3)) {
+          const startR = WELLBORE_R + 2;
+          const depthPx = (s.penetration - startR) * s.progress;
+          const depthFt = (depthPx / (DAMAGE_R + 45 - startR)) * 5;
+          hist.push({ time: t, progress: s.progress, depth: depthFt });
+        }
       });
     } else if (t < 18) {
       setPhase("mobilisation");
@@ -738,6 +749,8 @@ const FluidPhysicsSimulation = () => {
       pressure: 840,
     });
     initParticles();
+    slotHistoryRef.current = [[], [], [], []];
+    setSelectedSlot(null);
   };
 
   const formatTime = (t: number) => {
@@ -892,6 +905,27 @@ const FluidPhysicsSimulation = () => {
               };
             }}
             onMouseLeave={() => { mouseRef.current = null; }}
+            onClick={(e) => {
+              const canvas = canvasRef.current;
+              if (!canvas) return;
+              const rect = canvas.getBoundingClientRect();
+              const mx = (e.clientX - rect.left) * (W / rect.width) - CX;
+              const my = (e.clientY - rect.top) * (H / rect.height) - CY;
+              const mAngle = Math.atan2(my, mx);
+              const mDist = Math.sqrt(mx * mx + my * my);
+              let found = -1;
+              slotsRef.current.forEach((slot, idx) => {
+                if (slot.progress <= 0) return;
+                const startR = WELLBORE_R + 2;
+                const endR = startR + (slot.penetration - startR) * slot.progress;
+                let angleDiff = Math.abs(mAngle - slot.angle);
+                if (angleDiff > Math.PI) angleDiff = Math.PI * 2 - angleDiff;
+                if (angleDiff < 0.15 && mDist >= startR - 5 && mDist <= endR + 10) {
+                  found = idx;
+                }
+              });
+              setSelectedSlot(found >= 0 ? found : null);
+            }}
             style={{
               maxWidth: "100%",
               maxHeight: "100%",
@@ -1043,6 +1077,162 @@ const FluidPhysicsSimulation = () => {
             <LegendItem color={COLORS.slot} label="SPT slot cut" type="line" />
             <LegendItem color="rgba(180,60,40,0.4)" label="Damaged zone" type="dashed" />
           </PanelCard>
+
+          {/* Slot Detail Panel */}
+          {selectedSlot !== null && slotsRef.current[selectedSlot] && (
+            <PanelCard title={`SLOT ${selectedSlot + 1} — DETAIL`}>
+              {(() => {
+                const slot = slotsRef.current[selectedSlot];
+                const startR = WELLBORE_R + 2;
+                const depthPx = (slot.penetration - startR) * slot.progress;
+                const depthFt = (depthPx / (DAMAGE_R + 45 - startR)) * 5;
+                const depthIn = depthFt * 12;
+                const dirLabels = ["Top (12h)", "Bottom (6h)", "Right (3h)", "Left (9h)"];
+                const hist = slotHistoryRef.current[selectedSlot] || [];
+                return (
+                  <div style={{ fontSize: 10 }}>
+                    {/* Header info */}
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                      <span style={{ color: COLORS.textSecondary }}>Direction</span>
+                      <span style={{ fontWeight: 600, color: COLORS.accent }}>{dirLabels[selectedSlot] || "—"}</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                      <span style={{ color: COLORS.textSecondary }}>Penetration</span>
+                      <span style={{ fontWeight: 600 }}>{depthIn.toFixed(1)}" ({depthFt.toFixed(2)} ft)</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                      <span style={{ color: COLORS.textSecondary }}>Arc width</span>
+                      <span style={{ fontWeight: 600 }}>{(slot.arcSpan * 180 / Math.PI).toFixed(1)}°</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                      <span style={{ color: COLORS.textSecondary }}>Progress</span>
+                      <span style={{ fontWeight: 600, color: slot.progress >= 1 ? COLORS.accent : "#e8b84a" }}>
+                        {(slot.progress * 100).toFixed(0)}%
+                      </span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
+                      <span style={{ color: COLORS.textSecondary }}>Status</span>
+                      <span style={{
+                        fontWeight: 600,
+                        color: slot.progress >= 1 ? COLORS.accent : slot.progress > 0 ? "#e8b84a" : COLORS.textSecondary,
+                      }}>
+                        {slot.progress >= 1 ? "✓ Complete" : slot.progress > 0 ? "⚡ Cutting" : "⏳ Pending"}
+                      </span>
+                    </div>
+
+                    {/* Progress bar */}
+                    <div style={{
+                      height: 4,
+                      background: "rgba(255,255,255,0.06)",
+                      borderRadius: 2,
+                      overflow: "hidden",
+                      marginBottom: 10,
+                    }}>
+                      <div style={{
+                        width: `${slot.progress * 100}%`,
+                        height: "100%",
+                        background: slot.progress >= 1
+                          ? `linear-gradient(90deg, ${COLORS.accent}, #4a8a2a)`
+                          : "linear-gradient(90deg, #e8b84a, #ff8c00)",
+                        borderRadius: 2,
+                        transition: "width 0.3s",
+                      }} />
+                    </div>
+
+                    {/* Cutting History Chart */}
+                    {hist.length > 1 && (
+                      <>
+                        <div style={{
+                          fontSize: 9,
+                          fontWeight: 600,
+                          letterSpacing: 1,
+                          textTransform: "uppercase",
+                          color: COLORS.textSecondary,
+                          marginBottom: 6,
+                        }}>
+                          Cutting History
+                        </div>
+                        <div style={{
+                          height: 60,
+                          background: "rgba(0,0,0,0.3)",
+                          borderRadius: 4,
+                          position: "relative",
+                          overflow: "hidden",
+                          border: "1px solid rgba(255,255,255,0.04)",
+                        }}>
+                          <svg width="100%" height="60" viewBox={`0 0 248 60`} preserveAspectRatio="none">
+                            {/* Grid lines */}
+                            {[0.25, 0.5, 0.75].map(v => (
+                              <line key={v} x1={0} y1={60 - v * 55 - 2} x2={248} y2={60 - v * 55 - 2}
+                                stroke="rgba(255,255,255,0.04)" strokeWidth={0.5} />
+                            ))}
+                            {/* Depth line */}
+                            <polyline
+                              fill="none"
+                              stroke={COLORS.accent}
+                              strokeWidth={1.5}
+                              points={hist.map((h, i) => {
+                                const x = (i / (hist.length - 1)) * 244 + 2;
+                                const y = 58 - (h.depth / 5) * 55;
+                                return `${x},${y}`;
+                              }).join(" ")}
+                            />
+                            {/* Fill area */}
+                            <polygon
+                              fill="rgba(118,185,71,0.1)"
+                              points={
+                                `2,58 ` +
+                                hist.map((h, i) => {
+                                  const x = (i / (hist.length - 1)) * 244 + 2;
+                                  const y = 58 - (h.depth / 5) * 55;
+                                  return `${x},${y}`;
+                                }).join(" ") +
+                                ` 246,58`
+                              }
+                            />
+                            {/* Current point */}
+                            {hist.length > 0 && (() => {
+                              const last = hist[hist.length - 1];
+                              const x = 246;
+                              const y = 58 - (last.depth / 5) * 55;
+                              return <circle cx={x} cy={y} r={2.5} fill={COLORS.accent} />;
+                            })()}
+                          </svg>
+                          {/* Y axis labels */}
+                          <span style={{ position: "absolute", top: 0, right: 4, fontSize: 7, color: "rgba(255,255,255,0.2)" }}>5 ft</span>
+                          <span style={{ position: "absolute", bottom: 0, right: 4, fontSize: 7, color: "rgba(255,255,255,0.2)" }}>0 ft</span>
+                        </div>
+                        {/* Time labels */}
+                        <div style={{ display: "flex", justifyContent: "space-between", marginTop: 2 }}>
+                          <span style={{ fontSize: 7, color: "rgba(255,255,255,0.15)" }}>{hist[0].time.toFixed(1)}s</span>
+                          <span style={{ fontSize: 7, color: "rgba(255,255,255,0.15)" }}>{hist[hist.length - 1].time.toFixed(1)}s</span>
+                        </div>
+                      </>
+                    )}
+
+                    {/* Close button */}
+                    <button
+                      onClick={() => setSelectedSlot(null)}
+                      style={{
+                        marginTop: 8,
+                        width: "100%",
+                        background: "rgba(255,255,255,0.04)",
+                        border: `1px solid ${COLORS.panelBorder}`,
+                        borderRadius: 4,
+                        padding: "5px 0",
+                        color: COLORS.textSecondary,
+                        fontSize: 9,
+                        cursor: "pointer",
+                        fontFamily: "'IBM Plex Mono', monospace",
+                      }}
+                    >
+                      ✕ Close
+                    </button>
+                  </div>
+                );
+              })()}
+            </PanelCard>
+          )}
 
           {/* Patent */}
           <PanelCard title="US PATENT #8,863,823">
