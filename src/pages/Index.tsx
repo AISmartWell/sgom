@@ -211,9 +211,6 @@ const Index = () => {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
               </div>
               <div className="absolute bottom-0 left-0 right-0 p-6">
-                <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-primary/20 text-primary border border-primary/30 mb-2">
-                  Horizontal Well
-                </span>
                 <h3 className="text-lg font-bold text-white">Drilling & Completion Visualization</h3>
                 <p className="text-sm text-white/60 mt-1">Cinematic cross-section of horizontal wellbore through geological formations</p>
               </div>
