@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback } from "react";
+import { useRef, useEffect, useCallback, useState } from "react";
 
 interface LongitudinalCrossSectionProps {
   phase: "pre-spt" | "injection" | "mobilisation" | "post-spt";
@@ -53,6 +53,8 @@ const LongitudinalCrossSection = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animRef = useRef<number>(0);
   const localTimeRef = useRef(0);
+  const mouseRef = useRef<{ x: number; y: number } | null>(null);
+  const [hoveredSlot, setHoveredSlot] = useState<number | null>(null);
 
   const W = 340;
   const H = 500;
@@ -320,6 +322,100 @@ const LongitudinalCrossSection = ({
     ctx.textAlign = "center";
     ctx.fillText("LONGITUDINAL SECTION (SIDE VIEW)", W / 2, 14);
 
+    // Hover detection & tooltip
+    const mouse = mouseRef.current;
+    const targetFormTop2 = LAYERS.slice(0, 3).reduce((s, l) => s + l.height, 0) + 30;
+    let foundSlot: number | null = null;
+
+    if (mouse) {
+      const prog = Math.min(1, slotProgress * 1.3);
+      if (prog > 0) {
+        const slotLen = SLOT_MAX * prog;
+        for (let i = 0; i < NUM_SLOTS; i++) {
+          const slotY = targetFormTop2 + 12 + i * SLOT_SPACING;
+          const hitH = 8; // generous hit area
+          if (mouse.y >= slotY - hitH && mouse.y <= slotY + hitH) {
+            // Check if within slot horizontal range (either side)
+            const leftEnd = WELL_CX - CASING_HALF - slotLen;
+            const rightEnd = WELL_CX + CASING_HALF + slotLen;
+            if (mouse.x >= leftEnd - 5 && mouse.x <= rightEnd + 5) {
+              foundSlot = i;
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    // Draw tooltip for hovered slot
+    if (foundSlot !== null && mouse) {
+      const i = foundSlot;
+      const slotY = targetFormTop2 + 12 + i * SLOT_SPACING;
+      const prog = Math.min(1, slotProgress * 1.3);
+      const slotLen = SLOT_MAX * prog;
+
+      // Highlight the hovered slot
+      for (const dir of [-1, 1]) {
+        const startX = WELL_CX + dir * CASING_HALF;
+        const endX = startX + dir * slotLen;
+        const x = dir === 1 ? startX : endX;
+        const w = Math.abs(endX - startX);
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(x, slotY - 3, w, 6);
+      }
+
+      // Calculate real depth values
+      const depthStart = 4680;
+      const pixelRange2 = LAYERS.reduce((s, l) => s + l.height, 0);
+      const slotDepthFt = depthStart + ((slotY - 30) / pixelRange2) * 180;
+      const penetrationFt = (slotLen / SLOT_MAX) * 5; // max 5 ft real penetration
+      const penetrationIn = penetrationFt * 12; // inches
+
+      // Tooltip box
+      const tooltipW = 160;
+      const tooltipH = 68;
+      let tx = mouse.x + 12;
+      let ty = mouse.y - tooltipH - 8;
+      if (tx + tooltipW > W) tx = mouse.x - tooltipW - 12;
+      if (ty < 4) ty = mouse.y + 12;
+
+      // Shadow
+      ctx.fillStyle = "rgba(0,0,0,0.6)";
+      ctx.beginPath();
+      ctx.roundRect(tx + 2, ty + 2, tooltipW, tooltipH, 6);
+      ctx.fill();
+
+      // Background
+      ctx.fillStyle = "rgba(20, 22, 30, 0.95)";
+      ctx.beginPath();
+      ctx.roundRect(tx, ty, tooltipW, tooltipH, 6);
+      ctx.fill();
+      ctx.strokeStyle = "rgba(118, 185, 71, 0.4)";
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Accent bar
+      ctx.fillStyle = COLORS.accent;
+      ctx.fillRect(tx, ty, 3, tooltipH);
+
+      // Text
+      ctx.textAlign = "left";
+      ctx.font = "bold 9px monospace";
+      ctx.fillStyle = COLORS.accent;
+      ctx.fillText(`SLOT ${i + 1}`, tx + 10, ty + 14);
+
+      ctx.font = "8px monospace";
+      ctx.fillStyle = "#e0dcd4";
+      ctx.fillText(`Depth: ${slotDepthFt.toFixed(0)} ft`, tx + 10, ty + 28);
+      ctx.fillText(`Penetration: ${penetrationIn.toFixed(1)}" (${penetrationFt.toFixed(2)} ft)`, tx + 10, ty + 40);
+
+      const statusText = prog >= 1 ? "Complete" : prog > 0 ? "Cutting..." : "Pending";
+      const statusColor = prog >= 1 ? COLORS.accent : "#e8b84a";
+      ctx.fillStyle = statusColor;
+      ctx.fillText(`Status: ${statusText}`, tx + 10, ty + 54);
+    }
+
   }, [phase, slotProgress, metrics]);
 
   useEffect(() => {
@@ -339,15 +435,34 @@ const LongitudinalCrossSection = ({
     };
   }, [isPlaying, time, render]);
 
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = W / rect.width;
+    const scaleY = H / rect.height;
+    mouseRef.current = {
+      x: (e.clientX - rect.left) * scaleX,
+      y: (e.clientY - rect.top) * scaleY,
+    };
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    mouseRef.current = null;
+  }, []);
+
   return (
     <canvas
       ref={canvasRef}
       width={W}
       height={H}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
       style={{
         maxWidth: "100%",
         maxHeight: "100%",
         borderRadius: 8,
+        cursor: mouseRef.current ? "crosshair" : "default",
       }}
     />
   );
