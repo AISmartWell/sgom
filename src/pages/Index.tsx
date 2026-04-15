@@ -1,8 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Droplets, ArrowRight, BarChart3, Target, Cpu, FileText, Zap, TrendingUp, Shield, Lightbulb, Play } from "lucide-react";
+import { Droplets, ArrowRight, BarChart3, Target, Cpu, FileText, Zap, TrendingUp, Shield, Lightbulb } from "lucide-react";
 import nvidiaInceptionBadgeBw from "@/assets/nvidia-inception-badge-bw.png";
 import horizontalWellVideoAsset from "@/assets/horizontal-well-video.mp4.asset.json";
+import coreAnalysisVideoAsset from "@/assets/core-analysis-engine.mp4.asset.json";
 
 const pipelineStages = [
   { emoji: "🛰️", stage: 1, title: "Field Scanning", desc: "Automated satellite imagery analysis & well detection across oil fields with weekly scan cycles", path: "/dashboard/field-scanning" },
@@ -216,26 +217,25 @@ const Index = () => {
               </div>
             </div>
 
-            {/* SPT Treatment Video — links to fluid simulation */}
-            <div
-              className="group relative rounded-2xl overflow-hidden border border-border/40 bg-card/50 backdrop-blur-sm hover:border-primary/30 transition-all duration-300 cursor-pointer"
-              onClick={() => navigate("/fluid-simulation")}
-            >
-              <div className="aspect-video relative bg-gradient-to-br from-[hsl(200,25%,8%)] to-[hsl(220,30%,12%)] flex items-center justify-center">
-                <div className="text-center">
-                  <div className="h-16 w-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                    <Play className="h-8 w-8 text-primary ml-1" />
-                  </div>
-                  <p className="text-sm text-muted-foreground">Launch Interactive Simulation</p>
-                </div>
+            {/* Core Analysis Engine Video */}
+            <div className="group relative rounded-2xl overflow-hidden border border-border/40 bg-card/50 backdrop-blur-sm hover:border-primary/30 transition-all duration-300">
+              <div className="aspect-video relative">
+                <video
+                  src={coreAnalysisVideoAsset.url}
+                  className="w-full h-full object-cover"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
               </div>
               <div className="absolute bottom-0 left-0 right-0 p-6">
-                <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-success/20 text-success border border-success/30 mb-2">
-                  SPT Treatment
+                <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-primary/20 text-primary border border-primary/30 mb-2">
+                  8-Stage Pipeline
                 </span>
-                <h3 className="text-lg font-bold text-white">Fluid Physics Simulation</h3>
-                <p className="text-sm text-white/60 mt-1">Interactive particle simulation of reservoir fluid behavior during SPT treatment</p>
+                <h3 className="text-lg font-bold text-white">Core Analysis Engine</h3>
+                <p className="text-sm text-white/60 mt-1">End-to-end automated well screening — from satellite field scanning to EOR recommendations</p>
               </div>
             </div>
           </div>

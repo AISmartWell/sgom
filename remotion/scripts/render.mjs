@@ -16,9 +16,12 @@ const browser = await openBrowser("chrome", {
   chromeMode: "chrome-for-testing",
 });
 
+const compositionId = process.argv[2] || "pipeline";
+const outputFile = process.argv[3] || "/mnt/documents/core-analysis-engine.mp4";
+
 const composition = await selectComposition({
   serveUrl: bundled,
-  id: "main",
+  id: compositionId,
   puppeteerInstance: browser,
 });
 
@@ -26,11 +29,11 @@ await renderMedia({
   composition,
   serveUrl: bundled,
   codec: "h264",
-  outputLocation: "/mnt/documents/reservoir-fluid-simulation.mp4",
+  outputLocation: outputFile,
   puppeteerInstance: browser,
   muted: true,
   concurrency: 1,
 });
 
 await browser.close({ silent: false });
-console.log("Done! Output: /mnt/documents/reservoir-fluid-simulation.mp4");
+console.log(`Done! Output: ${outputFile}`);
