@@ -761,7 +761,7 @@ const FluidPhysicsSimulation = () => {
             <LegendItem color={COLORS.water} label="Formation water" />
             <LegendItem color={COLORS.mobilised} label="Mobilised oil (SPT)" />
             <LegendItem color={COLORS.gas} label="Gas (liberated)" />
-            <LegendItem color={COLORS.slot} label="SPT slot front" type="line" />
+            <LegendItem color={COLORS.slot} label="SPT slot cut" type="line" />
             <LegendItem color="rgba(180,60,40,0.4)" label="Damaged zone" type="dashed" />
           </PanelCard>
 
