@@ -435,15 +435,34 @@ const LongitudinalCrossSection = ({
     };
   }, [isPlaying, time, render]);
 
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = W / rect.width;
+    const scaleY = H / rect.height;
+    mouseRef.current = {
+      x: (e.clientX - rect.left) * scaleX,
+      y: (e.clientY - rect.top) * scaleY,
+    };
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    mouseRef.current = null;
+  }, []);
+
   return (
     <canvas
       ref={canvasRef}
       width={W}
       height={H}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
       style={{
         maxWidth: "100%",
         maxHeight: "100%",
         borderRadius: 8,
+        cursor: mouseRef.current ? "crosshair" : "default",
       }}
     />
   );
