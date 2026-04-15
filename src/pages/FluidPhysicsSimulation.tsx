@@ -348,31 +348,64 @@ const FluidPhysicsSimulation = () => {
     // SPT Slots
     slotsRef.current.forEach((slot) => {
       if (slot.progress <= 0) return;
-      const startR = WELLBORE_R + 2;
+      const startR = WELLBORE_R + 1;
       const endR = startR + (slot.length - startR) * slot.progress;
+      const a = slot.angle + slot.offsetAngle;
+      const halfW = slot.width / 2;
+
+      // Perpendicular direction for slot width
+      const px = -Math.sin(a);
+      const py = Math.cos(a);
+
+      // Draw narrow rectangular slot channel
       ctx.beginPath();
       ctx.moveTo(
-        CX + Math.cos(slot.angle) * startR,
-        CY + Math.sin(slot.angle) * startR
+        CX + Math.cos(a) * startR + px * halfW,
+        CY + Math.sin(a) * startR + py * halfW
       );
       ctx.lineTo(
-        CX + Math.cos(slot.angle) * endR,
-        CY + Math.sin(slot.angle) * endR
+        CX + Math.cos(a) * endR + px * halfW,
+        CY + Math.sin(a) * endR + py * halfW
       );
+      ctx.lineTo(
+        CX + Math.cos(a) * endR - px * halfW,
+        CY + Math.sin(a) * endR - py * halfW
+      );
+      ctx.lineTo(
+        CX + Math.cos(a) * startR - px * halfW,
+        CY + Math.sin(a) * startR - py * halfW
+      );
+      ctx.closePath();
+
+      // Fill with gradient along the slot
+      const gradSlot = ctx.createLinearGradient(
+        CX + Math.cos(a) * startR,
+        CY + Math.sin(a) * startR,
+        CX + Math.cos(a) * endR,
+        CY + Math.sin(a) * endR
+      );
+      gradSlot.addColorStop(0, "rgba(118, 185, 71, 0.9)");
+      gradSlot.addColorStop(0.7, "rgba(118, 185, 71, 0.5)");
+      gradSlot.addColorStop(1, "rgba(118, 185, 71, 0.15)");
+      ctx.fillStyle = gradSlot;
+      ctx.globalAlpha = 0.85;
+      ctx.fill();
+
+      // Slot border
       ctx.strokeStyle = COLORS.slot;
-      ctx.lineWidth = 2;
-      ctx.globalAlpha = 0.8;
+      ctx.lineWidth = 0.5;
+      ctx.globalAlpha = 0.4;
       ctx.stroke();
       ctx.globalAlpha = 1;
 
-      // Slot glow
-      const gx = CX + Math.cos(slot.angle) * endR;
-      const gy = CY + Math.sin(slot.angle) * endR;
-      const grad = ctx.createRadialGradient(gx, gy, 0, gx, gy, 8);
-      grad.addColorStop(0, "rgba(118, 185, 71, 0.4)");
+      // Subtle glow at the cutting tip
+      const gx = CX + Math.cos(a) * endR;
+      const gy = CY + Math.sin(a) * endR;
+      const grad = ctx.createRadialGradient(gx, gy, 0, gx, gy, 6);
+      grad.addColorStop(0, "rgba(118, 185, 71, 0.5)");
       grad.addColorStop(1, "transparent");
       ctx.beginPath();
-      ctx.arc(gx, gy, 8, 0, Math.PI * 2);
+      ctx.arc(gx, gy, 6, 0, Math.PI * 2);
       ctx.fillStyle = grad;
       ctx.fill();
     });
