@@ -153,21 +153,21 @@ const FluidPhysicsSimulation = () => {
       });
       // Create slots
       if (slotsRef.current.length === 0) {
-        // SPT creates narrow rectangular slots cut through casing into formation
-        // Typically 4-8 slots distributed around the wellbore
         const count = 4 + Math.floor(Math.random() * 3);
         for (let i = 0; i < count; i++) {
           slotsRef.current.push({
             angle: (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.15,
             length: DAMAGE_R + 30 + Math.random() * 60,
             progress: 0,
-            width: 3 + Math.random() * 2, // narrow slot width
+            width: 3 + Math.random() * 2,
             offsetAngle: (Math.random() - 0.5) * 0.05,
           });
         }
       }
+      // Smooth eased progress for cutting animation
+      const easedProg = prog < 0.1 ? prog * 5 : Math.min(1, 0.5 + (prog - 0.1) * 0.56);
       slotsRef.current.forEach((s) => {
-        s.progress = Math.min(1, prog * 1.5);
+        s.progress = Math.min(1, easedProg * 1.5);
       });
     } else if (t < 18) {
       setPhase("mobilisation");
