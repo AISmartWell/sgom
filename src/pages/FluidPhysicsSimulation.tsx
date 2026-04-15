@@ -903,6 +903,27 @@ const FluidPhysicsSimulation = () => {
               };
             }}
             onMouseLeave={() => { mouseRef.current = null; }}
+            onClick={(e) => {
+              const canvas = canvasRef.current;
+              if (!canvas) return;
+              const rect = canvas.getBoundingClientRect();
+              const mx = (e.clientX - rect.left) * (W / rect.width) - CX;
+              const my = (e.clientY - rect.top) * (H / rect.height) - CY;
+              const mAngle = Math.atan2(my, mx);
+              const mDist = Math.sqrt(mx * mx + my * my);
+              let found = -1;
+              slotsRef.current.forEach((slot, idx) => {
+                if (slot.progress <= 0) return;
+                const startR = WELLBORE_R + 2;
+                const endR = startR + (slot.penetration - startR) * slot.progress;
+                let angleDiff = Math.abs(mAngle - slot.angle);
+                if (angleDiff > Math.PI) angleDiff = Math.PI * 2 - angleDiff;
+                if (angleDiff < 0.15 && mDist >= startR - 5 && mDist <= endR + 10) {
+                  found = idx;
+                }
+              });
+              setSelectedSlot(found >= 0 ? found : null);
+            }}
             style={{
               maxWidth: "100%",
               maxHeight: "100%",
