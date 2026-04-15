@@ -65,6 +65,7 @@ const FluidPhysicsSimulation = () => {
   const particlesRef = useRef<Particle[]>([]);
   const slotsRef = useRef<SlotLine[]>([]);
   const timeRef = useRef(0);
+  const mouseRef = useRef<{ x: number; y: number } | null>(null);
   const [phase, setPhase] = useState<Phase>("pre-spt");
   const [isPlaying, setIsPlaying] = useState(false);
   const [elapsedTime, setElapsedTime] = useState(0);
