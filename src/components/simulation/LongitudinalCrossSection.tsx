@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback } from "react";
+import { useRef, useEffect, useCallback, useState } from "react";
 
 interface LongitudinalCrossSectionProps {
   phase: "pre-spt" | "injection" | "mobilisation" | "post-spt";
