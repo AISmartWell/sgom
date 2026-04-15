@@ -13,9 +13,11 @@ interface Particle {
 }
 
 interface SlotLine {
-  angle: number;
-  length: number;
-  progress: number;
+  angle: number;       // radial direction of the cut
+  length: number;      // max penetration depth from wellbore wall
+  progress: number;    // 0-1 animation progress
+  width: number;       // slot opening width in pixels (narrow cut)
+  offsetAngle: number; // slight angular offset for visual variety
 }
 
 type Phase = "pre-spt" | "injection" | "mobilisation" | "post-spt";
