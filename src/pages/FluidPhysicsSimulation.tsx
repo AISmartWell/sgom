@@ -759,6 +759,7 @@ const FluidPhysicsSimulation = () => {
         }}
       >
         {/* Canvas area */}
+        {/* Cross-section (top view) */}
         <div
           style={{
             flex: 1,
@@ -770,6 +771,7 @@ const FluidPhysicsSimulation = () => {
             borderRadius: 12,
             border: `1px solid ${COLORS.panelBorder}`,
             position: "relative",
+            minWidth: 0,
           }}
         >
           <canvas
@@ -819,6 +821,29 @@ const FluidPhysicsSimulation = () => {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* Longitudinal section (side view) */}
+        <div
+          style={{
+            width: 340,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            background: COLORS.bg,
+            borderRadius: 12,
+            border: `1px solid ${COLORS.panelBorder}`,
+            flexShrink: 0,
+          }}
+        >
+          <LongitudinalCrossSection
+            phase={phase}
+            slotProgress={slotsRef.current.length > 0 ? slotsRef.current[0].progress : 0}
+            isPlaying={isPlaying}
+            time={timeRef.current}
+            metrics={metrics}
+          />
         </div>
 
         {/* Side panel */}
