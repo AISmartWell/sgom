@@ -29,10 +29,10 @@ interface PhaseInfo {
 }
 
 const PHASES: Record<Phase, PhaseInfo> = {
-  "pre-spt": { label: "PRE-SPT", description: "Пласт в покое. Флюид заблокирован у ствола скважины." },
-  injection: { label: "INJECTION", description: "SPT-перфорация создаёт слоты через зону повреждения." },
-  mobilisation: { label: "MOBILISATION", description: "Мобилизованная нефть движется к стволу скважины." },
-  "post-spt": { label: "POST-SPT", description: "Стабильный приток. Скин-фактор устранён." },
+  "pre-spt": { label: "PRE-SPT", description: "Reservoir at rest. Fluid locked near wellbore due to skin damage." },
+  injection: { label: "INJECTION", description: "SPT perforation creates slots through the damage zone." },
+  mobilisation: { label: "MOBILISATION", description: "Mobilised oil flows towards the wellbore through new channels." },
+  "post-spt": { label: "POST-SPT", description: "Stable inflow established. Skin factor eliminated." },
 };
 
 const PHASE_ORDER: Phase[] = ["pre-spt", "injection", "mobilisation", "post-spt"];
