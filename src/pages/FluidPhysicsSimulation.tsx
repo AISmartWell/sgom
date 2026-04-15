@@ -391,88 +391,105 @@ const FluidPhysicsSimulation = () => {
       ctx.setLineDash([]);
     }
 
-    // SPT Slots with cutting tool animation
+    // ── Casing & cement rings (drawn before slots so slots cut through them) ──
+    // Cement sheath
+    ctx.beginPath();
+    ctx.arc(CX, CY, CEMENT_R, 0, Math.PI * 2);
+    ctx.strokeStyle = "rgba(160, 140, 110, 0.3)";
+    ctx.lineWidth = CEMENT_R - CASING_R;
+    ctx.stroke();
+
+    // Casing pipe wall
+    ctx.beginPath();
+    ctx.arc(CX, CY, CASING_R, 0, Math.PI * 2);
+    ctx.strokeStyle = "rgba(180, 190, 200, 0.4)";
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    // SPT Slots — longitudinal cuts shown as narrow rectangular slits in cross-section
     const time = timeRef.current;
     slotsRef.current.forEach((slot) => {
       if (slot.progress <= 0) return;
-      const startR = WELLBORE_R + 1;
-      const endR = startR + (slot.length - startR) * slot.progress;
-      const a = slot.angle + slot.offsetAngle;
-      const halfW = slot.width / 2;
+      const a = slot.angle;
+      const startR = WELLBORE_R + 2; // start inside casing
+      const maxR = slot.penetration;
+      const endR = startR + (maxR - startR) * slot.progress;
+      const halfArc = slot.arcSpan / 2;
       const isCutting = slot.progress > 0 && slot.progress < 1 && phase === "injection";
 
-      // Perpendicular direction for slot width
-      const px = -Math.sin(a);
-      const py = Math.cos(a);
+      // Vibration while cutting
+      const vibOffset = isCutting ? Math.sin(time * 45) * 0.004 : 0;
+      const aVib = a + vibOffset;
 
-      // Vibration effect while cutting
-      const vibX = isCutting ? Math.sin(time * 45) * 0.6 : 0;
-      const vibY = isCutting ? Math.cos(time * 52) * 0.6 : 0;
+      // Draw the slot as a narrow wedge/slit shape
+      // Left edge of slot
+      const a1 = aVib - halfArc;
+      const a2 = aVib + halfArc;
 
-      // Draw the cut channel (already cut portion)
       ctx.beginPath();
-      ctx.moveTo(
-        CX + Math.cos(a) * startR + px * halfW,
-        CY + Math.sin(a) * startR + py * halfW
-      );
-      ctx.lineTo(
-        CX + Math.cos(a) * endR + px * halfW + vibX,
-        CY + Math.sin(a) * endR + py * halfW + vibY
-      );
-      ctx.lineTo(
-        CX + Math.cos(a) * endR - px * halfW + vibX,
-        CY + Math.sin(a) * endR - py * halfW + vibY
-      );
-      ctx.lineTo(
-        CX + Math.cos(a) * startR - px * halfW,
-        CY + Math.sin(a) * startR - py * halfW
-      );
+      // Inner arc (at casing wall)
+      ctx.arc(CX, CY, startR, a1, a2);
+      // Right edge outward
+      ctx.lineTo(CX + Math.cos(a2) * endR, CY + Math.sin(a2) * endR);
+      // Outer arc (at penetration tip)
+      ctx.arc(CX, CY, endR, a2, a1, true);
+      // Left edge inward (closes path)
       ctx.closePath();
 
-      // Fill with gradient — darker near wellbore (already cut), brighter at tip
-      const gradSlot = ctx.createLinearGradient(
-        CX + Math.cos(a) * startR,
-        CY + Math.sin(a) * startR,
-        CX + Math.cos(a) * endR,
-        CY + Math.sin(a) * endR
-      );
-      gradSlot.addColorStop(0, "rgba(118, 185, 71, 0.7)");
-      gradSlot.addColorStop(0.6, "rgba(118, 185, 71, 0.4)");
-      gradSlot.addColorStop(1, isCutting ? "rgba(255, 200, 60, 0.6)" : "rgba(118, 185, 71, 0.15)");
+      // Gradient fill — green channel with hot tip when cutting
+      const gradSlot = ctx.createRadialGradient(CX, CY, startR, CX, CY, endR);
+      gradSlot.addColorStop(0, "rgba(118, 185, 71, 0.8)");
+      gradSlot.addColorStop(0.4, "rgba(118, 185, 71, 0.5)");
+      gradSlot.addColorStop(0.8, isCutting ? "rgba(255, 200, 60, 0.5)" : "rgba(118, 185, 71, 0.25)");
+      gradSlot.addColorStop(1, isCutting ? "rgba(255, 160, 40, 0.7)" : "rgba(118, 185, 71, 0.1)");
       ctx.fillStyle = gradSlot;
-      ctx.globalAlpha = 0.85;
+      ctx.globalAlpha = 0.9;
       ctx.fill();
 
-      // Slot border — scored edges
-      ctx.strokeStyle = "rgba(118, 185, 71, 0.35)";
+      // Slot border edges
+      ctx.strokeStyle = "rgba(118, 185, 71, 0.4)";
       ctx.lineWidth = 0.5;
-      ctx.globalAlpha = 0.5;
+      ctx.globalAlpha = 0.6;
       ctx.stroke();
       ctx.globalAlpha = 1;
 
+      // Indicate casing breach — highlight where slot cuts through casing/cement
+      if (endR > CASING_R) {
+        // Bright marks at casing breach points
+        for (const bR of [CASING_R, Math.min(endR, CEMENT_R)]) {
+          if (endR < bR) continue;
+          ctx.beginPath();
+          ctx.arc(CX, CY, bR, a1 - 0.01, a2 + 0.01);
+          ctx.strokeStyle = "rgba(255, 220, 120, 0.5)";
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        }
+      }
+
       // Cutting tool head at the tip
       if (isCutting) {
-        const tipX = CX + Math.cos(a) * endR + vibX;
-        const tipY = CY + Math.sin(a) * endR + vibY;
+        const tipR = endR;
+        const tipX = CX + Math.cos(aVib) * tipR;
+        const tipY = CY + Math.sin(aVib) * tipR;
 
-        // Tool body — small rectangle at cutting front
-        const toolLen = 8;
-        const toolW = slot.width + 3;
+        // Tool body — small arc at cutting front
         ctx.save();
         ctx.translate(tipX, tipY);
-        ctx.rotate(a);
+        ctx.rotate(aVib);
 
         // Tool housing
+        const toolLen = 6;
+        const toolW = slot.arcSpan * endR + 4;
         ctx.fillStyle = "#c0c8d0";
-        ctx.fillRect(-toolLen / 2, -toolW / 2, toolLen, toolW);
+        ctx.fillRect(-2, -toolW / 2, toolLen, toolW);
         ctx.strokeStyle = "#8090a0";
         ctx.lineWidth = 0.8;
-        ctx.strokeRect(-toolLen / 2, -toolW / 2, toolLen, toolW);
+        ctx.strokeRect(-2, -toolW / 2, toolLen, toolW);
 
-        // Cutting blade edge (bright line at front)
+        // Cutting blade edge
         ctx.fillStyle = "#ffe080";
         ctx.globalAlpha = 0.7 + Math.sin(time * 30) * 0.3;
-        ctx.fillRect(toolLen / 2 - 1.5, -toolW / 2, 1.5, toolW);
+        ctx.fillRect(toolLen - 3.5, -toolW / 2, 1.5, toolW);
         ctx.globalAlpha = 1;
 
         ctx.restore();
@@ -487,24 +504,15 @@ const FluidPhysicsSimulation = () => {
         ctx.arc(tipX, tipY, glowR, 0, Math.PI * 2);
         ctx.fillStyle = grad;
         ctx.fill();
-
-        // Secondary heat glow
-        const grad2 = ctx.createRadialGradient(tipX, tipY, 0, tipX, tipY, 18);
-        grad2.addColorStop(0, "rgba(255, 100, 30, 0.15)");
-        grad2.addColorStop(1, "transparent");
-        ctx.beginPath();
-        ctx.arc(tipX, tipY, 18, 0, Math.PI * 2);
-        ctx.fillStyle = grad2;
-        ctx.fill();
-      } else {
+      } else if (slot.progress >= 1) {
         // Completed slot — subtle glow at tip
         const gx = CX + Math.cos(a) * endR;
         const gy = CY + Math.sin(a) * endR;
-        const grad = ctx.createRadialGradient(gx, gy, 0, gx, gy, 5);
+        const grad = ctx.createRadialGradient(gx, gy, 0, gx, gy, 6);
         grad.addColorStop(0, "rgba(118, 185, 71, 0.4)");
         grad.addColorStop(1, "transparent");
         ctx.beginPath();
-        ctx.arc(gx, gy, 5, 0, Math.PI * 2);
+        ctx.arc(gx, gy, 6, 0, Math.PI * 2);
         ctx.fillStyle = grad;
         ctx.fill();
       }
@@ -555,7 +563,7 @@ const FluidPhysicsSimulation = () => {
       ctx.globalAlpha = 1;
     });
 
-    // Wellbore
+    // Wellbore (drawn on top of slots)
     ctx.beginPath();
     ctx.arc(CX, CY, WELLBORE_R, 0, Math.PI * 2);
     ctx.fillStyle = COLORS.wellbore;
@@ -570,10 +578,12 @@ const FluidPhysicsSimulation = () => {
     ctx.fillStyle = "rgba(255,255,255,0.2)";
     ctx.fill();
 
-    // Depth rings labels
+    // Labels
+    ctx.font = "9px monospace";
+    ctx.fillStyle = "rgba(255,255,255,0.15)";
+    ctx.fillText("Casing", CX + CASING_R + 3, CY - 3);
+    ctx.fillText("Cement", CX + CEMENT_R + 3, CY - 3);
     [DAMAGE_R, FORMATION_R].forEach((r, i) => {
-      ctx.font = "9px monospace";
-      ctx.fillStyle = "rgba(255,255,255,0.15)";
       ctx.fillText(i === 0 ? "Damage zone" : "Formation boundary", CX + r * 0.7 + 5, CY - r * 0.7);
     });
   }, [metrics, phase, CX, CY]);
