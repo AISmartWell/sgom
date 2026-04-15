@@ -65,6 +65,7 @@ const FluidPhysicsSimulation = () => {
   const particlesRef = useRef<Particle[]>([]);
   const slotsRef = useRef<SlotLine[]>([]);
   const timeRef = useRef(0);
+  const mouseRef = useRef<{ x: number; y: number } | null>(null);
   const [phase, setPhase] = useState<Phase>("pre-spt");
   const [isPlaying, setIsPlaying] = useState(false);
   const [elapsedTime, setElapsedTime] = useState(0);
@@ -593,6 +594,109 @@ const FluidPhysicsSimulation = () => {
     [DAMAGE_R, FORMATION_R].forEach((r, i) => {
       ctx.fillText(i === 0 ? "Damage zone" : "Formation boundary", CX + r * 0.7 + 5, CY - r * 0.7);
     });
+
+    // Cross-section title
+    ctx.font = "bold 10px monospace";
+    ctx.fillStyle = "rgba(255,255,255,0.3)";
+    ctx.textAlign = "center";
+    ctx.fillText("CROSS SECTION (TOP VIEW)", W / 2, 14);
+    ctx.textAlign = "left";
+
+    // ─── Hover detection & tooltip on slots ───
+    const mouse = mouseRef.current;
+    if (mouse && slotsRef.current.length > 0) {
+      let hovIdx = -1;
+      slotsRef.current.forEach((slot, idx) => {
+        if (slot.progress <= 0) return;
+        const a = slot.angle;
+        const startR = WELLBORE_R + 2;
+        const endR = startR + (slot.penetration - startR) * slot.progress;
+        // Check if mouse is near the slot line
+        const mx = mouse.x - CX;
+        const my = mouse.y - CY;
+        const mAngle = Math.atan2(my, mx);
+        const mDist = Math.sqrt(mx * mx + my * my);
+        // Normalize angle difference
+        let angleDiff = Math.abs(mAngle - a);
+        if (angleDiff > Math.PI) angleDiff = Math.PI * 2 - angleDiff;
+        // Hit test: within angular range and radial range
+        if (angleDiff < 0.15 && mDist >= startR - 5 && mDist <= endR + 10) {
+          hovIdx = idx;
+        }
+      });
+
+      if (hovIdx >= 0) {
+        const slot = slotsRef.current[hovIdx];
+        const a = slot.angle;
+        const startR = WELLBORE_R + 2;
+        const endR = startR + (slot.penetration - startR) * slot.progress;
+
+        // Highlight slot
+        const a1 = a - slot.arcSpan / 2;
+        const a2 = a + slot.arcSpan / 2;
+        ctx.beginPath();
+        ctx.arc(CX, CY, startR, a1, a2);
+        ctx.lineTo(CX + Math.cos(a2) * endR, CY + Math.sin(a2) * endR);
+        ctx.arc(CX, CY, endR, a2, a1, true);
+        ctx.closePath();
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.6)";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // Calc values
+        const penetrationPx = endR - startR;
+        const penetrationFt = (penetrationPx / (DAMAGE_R + 45 - startR)) * 5;
+        const penetrationIn = penetrationFt * 12;
+        const dirLabel = a === 0 ? "Right (3h)" : a === Math.PI ? "Left (9h)" : a === -Math.PI / 2 ? "Top (12h)" : "Bottom (6h)";
+
+        // Tooltip
+        const tooltipW = 170;
+        const tooltipH = 72;
+        let tx = mouse.x + 14;
+        let ty = mouse.y - tooltipH - 10;
+        if (tx + tooltipW > W) tx = mouse.x - tooltipW - 14;
+        if (ty < 4) ty = mouse.y + 14;
+
+        // Shadow
+        ctx.fillStyle = "rgba(0,0,0,0.6)";
+        ctx.beginPath();
+        ctx.roundRect(tx + 2, ty + 2, tooltipW, tooltipH, 6);
+        ctx.fill();
+
+        // Bg
+        ctx.fillStyle = "rgba(20, 22, 30, 0.95)";
+        ctx.beginPath();
+        ctx.roundRect(tx, ty, tooltipW, tooltipH, 6);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(118, 185, 71, 0.4)";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Accent bar
+        ctx.fillStyle = COLORS.accent;
+        ctx.fillRect(tx, ty, 3, tooltipH);
+
+        // Text
+        ctx.textAlign = "left";
+        ctx.font = "bold 9px monospace";
+        ctx.fillStyle = COLORS.accent;
+        ctx.fillText(`SLOT ${hovIdx + 1} · ${dirLabel}`, tx + 10, ty + 14);
+
+        ctx.font = "8px monospace";
+        ctx.fillStyle = "#e0dcd4";
+        ctx.fillText(`Penetration: ${penetrationIn.toFixed(1)}" (${penetrationFt.toFixed(2)} ft)`, tx + 10, ty + 28);
+        ctx.fillText(`Arc width: ${(slot.arcSpan * 180 / Math.PI).toFixed(1)}°`, tx + 10, ty + 40);
+
+        const statusText = slot.progress >= 1 ? "Complete" : slot.progress > 0 ? "Cutting..." : "Pending";
+        const statusColor = slot.progress >= 1 ? COLORS.accent : "#e8b84a";
+        ctx.fillStyle = statusColor;
+        ctx.fillText(`Status: ${statusText}`, tx + 10, ty + 54);
+
+        ctx.fillStyle = "#e0dcd4";
+        ctx.fillText(`Progress: ${(slot.progress * 100).toFixed(0)}%`, tx + 10, ty + 66);
+        ctx.textAlign = "left";
+      }
+    }
   }, [metrics, phase, CX, CY]);
 
   // ─── Animation loop ─────────────────────────────────────────────
@@ -778,10 +882,21 @@ const FluidPhysicsSimulation = () => {
             ref={canvasRef}
             width={W}
             height={H}
+            onMouseMove={(e) => {
+              const canvas = canvasRef.current;
+              if (!canvas) return;
+              const rect = canvas.getBoundingClientRect();
+              mouseRef.current = {
+                x: (e.clientX - rect.left) * (W / rect.width),
+                y: (e.clientY - rect.top) * (H / rect.height),
+              };
+            }}
+            onMouseLeave={() => { mouseRef.current = null; }}
             style={{
               maxWidth: "100%",
               maxHeight: "100%",
               borderRadius: 8,
+              cursor: "crosshair",
             }}
           />
 
