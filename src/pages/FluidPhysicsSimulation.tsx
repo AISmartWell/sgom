@@ -289,8 +289,54 @@ const FluidPhysicsSimulation = () => {
         });
       }
 
-      // Remove expired gas
-      particlesRef.current = particles.filter((p) => p.type !== "gas" || p.life < p.maxLife);
+      // Spawn sparks and debris at cutting tips during injection
+      if (currentPhase === "injection") {
+        slotsRef.current.forEach((slot) => {
+          if (slot.progress <= 0 || slot.progress >= 1) return;
+          if (Math.random() < 0.35) {
+            const a = slot.angle + slot.offsetAngle;
+            const startR = WELLBORE_R + 1;
+            const endR = startR + (slot.length - startR) * slot.progress;
+            const tipX = CX + Math.cos(a) * endR;
+            const tipY = CY + Math.sin(a) * endR;
+            // Sparks fly outward and sideways from cutting point
+            const sparkAngle = a + (Math.random() - 0.5) * 1.2;
+            const sparkSpeed = 1 + Math.random() * 2.5;
+            particles.push({
+              x: tipX + (Math.random() - 0.5) * 3,
+              y: tipY + (Math.random() - 0.5) * 3,
+              vx: Math.cos(sparkAngle) * sparkSpeed,
+              vy: Math.sin(sparkAngle) * sparkSpeed,
+              type: "spark",
+              radius: 0.8 + Math.random() * 1.2,
+              life: 0,
+              maxLife: 15 + Math.random() * 20,
+            });
+            // Debris chunks (slower, larger)
+            if (Math.random() < 0.3) {
+              const debrisAngle = a + (Math.random() - 0.5) * 0.8;
+              particles.push({
+                x: tipX,
+                y: tipY,
+                vx: Math.cos(debrisAngle) * (0.3 + Math.random() * 0.8),
+                vy: Math.sin(debrisAngle) * (0.3 + Math.random() * 0.8),
+                type: "debris",
+                radius: 1.5 + Math.random() * 2,
+                life: 0,
+                maxLife: 30 + Math.random() * 30,
+              });
+            }
+          }
+        });
+      }
+
+      // Remove expired particles
+      particlesRef.current = particles.filter((p) => {
+        if (p.type === "gas" || p.type === "spark" || p.type === "debris") {
+          return p.life < p.maxLife;
+        }
+        return true;
+      });
     },
     [phase, CX, CY]
   );
