@@ -992,6 +992,7 @@ const FluidPhysicsSimulation = () => {
             isPlaying={isPlaying}
             time={timeRef.current}
             metrics={metrics}
+            onSlotClick={(idx) => setSelectedSlot(idx)}
           />
         </div>
 

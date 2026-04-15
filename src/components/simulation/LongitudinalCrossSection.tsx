@@ -11,6 +11,7 @@ interface LongitudinalCrossSectionProps {
     slotDepth: number;
     pressure: number;
   };
+  onSlotClick?: (slotIndex: number | null) => void;
 }
 
 const COLORS = {
@@ -49,6 +50,7 @@ const LongitudinalCrossSection = ({
   isPlaying,
   time,
   metrics,
+  onSlotClick,
 }: LongitudinalCrossSectionProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animRef = useRef<number>(0);
@@ -451,6 +453,32 @@ const LongitudinalCrossSection = ({
     mouseRef.current = null;
   }, []);
 
+  const handleClick = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!onSlotClick) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) * (W / rect.width);
+    const my = (e.clientY - rect.top) * (H / rect.height);
+    const prog = Math.min(1, slotProgress * 1.3);
+    if (prog <= 0) { onSlotClick(null); return; }
+    const slotLen = SLOT_MAX * prog;
+    const targetFormTop = LAYERS.slice(0, 3).reduce((s, l) => s + l.height, 0) + 30;
+    let found: number | null = null;
+    for (let i = 0; i < NUM_SLOTS; i++) {
+      const slotY = targetFormTop + 12 + i * SLOT_SPACING;
+      if (my >= slotY - 8 && my <= slotY + 8) {
+        const leftEnd = WELL_CX - CASING_HALF - slotLen;
+        const rightEnd = WELL_CX + CASING_HALF + slotLen;
+        if (mx >= leftEnd - 5 && mx <= rightEnd + 5) {
+          found = i;
+          break;
+        }
+      }
+    }
+    onSlotClick(found);
+  }, [onSlotClick, slotProgress]);
+
   return (
     <canvas
       ref={canvasRef}
@@ -458,6 +486,7 @@ const LongitudinalCrossSection = ({
       height={H}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
+      onClick={handleClick}
       style={{
         maxWidth: "100%",
         maxHeight: "100%",
