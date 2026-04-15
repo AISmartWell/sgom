@@ -6,7 +6,7 @@ interface Particle {
   y: number;
   vx: number;
   vy: number;
-  type: "oil" | "water" | "gas" | "mobilised";
+  type: "oil" | "water" | "gas" | "mobilised" | "spark" | "debris";
   radius: number;
   life: number;
   maxLife: number;
