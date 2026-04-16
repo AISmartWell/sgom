@@ -464,14 +464,6 @@ const Index = () => {
                   </div>
                 ))}
               </div>
-              <div className="mt-4 pt-4 border-t border-border/30">
-                <Button variant="outline" size="sm" asChild className="w-full border-border/60 hover:border-primary/40">
-                  <a href="/AI_Smart_Well_Platform_Functional_Overview.pdf" target="_blank" rel="noopener noreferrer">
-                    <FileText className="mr-2 h-4 w-4" />
-                    Download Platform Overview (PDF)
-                  </a>
-                </Button>
-              </div>
             </div>
           </div>
         </div>
