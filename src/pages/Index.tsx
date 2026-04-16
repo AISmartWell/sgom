@@ -4,6 +4,7 @@ import { Droplets, ArrowRight, BarChart3, Target, Cpu, FileText, Zap, TrendingUp
 import nvidiaInceptionBadgeBw from "@/assets/nvidia-inception-badge-bw.png";
 import horizontalWellVideoAsset from "@/assets/horizontal-well-video.mp4.asset.json";
 import coreAnalysisVideoAsset from "@/assets/core-analysis-engine.mp4.asset.json";
+import geophysicalScreenshot from "@/assets/geophysical-expertise-screenshot.jpg";
 
 const pipelineStages = [
   { emoji: "🛰️", stage: 1, title: "Field Scanning", desc: "Automated satellite imagery analysis & well detection across oil fields with weekly scan cycles", path: "/dashboard/field-scanning" },
@@ -198,6 +199,25 @@ const Index = () => {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Geophysical Expertise Screenshot — full width */}
+            <div className="lg:col-span-2 group relative rounded-2xl overflow-hidden border border-border/40 bg-card/50 backdrop-blur-sm hover:border-primary/30 transition-all duration-300">
+              <div className="relative">
+                <img
+                  src={geophysicalScreenshot}
+                  alt="Geophysical Expertise — Well Log Interpretation following Schlumberger methodology"
+                  className="w-full h-auto object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+              </div>
+              <div className="absolute bottom-0 left-0 right-0 p-6">
+                <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-primary/20 text-primary border border-primary/30 mb-2">
+                  Stage 8
+                </span>
+                <h3 className="text-lg font-bold text-white">Geological Expertise Report — Well Log</h3>
+                <p className="text-sm text-white/60 mt-1">Schlumberger petrophysical workflow — GR, Resistivity, Porosity, Sw interpretation with pay zone identification</p>
+              </div>
+            </div>
+
             {/* Horizontal Well Video */}
             <div className="group relative rounded-2xl overflow-hidden border border-border/40 bg-card/50 backdrop-blur-sm hover:border-primary/30 transition-all duration-300">
               <div className="aspect-video relative">
