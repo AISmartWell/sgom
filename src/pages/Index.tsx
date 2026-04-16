@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Droplets, ArrowRight, BarChart3, Target, Cpu, FileText, Zap, TrendingUp, Shield, Lightbulb } from "lucide-react";
+import { Droplets, ArrowRight, BarChart3, Target, Cpu, FileText, Zap, TrendingUp, Shield, Lightbulb, Users, Award, Globe } from "lucide-react";
 import nvidiaInceptionBadgeBw from "@/assets/nvidia-inception-badge-bw.png";
 import horizontalWellVideoAsset from "@/assets/horizontal-well-video.mp4.asset.json";
 import coreAnalysisVideoAsset from "@/assets/core-analysis-engine.mp4.asset.json";
@@ -351,6 +351,80 @@ const Index = () => {
                 </div>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== MAXXWELL PRODUCTION ===== */}
+      <section className="relative py-28 px-6 border-t border-border/50">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/[0.02] to-transparent" />
+        <div className="relative max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <span className="text-primary font-semibold text-sm tracking-widest uppercase">Technology Partner</span>
+            <h2 className="text-4xl md:text-5xl font-bold mt-3 mb-4">Maxxwell Production</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
+              Decades of field experience combined with patented downhole technology — the foundation behind AI Smart Well's analytical engine
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-12">
+            <div className="glass-card-hover rounded-2xl p-7 text-center group">
+              <div className="h-14 w-14 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <Award className="h-7 w-7 text-primary" />
+              </div>
+              <h3 className="text-lg font-bold mb-2">US Patent 8,863,823</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Slot Perforation Technology (SPT) — a patented downhole method proven to revive marginal wells with 5–10× production increase
+              </p>
+            </div>
+            <div className="glass-card-hover rounded-2xl p-7 text-center group">
+              <div className="h-14 w-14 rounded-xl bg-accent/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <Globe className="h-7 w-7 text-accent" />
+              </div>
+              <h3 className="text-lg font-bold mb-2">Field Operations</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Extensive operational track record across multiple oil-producing regions with hundreds of successfully treated wells
+              </p>
+            </div>
+            <div className="glass-card-hover rounded-2xl p-7 text-center group">
+              <div className="h-14 w-14 rounded-xl bg-success/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <Users className="h-7 w-7 text-success" />
+              </div>
+              <h3 className="text-lg font-bold mb-2">Expert Team</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Led by Anatoliy Nikouline (CEO), with deep expertise in petroleum engineering, reservoir stimulation & EOR technologies
+              </p>
+            </div>
+          </div>
+
+          <div className="glass-card rounded-2xl p-8 border-primary/10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+              <div>
+                <h3 className="text-xl font-bold mb-4">AI Smart Well & Maxxwell Production</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                  Maxxwell Production is the technology partner behind AI Smart Well, providing the patented SPT hardware and decades of field validation data that power our AI models.
+                </p>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Together, we combine cutting-edge artificial intelligence with proven downhole engineering — enabling operators to identify, evaluate, and restore marginal wells at scale.
+                </p>
+              </div>
+              <div className="space-y-4">
+                {[
+                  { label: "Leadership", names: "Edward Rubinstein — CEO & Co-Founder, AI Smart Well" },
+                  { label: "Business Development", names: "Natalia Zaruchevskaya — Co-Founder, AI Smart Well" },
+                  { label: "Technology Partner", names: "Anatoliy Nikouline — CEO, Maxxwell Production" },
+                  { label: "Engineering", names: "Alexander Alishoev — CTO" },
+                ].map((member, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <div className="h-2 w-2 rounded-full bg-primary mt-2 flex-shrink-0" />
+                    <div>
+                      <p className="text-xs text-primary font-medium uppercase tracking-wider">{member.label}</p>
+                      <p className="text-sm text-foreground">{member.names}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
