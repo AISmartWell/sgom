@@ -432,7 +432,7 @@ const Index = () => {
               </div>
               <div className="mt-6 pt-4 border-t border-border/30">
                 <p className="text-xs text-muted-foreground">
-                  <span className="text-foreground font-medium">AI Smart Well Inc.</span> — USA · info@aismartwell.com
+                  <span className="text-foreground font-medium">AI Smart Well Inc.</span> — USA · edward@aismartwell.com
                 </p>
               </div>
             </div>
