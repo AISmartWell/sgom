@@ -114,12 +114,6 @@ const Index = () => {
             />
           </div>
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" asChild className="text-muted-foreground hover:text-foreground hidden md:inline-flex">
-              <a href="/AI_Smart_Well_Platform_Functional_Overview.pdf" target="_blank" rel="noopener noreferrer">
-                <FileText className="mr-2 h-4 w-4" />
-                Platform Overview
-              </a>
-            </Button>
             <Button variant="ghost" size="sm" onClick={() => navigate("/investor-deck")} className="text-muted-foreground hover:text-foreground">
               <FileText className="mr-2 h-4 w-4" />
               Investor Deck
@@ -469,14 +463,6 @@ const Index = () => {
                     <span className="text-primary font-bold">{row.arr}</span>
                   </div>
                 ))}
-              </div>
-              <div className="mt-4 pt-4 border-t border-border/30">
-                <Button variant="outline" size="sm" asChild className="w-full border-border/60 hover:border-primary/40">
-                  <a href="/AI_Smart_Well_Platform_Functional_Overview.pdf" target="_blank" rel="noopener noreferrer">
-                    <FileText className="mr-2 h-4 w-4" />
-                    Download Platform Overview (PDF)
-                  </a>
-                </Button>
               </div>
             </div>
           </div>
