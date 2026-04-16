@@ -475,7 +475,12 @@ import SPTRecoveryPlan from "@/components/eor/SPTRecoveryPlan";
               })}
             </div>
           </TabsContent>
- 
+
+         {/* Recovery Plan — Integrated EOR+SPT */}
+         <TabsContent value="recovery-plan">
+           <SPTRecoveryPlan />
+         </TabsContent>
+
          {/* Well Database */}
          <TabsContent value="database">
            <Card>
