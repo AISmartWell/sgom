@@ -367,23 +367,24 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-12">
+          {/* Top 3 cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
             <div className="glass-card-hover rounded-2xl p-7 text-center group">
               <div className="h-14 w-14 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
                 <Award className="h-7 w-7 text-primary" />
               </div>
               <h3 className="text-lg font-bold mb-2">US Patent 8,863,823</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Slot Perforation Technology (SPT) — a patented downhole method proven to revive marginal wells with 5–10× production increase
+                Slot Perforation Technology (SPT) — 5–10× inflow increase. No competing platform integrates patented completion technology
               </p>
             </div>
             <div className="glass-card-hover rounded-2xl p-7 text-center group">
               <div className="h-14 w-14 rounded-xl bg-accent/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
                 <Globe className="h-7 w-7 text-accent" />
               </div>
-              <h3 className="text-lg font-bold mb-2">Field Operations</h3>
+              <h3 className="text-lg font-bold mb-2">7-State Coverage</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Extensive operational track record across multiple oil-producing regions with hundreds of successfully treated wells
+                Direct API access to well registries across TX, OK, KS, NM, CO, ND, WY. 200+ pre-calibrated formation property ranges
               </p>
             </div>
             <div className="glass-card-hover rounded-2xl p-7 text-center group">
@@ -397,32 +398,85 @@ const Index = () => {
             </div>
           </div>
 
-          <div className="glass-card rounded-2xl p-8 border-primary/10">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-              <div>
-                <h3 className="text-xl font-bold mb-4">AI Smart Well & Maxxwell Production</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-                  Maxxwell Production is the technology partner behind AI Smart Well, providing the patented SPT hardware and decades of field validation data that power our AI models.
-                </p>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Together, we combine cutting-edge artificial intelligence with proven downhole engineering — enabling operators to identify, evaluate, and restore marginal wells at scale.
-                </p>
+          {/* Competitive Advantages grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            {[
+              { label: "AI-First Architecture", desc: "Every stage is AI-augmented — NVIDIA NIM for CV, Gemini for reports, Claude for consultation" },
+              { label: "Quantum Computing Edge", desc: "QAE delivers quadratic speedup: 100 quantum iterations = 10,000 classical iterations" },
+              { label: "9-Stage Pipeline", desc: "Repeatable, auditable methodology — end-to-end from field scanning to EOR optimization" },
+              { label: "Enterprise Security", desc: "RLS on every table. Multi-tenant isolation. RBAC. Invite-only access" },
+            ].map((item, i) => (
+              <div key={i} className="glass-card rounded-xl p-5 border-border/30">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  <h4 className="text-sm font-bold">{item.label}</h4>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
               </div>
+            ))}
+          </div>
+
+          {/* Team & Partnership + Target Market */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="glass-card rounded-2xl p-8 border-primary/10">
+              <h3 className="text-xl font-bold mb-4">Leadership</h3>
               <div className="space-y-4">
                 {[
-                  { label: "Leadership", names: "Edward Rubinstein — CEO & Co-Founder, AI Smart Well" },
-                  { label: "Business Development", names: "Natalia Zaruchevskaya — Co-Founder, AI Smart Well" },
-                  { label: "Technology Partner", names: "Anatoliy Nikouline — CEO, Maxxwell Production" },
-                  { label: "Engineering", names: "Alexander Alishoev — CTO" },
+                  { label: "CEO & Co-Founder", names: "Edward Rubinstein — Strategy & Partnerships", org: "AI Smart Well" },
+                  { label: "Co-Founder", names: "Natalia Zaruchevskaya — Business Development", org: "AI Smart Well" },
+                  { label: "CEO", names: "Anatoliy Nikouline — Technology Partner", org: "Maxxwell Production" },
+                  { label: "CTO", names: "Alexander Alishoev — Engineering", org: "AI Smart Well" },
                 ].map((member, i) => (
                   <div key={i} className="flex items-start gap-3">
                     <div className="h-2 w-2 rounded-full bg-primary mt-2 flex-shrink-0" />
                     <div>
-                      <p className="text-xs text-primary font-medium uppercase tracking-wider">{member.label}</p>
-                      <p className="text-sm text-foreground">{member.names}</p>
+                      <p className="text-sm text-foreground font-medium">{member.names}</p>
+                      <p className="text-xs text-muted-foreground">{member.label} · {member.org}</p>
                     </div>
                   </div>
                 ))}
+              </div>
+              <div className="mt-6 pt-4 border-t border-border/30">
+                <p className="text-xs text-muted-foreground">
+                  <span className="text-foreground font-medium">AI Smart Well Inc.</span> — USA · info@aismartwell.com
+                </p>
+              </div>
+            </div>
+
+            <div className="glass-card rounded-2xl p-8 border-primary/10">
+              <h3 className="text-xl font-bold mb-4">Target Market</h3>
+              <div className="space-y-4 mb-6">
+                {[
+                  "Independent operators managing 50–5,000+ wells",
+                  "Companies seeking to revitalize low-production (<10 bbl/d) well portfolios",
+                  "Engineering firms conducting reservoir evaluation studies",
+                ].map((item, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <div className="h-2 w-2 rounded-full bg-accent mt-2 flex-shrink-0" />
+                    <p className="text-sm text-muted-foreground">{item}</p>
+                  </div>
+                ))}
+              </div>
+              <h4 className="text-sm font-bold mb-3">Revenue Projection</h4>
+              <div className="space-y-2">
+                {[
+                  { year: "Year 1", clients: "15 clients", arr: "$1.1M ARR" },
+                  { year: "Year 2", clients: "45 clients", arr: "$2.8M ARR" },
+                  { year: "Year 3", clients: "120 clients", arr: "$8.6M ARR" },
+                ].map((row, i) => (
+                  <div key={i} className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">{row.year} · {row.clients}</span>
+                    <span className="text-primary font-bold">{row.arr}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 pt-4 border-t border-border/30">
+                <Button variant="outline" size="sm" asChild className="w-full border-border/60 hover:border-primary/40">
+                  <a href="/AI_Smart_Well_Platform_Functional_Overview.pdf" target="_blank" rel="noopener noreferrer">
+                    <FileText className="mr-2 h-4 w-4" />
+                    Download Platform Overview (PDF)
+                  </a>
+                </Button>
               </div>
             </div>
           </div>
