@@ -389,6 +389,7 @@ import SPTRecoveryPlan from "@/components/eor/SPTRecoveryPlan";
        <Tabs defaultValue="details" className="space-y-6">
           <TabsList className="bg-muted/50">
             <TabsTrigger value="details">Stage Details</TabsTrigger>
+            <TabsTrigger value="recovery-plan">Recovery Plan</TabsTrigger>
             <TabsTrigger value="database">Well Database</TabsTrigger>
             <TabsTrigger value="analysis">Cumulative Analysis</TabsTrigger>
             <TabsTrigger value="economics">Economic Model</TabsTrigger>
