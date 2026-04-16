@@ -5,7 +5,8 @@
  import { Badge } from "@/components/ui/badge";
  import { Progress } from "@/components/ui/progress";
  import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
- import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import SPTRecoveryPlan from "@/components/eor/SPTRecoveryPlan";
  import {
    ArrowLeft,
    Play,
@@ -388,6 +389,7 @@
        <Tabs defaultValue="details" className="space-y-6">
           <TabsList className="bg-muted/50">
             <TabsTrigger value="details">Stage Details</TabsTrigger>
+            <TabsTrigger value="recovery-plan">Recovery Plan</TabsTrigger>
             <TabsTrigger value="database">Well Database</TabsTrigger>
             <TabsTrigger value="analysis">Cumulative Analysis</TabsTrigger>
             <TabsTrigger value="economics">Economic Model</TabsTrigger>
@@ -473,7 +475,12 @@
               })}
             </div>
           </TabsContent>
- 
+
+         {/* Recovery Plan — Integrated EOR+SPT */}
+         <TabsContent value="recovery-plan">
+           <SPTRecoveryPlan />
+         </TabsContent>
+
          {/* Well Database */}
          <TabsContent value="database">
            <Card>
