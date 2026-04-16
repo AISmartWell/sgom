@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Droplets, ArrowRight, BarChart3, Target, Cpu, FileText, Zap, TrendingUp, Shield, Lightbulb } from "lucide-react";
+import { Droplets, ArrowRight, BarChart3, Target, Cpu, FileText, Zap, TrendingUp, Shield, Lightbulb, Users, Award, Globe } from "lucide-react";
 import nvidiaInceptionBadgeBw from "@/assets/nvidia-inception-badge-bw.png";
 import horizontalWellVideoAsset from "@/assets/horizontal-well-video.mp4.asset.json";
 import coreAnalysisVideoAsset from "@/assets/core-analysis-engine.mp4.asset.json";
