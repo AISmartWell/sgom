@@ -66,6 +66,20 @@ export const ResultsScene: React.FC = () => {
             {[1000, 1300, 1600, 1900, 2200, 2500].map(d => (
               <div key={d} style={{ position: "absolute", top: depthScale(d) - 8, right: 4, color: "#7a8fa8", fontFamily: "'Share Tech Mono', monospace", fontSize: 12 }}>{d}</div>
             ))}
+            {/* Pay zone labels on depth axis */}
+            {PAY_ZONES.map((pz, i) => {
+              const local = frame - (PAY_ZONE_START + i * 12);
+              const sp = spring({ frame: local, fps, config: { damping: 18, stiffness: 140 } });
+              const op = interpolate(sp, [0, 1], [0, 1]);
+              const tx = interpolate(sp, [0, 1], [-20, 0]);
+              const yTop = depthScale(pz.from);
+              const yBot = depthScale(pz.to);
+              return (
+                <div key={i} style={{ position: "absolute", top: yTop, height: yBot - yTop, left: -38, width: 32, opacity: op, transform: `translateX(${tx}px)`, background: pz.color, borderRadius: 3, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `0 0 12px ${pz.color}` }}>
+                  <div style={{ color: "#040912", fontFamily: "'Share Tech Mono', monospace", fontSize: 10, fontWeight: 800, transform: "rotate(-90deg)", whiteSpace: "nowrap", letterSpacing: 1 }}>{pz.label}</div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
