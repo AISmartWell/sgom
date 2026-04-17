@@ -1,20 +1,20 @@
 import { AbsoluteFill, Series } from "remotion";
-import { WellLogUpload } from "./scenes/WellLogUpload";
-import { WellLogProcessing } from "./scenes/WellLogProcessing";
-import { WellLogResults } from "./scenes/WellLogResults";
+import { DashboardScene } from "./scenes/DashboardScene";
+import { AnalysisScene } from "./scenes/AnalysisScene";
+import { ResultsScene } from "./scenes/ResultsScene";
 
 export const WellLogVideo: React.FC = () => {
   return (
     <AbsoluteFill>
       <Series>
         <Series.Sequence durationInFrames={150}>
-          <WellLogUpload />
+          <DashboardScene />
         </Series.Sequence>
         <Series.Sequence durationInFrames={210}>
-          <WellLogProcessing />
+          <AnalysisScene />
         </Series.Sequence>
-        <Series.Sequence durationInFrames={210}>
-          <WellLogResults />
+        <Series.Sequence durationInFrames={240}>
+          <ResultsScene />
         </Series.Sequence>
       </Series>
     </AbsoluteFill>
