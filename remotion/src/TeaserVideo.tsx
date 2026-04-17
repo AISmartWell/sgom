@@ -1,4 +1,4 @@
-import { AbsoluteFill, Series, useVideoConfig } from "remotion";
+import { AbsoluteFill, Audio, Series, staticFile, useVideoConfig } from "remotion";
 import { TeaserHook } from "./scenes/teaser/TeaserHook";
 import { TeaserProblem } from "./scenes/teaser/TeaserProblem";
 import { TeaserBrand } from "./scenes/teaser/TeaserBrand";
@@ -45,6 +45,7 @@ export const TeaserVideo: React.FC = () => {
         </Series.Sequence>
       </Series>
       <GrainOverlay />
+      <Audio src={staticFile("audio/teaser-music.mp3")} volume={0.55} />
     </AbsoluteFill>
   );
 };
