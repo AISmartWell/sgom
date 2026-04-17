@@ -24,6 +24,15 @@ const scale = (v: number, d: [number, number], log = false) => {
   return ((v - d[0]) / (d[1] - d[0])) * TW;
 };
 
+const PAY_ZONES = [
+  { from: 1180, to: 1310, color: "#4ade80", label: "PAY 1", net: "130 ft" },
+  { from: 1620, to: 1760, color: "#facc15", label: "PAY 2", net: "140 ft" },
+  { from: 2080, to: 2240, color: "#fb923c", label: "PAY 3", net: "160 ft" },
+];
+
+// Frame at which pay zones start appearing (after all 5 tracks have drawn)
+const PAY_ZONE_START = 95;
+
 export const ResultsScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
