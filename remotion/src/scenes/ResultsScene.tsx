@@ -24,6 +24,15 @@ const scale = (v: number, d: [number, number], log = false) => {
   return ((v - d[0]) / (d[1] - d[0])) * TW;
 };
 
+const PAY_ZONES = [
+  { from: 1180, to: 1310, color: "#4ade80", label: "PAY 1", net: "130 ft" },
+  { from: 1620, to: 1760, color: "#facc15", label: "PAY 2", net: "140 ft" },
+  { from: 2080, to: 2240, color: "#fb923c", label: "PAY 3", net: "160 ft" },
+];
+
+// Frame at which pay zones start appearing (after all 5 tracks have drawn)
+const PAY_ZONE_START = 95;
+
 export const ResultsScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -57,6 +66,20 @@ export const ResultsScene: React.FC = () => {
             {[1000, 1300, 1600, 1900, 2200, 2500].map(d => (
               <div key={d} style={{ position: "absolute", top: depthScale(d) - 8, right: 4, color: "#7a8fa8", fontFamily: "'Share Tech Mono', monospace", fontSize: 12 }}>{d}</div>
             ))}
+            {/* Pay zone labels on depth axis */}
+            {PAY_ZONES.map((pz, i) => {
+              const local = frame - (PAY_ZONE_START + i * 12);
+              const sp = spring({ frame: local, fps, config: { damping: 18, stiffness: 140 } });
+              const op = interpolate(sp, [0, 1], [0, 1]);
+              const tx = interpolate(sp, [0, 1], [-20, 0]);
+              const yTop = depthScale(pz.from);
+              const yBot = depthScale(pz.to);
+              return (
+                <div key={i} style={{ position: "absolute", top: yTop, height: yBot - yTop, left: -38, width: 32, opacity: op, transform: `translateX(${tx}px)`, background: pz.color, borderRadius: 3, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `0 0 12px ${pz.color}` }}>
+                  <div style={{ color: "#040912", fontFamily: "'Share Tech Mono', monospace", fontSize: 10, fontWeight: 800, transform: "rotate(-90deg)", whiteSpace: "nowrap", letterSpacing: 1 }}>{pz.label}</div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
@@ -98,6 +121,22 @@ export const ResultsScene: React.FC = () => {
                 {[0.2, 0.4, 0.6, 0.8].map(g => (
                   <line key={g} x1={0} y1={CH * g} x2={TW} y2={CH * g} stroke="#162840" strokeWidth={1} />
                 ))}
+                {/* Pay zone bands */}
+                {PAY_ZONES.map((pz, i) => {
+                  const local = frame - (PAY_ZONE_START + i * 12);
+                  const sp = spring({ frame: local, fps, config: { damping: 22, stiffness: 100 } });
+                  const op = interpolate(sp, [0, 1], [0, 0.22]);
+                  const yTop = depthScale(pz.from);
+                  const yBot = depthScale(pz.to);
+                  const w = TW * sp;
+                  return (
+                    <g key={i}>
+                      <rect x={0} y={yTop} width={w} height={yBot - yTop} fill={pz.color} opacity={op} />
+                      <line x1={0} y1={yTop} x2={w} y2={yTop} stroke={pz.color} strokeWidth={1.2} opacity={sp} strokeDasharray="4 3" />
+                      <line x1={0} y1={yBot} x2={w} y2={yBot} stroke={pz.color} strokeWidth={1.2} opacity={sp} strokeDasharray="4 3" />
+                    </g>
+                  );
+                })}
                 <path d={path} fill="none" stroke={cfg.color} strokeWidth={1.8} strokeDasharray={totalLen} strokeDashoffset={dashOffset} style={{ filter: `drop-shadow(0 0 3px ${cfg.color})` }} />
               </svg>
             </div>
