@@ -6,7 +6,7 @@ import { TeaserGeophysical } from "./scenes/teaser/TeaserGeophysical";
 import { TeaserVshale } from "./scenes/teaser/TeaserVshale";
 import { TeaserScreening } from "./scenes/teaser/TeaserScreening";
 import { TeaserResults } from "./scenes/teaser/TeaserResults";
-import { TeaserBrawnerReport } from "./scenes/teaser/TeaserBrawnerReport";
+import { ResultsScene } from "./scenes/ResultsScene";
 import { TeaserOutro } from "./scenes/teaser/TeaserOutro";
 import { GrainOverlay } from "./scenes/teaser/GrainOverlay";
 
@@ -38,7 +38,7 @@ export const TeaserVideo: React.FC = () => {
           <TeaserResults />
         </Series.Sequence>
         <Series.Sequence durationInFrames={240}>
-          <TeaserBrawnerReport />
+          <ResultsScene />
         </Series.Sequence>
         <Series.Sequence durationInFrames={150}>
           <TeaserOutro />
