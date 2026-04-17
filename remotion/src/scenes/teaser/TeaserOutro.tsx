@@ -81,7 +81,7 @@ export const TeaserOutro: React.FC = () => {
               letterSpacing: 2,
             }}
           >
-            aismartwellsgom.com
+            www.aismartwell.com
           </div>
           <div
             style={{

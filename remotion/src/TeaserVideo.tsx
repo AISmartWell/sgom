@@ -6,10 +6,11 @@ import { TeaserGeophysical } from "./scenes/teaser/TeaserGeophysical";
 import { TeaserVshale } from "./scenes/teaser/TeaserVshale";
 import { TeaserScreening } from "./scenes/teaser/TeaserScreening";
 import { TeaserResults } from "./scenes/teaser/TeaserResults";
+import { TeaserBrawnerReport } from "./scenes/teaser/TeaserBrawnerReport";
 import { TeaserOutro } from "./scenes/teaser/TeaserOutro";
 import { GrainOverlay } from "./scenes/teaser/GrainOverlay";
 
-// 45 sec @ 30fps = 1350 frames. Sum below = 1350.
+// 53 sec @ 30fps = 1590 frames. Sum below = 1590.
 export const TeaserVideo: React.FC = () => {
   useVideoConfig();
   return (
@@ -36,6 +37,9 @@ export const TeaserVideo: React.FC = () => {
         <Series.Sequence durationInFrames={210}>
           <TeaserResults />
         </Series.Sequence>
+        <Series.Sequence durationInFrames={240}>
+          <TeaserBrawnerReport />
+        </Series.Sequence>
         <Series.Sequence durationInFrames={150}>
           <TeaserOutro />
         </Series.Sequence>
@@ -44,3 +48,4 @@ export const TeaserVideo: React.FC = () => {
     </AbsoluteFill>
   );
 };
+
