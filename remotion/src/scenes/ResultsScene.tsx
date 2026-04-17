@@ -60,15 +60,6 @@ export const ResultsScene: React.FC = () => {
           </div>
         </div>
 
-        {(() => {
-          // Pay zones (depth ranges in ft) — appear after curves drawn
-          const PAY_ZONES = [
-            { from: 1180, to: 1310, color: "#4ade80", label: "PAY ZONE 1", net: "130 ft" },
-            { from: 1620, to: 1760, color: "#facc15", label: "PAY ZONE 2", net: "140 ft" },
-            { from: 2080, to: 2240, color: "#fb923c", label: "PAY ZONE 3", net: "160 ft" },
-          ];
-          return null;
-        })()}
         {TRACKS.map((cfg, ti) => {
           const trackDelay = 10 + ti * 8;
           const drawProgress = spring({ frame: frame - trackDelay, fps, config: { damping: 28, stiffness: 60 } });
