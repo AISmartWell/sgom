@@ -1,5 +1,5 @@
 import { AbsoluteFill, useCurrentFrame, interpolate, spring, useVideoConfig } from "remotion";
-import { generateWellLogData } from "./WellLogShared";
+import { generateData } from "./WellLogShared";
 
 const TRACKS = [
   { key: "gr",   label: "GR",   unit: "API",  color: "#4ade80", domain: [0, 150]     as [number, number] },
@@ -9,7 +9,7 @@ const TRACKS = [
   { key: "rhob", label: "RHOB", unit: "g/cc", color: "#e879f9", domain: [2.95, 1.75] as [number, number] },
 ];
 
-const DATA = generateWellLogData();
+const DATA = generateData();
 
 const TW = 200;
 const CH = 620;
