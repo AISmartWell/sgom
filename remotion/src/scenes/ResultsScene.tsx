@@ -121,6 +121,22 @@ export const ResultsScene: React.FC = () => {
                 {[0.2, 0.4, 0.6, 0.8].map(g => (
                   <line key={g} x1={0} y1={CH * g} x2={TW} y2={CH * g} stroke="#162840" strokeWidth={1} />
                 ))}
+                {/* Pay zone bands */}
+                {PAY_ZONES.map((pz, i) => {
+                  const local = frame - (PAY_ZONE_START + i * 12);
+                  const sp = spring({ frame: local, fps, config: { damping: 22, stiffness: 100 } });
+                  const op = interpolate(sp, [0, 1], [0, 0.22]);
+                  const yTop = depthScale(pz.from);
+                  const yBot = depthScale(pz.to);
+                  const w = TW * sp;
+                  return (
+                    <g key={i}>
+                      <rect x={0} y={yTop} width={w} height={yBot - yTop} fill={pz.color} opacity={op} />
+                      <line x1={0} y1={yTop} x2={w} y2={yTop} stroke={pz.color} strokeWidth={1.2} opacity={sp} strokeDasharray="4 3" />
+                      <line x1={0} y1={yBot} x2={w} y2={yBot} stroke={pz.color} strokeWidth={1.2} opacity={sp} strokeDasharray="4 3" />
+                    </g>
+                  );
+                })}
                 <path d={path} fill="none" stroke={cfg.color} strokeWidth={1.8} strokeDasharray={totalLen} strokeDashoffset={dashOffset} style={{ filter: `drop-shadow(0 0 3px ${cfg.color})` }} />
               </svg>
             </div>
