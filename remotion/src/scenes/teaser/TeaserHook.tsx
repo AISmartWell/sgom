@@ -1,6 +1,6 @@
 import { AbsoluteFill, interpolate, useCurrentFrame } from "remotion";
 import { COLORS, FONT_DISPLAY, FONT_MONO } from "./theme";
-import { StageBackdrop } from "./StageBackdrop";
+import { CinematicShot } from "./CinematicShot";
 
 // SCENE 1 — HOOK (4 sec). Black, slow type-on rhetorical question.
 export const TeaserHook: React.FC = () => {
@@ -17,7 +17,7 @@ export const TeaserHook: React.FC = () => {
 
   return (
     <AbsoluteFill>
-      <StageBackdrop tint={COLORS.accent} />
+      <CinematicShot src="shots/00-hook.png" fromScale={1.15} toScale={1.05} edge={COLORS.accent} />
       <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", padding: "0 120px" }}>
         <div style={{ textAlign: "center", color: COLORS.text, fontFamily: FONT_DISPLAY }}>
           <div
