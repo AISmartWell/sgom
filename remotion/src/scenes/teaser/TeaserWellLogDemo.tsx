@@ -1,4 +1,4 @@
-import { AbsoluteFill, OffthreadVideo, staticFile, useCurrentFrame, useVideoConfig, interpolate, spring } from "remotion";
+import { AbsoluteFill, Img, staticFile, useCurrentFrame, useVideoConfig, interpolate, spring } from "remotion";
 import { COLORS, FONT_DISPLAY } from "./theme";
 
 // 7-сек полноэкранное демо работы платформы (Stage 8: Geophysical Expertise / Well Log)
@@ -37,9 +37,8 @@ export const TeaserWellLogDemo: React.FC = () => {
             filter: "saturate(1.08) contrast(1.05)",
           }}
         >
-          <OffthreadVideo
-            src={staticFile("shots/welllog-demo.mp4")}
-            muted
+          <Img
+            src={staticFile(`shots/welllog-frames/frame-${String(Math.min(151, Math.max(1, frame + 1))).padStart(4, "0")}.jpg`)}
             style={{ width: "100%", height: "100%", objectFit: "cover" }}
           />
         </div>
