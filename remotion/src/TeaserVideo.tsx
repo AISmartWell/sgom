@@ -11,7 +11,7 @@ import { ResultsScene } from "./scenes/ResultsScene";
 import { TeaserOutro } from "./scenes/teaser/TeaserOutro";
 import { GrainOverlay } from "./scenes/teaser/GrainOverlay";
 
-// 53 sec @ 30fps = 1590 frames. Sum below = 1590.
+// 59 sec @ 30fps = 1770 frames. Sum below = 1770.
 export const TeaserVideo: React.FC = () => {
   useVideoConfig();
   return (
