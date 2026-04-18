@@ -26,6 +26,8 @@ export const TeaserVshale: React.FC = () => {
         toY={30}
         edge={COLORS.accent}
       />
+      {/* Анимированные оверлеи интерпретации: горизонты + fault sticks + bright spots */}
+      <InterpretationOverlay />
       {/* Затемнение нижней трети, чтобы текст читался поверх UI */}
       <AbsoluteFill
         style={{
