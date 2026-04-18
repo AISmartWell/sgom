@@ -1,4 +1,4 @@
-import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, Img, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import { COLORS, FONT_DISPLAY, FONT_MONO } from "./theme";
 
 // SCENE — STAGE 1: FIELD SCANNING via SATELLITE.
@@ -59,80 +59,27 @@ export const TeaserFieldScan: React.FC = () => {
           transform: `scale(${mapScale}) translateY(${mapY}px)`,
         }}
       >
-        {/* Terrain base — green/brown landscape gradient */}
+        {/* Real satellite imagery — Oklahoma basin */}
+        <Img
+          src={staticFile("images/oklahoma-satellite.png")}
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            filter: "brightness(0.85) contrast(1.1) saturate(0.9)",
+          }}
+        />
+        {/* Subtle blue tactical tint over satellite */}
         <div
           style={{
             position: "absolute",
             inset: 0,
-            background: `
-              radial-gradient(ellipse at 30% 20%, #3a4a2c 0%, transparent 50%),
-              radial-gradient(ellipse at 70% 60%, #5a4632 0%, transparent 55%),
-              radial-gradient(ellipse at 20% 80%, #2c3a28 0%, transparent 45%),
-              linear-gradient(135deg, #1f2918 0%, #2e2618 50%, #1a2014 100%)
-            `,
+            background: `linear-gradient(135deg, ${COLORS.accent}10 0%, transparent 50%, ${COLORS.bgDeep}55 100%)`,
+            mixBlendMode: "multiply",
           }}
         />
-
-        {/* Topographic contour lines */}
-        <svg
-          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0.25 }}
-          viewBox="0 0 980 920"
-        >
-          {[0, 1, 2, 3, 4, 5, 6].map((i) => (
-            <ellipse
-              key={i}
-              cx={490 + i * 30}
-              cy={460 + i * 20}
-              rx={300 - i * 30}
-              ry={200 - i * 18}
-              fill="none"
-              stroke="#7a8a4a"
-              strokeWidth={1}
-            />
-          ))}
-          {[0, 1, 2, 3, 4, 5].map((i) => (
-            <ellipse
-              key={`b${i}`}
-              cx={200 + i * 20}
-              cy={250 + i * 15}
-              rx={180 - i * 25}
-              ry={120 - i * 15}
-              fill="none"
-              stroke="#7a8a4a"
-              strokeWidth={1}
-            />
-          ))}
-        </svg>
-
-        {/* River / road overlays */}
-        <svg
-          style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
-          viewBox="0 0 980 920"
-        >
-          <path
-            d="M 0 700 Q 300 650 500 720 T 980 600"
-            stroke="#4a6a8a"
-            strokeWidth={3}
-            fill="none"
-            opacity={0.6}
-          />
-          <path
-            d="M 100 0 L 250 450 L 400 920"
-            stroke="#8a7a5a"
-            strokeWidth={1.5}
-            fill="none"
-            strokeDasharray="6 4"
-            opacity={0.5}
-          />
-          <path
-            d="M 980 200 L 600 400 L 300 920"
-            stroke="#8a7a5a"
-            strokeWidth={1.5}
-            fill="none"
-            strokeDasharray="6 4"
-            opacity={0.5}
-          />
-        </svg>
 
         {/* Grid overlay (satellite UI feel) */}
         <svg
