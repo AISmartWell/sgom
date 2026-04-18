@@ -26,57 +26,79 @@ export const TeaserVshale: React.FC = () => {
         toY={30}
         edge={COLORS.accent}
       />
-      <AbsoluteFill style={{ padding: 120, alignItems: "flex-start", justifyContent: "flex-start" }}>
-        <div style={{ maxWidth: 1100 }}>
+      {/* Затемнение нижней трети, чтобы текст читался поверх UI */}
+      <AbsoluteFill
+        style={{
+          background:
+            "linear-gradient(to bottom, rgba(5,7,13,0) 55%, rgba(5,7,13,0.85) 78%, rgba(5,7,13,0.95) 100%)",
+        }}
+      />
+      <AbsoluteFill
+        style={{
+          padding: "0 120px 90px 120px",
+          alignItems: "flex-start",
+          justifyContent: "flex-end",
+        }}
+      >
+        <div style={{ maxWidth: 1400, width: "100%" }}>
           <div
             style={{
               fontFamily: FONT_MONO,
-              fontSize: 18,
+              fontSize: 16,
               letterSpacing: 6,
               color: COLORS.accent,
               textTransform: "uppercase",
               opacity: stageO,
               transform: `translateY(${stageY}px)`,
-              marginBottom: 18,
+              marginBottom: 14,
             }}
           >
-            Schlumberger Petrophysical Workflow
+            Schlumberger Petrophysical Workflow · Step 3
           </div>
           <div
             style={{
-              fontFamily: FONT_DISPLAY,
-              color: COLORS.text,
-              fontSize: 88,
-              fontWeight: 800,
-              lineHeight: 1.05,
-              letterSpacing: -2,
-              opacity: headO,
-              transform: `translateY(${headY}px)`,
-              filter: `blur(${headBlur}px)`,
+              display: "flex",
+              alignItems: "flex-end",
+              justifyContent: "space-between",
+              gap: 48,
+              flexWrap: "wrap",
             }}
           >
-            Linear vs Larionov.<br />
-            <span style={{ color: COLORS.accent }}>Old rocks, corrected.</span>
-          </div>
-          <div
-            style={{
-              marginTop: 36,
-              padding: "24px 32px",
-              border: `1px solid ${COLORS.accentBorder}`,
-              borderRadius: 8,
-              background: "rgba(5,7,13,0.7)",
-              display: "inline-block",
-              fontFamily: FONT_MONO,
-              fontSize: 28,
-              color: COLORS.text,
-              opacity: formulaO,
-              transform: `translateY(${formulaY}px)`,
-            }}
-          >
-            <span style={{ color: COLORS.mute }}>Vsh</span>
-            <span style={{ color: COLORS.accent }}> = 0.33 × (2</span>
-            <sup style={{ color: COLORS.accent }}>2·IGR</sup>
-            <span style={{ color: COLORS.accent }}> − 1)</span>
+            <div
+              style={{
+                fontFamily: FONT_DISPLAY,
+                color: COLORS.text,
+                fontSize: 76,
+                fontWeight: 800,
+                lineHeight: 1.02,
+                letterSpacing: -2,
+                opacity: headO,
+                transform: `translateY(${headY}px)`,
+                filter: `blur(${headBlur}px)`,
+              }}
+            >
+              Linear vs Larionov.<br />
+              <span style={{ color: COLORS.accent }}>Old rocks, corrected.</span>
+            </div>
+            <div
+              style={{
+                padding: "20px 28px",
+                border: `1px solid ${COLORS.accentBorder}`,
+                borderRadius: 8,
+                background: "rgba(5,7,13,0.85)",
+                fontFamily: FONT_MONO,
+                fontSize: 24,
+                color: COLORS.text,
+                opacity: formulaO,
+                transform: `translateY(${formulaY}px)`,
+                whiteSpace: "nowrap",
+              }}
+            >
+              <span style={{ color: COLORS.mute }}>Vsh</span>
+              <span style={{ color: COLORS.accent }}> = 0.33 × (2</span>
+              <sup style={{ color: COLORS.accent }}>2·IGR</sup>
+              <span style={{ color: COLORS.accent }}> − 1)</span>
+            </div>
           </div>
         </div>
       </AbsoluteFill>
