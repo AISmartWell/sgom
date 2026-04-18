@@ -1,6 +1,6 @@
 import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import { COLORS, FONT_DISPLAY, FONT_MONO } from "./theme";
-import { StageBackdrop } from "./StageBackdrop";
+import { CinematicShot } from "./CinematicShot";
 
 // SCENE 7 — RESULTS (7 sec). Hero stats: 5–10× inflow, 7–8 mo payback, 312% ROI.
 export const TeaserResults: React.FC = () => {
@@ -34,7 +34,7 @@ export const TeaserResults: React.FC = () => {
 
   return (
     <AbsoluteFill>
-      <StageBackdrop tint={COLORS.signal} />
+      <CinematicShot src="shots/05-results.png" fromScale={1.18} toScale={1.04} edge={COLORS.signal} />
       <AbsoluteFill style={{ padding: 100, alignItems: "center", justifyContent: "center" }}>
         <div style={{ width: "100%", maxWidth: 1700, textAlign: "center" }}>
           <div

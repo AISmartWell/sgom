@@ -24,7 +24,7 @@ export const TeaserProblem: React.FC = () => {
 
   return (
     <AbsoluteFill>
-      <CinematicShot src="shots/01-dashboard.png" fromScale={1.22} toScale={1.06} edge={COLORS.danger} />
+      <CinematicShot src="shots/01-problem.png" fromScale={1.22} toScale={1.06} edge={COLORS.danger} />
       <AbsoluteFill style={{ padding: 100, alignItems: "flex-start", justifyContent: "flex-end" }}>
         <div
           style={{
