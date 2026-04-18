@@ -10,9 +10,10 @@ import { TeaserScreening } from "./scenes/teaser/TeaserScreening";
 import { TeaserResults } from "./scenes/teaser/TeaserResults";
 import { ResultsScene } from "./scenes/ResultsScene";
 import { TeaserOutro } from "./scenes/teaser/TeaserOutro";
+import { TeaserPlatformShowcase } from "./scenes/teaser/TeaserPlatformShowcase";
 import { GrainOverlay } from "./scenes/teaser/GrainOverlay";
 
-// 66 sec @ 30fps = 1970 frames. Sum below = 1970.
+// 1970 + 240 (new platform showcase scene) = 2210 frames @ 30fps = ~73.6 sec.
 export const TeaserVideo: React.FC = () => {
   useVideoConfig();
   return (
@@ -41,6 +42,9 @@ export const TeaserVideo: React.FC = () => {
         </Series.Sequence>
         <Series.Sequence durationInFrames={210}>
           <TeaserScreening />
+        </Series.Sequence>
+        <Series.Sequence durationInFrames={240}>
+          <TeaserPlatformShowcase />
         </Series.Sequence>
         <Series.Sequence durationInFrames={210}>
           <TeaserResults />
