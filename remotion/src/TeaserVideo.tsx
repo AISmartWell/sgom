@@ -12,9 +12,10 @@ import { ResultsScene } from "./scenes/ResultsScene";
 import { TeaserOutro } from "./scenes/teaser/TeaserOutro";
 import { TeaserPlatformShowcase } from "./scenes/teaser/TeaserPlatformShowcase";
 import { TeaserModulesShowcase } from "./scenes/teaser/TeaserModulesShowcase";
+import { TeaserWellLogDemo } from "./scenes/teaser/TeaserWellLogDemo";
 import { GrainOverlay } from "./scenes/teaser/GrainOverlay";
 
-// 2210 + 240 (modules showcase) = 2450 frames @ 30fps = ~81.6 sec.
+// 2450 + 210 (welllog demo) = 2660 frames @ 30fps = ~88.6 sec.
 export const TeaserVideo: React.FC = () => {
   useVideoConfig();
   return (
@@ -55,6 +56,9 @@ export const TeaserVideo: React.FC = () => {
         </Series.Sequence>
         <Series.Sequence durationInFrames={240}>
           <ResultsScene />
+        </Series.Sequence>
+        <Series.Sequence durationInFrames={210}>
+          <TeaserWellLogDemo />
         </Series.Sequence>
         <Series.Sequence durationInFrames={150}>
           <TeaserOutro />
