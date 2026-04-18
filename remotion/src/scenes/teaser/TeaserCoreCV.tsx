@@ -1,4 +1,4 @@
-import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, Img, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import { COLORS, FONT_DISPLAY, FONT_MONO } from "./theme";
 
 // SCENE — CORE COMPUTER VISION (NVIDIA NIM Nemotron Nano 12B v2 VL).
@@ -53,101 +53,140 @@ export const TeaserCoreCV: React.FC = () => {
       />
 
       <AbsoluteFill style={{ padding: 100, flexDirection: "row", gap: 80, alignItems: "center" }}>
-        {/* LEFT — synthetic core column */}
+        {/* LEFT — real core sample photo with CV overlay */}
         <div
           style={{
-            width: 380,
+            width: 720,
             height: 820,
             position: "relative",
-            transform: `translateY(${drift}px) scale(${coreScale})`,
+            transform: `translateY(${drift * 0.4}px) scale(${coreScale})`,
             borderRadius: 12,
             overflow: "hidden",
             border: `1px solid ${COLORS.accentBorder}`,
             boxShadow: `0 30px 80px rgba(0,0,0,0.6), inset 0 0 60px ${COLORS.accent}22`,
           }}
         >
-          {/* Stratified rock layers */}
-          {Array.from({ length: 24 }).map((_, i) => {
-            const hue = i % 3 === 0 ? "#8b6f47" : i % 3 === 1 ? "#a88a5c" : "#5d4a32";
-            const h = 30 + ((i * 13) % 20);
-            return (
-              <div
-                key={i}
-                style={{
-                  height: h,
-                  background: `linear-gradient(180deg, ${hue} 0%, ${hue}cc 100%)`,
-                  borderBottom: "1px solid rgba(0,0,0,0.4)",
-                }}
-              />
-            );
-          })}
+          {/* Real core sample photograph */}
+          <Img
+            src={staticFile("images/core-sample.png")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              filter: "saturate(1.1) contrast(1.05)",
+            }}
+          />
 
-          {/* Segmentation overlay zones */}
-          {[
-            { top: 90, h: 80, color: COLORS.accent },
-            { top: 280, h: 120, color: COLORS.signal },
-            { top: 480, h: 90, color: COLORS.warn },
-            { top: 650, h: 70, color: COLORS.accent },
-          ].map((z, i) => {
-            const o = interpolate(frame, [40 + i * 6, 65 + i * 6], [0, 0.55], {
-              extrapolateRight: "clamp",
-            });
-            return (
-              <div
-                key={i}
-                style={{
-                  position: "absolute",
-                  left: 0,
-                  right: 0,
-                  top: z.top,
-                  height: z.h,
-                  background: z.color,
-                  opacity: o,
-                  mixBlendMode: "screen",
-                  borderTop: `2px solid ${z.color}`,
-                  borderBottom: `2px solid ${z.color}`,
-                }}
-              />
-            );
-          })}
+          {/* Dark grade overlay for legibility */}
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              background: `linear-gradient(180deg, rgba(5,7,13,0.0) 60%, rgba(5,7,13,0.7) 100%)`,
+            }}
+          />
 
-          {/* Fracture lines (animated stroke) */}
+          {/* CV: concentric bedding ring detection (cylindrical core face) */}
           <svg
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
-            viewBox="0 0 380 820"
+            viewBox="0 0 720 820"
           >
+            {/* Detected bedding rings */}
             {[
-              "M 40 120 L 340 180",
-              "M 60 320 L 320 360",
-              "M 80 500 L 300 560",
-              "M 50 680 L 330 740",
-            ].map((d, i) => {
-              const start = 70 + i * 8;
-              const p = interpolate(frame, [start, start + 28], [0, 1], {
+              { r: 60, color: COLORS.accent, delay: 35 },
+              { r: 120, color: COLORS.signal, delay: 45 },
+              { r: 190, color: COLORS.warn, delay: 55 },
+              { r: 270, color: COLORS.accent, delay: 65 },
+            ].map((ring, i) => {
+              const o = interpolate(frame, [ring.delay, ring.delay + 20], [0, 0.85], {
+                extrapolateRight: "clamp",
+              });
+              const C = 2 * Math.PI * ring.r;
+              const p = interpolate(frame, [ring.delay, ring.delay + 35], [0, 1], {
                 extrapolateRight: "clamp",
               });
               return (
-                <path
+                <circle
                   key={i}
-                  d={d}
-                  stroke={COLORS.warn}
-                  strokeWidth={2.5}
+                  cx={360}
+                  cy={410}
+                  r={ring.r}
                   fill="none"
-                  strokeDasharray={400}
-                  strokeDashoffset={400 - p * 400}
-                  style={{ filter: `drop-shadow(0 0 4px ${COLORS.warn})` }}
+                  stroke={ring.color}
+                  strokeWidth={2}
+                  opacity={o}
+                  strokeDasharray={C}
+                  strokeDashoffset={C - p * C}
+                  style={{ filter: `drop-shadow(0 0 6px ${ring.color})` }}
                 />
               );
             })}
+
+            {/* Pore detection markers (small circles) */}
+            {Array.from({ length: 24 }).map((_, i) => {
+              const seed = i * 9301 + 49297;
+              const angle = ((seed % 360) * Math.PI) / 180;
+              const radius = 70 + ((seed * 7) % 200);
+              const cx = 360 + Math.cos(angle) * radius;
+              const cy = 410 + Math.sin(angle) * radius;
+              const delay = 90 + i * 2;
+              const s = spring({
+                frame: frame - delay,
+                fps,
+                config: { damping: 14, stiffness: 220 },
+                durationInFrames: 14,
+              });
+              return (
+                <circle
+                  key={i}
+                  cx={cx}
+                  cy={cy}
+                  r={4 * s}
+                  fill="none"
+                  stroke={COLORS.warn}
+                  strokeWidth={1.5}
+                  opacity={s * 0.9}
+                  style={{ filter: `drop-shadow(0 0 3px ${COLORS.warn})` }}
+                />
+              );
+            })}
+
+            {/* Center axis crosshair */}
+            {(() => {
+              const o = interpolate(frame, [25, 45], [0, 0.7], { extrapolateRight: "clamp" });
+              return (
+                <g opacity={o}>
+                  <line x1={340} y1={410} x2={380} y2={410} stroke={COLORS.accent} strokeWidth={1.5} />
+                  <line x1={360} y1={390} x2={360} y2={430} stroke={COLORS.accent} strokeWidth={1.5} />
+                  <circle cx={360} cy={410} r={3} fill={COLORS.accent} />
+                </g>
+              );
+            })()}
+
+            {/* Bounding box around core */}
+            {(() => {
+              const o = interpolate(frame, [20, 40], [0, 1], { extrapolateRight: "clamp" });
+              const dash = interpolate(frame, [20, 60], [800, 0], { extrapolateRight: "clamp" });
+              return (
+                <rect
+                  x={70}
+                  y={170}
+                  width={580}
+                  height={480}
+                  fill="none"
+                  stroke={COLORS.accent}
+                  strokeWidth={2}
+                  opacity={o}
+                  strokeDasharray="800"
+                  strokeDashoffset={dash}
+                />
+              );
+            })()}
           </svg>
 
           {/* Scan line */}
           {(() => {
-            const scanY = interpolate(
-              frame % 90,
-              [0, 90],
-              [0, 820]
-            );
+            const scanY = interpolate(frame % 90, [0, 90], [0, 820]);
             return (
               <div
                 style={{
@@ -158,32 +197,65 @@ export const TeaserCoreCV: React.FC = () => {
                   height: 2,
                   background: `linear-gradient(90deg, transparent, ${COLORS.accent}, transparent)`,
                   boxShadow: `0 0 12px ${COLORS.accent}`,
+                  mixBlendMode: "screen",
                 }}
               />
             );
           })()}
 
-          {/* Depth ticks */}
-          <div
-            style={{
-              position: "absolute",
-              right: 8,
-              top: 12,
-              bottom: 12,
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between",
-              fontFamily: FONT_MONO,
-              fontSize: 11,
-              color: "rgba(255,255,255,0.7)",
-              textShadow: "0 0 4px rgba(0,0,0,0.9)",
-            }}
-          >
-            <span>4,820 ft</span>
-            <span>4,840 ft</span>
-            <span>4,860 ft</span>
-            <span>4,880 ft</span>
-          </div>
+          {/* HUD label */}
+          {(() => {
+            const o = interpolate(frame, [40, 60], [0, 1], { extrapolateRight: "clamp" });
+            return (
+              <div
+                style={{
+                  position: "absolute",
+                  top: 180,
+                  left: 80,
+                  padding: "4px 10px",
+                  background: "rgba(5,7,13,0.85)",
+                  border: `1px solid ${COLORS.accent}`,
+                  fontFamily: FONT_MONO,
+                  fontSize: 12,
+                  color: COLORS.accent,
+                  letterSpacing: 2,
+                  opacity: o,
+                }}
+              >
+                CORE · 4,847 ft · OBJ_CONF 0.94
+              </div>
+            );
+          })()}
+
+          {/* HUD bottom telemetry */}
+          {(() => {
+            const o = interpolate(frame, [50, 70], [0, 1], { extrapolateRight: "clamp" });
+            const detectedPores = Math.min(
+              Math.floor(interpolate(frame, [90, 150], [0, 24], { extrapolateRight: "clamp" })),
+              24
+            );
+            return (
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: 16,
+                  left: 16,
+                  right: 16,
+                  display: "flex",
+                  justifyContent: "space-between",
+                  fontFamily: FONT_MONO,
+                  fontSize: 12,
+                  color: COLORS.accent,
+                  letterSpacing: 2,
+                  opacity: o,
+                }}
+              >
+                <span>● NVIDIA NIM · INFER 184 ms</span>
+                <span style={{ color: COLORS.warn }}>PORES: {detectedPores}</span>
+                <span style={{ color: COLORS.signal }}>RINGS: 4</span>
+              </div>
+            );
+          })()}
         </div>
 
         {/* RIGHT — text + CV mode cards */}
