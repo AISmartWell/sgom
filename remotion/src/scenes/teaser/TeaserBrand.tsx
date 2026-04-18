@@ -1,6 +1,6 @@
 import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import { COLORS, FONT_DISPLAY, FONT_MONO } from "./theme";
-import { StageBackdrop } from "./StageBackdrop";
+import { CinematicShot } from "./CinematicShot";
 
 // SCENE 3 — BRAND REVEAL (4 sec). Logo mark + name explode in.
 export const TeaserBrand: React.FC = () => {
@@ -22,7 +22,7 @@ export const TeaserBrand: React.FC = () => {
 
   return (
     <AbsoluteFill>
-      <StageBackdrop tint={COLORS.accent} />
+      <CinematicShot src="shots/01-dashboard.png" fromScale={1.08} toScale={1.18} edge={COLORS.accent} />
       <AbsoluteFill style={{ alignItems: "center", justifyContent: "center" }}>
         <div style={{ textAlign: "center", fontFamily: FONT_DISPLAY, color: COLORS.text }}>
           <div

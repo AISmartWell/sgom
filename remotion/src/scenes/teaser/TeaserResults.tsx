@@ -34,7 +34,7 @@ export const TeaserResults: React.FC = () => {
 
   return (
     <AbsoluteFill>
-      <CinematicShot src="shots/05-results.png" fromScale={1.18} toScale={1.04} edge={COLORS.signal} />
+      <CinematicShot src="shots/07-brawner-netpay.png" fromScale={1.08} toScale={1.18} edge={COLORS.signal} />
       <AbsoluteFill style={{ padding: 100, alignItems: "center", justifyContent: "center" }}>
         <div style={{ width: "100%", maxWidth: 1700, textAlign: "center" }}>
           <div

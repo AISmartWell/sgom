@@ -28,7 +28,7 @@ export const TeaserScreening: React.FC = () => {
 
   return (
     <AbsoluteFill>
-      <CinematicShot src="shots/04-screening.png" fromScale={1.1} toScale={1.22} edge={COLORS.signal} />
+      <CinematicShot src="shots/04-oklahoma-pilot.png" fromScale={1.06} toScale={1.16} edge={COLORS.signal} />
       <AbsoluteFill style={{ padding: 80, alignItems: "center", justifyContent: "space-between" }}>
         <div style={{ textAlign: "center", marginTop: 40 }}>
           <div
