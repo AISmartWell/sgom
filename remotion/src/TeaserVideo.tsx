@@ -2,6 +2,7 @@ import { AbsoluteFill, Audio, Series, staticFile, useVideoConfig } from "remotio
 import { TeaserHook } from "./scenes/teaser/TeaserHook";
 import { TeaserProblem } from "./scenes/teaser/TeaserProblem";
 import { TeaserBrand } from "./scenes/teaser/TeaserBrand";
+import { TeaserFieldScan } from "./scenes/teaser/TeaserFieldScan";
 import { TeaserGeophysical } from "./scenes/teaser/TeaserGeophysical";
 import { TeaserVshale } from "./scenes/teaser/TeaserVshale";
 import { TeaserCoreCV } from "./scenes/teaser/TeaserCoreCV";
@@ -11,7 +12,7 @@ import { ResultsScene } from "./scenes/ResultsScene";
 import { TeaserOutro } from "./scenes/teaser/TeaserOutro";
 import { GrainOverlay } from "./scenes/teaser/GrainOverlay";
 
-// 59 sec @ 30fps = 1770 frames. Sum below = 1770.
+// 66 sec @ 30fps = 1970 frames. Sum below = 1970.
 export const TeaserVideo: React.FC = () => {
   useVideoConfig();
   return (
@@ -25,6 +26,9 @@ export const TeaserVideo: React.FC = () => {
         </Series.Sequence>
         <Series.Sequence durationInFrames={120}>
           <TeaserBrand />
+        </Series.Sequence>
+        <Series.Sequence durationInFrames={200}>
+          <TeaserFieldScan />
         </Series.Sequence>
         <Series.Sequence durationInFrames={180}>
           <TeaserGeophysical />
