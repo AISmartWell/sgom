@@ -4,7 +4,7 @@ import { TeaserProblem } from "./scenes/teaser/TeaserProblem";
 import { TeaserBrand } from "./scenes/teaser/TeaserBrand";
 import { TeaserFieldScan } from "./scenes/teaser/TeaserFieldScan";
 import { TeaserGeophysical } from "./scenes/teaser/TeaserGeophysical";
-import { TeaserVshale } from "./scenes/teaser/TeaserVshale";
+import { TeaserPipelineFlow } from "./scenes/teaser/TeaserPipelineFlow";
 import { TeaserCoreCV } from "./scenes/teaser/TeaserCoreCV";
 import { TeaserScreening } from "./scenes/teaser/TeaserScreening";
 import { TeaserResults } from "./scenes/teaser/TeaserResults";
@@ -40,7 +40,7 @@ export const TeaserVideo: React.FC = () => {
           <TeaserGeophysical />
         </Series.Sequence>
         <Series.Sequence durationInFrames={180}>
-          <TeaserVshale />
+          <TeaserPipelineFlow />
         </Series.Sequence>
         <Series.Sequence durationInFrames={180}>
           <TeaserCoreCV />
