@@ -4,13 +4,14 @@ import { TeaserProblem } from "./scenes/teaser/TeaserProblem";
 import { TeaserBrand } from "./scenes/teaser/TeaserBrand";
 import { TeaserGeophysical } from "./scenes/teaser/TeaserGeophysical";
 import { TeaserVshale } from "./scenes/teaser/TeaserVshale";
+import { TeaserCoreCV } from "./scenes/teaser/TeaserCoreCV";
 import { TeaserScreening } from "./scenes/teaser/TeaserScreening";
 import { TeaserResults } from "./scenes/teaser/TeaserResults";
 import { ResultsScene } from "./scenes/ResultsScene";
 import { TeaserOutro } from "./scenes/teaser/TeaserOutro";
 import { GrainOverlay } from "./scenes/teaser/GrainOverlay";
 
-// 53 sec @ 30fps = 1590 frames. Sum below = 1590.
+// 59 sec @ 30fps = 1770 frames. Sum below = 1770.
 export const TeaserVideo: React.FC = () => {
   useVideoConfig();
   return (
@@ -30,6 +31,9 @@ export const TeaserVideo: React.FC = () => {
         </Series.Sequence>
         <Series.Sequence durationInFrames={180}>
           <TeaserVshale />
+        </Series.Sequence>
+        <Series.Sequence durationInFrames={180}>
+          <TeaserCoreCV />
         </Series.Sequence>
         <Series.Sequence durationInFrames={210}>
           <TeaserScreening />
