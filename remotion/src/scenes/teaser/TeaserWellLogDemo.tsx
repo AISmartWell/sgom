@@ -1,17 +1,14 @@
 import { AbsoluteFill, OffthreadVideo, staticFile, useCurrentFrame, useVideoConfig, interpolate, spring } from "remotion";
-import { COLORS } from "./theme";
-import { KineticCaption } from "./KineticCaption";
+import { COLORS, FONT_DISPLAY } from "./theme";
 
 // 7-сек полноэкранное демо работы платформы (Stage 8: Geophysical Expertise / Well Log)
 export const TeaserWellLogDemo: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
 
-  // Лёгкий ken-burns зум поверх видео
   const t = frame / durationInFrames;
   const scale = interpolate(t, [0, 1], [1.04, 1.1]);
 
-  // Fade in/out
   const opacity = interpolate(
     frame,
     [0, 12, durationInFrames - 18, durationInFrames],
@@ -19,13 +16,18 @@ export const TeaserWellLogDemo: React.FC = () => {
     { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
   );
 
-  // Stage badge spring
   const badge = spring({ frame: frame - 8, fps, config: { damping: 18 } });
   const badgeY = interpolate(badge, [0, 1], [-30, 0]);
 
+  const titleSpring = spring({ frame: frame - 24, fps, config: { damping: 18, stiffness: 110 } });
+  const titleY = interpolate(titleSpring, [0, 1], [50, 0]);
+  const titleO = interpolate(frame, [24, 42], [0, 1], { extrapolateRight: "clamp" });
+  const subO = interpolate(frame, [44, 62], [0, 1], { extrapolateRight: "clamp" });
+
+  const recPulse = 0.5 + 0.5 * Math.sin(frame * 0.25);
+
   return (
     <AbsoluteFill style={{ backgroundColor: COLORS.bgDeep }}>
-      {/* Видео */}
       <AbsoluteFill style={{ opacity, overflow: "hidden" }}>
         <div
           style={{
@@ -42,7 +44,6 @@ export const TeaserWellLogDemo: React.FC = () => {
           />
         </div>
 
-        {/* Кинематографическая виньетка */}
         <div
           style={{
             position: "absolute",
@@ -52,7 +53,6 @@ export const TeaserWellLogDemo: React.FC = () => {
             pointerEvents: "none",
           }}
         />
-        {/* Цветовая подкраска под бренд */}
         <div
           style={{
             position: "absolute",
@@ -61,7 +61,6 @@ export const TeaserWellLogDemo: React.FC = () => {
             pointerEvents: "none",
           }}
         />
-        {/* Edge glow */}
         <div
           style={{
             position: "absolute",
@@ -91,7 +90,6 @@ export const TeaserWellLogDemo: React.FC = () => {
             borderRadius: 999,
             background: "rgba(26,159,255,0.12)",
             border: `1px solid ${COLORS.accent}66`,
-            backdropFilter: "blur(8px)",
           }}
         >
           <span
@@ -110,7 +108,7 @@ export const TeaserWellLogDemo: React.FC = () => {
               fontWeight: 700,
               letterSpacing: 2,
               textTransform: "uppercase",
-              fontFamily: "Inter, sans-serif",
+              fontFamily: FONT_DISPLAY,
             }}
           >
             Stage 8 · Live Platform Demo
@@ -118,33 +116,39 @@ export const TeaserWellLogDemo: React.FC = () => {
         </div>
       </div>
 
-      {/* Заголовок снизу */}
-      <div
-        style={{
-          position: "absolute",
-          left: 80,
-          right: 80,
-          bottom: 90,
-        }}
-      >
-        <KineticCaption
-          text="Geophysical Expertise"
-          delay={20}
-          size={92}
-          weight={800}
-          color="#ffffff"
-        />
+      {/* Заголовок */}
+      <div style={{ position: "absolute", left: 80, right: 80, bottom: 90, opacity }}>
+        <div
+          style={{
+            fontFamily: FONT_DISPLAY,
+            fontWeight: 800,
+            fontSize: 92,
+            lineHeight: 1,
+            color: "#ffffff",
+            opacity: titleO,
+            transform: `translateY(${titleY}px)`,
+            letterSpacing: -1,
+            textShadow: "0 6px 30px rgba(0,0,0,0.5)",
+          }}
+        >
+          Geophysical Expertise
+        </div>
         <div style={{ height: 14 }} />
-        <KineticCaption
-          text="AI well-log interpretation in real time"
-          delay={42}
-          size={36}
-          weight={500}
-          color={COLORS.accent}
-        />
+        <div
+          style={{
+            fontFamily: FONT_DISPLAY,
+            fontWeight: 500,
+            fontSize: 36,
+            color: COLORS.accent,
+            opacity: subO,
+            letterSpacing: 0.5,
+          }}
+        >
+          AI well-log interpretation in real time
+        </div>
       </div>
 
-      {/* REC indicator справа сверху */}
+      {/* LIVE indicator */}
       <div
         style={{
           position: "absolute",
@@ -153,7 +157,7 @@ export const TeaserWellLogDemo: React.FC = () => {
           display: "flex",
           alignItems: "center",
           gap: 10,
-          opacity: opacity * (0.5 + 0.5 * Math.sin(frame * 0.25)),
+          opacity: opacity * recPulse,
         }}
       >
         <span
@@ -171,7 +175,7 @@ export const TeaserWellLogDemo: React.FC = () => {
             fontSize: 18,
             fontWeight: 700,
             letterSpacing: 3,
-            fontFamily: "Inter, sans-serif",
+            fontFamily: FONT_DISPLAY,
           }}
         >
           LIVE
