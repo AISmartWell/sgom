@@ -58,7 +58,7 @@ export const TeaserVideo: React.FC = () => {
         </Series.Sequence>
       </Series>
       <GrainOverlay />
-      <Audio src={staticFile("audio/teaser-music.mp3")} volume={1} />
+      <Audio src={staticFile("audio/teaser-music.mp3")} volume={0.7} loop />
     </AbsoluteFill>
   );
 };
