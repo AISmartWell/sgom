@@ -47,11 +47,11 @@ export const TeaserVideo: React.FC = () => {
         <Series.Sequence durationInFrames={240}>
           <TeaserPlatformShowcase />
         </Series.Sequence>
-        <Series.Sequence durationInFrames={210}>
-          <TeaserResults />
-        </Series.Sequence>
         <Series.Sequence durationInFrames={240}>
           <ResultsScene />
+        </Series.Sequence>
+        <Series.Sequence durationInFrames={210}>
+          <TeaserResults />
         </Series.Sequence>
         <Series.Sequence durationInFrames={150}>
           <TeaserOutro />

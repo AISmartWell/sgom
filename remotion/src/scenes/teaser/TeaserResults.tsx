@@ -64,7 +64,7 @@ export const TeaserResults: React.FC = () => {
               marginBottom: 80,
             }}
           >
-            Forgotten wells. <span style={{ color: COLORS.signal }}>Reborn.</span>
+            Abandoned wells. <span style={{ color: COLORS.signal }}>Reborn.</span>
           </div>
           <div style={{ display: "flex", gap: 36, justifyContent: "center" }}>
             {[
