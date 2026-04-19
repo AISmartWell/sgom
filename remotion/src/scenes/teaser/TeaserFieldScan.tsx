@@ -282,7 +282,7 @@ export const TeaserFieldScan: React.FC = () => {
           }}
         >
           Satellites find<br />
-          the <span style={{ color: COLORS.accent }}>forgotten wells.</span>
+          the <span style={{ color: COLORS.accent }}>abandoned wells.</span>
         </div>
 
         <div
