@@ -5,8 +5,7 @@ import { Button } from "@/components/ui/button";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from "recharts";
-import CostCalculator from "@/components/saas/CostCalculator";
-import PricingOptimizer from "@/components/saas/PricingOptimizer";
+import UnitEconomicsLab from "@/components/saas/UnitEconomicsLab";
 
 /* ── scroll-reveal hook (local) ── */
 function useScrollReveal(threshold = 0.15) {
@@ -241,8 +240,7 @@ const SaaSBusinessModel = () => {
       </div>
       <HeroSection />
       <PricingSection />
-      <CostCalculator />
-      <PricingOptimizer />
+      <UnitEconomicsLab />
       <RevenueSection />
       <WhyHybridSection />
     </div>
