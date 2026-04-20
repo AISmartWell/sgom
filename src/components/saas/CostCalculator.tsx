@@ -177,8 +177,9 @@ const CostCalculator = () => {
                 {negative && <AlertTriangle className="h-4 w-4 text-destructive" />}
               </div>
               <div className="text-xs text-muted-foreground space-y-1 mb-3">
-                <div className="flex justify-between"><span>Revenue (base)</span><span className="text-foreground tabular-nums">${m.revenue.toLocaleString()}</span></div>
+                <div className="flex justify-between"><span>Revenue (sub + usage)</span><span className="text-foreground tabular-nums">${m.revenue.toLocaleString()}</span></div>
                 <div className="flex justify-between"><span>Cost</span><span className="text-foreground tabular-nums">${m.cost.toLocaleString()}</span></div>
+                {m.capped && <div className="text-amber-500 text-[10px]">Tier capped — overage not billed</div>}
               </div>
               <div className="h-px bg-border mb-3" />
               <div className="flex justify-between items-baseline">
@@ -196,8 +197,8 @@ const CostCalculator = () => {
       </div>
 
       <p className="text-xs text-muted-foreground mt-6 text-center max-w-3xl mx-auto">
-        Margin is calculated against base subscription only (per-well fees excluded for a conservative view).
-        Switching from 100% Enverus to a hybrid public-registry model is the largest single lever.
+        Revenue = base subscription + per-well fees (capped at tier well limit).
+        Switching from 100% Enverus to a hybrid public-registry model is the largest single cost lever.
       </p>
     </section>
   );
