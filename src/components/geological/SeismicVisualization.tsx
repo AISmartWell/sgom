@@ -25,6 +25,7 @@ import { SeismicAnalysisHistory } from "./SeismicAnalysisHistory";
 
 const SeismicVisualization = () => {
   const [analysisReport, setAnalysisReport] = useState<string | null>(null);
+  const [fewShotMeta, setFewShotMeta] = useState<{ examplesUsed: number; exampleIds: string[]; method: string; model: string } | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [uploadedData, setUploadedData] = useState<SeismicTrace[] | null>(null);
   const [selectedWell, setSelectedWell] = useState<SelectedWell | null>(null);
@@ -86,6 +87,7 @@ const SeismicVisualization = () => {
       if (data?.error) throw new Error(data.error);
 
       setAnalysisReport(data.analysis);
+      setFewShotMeta(data.fewShotMeta || null);
       toast.success("Seismic AI interpretation complete");
     } catch (err: any) {
       console.error("Seismic analysis error:", err);
@@ -246,14 +248,32 @@ const SeismicVisualization = () => {
       {/* AI Analysis Report */}
       {(isAnalyzing || analysisReport) && (
         <div className="border border-border rounded-lg p-4 bg-card">
-          <h4 className="font-semibold mb-3 flex items-center gap-2">
-            <Cpu className="h-4 w-4 text-primary" />
-            AI Seismic Interpretation Report
-          </h4>
+          <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+            <h4 className="font-semibold flex items-center gap-2">
+              <Cpu className="h-4 w-4 text-primary" />
+              AI Seismic Interpretation Report
+            </h4>
+            {fewShotMeta && (
+              <div className="flex items-center gap-2 text-xs">
+                <span className="px-2 py-1 bg-success/15 text-success rounded-full font-medium">
+                  ✓ Trained on {fewShotMeta.examplesUsed} expert examples
+                </span>
+                <span className="px-2 py-1 bg-primary/15 text-primary rounded-full font-mono">
+                  {fewShotMeta.model}
+                </span>
+              </div>
+            )}
+          </div>
+          {fewShotMeta && (
+            <div className="mb-3 p-2 bg-muted/30 rounded text-xs text-muted-foreground">
+              <span className="font-medium text-foreground">Reference cases:</span>{" "}
+              {fewShotMeta.exampleIds.join(" • ")}
+            </div>
+          )}
           {isAnalyzing ? (
             <div className="flex items-center gap-3 text-muted-foreground py-8 justify-center">
               <Loader2 className="h-5 w-5 animate-spin" />
-              <span>Gemini is analyzing seismic data...</span>
+              <span>Gemini is analyzing seismic data with few-shot reasoning...</span>
             </div>
           ) : (
             <div className="prose prose-sm dark:prose-invert max-w-none text-sm">
