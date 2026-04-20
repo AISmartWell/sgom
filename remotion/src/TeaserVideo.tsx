@@ -36,9 +36,6 @@ export const TeaserVideo: React.FC = () => {
           <TeaserModulesShowcase />
         </Series.Sequence>
         <Series.Sequence durationInFrames={180}>
-          <TeaserGeophysical />
-        </Series.Sequence>
-        <Series.Sequence durationInFrames={180}>
           <TeaserCoreCV />
         </Series.Sequence>
         <Series.Sequence durationInFrames={210}>
