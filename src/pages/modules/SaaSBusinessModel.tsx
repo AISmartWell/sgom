@@ -28,7 +28,7 @@ function useScrollReveal(threshold = 0.15) {
 const plans = [
   {
     name: "EXPLORER",
-    price: "$2,000",
+    price: "$3,200",
     perWell: "$350",
     wells: "Up to 10 wells/mo",
     icon: Database,
@@ -37,7 +37,7 @@ const plans = [
   },
   {
     name: "PROFESSIONAL",
-    price: "$6,000",
+    price: "$9,600",
     perWell: "$200",
     wells: "Up to 50 wells/mo",
     icon: Rocket,
@@ -46,7 +46,7 @@ const plans = [
   },
   {
     name: "ENTERPRISE",
-    price: "$15,000",
+    price: "$24,000",
     perWell: "$120",
     wells: "Unlimited wells",
     icon: Building2,
