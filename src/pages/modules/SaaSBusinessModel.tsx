@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from "recharts";
+import CostCalculator from "@/components/saas/CostCalculator";
 
 /* ── scroll-reveal hook (local) ── */
 function useScrollReveal(threshold = 0.15) {
