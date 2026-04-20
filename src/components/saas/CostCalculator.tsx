@@ -179,7 +179,7 @@ const CostCalculator = () => {
               <div className="text-xs text-muted-foreground space-y-1 mb-3">
                 <div className="flex justify-between"><span>Revenue (sub + usage)</span><span className="text-foreground tabular-nums">${m.revenue.toLocaleString()}</span></div>
                 <div className="flex justify-between"><span>Cost</span><span className="text-foreground tabular-nums">${m.cost.toLocaleString()}</span></div>
-                {m.capped && <div className="text-amber-500 text-[10px]">Tier capped — overage not billed</div>}
+                {m.capped && <div className="text-warning text-[10px]">Tier capped — overage not billed</div>}
               </div>
               <div className="h-px bg-border mb-3" />
               <div className="flex justify-between items-baseline">
