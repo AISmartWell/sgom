@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { buildFewShotPromptSection, SEISMIC_FEW_SHOT_EXAMPLES } from "../_shared/seismic-examples.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -72,7 +73,9 @@ Your analysis MUST include these sections:
    - Suggested follow-up analyses
    - Drilling and re-entry target recommendations
 
-Be specific with depth values and provide quantitative assessments where possible. Emphasize bypassed reserves opportunities.`;
+Be specific with depth values and provide quantitative assessments where possible. Emphasize bypassed reserves opportunities.
+
+${buildFewShotPromptSection()}`;
 
     // Summarize data for the prompt
     const dataSummary = seismicData.map((d: any) => 
@@ -141,7 +144,15 @@ Provide a comprehensive seismic interpretation report${well ? ` specifically for
     }
 
     return new Response(
-      JSON.stringify({ analysis }),
+      JSON.stringify({
+        analysis,
+        fewShotMeta: {
+          examplesUsed: SEISMIC_FEW_SHOT_EXAMPLES.length,
+          exampleIds: SEISMIC_FEW_SHOT_EXAMPLES.map((e) => e.id),
+          method: "few-shot in-context learning",
+          model: "google/gemini-3-flash-preview",
+        },
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
