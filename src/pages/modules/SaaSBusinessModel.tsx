@@ -240,6 +240,7 @@ const SaaSBusinessModel = () => {
       </div>
       <HeroSection />
       <PricingSection />
+      <CostCalculator />
       <RevenueSection />
       <WhyHybridSection />
     </div>
