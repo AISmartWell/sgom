@@ -27,12 +27,12 @@ const VALIDATOR_RATE = 85;                 // $/hr geophysicist
 const VALIDATOR_HRS_PER_WELL = 1;
 const QA_FLAT_HOURS = 4;
 const QA_RATE = 120;
-// Tier prices for margin analysis
-const TIER_PRICES: Record<string, number> = {
-  Explorer: 2000,
-  Professional: 6000,
-  Enterprise: 15000,
-};
+// Tier pricing for margin analysis (base subscription + per-well fee)
+const TIERS: { name: string; base: number; perWell: number; wellCap: number }[] = [
+  { name: "Explorer",     base: 3200,  perWell: 350, wellCap: 10 },
+  { name: "Professional", base: 9600,  perWell: 200, wellCap: 50 },
+  { name: "Enterprise",   base: 24000, perWell: 120, wellCap: Infinity },
+];
 
 interface Breakdown {
   label: string;
