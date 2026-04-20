@@ -73,12 +73,13 @@ const CostCalculator = () => {
       { label: "Reserve (10%)", value: Math.round(reserve), color: "hsl(var(--muted-foreground))" },
     ];
 
-    // Margin per tier (assuming this well count fits)
-    const margins = Object.entries(TIER_PRICES).map(([tier, price]) => {
-      const revenue = price; // monthly subscription only (per-well fees excluded for conservative view)
+    // Margin per tier — full revenue = base subscription + per-well fees (capped at tier limit)
+    const margins = TIERS.map(({ name, base, perWell: pw, wellCap }) => {
+      const billableWells = Math.min(wells, wellCap);
+      const revenue = base + billableWells * pw;
       const profit = revenue - total;
       const marginPct = (profit / revenue) * 100;
-      return { tier, revenue, cost: Math.round(total), profit: Math.round(profit), marginPct };
+      return { tier: name, revenue: Math.round(revenue), cost: Math.round(total), profit: Math.round(profit), marginPct, capped: wells > wellCap };
     });
 
     return { dataCost, awsCost, aiCost, saasCost, peopleCost, reserve, total, perWell, breakdown, margins };
