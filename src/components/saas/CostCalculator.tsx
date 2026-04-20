@@ -27,12 +27,12 @@ const VALIDATOR_RATE = 85;                 // $/hr geophysicist
 const VALIDATOR_HRS_PER_WELL = 1;
 const QA_FLAT_HOURS = 4;
 const QA_RATE = 120;
-// Tier prices for margin analysis
-const TIER_PRICES: Record<string, number> = {
-  Explorer: 2000,
-  Professional: 6000,
-  Enterprise: 15000,
-};
+// Tier pricing for margin analysis (base subscription + per-well fee)
+const TIERS: { name: string; base: number; perWell: number; wellCap: number }[] = [
+  { name: "Explorer",     base: 3200,  perWell: 350, wellCap: 10 },
+  { name: "Professional", base: 9600,  perWell: 200, wellCap: 50 },
+  { name: "Enterprise",   base: 24000, perWell: 120, wellCap: Infinity },
+];
 
 interface Breakdown {
   label: string;
@@ -73,12 +73,13 @@ const CostCalculator = () => {
       { label: "Reserve (10%)", value: Math.round(reserve), color: "hsl(var(--muted-foreground))" },
     ];
 
-    // Margin per tier (assuming this well count fits)
-    const margins = Object.entries(TIER_PRICES).map(([tier, price]) => {
-      const revenue = price; // monthly subscription only (per-well fees excluded for conservative view)
+    // Margin per tier — full revenue = base subscription + per-well fees (capped at tier limit)
+    const margins = TIERS.map(({ name, base, perWell: pw, wellCap }) => {
+      const billableWells = Math.min(wells, wellCap);
+      const revenue = base + billableWells * pw;
       const profit = revenue - total;
       const marginPct = (profit / revenue) * 100;
-      return { tier, revenue, cost: Math.round(total), profit: Math.round(profit), marginPct };
+      return { tier: name, revenue: Math.round(revenue), cost: Math.round(total), profit: Math.round(profit), marginPct, capped: wells > wellCap };
     });
 
     return { dataCost, awsCost, aiCost, saasCost, peopleCost, reserve, total, perWell, breakdown, margins };
@@ -176,8 +177,9 @@ const CostCalculator = () => {
                 {negative && <AlertTriangle className="h-4 w-4 text-destructive" />}
               </div>
               <div className="text-xs text-muted-foreground space-y-1 mb-3">
-                <div className="flex justify-between"><span>Revenue (base)</span><span className="text-foreground tabular-nums">${m.revenue.toLocaleString()}</span></div>
+                <div className="flex justify-between"><span>Revenue (sub + usage)</span><span className="text-foreground tabular-nums">${m.revenue.toLocaleString()}</span></div>
                 <div className="flex justify-between"><span>Cost</span><span className="text-foreground tabular-nums">${m.cost.toLocaleString()}</span></div>
+                {m.capped && <div className="text-warning text-[10px]">Tier capped — overage not billed</div>}
               </div>
               <div className="h-px bg-border mb-3" />
               <div className="flex justify-between items-baseline">
@@ -195,8 +197,8 @@ const CostCalculator = () => {
       </div>
 
       <p className="text-xs text-muted-foreground mt-6 text-center max-w-3xl mx-auto">
-        Margin is calculated against base subscription only (per-well fees excluded for a conservative view).
-        Switching from 100% Enverus to a hybrid public-registry model is the largest single lever.
+        Revenue = base subscription + per-well fees (capped at tier well limit).
+        Switching from 100% Enverus to a hybrid public-registry model is the largest single cost lever.
       </p>
     </section>
   );
