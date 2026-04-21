@@ -283,7 +283,7 @@ const TechnicalSpec = () => {
                { icon: "🏗️", name: "Architecture", route: "/dashboard/architecture",
                  desc: "Platform architecture overview with system components, data flow, and integration diagrams." },
                { icon: "💼", name: "SaaS Business Model", route: "/dashboard/saas-business-model",
-                 desc: "Hybrid SaaS pricing: Explorer ($2,000/mo + $350/well, ≤10 wells), Professional ($6,000/mo + $200/well, ≤50), Enterprise ($15,000/mo + $120/well, unlimited). 3-year projection: Y1 $0.6M → Y2 $2.2M → Y3 $5.8M ARR. ~80% gross margin." },
+                 desc: "Hybrid SaaS pricing: Explorer ($3,200/mo + $350/well, ≤10 wells/mo), Professional ($9,600/mo + $200/well, ≤50 wells/mo), Enterprise ($24,000/mo + $120/well, unlimited). 3-year projection: Y1 $0.6M → Y2 $2.2M → Y3 $5.8M ARR. ~80% gross margin." },
                { icon: "🌊", name: "Fluid Physics Simulation", route: "/fluid-simulation",
                  desc: "Interactive Canvas-based fluid dynamics simulation. Visualizes fluid behavior in reservoir conditions with physics engine (gravity, viscosity, particle interactions). Real-time parameter controls." },
                { icon: "🌐", name: "NVIDIA Cosmos Demo", route: "/cosmos-demo",
@@ -422,9 +422,9 @@ const TechnicalSpec = () => {
               </thead>
               <tbody>
                 {[
-                  ["Explorer", "$2,000", "$350", "Up to 10 wells/mo"],
-                  ["Professional", "$6,000", "$200", "Up to 50 wells/mo"],
-                  ["Enterprise", "$15,000", "$120", "Unlimited"],
+                  ["Explorer", "$3,200", "$350", "Up to 10 wells/mo"],
+                  ["Professional", "$9,600", "$200", "Up to 50 wells/mo"],
+                  ["Enterprise", "$24,000", "$120", "Unlimited"],
                 ].map(([tier, base, per, limit]) => (
                   <tr key={tier} className="border-b border-border/30 hover:bg-muted/10">
                     <td className="p-2 font-semibold text-foreground">{tier}</td>

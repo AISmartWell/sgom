@@ -308,9 +308,9 @@ const InvestorDeck = () => {
           <h3 className="text-base font-semibold mb-2">SGOM Subscriptions (B2B)</h3>
           <div className="grid grid-cols-3 gap-2 mb-3">
             {[
-              { tier: "Explorer", price: "$2,000/mo", wells: "Up to 50 wells", perWell: "$120/well", color: "text-muted-foreground" },
-              { tier: "Professional", price: "$6,000/mo", wells: "Up to 200 wells", perWell: "$200/well", color: "text-primary" },
-              { tier: "Enterprise", price: "$15,000/mo", wells: "Unlimited", perWell: "$350/well", color: "text-accent" },
+              { tier: "Explorer", price: "$3,200/mo", wells: "Up to 10 wells/mo", perWell: "$350/well", color: "text-muted-foreground" },
+              { tier: "Professional", price: "$9,600/mo", wells: "Up to 50 wells/mo", perWell: "$200/well", color: "text-primary" },
+              { tier: "Enterprise", price: "$24,000/mo", wells: "Unlimited", perWell: "$120/well", color: "text-accent" },
             ].map((t) => (
               <div key={t.tier} className="p-2 rounded-lg bg-background/50 text-center">
                 <p className={`text-xs font-semibold ${t.color}`}>{t.tier}</p>
