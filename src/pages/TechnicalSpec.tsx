@@ -422,9 +422,9 @@ const TechnicalSpec = () => {
               </thead>
               <tbody>
                 {[
-                  ["Explorer", "$2,000", "$350", "Up to 10 wells/mo"],
-                  ["Professional", "$6,000", "$200", "Up to 50 wells/mo"],
-                  ["Enterprise", "$15,000", "$120", "Unlimited"],
+                  ["Explorer", "$3,200", "$350", "Up to 10 wells/mo"],
+                  ["Professional", "$9,600", "$200", "Up to 50 wells/mo"],
+                  ["Enterprise", "$24,000", "$120", "Unlimited"],
                 ].map(([tier, base, per, limit]) => (
                   <tr key={tier} className="border-b border-border/30 hover:bg-muted/10">
                     <td className="p-2 font-semibold text-foreground">{tier}</td>
