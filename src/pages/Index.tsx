@@ -410,8 +410,8 @@ const Index = () => {
             ))}
           </div>
 
-          {/* Target Market */}
-          <div className="grid grid-cols-1 gap-5">
+          {/* Target Market & Investors */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             <div className="glass-card rounded-2xl p-8 border-primary/10">
               <h3 className="text-xl font-bold mb-4">Target Market</h3>
               <div className="space-y-4 mb-6">
