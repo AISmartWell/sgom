@@ -60,6 +60,7 @@ import CosmosDemo from "./pages/CosmosDemo";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import FluidPhysicsSimulation from "./pages/FluidPhysicsSimulation";
+import Innovation from "./pages/Innovation";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -128,6 +129,7 @@ const App = () => (
               <Route path="/kazakhstan-process" element={<KazakhstanProcess />} />
                <Route path="/cosmos-demo" element={<CosmosDemo />} />
                <Route path="/fluid-simulation" element={<FluidPhysicsSimulation />} />
+               <Route path="/innovation" element={<Innovation />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
           <Route path="*" element={<NotFound />} />
