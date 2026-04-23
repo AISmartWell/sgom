@@ -410,33 +410,8 @@ const Index = () => {
             ))}
           </div>
 
-          {/* Team & Partnership + Target Market */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div className="glass-card rounded-2xl p-8 border-primary/10">
-              <h3 className="text-xl font-bold mb-4">Leadership</h3>
-              <div className="space-y-4">
-                {[
-                  { label: "CEO & Co-Founder", names: "Edward Rubinstein — Strategy & Partnerships", org: "AI Smart Well" },
-                  { label: "Co-Founder", names: "Natalia Zaruchevskaya — Business Development", org: "AI Smart Well" },
-                  { label: "CEO", names: "Anatoliy Nikouline — Technology Partner", org: "Maxxwell Production" },
-                  { label: "CTO", names: "Alexander Alishoev — Engineering", org: "AI Smart Well" },
-                ].map((member, i) => (
-                  <div key={i} className="flex items-start gap-3">
-                    <div className="h-2 w-2 rounded-full bg-primary mt-2 flex-shrink-0" />
-                    <div>
-                      <p className="text-sm text-foreground font-medium">{member.names}</p>
-                      <p className="text-xs text-muted-foreground">{member.label} · {member.org}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-6 pt-4 border-t border-border/30">
-                <p className="text-xs text-muted-foreground">
-                  <span className="text-foreground font-medium">AI Smart Well Inc.</span> — USA · edward@aismartwell.com
-                </p>
-              </div>
-            </div>
-
+          {/* Target Market */}
+          <div className="grid grid-cols-1 gap-5">
             <div className="glass-card rounded-2xl p-8 border-primary/10">
               <h3 className="text-xl font-bold mb-4">Target Market</h3>
               <div className="space-y-4 mb-6">
