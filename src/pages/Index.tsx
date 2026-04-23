@@ -463,6 +463,10 @@ const Index = () => {
                   Start Analysis
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
+                <Button size="lg" variant="outline" onClick={() => navigate("/innovation")} className="text-base px-8 py-6 border-border/60">
+                  <FileText className="mr-2 h-5 w-5" />
+                  Innovation & Technical Merit
+                </Button>
                 <Button size="lg" variant="outline" onClick={() => navigate("/investor-deck")} className="text-base px-8 py-6 border-border/60">
                   <FileText className="mr-2 h-5 w-5" />
                   View Investor Deck
