@@ -410,8 +410,8 @@ const Index = () => {
             ))}
           </div>
 
-          {/* Target Market & Investors */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          {/* Target Market */}
+          <div className="grid grid-cols-1 gap-5">
             <div className="glass-card rounded-2xl p-8 border-primary/10">
               <h3 className="text-xl font-bold mb-4">Target Market</h3>
               <div className="space-y-4 mb-6">
@@ -438,42 +438,6 @@ const Index = () => {
                     <span className="text-primary font-bold">{row.arr}</span>
                   </div>
                 ))}
-              </div>
-            </div>
-
-            {/* Investors & Partners */}
-            <div className="glass-card rounded-2xl p-8 border-primary/10">
-              <h3 className="text-xl font-bold mb-4">Investors & Partners</h3>
-              <div className="space-y-4 mb-6">
-                {[
-                  { name: "NVIDIA Inception", role: "AI Compute Partner · GPU & NIM Access" },
-                  { name: "AWS Activate", role: "Cloud Infrastructure Partner" },
-                  { name: "Maxxwell Production", role: "SPT Technology Partner (US Patent 8,863,823)" },
-                  { name: "Diversified Energy", role: "Pilot Operator · Appalachian Basin" },
-                ].map((inv, i) => (
-                  <div key={i} className="flex items-start gap-3">
-                    <div className="h-2 w-2 rounded-full bg-primary mt-2 flex-shrink-0" />
-                    <div>
-                      <p className="text-sm font-semibold">{inv.name}</p>
-                      <p className="text-xs text-muted-foreground">{inv.role}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <h4 className="text-sm font-bold mb-3">Funding Round</h4>
-              <div className="space-y-2 text-sm">
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Stage</span>
-                  <span className="font-bold">Pre-Seed</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">MVP Budget</span>
-                  <span className="text-primary font-bold">$118K</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Status</span>
-                  <span className="text-success font-bold">Open for Investors</span>
-                </div>
               </div>
             </div>
           </div>
