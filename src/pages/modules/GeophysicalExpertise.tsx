@@ -1581,6 +1581,26 @@ const StepTimur = ({ data }: { data: PetroPoint[] }) => {
       });
   }, [data]);
 
+  // Pearson correlation between log10(k) and Archie Sw
+  const correlation = useMemo(() => {
+    const pairs = chartData.filter(d => d.k > 0 && d.swirr > 0);
+    const n = pairs.length;
+    if (n < 3) return { r: 0, n: 0, label: "n/a" };
+    const xs = pairs.map(d => d.kLog);
+    const ys = pairs.map(d => d.swirr);
+    const mx = xs.reduce((a, b) => a + b, 0) / n;
+    const my = ys.reduce((a, b) => a + b, 0) / n;
+    let num = 0, dx2 = 0, dy2 = 0;
+    for (let i = 0; i < n; i++) {
+      const dx = xs[i] - mx, dy = ys[i] - my;
+      num += dx * dy; dx2 += dx * dx; dy2 += dy * dy;
+    }
+    const r = num / Math.sqrt(dx2 * dy2 || 1);
+    const abs = Math.abs(r);
+    const label = abs > 0.7 ? "strong" : abs > 0.4 ? "moderate" : abs > 0.2 ? "weak" : "negligible";
+    return { r, n, label };
+  }, [chartData]);
+
   const stats = useMemo(() => {
     const ks = chartData.map(d => d.k).filter(k => k > 0);
     if (ks.length === 0) return { avgK: "0", maxK: "0", excellent: 0, good: 0, fair: 0, poorTight: 0 };
