@@ -1542,7 +1542,7 @@ const StepArchie = ({ data }: { data: PetroPoint[] }) => {
   );
 };
 
-const StepTimur = ({ data }: { data: PetroPoint[] }) => {
+const StepTimur = ({ data, wellName }: { data: PetroPoint[]; wellName?: string | null }) => {
   const chartRef = useRef<HTMLDivElement>(null);
   const [exporting, setExporting] = useState<null | "png" | "svg" | "csv">(null);
   const chartData = useMemo(() => {
