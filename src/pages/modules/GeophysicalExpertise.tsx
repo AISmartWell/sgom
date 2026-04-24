@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ArrowLeft, Activity, Eye, Zap, FileText, Layers, Droplets, BarChart3, Target, Calculator, Search, Play, RefreshCw, Plus, Loader2, CheckCircle2, Upload, ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
+import { ArrowLeft, Activity, Eye, Zap, FileText, Layers, Droplets, BarChart3, Target, Calculator, Search, Play, RefreshCw, Plus, Loader2, CheckCircle2, Upload, ZoomIn, ZoomOut, RotateCcw, AlertTriangle, ShieldCheck, Info } from "lucide-react";
 import { AddWellDialog } from "@/components/shared/AddWellDialog";
 import { LASUploadPanel } from "@/components/geophysical/LASUploadPanel";
 import { toast } from "sonner";
@@ -1605,6 +1605,52 @@ const StepTimur = ({ data }: { data: PetroPoint[] }) => {
     };
   }, [chartData]);
 
+  // ── Input validation: check φ, Swirr ranges across the dataset ──
+  const validation = useMemo(() => {
+    const warnings: { level: "error" | "warn" | "info"; msg: string }[] = [];
+    if (data.length === 0) {
+      return { warnings: [{ level: "warn" as const, msg: "No log data — cannot validate inputs." }], stats: null };
+    }
+    const pors = data.map(p => p.por).filter(v => Number.isFinite(v));
+    const ress = data.map(p => p.res).filter(v => Number.isFinite(v) && v > 0);
+    const swirrs = data.map(p => {
+      const f = p.por / 100;
+      return calcArchieSwFromInputs(f, p.res);
+    });
+
+    const minPor = Math.min(...pors), maxPor = Math.max(...pors);
+    const avgPor = pors.reduce((a, b) => a + b, 0) / pors.length;
+    const minSw = Math.min(...swirrs) * 100, maxSw = Math.max(...swirrs) * 100;
+    const avgSw = (swirrs.reduce((a, b) => a + b, 0) / swirrs.length) * 100;
+    const minRes = Math.min(...ress), maxRes = Math.max(...ress);
+
+    // φ checks (input is in %)
+    if (maxPor > 50) warnings.push({ level: "error", msg: `φ max = ${maxPor.toFixed(1)}% — physically impossible (>50%). Check porosity log units (fraction vs %).` });
+    else if (maxPor > 40) warnings.push({ level: "warn", msg: `φ max = ${maxPor.toFixed(1)}% — unusually high for sandstone/carbonate (typical <35%).` });
+    if (minPor < 0) warnings.push({ level: "error", msg: `φ min = ${minPor.toFixed(2)}% — negative porosity is invalid.` });
+    if (avgPor < 1) warnings.push({ level: "warn", msg: `φ avg = ${avgPor.toFixed(2)}% — values look like fractions (0–1), expected percent (0–100). Convert input.` });
+
+    // Swirr checks (Archie proxy, %)
+    if (maxSw > 100.01) warnings.push({ level: "error", msg: `Swirr max = ${maxSw.toFixed(1)}% — exceeds 100% (saturation cap violated).` });
+    if (minSw < 5) warnings.push({ level: "warn", msg: `Swirr min = ${minSw.toFixed(1)}% — below 5%; engine clamps to 5% to avoid k overshoot.` });
+    if (avgSw > 90) warnings.push({ level: "warn", msg: `Swirr avg = ${avgSw.toFixed(1)}% — mostly water-bearing zones; Timur k will be very low (use only on net pay).` });
+
+    // Rt checks
+    if (minRes <= 0) warnings.push({ level: "error", msg: `Rt min ≤ 0 Ω·m — invalid resistivity, Archie Sw cannot be computed.` });
+    if (maxRes > 2000) warnings.push({ level: "warn", msg: `Rt max = ${maxRes.toFixed(0)} Ω·m — extremely high; may indicate tight/cemented zone or tool spike.` });
+
+    // Constants sanity (informational)
+    warnings.push({ level: "info", msg: "Constants: a=1.0, m=2.0, n=2.0, Rw=0.04 Ω·m (typical Gulf Coast brine). Adjust if formation water salinity differs." });
+
+    return {
+      warnings,
+      stats: {
+        minPor: minPor.toFixed(1), maxPor: maxPor.toFixed(1), avgPor: avgPor.toFixed(1),
+        minSw: minSw.toFixed(1), maxSw: maxSw.toFixed(1), avgSw: avgSw.toFixed(1),
+        minRes: minRes.toFixed(2), maxRes: maxRes.toFixed(1),
+      },
+    };
+  }, [data]);
   return (
     <div className="space-y-4">
       <Card className="bg-muted/20 border-border/30">
@@ -1616,17 +1662,26 @@ const StepTimur = ({ data }: { data: PetroPoint[] }) => {
         </CardHeader>
         <CardContent>
           <div className="bg-background/50 p-4 rounded-lg font-mono text-center text-lg">
-            k = 0.136 · φ<sup>4.4</sup> / S<sub>wirr</sub><sup>2</sup>
+            k [mD] = 0.136 · φ<sup>4.4</sup> [frac] / S<sub>wirr</sub><sup>2</sup> [frac]
           </div>
-          <div className="mt-3 grid grid-cols-3 gap-2 text-xs text-muted-foreground">
+          <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs text-muted-foreground">
             <div className="p-2 bg-muted/30 rounded text-center">
-              <div className="font-semibold text-foreground">k</div><div>permeability, mD</div>
+              <div className="font-semibold text-foreground">k</div><div>permeability — <b>mD</b> (millidarcy)</div>
             </div>
             <div className="p-2 bg-muted/30 rounded text-center">
-              <div className="font-semibold text-foreground">φ</div><div>porosity, fraction</div>
+              <div className="font-semibold text-foreground">φ</div><div>porosity — <b>fraction</b> (0–1) · UI shows %</div>
             </div>
             <div className="p-2 bg-muted/30 rounded text-center">
-              <div className="font-semibold text-foreground">Swirr</div><div>irreducible Sw (Archie proxy)</div>
+              <div className="font-semibold text-foreground">S<sub>wirr</sub></div><div>irreducible Sw — <b>fraction</b> (0–1) · Archie proxy</div>
+            </div>
+            <div className="p-2 bg-muted/30 rounded text-center">
+              <div className="font-semibold text-foreground">a / m / n</div><div>Archie: <b>1.0 / 2.0 / 2.0</b> [dimensionless]</div>
+            </div>
+            <div className="p-2 bg-muted/30 rounded text-center">
+              <div className="font-semibold text-foreground">R<sub>w</sub></div><div>formation water resistivity — <b>0.04 Ω·m</b></div>
+            </div>
+            <div className="p-2 bg-muted/30 rounded text-center">
+              <div className="font-semibold text-foreground">R<sub>t</sub></div><div>true resistivity (deep) — <b>Ω·m</b></div>
             </div>
           </div>
           <p className="text-[11px] text-muted-foreground mt-3 leading-relaxed">
@@ -1637,11 +1692,60 @@ const StepTimur = ({ data }: { data: PetroPoint[] }) => {
         </CardContent>
       </Card>
 
+      {/* Input Validation */}
+      <Card className="bg-muted/20 border-border/30">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm flex items-center gap-2">
+            {validation.warnings.some(w => w.level === "error") ? (
+              <AlertTriangle className="h-4 w-4 text-destructive" />
+            ) : validation.warnings.some(w => w.level === "warn") ? (
+              <AlertTriangle className="h-4 w-4 text-amber-400" />
+            ) : (
+              <ShieldCheck className="h-4 w-4 text-emerald-400" />
+            )}
+            Input Validation — φ, Swirr, Rt &amp; Archie constants
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {validation.stats && (
+            <div className="grid grid-cols-3 gap-2 text-xs">
+              <div className="p-2 bg-muted/30 rounded">
+                <div className="text-muted-foreground">φ range (%)</div>
+                <div className="font-mono text-foreground">{validation.stats.minPor} – {validation.stats.maxPor} (avg {validation.stats.avgPor})</div>
+              </div>
+              <div className="p-2 bg-muted/30 rounded">
+                <div className="text-muted-foreground">Swirr range (%)</div>
+                <div className="font-mono text-foreground">{validation.stats.minSw} – {validation.stats.maxSw} (avg {validation.stats.avgSw})</div>
+              </div>
+              <div className="p-2 bg-muted/30 rounded">
+                <div className="text-muted-foreground">Rt range (Ω·m)</div>
+                <div className="font-mono text-foreground">{validation.stats.minRes} – {validation.stats.maxRes}</div>
+              </div>
+            </div>
+          )}
+          <div className="space-y-1.5">
+            {validation.warnings.map((w, i) => {
+              const cfg =
+                w.level === "error" ? { Icon: AlertTriangle, color: "text-destructive", bg: "bg-destructive/10 border-destructive/30" } :
+                w.level === "warn"  ? { Icon: AlertTriangle, color: "text-amber-400",  bg: "bg-amber-500/10 border-amber-500/30" } :
+                                      { Icon: Info,           color: "text-sky-400",    bg: "bg-sky-500/10 border-sky-500/30" };
+              const Icon = cfg.Icon;
+              return (
+                <div key={i} className={`flex items-start gap-2 p-2 rounded border text-xs ${cfg.bg}`}>
+                  <Icon className={`h-3.5 w-3.5 mt-0.5 flex-shrink-0 ${cfg.color}`} />
+                  <span className="text-foreground/90 leading-relaxed">{w.msg}</span>
+                </div>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Summary Stats */}
       <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
         {[
-          { label: "Avg k", value: `${stats.avgK} mD`, color: "text-primary" },
-          { label: "Max k", value: `${stats.maxK} mD`, color: "text-emerald-400" },
+          { label: "Avg k (mD)", value: stats.avgK, color: "text-primary" },
+          { label: "Max k (mD)", value: stats.maxK, color: "text-emerald-400" },
           { label: "Excellent", value: `${stats.excellent}%`, color: "text-emerald-400" },
           { label: "Good", value: `${stats.good}%`, color: "text-lime-400" },
           { label: "Fair", value: `${stats.fair}%`, color: "text-amber-400" },
