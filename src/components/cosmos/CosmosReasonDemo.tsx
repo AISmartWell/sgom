@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import IntegrationStatusBadge from "./IntegrationStatusBadge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -223,9 +224,10 @@ const CosmosReasonDemo = () => {
             <Brain className="h-7 w-7 text-purple-400" />
           </div>
           <div className="flex-1">
-            <CardTitle className="text-xl flex items-center gap-2">
+            <CardTitle className="text-xl flex items-center gap-2 flex-wrap">
               Cosmos Reason — Interactive Demo
               <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">XAI</Badge>
+              <IntegrationStatusBadge mode="simulation" tooltip="Reasoning chain is computed client-side from MCDA scores (deterministic). Real Cosmos Reason foundation model integration is on the Phase I R&D roadmap." />
             </CardTitle>
             <CardDescription>
               Chain-of-thought reasoning: why is this well the best SPT candidate?
