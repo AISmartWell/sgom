@@ -21,7 +21,7 @@ const STAGES = [
     n: 1,
     icon: Radar,
     title: "Field Scanning",
-    body: "Multi-state real-time registry integration (TX, OK, KS, NM, CO, ND, WY). Automated filtering by oil rate (<10 bbl/d), water cut, GOR, and formation. Timur equation for water saturation screening. Eliminates manual database trawling that currently takes weeks.",
+    body: "Multi-state real-time registry integration (TX, OK, KS, NM, CO, ND, WY). Automated filtering by oil rate (<10 bbl/d), water cut, GOR, and formation. Timur (1968) permeability estimation k = 0.136·φ⁴·⁴/Swirr² combined with Archie (1942) Sw for petrophysical screening. Eliminates manual database trawling that currently takes weeks.",
   },
   {
     n: 2,

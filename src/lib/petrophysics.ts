@@ -34,6 +34,8 @@ export interface IntervalResult {
   isReservoir: boolean;
   archieSwCalc: number | null;  // Sw from Archie
   hydroSat: number | null;      // 1 - Sw
+  timurPermMd: number | null;   // k from Timur (mD)
+  permClass: "excellent" | "good" | "fair" | "poor" | "tight" | null;
 }
 
 export interface InterpretationSummary {
@@ -84,6 +86,54 @@ export const calcArchieSwFromInputs = (
   const swN = (a * rw) / (phiM * rt);
   const sw = Math.pow(Math.max(0, Math.min(1, swN)), 1 / n);
   return Math.max(0, Math.min(1, sw));
+};
+
+/**
+ * Timur (1968) permeability estimation from porosity and irreducible water saturation
+ * k = 0.136 × (φ^4.4) / (Swirr^2)
+ * Returns permeability in millidarcies (mD)
+ *
+ * Note: When true Swirr from capillary pressure / NMR is unavailable, we use
+ * the calculated Sw from Archie as a proxy (valid for net-pay intervals where
+ * Sw approaches Swirr). For carbonates (e.g., Mississippian Limestone), Timur
+ * is a baseline — should be cross-checked against core data.
+ *
+ * Reference: Timur, A. (1968). "An Investigation of Permeability, Porosity,
+ * and Residual Water Saturation Relationships." SPWLA 9th Annual Symposium.
+ */
+export const calcTimurPermeability = (
+  porosity: number,    // fraction (0–1)
+  swirr: number        // fraction (0–1)
+): number => {
+  if (porosity <= 0.01 || swirr <= 0.01) return 0;
+  const swirrSafe = Math.max(0.05, Math.min(1, swirr));
+  const phi44 = Math.pow(porosity, 4.4);
+  return (0.136 * phi44) / (swirrSafe * swirrSafe);
+};
+
+/** Permeability quality classification (mD) */
+export const classifyPermeability = (
+  k: number | null
+): "excellent" | "good" | "fair" | "poor" | "tight" | null => {
+  if (k === null) return null;
+  if (k >= 100) return "excellent";
+  if (k >= 10) return "good";
+  if (k >= 1) return "fair";
+  if (k >= 0.1) return "poor";
+  return "tight";
+};
+
+export const permClassColor = (
+  c: "excellent" | "good" | "fair" | "poor" | "tight" | null
+): string => {
+  switch (c) {
+    case "excellent": return "#22c55e";
+    case "good": return "#84cc16";
+    case "fair": return "#eab308";
+    case "poor": return "#f97316";
+    case "tight": return "#6b7280";
+    default: return "#6b7280";
+  }
 };
 
 /**
@@ -248,6 +298,13 @@ export const segmentIntervals = (data: PetroPoint[], minThickness = 5): Interval
 
     const hydroSat = archieSwCalc !== null ? 100 - archieSwCalc : null;
 
+    // Timur (1968) permeability — uses Archie Sw as Swirr proxy
+    const swirrFrac = archieSwCalc !== null ? archieSwCalc / 100 : null;
+    const timurPermMd = swirrFrac !== null
+      ? calcTimurPermeability(porFrac, swirrFrac)
+      : null;
+    const permClass = classifyPermeability(timurPermMd);
+
     return {
       top,
       bottom,
@@ -265,6 +322,8 @@ export const segmentIntervals = (data: PetroPoint[], minThickness = 5): Interval
       isReservoir,
       archieSwCalc: archieSwCalc !== null ? Math.round(archieSwCalc * 10) / 10 : null,
       hydroSat: hydroSat !== null ? Math.round(hydroSat * 10) / 10 : null,
+      timurPermMd: timurPermMd !== null ? Math.round(timurPermMd * 1000) / 1000 : null,
+      permClass,
     };
   });
 };

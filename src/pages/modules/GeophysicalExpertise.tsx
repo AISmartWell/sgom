@@ -23,6 +23,9 @@ import {
   interpretWellLog,
   calcVshale,
   calcArchieSwFromInputs,
+  calcTimurPermeability,
+  classifyPermeability,
+  permClassColor,
   applyKoKoRules,
   fluidColor,
   fluidLabel,
@@ -91,6 +94,14 @@ const STEPS = [
   },
   {
     num: 7,
+    key: "timur-k",
+    label: "k (Timur)",
+    icon: Calculator,
+    formula: "k = 0.136 · φ⁴·⁴ / Swirr²",
+    description: "Timur (1968) permeability from porosity and irreducible Sw. Output: mD. Classification: >100 excellent, 10–100 good, 1–10 fair, 0.1–1 poor, <0.1 tight.",
+  },
+  {
+    num: 8,
     key: "koko",
     label: "Ko Ko Rules",
     icon: Zap,
@@ -98,7 +109,7 @@ const STEPS = [
     description: "Ko Ko Rules — fluid identification by 4-curve deflection patterns",
   },
   {
-    num: 8,
+    num: 9,
     key: "net-pay",
     label: "Net Pay",
     icon: BarChart3,
@@ -106,7 +117,7 @@ const STEPS = [
     description: "Productive interval determination and Missed Pay zone detection",
   },
   {
-    num: 9,
+    num: 10,
     key: "report",
     label: "Report",
     icon: FileText,
@@ -1531,6 +1542,200 @@ const StepArchie = ({ data }: { data: PetroPoint[] }) => {
   );
 };
 
+const StepTimur = ({ data }: { data: PetroPoint[] }) => {
+  const chartData = useMemo(() => {
+    const step = Math.max(1, Math.floor(data.length / 120));
+    return data
+      .filter((_, i) => i % step === 0)
+      .map(p => {
+        const porFrac = p.por / 100;
+        const swirr = calcArchieSwFromInputs(porFrac, p.res); // Sw as Swirr proxy
+        const k = calcTimurPermeability(porFrac, swirr);
+        // log scale-friendly value (avoid log(0))
+        const kLog = k > 0 ? Math.log10(Math.max(0.001, k)) : -3;
+        return {
+          depth: p.depth,
+          k: Math.round(k * 1000) / 1000,
+          kLog: Math.round(kLog * 100) / 100,
+          por: p.por,
+          swirr: Math.round(swirr * 1000) / 10, // %
+        };
+      });
+  }, [data]);
+
+  const examples = useMemo(() => {
+    return data
+      .filter((_, i) => i % Math.max(1, Math.floor(data.length / 10)) === 0)
+      .slice(0, 10)
+      .map(p => {
+        const porFrac = p.por / 100;
+        const swirr = calcArchieSwFromInputs(porFrac, p.res);
+        const k = calcTimurPermeability(porFrac, swirr);
+        return {
+          depth: p.depth,
+          por: p.por,
+          swirr: swirr * 100,
+          k,
+          cls: classifyPermeability(k),
+        };
+      });
+  }, [data]);
+
+  const stats = useMemo(() => {
+    const ks = chartData.map(d => d.k).filter(k => k > 0);
+    if (ks.length === 0) return { avgK: "0", maxK: "0", excellent: 0, good: 0, fair: 0, poorTight: 0 };
+    const avgK = ks.reduce((a, b) => a + b, 0) / ks.length;
+    const maxK = Math.max(...ks);
+    const counts = { excellent: 0, good: 0, fair: 0, poorTight: 0 };
+    for (const k of ks) {
+      const c = classifyPermeability(k);
+      if (c === "excellent") counts.excellent++;
+      else if (c === "good") counts.good++;
+      else if (c === "fair") counts.fair++;
+      else counts.poorTight++;
+    }
+    const pct = (n: number) => Math.round((n / ks.length) * 100);
+    return {
+      avgK: avgK.toFixed(2),
+      maxK: maxK.toFixed(1),
+      excellent: pct(counts.excellent),
+      good: pct(counts.good),
+      fair: pct(counts.fair),
+      poorTight: pct(counts.poorTight),
+    };
+  }, [chartData]);
+
+  return (
+    <div className="space-y-4">
+      <Card className="bg-muted/20 border-border/30">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <Calculator className="h-4 w-4 text-primary" />
+            Timur Equation (1968) — Permeability from Logs
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="bg-background/50 p-4 rounded-lg font-mono text-center text-lg">
+            k = 0.136 · φ<sup>4.4</sup> / S<sub>wirr</sub><sup>2</sup>
+          </div>
+          <div className="mt-3 grid grid-cols-3 gap-2 text-xs text-muted-foreground">
+            <div className="p-2 bg-muted/30 rounded text-center">
+              <div className="font-semibold text-foreground">k</div><div>permeability, mD</div>
+            </div>
+            <div className="p-2 bg-muted/30 rounded text-center">
+              <div className="font-semibold text-foreground">φ</div><div>porosity, fraction</div>
+            </div>
+            <div className="p-2 bg-muted/30 rounded text-center">
+              <div className="font-semibold text-foreground">Swirr</div><div>irreducible Sw (Archie proxy)</div>
+            </div>
+          </div>
+          <p className="text-[11px] text-muted-foreground mt-3 leading-relaxed">
+            Reference: Timur, A. (1968). SPWLA 9th Annual Symposium. Calibrated on Gulf Coast sandstones.
+            For carbonates (Mississippian Limestone) used as baseline — should be cross-checked against
+            core data from Stage 3 (Core CV).
+          </p>
+        </CardContent>
+      </Card>
+
+      {/* Summary Stats */}
+      <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+        {[
+          { label: "Avg k", value: `${stats.avgK} mD`, color: "text-primary" },
+          { label: "Max k", value: `${stats.maxK} mD`, color: "text-emerald-400" },
+          { label: "Excellent", value: `${stats.excellent}%`, color: "text-emerald-400" },
+          { label: "Good", value: `${stats.good}%`, color: "text-lime-400" },
+          { label: "Fair", value: `${stats.fair}%`, color: "text-amber-400" },
+          { label: "Poor/Tight", value: `${stats.poorTight}%`, color: "text-muted-foreground" },
+        ].map(s => (
+          <Card key={s.label} className="bg-muted/20 border-border/30">
+            <CardContent className="p-3 text-center">
+              <div className="text-[10px] text-muted-foreground">{s.label}</div>
+              <div className={`text-base font-bold ${s.color}`}>{s.value}</div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* k vs Depth Chart (log scale) */}
+      <Card className="bg-muted/20 border-border/30">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm">Permeability vs Depth (log₁₀ scale)</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[320px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart data={chartData} layout="vertical" margin={{ top: 5, right: 15, bottom: 5, left: 10 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+                <YAxis
+                  dataKey="depth"
+                  type="number"
+                  reversed
+                  domain={["dataMin", "dataMax"]}
+                  tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+                  label={{ value: "Depth (ft)", angle: -90, position: "insideLeft", style: { fontSize: 10, fill: "hsl(var(--muted-foreground))" } }}
+                />
+                <XAxis
+                  type="number"
+                  domain={[-3, 3]}
+                  ticks={[-3, -2, -1, 0, 1, 2, 3]}
+                  tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+                  label={{ value: "log₁₀ k (mD)", position: "insideBottom", offset: -2, style: { fontSize: 10, fill: "hsl(var(--muted-foreground))" } }}
+                />
+                <ReferenceLine x={0} stroke="#eab308" strokeDasharray="6 3" label={{ value: "1 mD", position: "top", style: { fontSize: 9, fill: "#eab308" } }} />
+                <ReferenceLine x={1} stroke="#84cc16" strokeDasharray="6 3" label={{ value: "10 mD", position: "top", style: { fontSize: 9, fill: "#84cc16" } }} />
+                <ReferenceLine x={2} stroke="#22c55e" strokeDasharray="6 3" label={{ value: "100 mD", position: "top", style: { fontSize: 9, fill: "#22c55e" } }} />
+                <Line dataKey="kLog" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} name="log₁₀ k" />
+                <Tooltip
+                  contentStyle={{ background: "hsl(var(--background))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 11 }}
+                  formatter={(_val: number, _name: string, item: any) => [`${item.payload.k.toFixed(3)} mD (φ=${item.payload.por.toFixed(1)}%, Swirr=${item.payload.swirr.toFixed(1)}%)`, "k (Timur)"]}
+                  labelFormatter={(v: number) => `Depth: ${v.toFixed(0)} ft`}
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Data Table */}
+      <Card className="bg-muted/20 border-border/30">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm">Permeability Calculation by Depth</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="text-muted-foreground border-b border-border/30">
+                <th className="py-1.5 text-left">Depth</th>
+                <th className="py-1.5 text-center">φ%</th>
+                <th className="py-1.5 text-center">Swirr%</th>
+                <th className="py-1.5 text-center">k (mD)</th>
+                <th className="py-1.5 text-center">Class</th>
+              </tr>
+            </thead>
+            <tbody>
+              {examples.map((e, i) => (
+                <tr key={i} className="border-b border-border/10">
+                  <td className="py-1.5 font-mono">{e.depth.toFixed(0)}</td>
+                  <td className="py-1.5 text-center">{e.por.toFixed(1)}</td>
+                  <td className="py-1.5 text-center">{e.swirr.toFixed(1)}</td>
+                  <td className="py-1.5 text-center font-mono font-semibold" style={{ color: permClassColor(e.cls) }}>
+                    {e.k < 0.01 ? e.k.toExponential(2) : e.k.toFixed(3)}
+                  </td>
+                  <td className="py-1.5 text-center">
+                    <Badge variant="outline" className="text-[10px] uppercase" style={{ color: permClassColor(e.cls), borderColor: permClassColor(e.cls) }}>
+                      {e.cls ?? "—"}
+                    </Badge>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
 const StepKoKo = ({ data }: { data: PetroPoint[] }) => {
   const RES_HC_CUTOFF = 10;
   const RES_WATER_CUTOFF = 8;
@@ -2451,7 +2656,16 @@ const GeophysicalExpertise = () => {
           )}
         </TabsContent>
 
-        {/* Step 7: Ko Ko Rules */}
+        {/* Step 7: Timur Permeability */}
+        <TabsContent value="timur-k" className="mt-0">
+          {petroData.length > 0 ? (
+            <StepTimur data={petroData} />
+          ) : (
+            <div className="text-center py-16 text-muted-foreground">Loading well data...</div>
+          )}
+        </TabsContent>
+
+        {/* Step 8: Ko Ko Rules */}
         <TabsContent value="koko" className="mt-0">
           {petroData.length > 0 ? (
             <StepKoKo data={petroData} />
