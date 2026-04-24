@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ArrowLeft, Activity, Eye, Zap, FileText, Layers, Droplets, BarChart3, Target, Calculator, Search, Play, RefreshCw, Plus, Loader2, CheckCircle2, Upload, ZoomIn, ZoomOut, RotateCcw, AlertTriangle, ShieldCheck, Info } from "lucide-react";
+import { ArrowLeft, Activity, Eye, Zap, FileText, Layers, Droplets, BarChart3, Target, Calculator, Search, Play, RefreshCw, Plus, Loader2, CheckCircle2, Upload, ZoomIn, ZoomOut, RotateCcw, AlertTriangle, ShieldCheck, Info, Download, FileImage, FileCode2, FileSpreadsheet } from "lucide-react";
 import { AddWellDialog } from "@/components/shared/AddWellDialog";
 import { LASUploadPanel } from "@/components/geophysical/LASUploadPanel";
 import { toast } from "sonner";
@@ -1543,6 +1543,8 @@ const StepArchie = ({ data }: { data: PetroPoint[] }) => {
 };
 
 const StepTimur = ({ data }: { data: PetroPoint[] }) => {
+  const chartRef = useRef<HTMLDivElement>(null);
+  const [exporting, setExporting] = useState<null | "png" | "svg" | "csv">(null);
   const chartData = useMemo(() => {
     const step = Math.max(1, Math.floor(data.length / 120));
     return data
@@ -1671,6 +1673,73 @@ const StepTimur = ({ data }: { data: PetroPoint[] }) => {
       },
     };
   }, [data]);
+
+  // ── Exports ──
+  const downloadBlob = (blob: Blob, filename: string) => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename; document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+  };
+
+  const exportCSV = useCallback(() => {
+    setExporting("csv");
+    try {
+      const lines: string[] = [];
+      lines.push("# Step 7 — Timur Permeability Export");
+      lines.push(`# Generated: ${new Date().toISOString()}`);
+      lines.push(`# Pearson r (log10 k vs Archie Sw%) = ${correlation.r.toFixed(4)} (${correlation.label}, n=${correlation.n})`);
+      lines.push(`# Avg k = ${stats.avgK} mD, Max k = ${stats.maxK} mD`);
+      lines.push("");
+      lines.push("depth_ft,porosity_pct,archie_sw_pct,k_mD,log10_k,classification");
+      for (const r of chartData) {
+        const cls = classifyPermeability(r.k);
+        lines.push(`${r.depth},${r.por},${r.swirr},${r.k},${r.kLog},${cls}`);
+      }
+      const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+      downloadBlob(blob, `timur_permeability_${Date.now()}.csv`);
+      toast.success("CSV exported");
+    } catch (e) {
+      console.error(e); toast.error("CSV export failed");
+    } finally { setExporting(null); }
+  }, [chartData, correlation, stats]);
+
+  const exportSVG = useCallback(() => {
+    setExporting("svg");
+    try {
+      const svgEl = chartRef.current?.querySelector("svg");
+      if (!svgEl) { toast.error("Chart not ready"); setExporting(null); return; }
+      const clone = svgEl.cloneNode(true) as SVGElement;
+      clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+      // Inline background for readability
+      const bg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      bg.setAttribute("width", "100%"); bg.setAttribute("height", "100%"); bg.setAttribute("fill", "#0b1220");
+      clone.insertBefore(bg, clone.firstChild);
+      const xml = new XMLSerializer().serializeToString(clone);
+      const blob = new Blob([`<?xml version="1.0" encoding="UTF-8"?>\n${xml}`], { type: "image/svg+xml" });
+      downloadBlob(blob, `timur_chart_${Date.now()}.svg`);
+      toast.success("SVG exported");
+    } catch (e) {
+      console.error(e); toast.error("SVG export failed");
+    } finally { setExporting(null); }
+  }, []);
+
+  const exportPNG = useCallback(async () => {
+    setExporting("png");
+    try {
+      const html2canvas = (await import("html2canvas")).default;
+      if (!chartRef.current) { toast.error("Chart not ready"); setExporting(null); return; }
+      const canvas = await html2canvas(chartRef.current, { scale: 2, backgroundColor: "#0b1220", useCORS: true, logging: false });
+      canvas.toBlob((blob) => {
+        if (!blob) { toast.error("PNG export failed"); return; }
+        downloadBlob(blob, `timur_chart_${Date.now()}.png`);
+        toast.success("PNG exported");
+      }, "image/png");
+    } catch (e) {
+      console.error(e); toast.error("PNG export failed");
+    } finally { setExporting(null); }
+  }, []);
+
   return (
     <div className="space-y-4">
       <Card className="bg-muted/20 border-border/30">
@@ -1785,7 +1854,7 @@ const StepTimur = ({ data }: { data: PetroPoint[] }) => {
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <CardTitle className="text-sm">Permeability vs Water Saturation — Correlation Overlay</CardTitle>
-            <div className="flex items-center gap-2 text-[11px]">
+            <div className="flex items-center gap-2 text-[11px] flex-wrap">
               <Badge variant="outline" className="font-mono">
                 Pearson r = {correlation.r.toFixed(3)}
               </Badge>
@@ -1799,6 +1868,20 @@ const StepTimur = ({ data }: { data: PetroPoint[] }) => {
               >
                 {correlation.label} (n={correlation.n})
               </Badge>
+              <div className="flex items-center gap-1 ml-1 border-l border-border/40 pl-2">
+                <Button size="sm" variant="outline" className="h-7 px-2 text-[11px] gap-1" onClick={exportPNG} disabled={!!exporting}>
+                  {exporting === "png" ? <Loader2 className="h-3 w-3 animate-spin" /> : <FileImage className="h-3 w-3" />}
+                  PNG
+                </Button>
+                <Button size="sm" variant="outline" className="h-7 px-2 text-[11px] gap-1" onClick={exportSVG} disabled={!!exporting}>
+                  {exporting === "svg" ? <Loader2 className="h-3 w-3 animate-spin" /> : <FileCode2 className="h-3 w-3" />}
+                  SVG
+                </Button>
+                <Button size="sm" variant="outline" className="h-7 px-2 text-[11px] gap-1" onClick={exportCSV} disabled={!!exporting}>
+                  {exporting === "csv" ? <Loader2 className="h-3 w-3 animate-spin" /> : <FileSpreadsheet className="h-3 w-3" />}
+                  CSV
+                </Button>
+              </div>
             </div>
           </div>
           <p className="text-[10px] text-muted-foreground mt-1">
@@ -1807,7 +1890,7 @@ const StepTimur = ({ data }: { data: PetroPoint[] }) => {
           </p>
         </CardHeader>
         <CardContent>
-          <div className="h-[380px]">
+          <div ref={chartRef} className="h-[380px] bg-background/40 rounded p-1">
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={chartData} layout="vertical" margin={{ top: 20, right: 20, bottom: 20, left: 10 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
