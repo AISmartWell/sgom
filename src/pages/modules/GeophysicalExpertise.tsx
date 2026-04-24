@@ -101,7 +101,7 @@ const STEPS = [
     description: "Timur (1968) permeability from porosity and irreducible Sw. Output: mD. Classification: >100 excellent, 10–100 good, 1–10 fair, 0.1–1 poor, <0.1 tight.",
   },
   {
-    num: 7,
+    num: 8,
     key: "koko",
     label: "Ko Ko Rules",
     icon: Zap,
@@ -109,7 +109,7 @@ const STEPS = [
     description: "Ko Ko Rules — fluid identification by 4-curve deflection patterns",
   },
   {
-    num: 8,
+    num: 9,
     key: "net-pay",
     label: "Net Pay",
     icon: BarChart3,
@@ -117,7 +117,7 @@ const STEPS = [
     description: "Productive interval determination and Missed Pay zone detection",
   },
   {
-    num: 9,
+    num: 10,
     key: "report",
     label: "Report",
     icon: FileText,
