@@ -1854,7 +1854,7 @@ const StepTimur = ({ data }: { data: PetroPoint[] }) => {
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <CardTitle className="text-sm">Permeability vs Water Saturation — Correlation Overlay</CardTitle>
-            <div className="flex items-center gap-2 text-[11px]">
+            <div className="flex items-center gap-2 text-[11px] flex-wrap">
               <Badge variant="outline" className="font-mono">
                 Pearson r = {correlation.r.toFixed(3)}
               </Badge>
@@ -1868,6 +1868,20 @@ const StepTimur = ({ data }: { data: PetroPoint[] }) => {
               >
                 {correlation.label} (n={correlation.n})
               </Badge>
+              <div className="flex items-center gap-1 ml-1 border-l border-border/40 pl-2">
+                <Button size="sm" variant="outline" className="h-7 px-2 text-[11px] gap-1" onClick={exportPNG} disabled={!!exporting}>
+                  {exporting === "png" ? <Loader2 className="h-3 w-3 animate-spin" /> : <FileImage className="h-3 w-3" />}
+                  PNG
+                </Button>
+                <Button size="sm" variant="outline" className="h-7 px-2 text-[11px] gap-1" onClick={exportSVG} disabled={!!exporting}>
+                  {exporting === "svg" ? <Loader2 className="h-3 w-3 animate-spin" /> : <FileCode2 className="h-3 w-3" />}
+                  SVG
+                </Button>
+                <Button size="sm" variant="outline" className="h-7 px-2 text-[11px] gap-1" onClick={exportCSV} disabled={!!exporting}>
+                  {exporting === "csv" ? <Loader2 className="h-3 w-3 animate-spin" /> : <FileSpreadsheet className="h-3 w-3" />}
+                  CSV
+                </Button>
+              </div>
             </div>
           </div>
           <p className="text-[10px] text-muted-foreground mt-1">
@@ -1876,7 +1890,7 @@ const StepTimur = ({ data }: { data: PetroPoint[] }) => {
           </p>
         </CardHeader>
         <CardContent>
-          <div className="h-[380px]">
+          <div ref={chartRef} className="h-[380px] bg-background/40 rounded p-1">
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={chartData} layout="vertical" margin={{ top: 20, right: 20, bottom: 20, left: 10 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
