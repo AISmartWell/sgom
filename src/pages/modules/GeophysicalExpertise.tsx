@@ -1605,6 +1605,52 @@ const StepTimur = ({ data }: { data: PetroPoint[] }) => {
     };
   }, [chartData]);
 
+  // ── Input validation: check φ, Swirr ranges across the dataset ──
+  const validation = useMemo(() => {
+    const warnings: { level: "error" | "warn" | "info"; msg: string }[] = [];
+    if (data.length === 0) {
+      return { warnings: [{ level: "warn" as const, msg: "No log data — cannot validate inputs." }], stats: null };
+    }
+    const pors = data.map(p => p.por).filter(v => Number.isFinite(v));
+    const ress = data.map(p => p.res).filter(v => Number.isFinite(v) && v > 0);
+    const swirrs = data.map(p => {
+      const f = p.por / 100;
+      return calcArchieSwFromInputs(f, p.res);
+    });
+
+    const minPor = Math.min(...pors), maxPor = Math.max(...pors);
+    const avgPor = pors.reduce((a, b) => a + b, 0) / pors.length;
+    const minSw = Math.min(...swirrs) * 100, maxSw = Math.max(...swirrs) * 100;
+    const avgSw = (swirrs.reduce((a, b) => a + b, 0) / swirrs.length) * 100;
+    const minRes = Math.min(...ress), maxRes = Math.max(...ress);
+
+    // φ checks (input is in %)
+    if (maxPor > 50) warnings.push({ level: "error", msg: `φ max = ${maxPor.toFixed(1)}% — physically impossible (>50%). Check porosity log units (fraction vs %).` });
+    else if (maxPor > 40) warnings.push({ level: "warn", msg: `φ max = ${maxPor.toFixed(1)}% — unusually high for sandstone/carbonate (typical <35%).` });
+    if (minPor < 0) warnings.push({ level: "error", msg: `φ min = ${minPor.toFixed(2)}% — negative porosity is invalid.` });
+    if (avgPor < 1) warnings.push({ level: "warn", msg: `φ avg = ${avgPor.toFixed(2)}% — values look like fractions (0–1), expected percent (0–100). Convert input.` });
+
+    // Swirr checks (Archie proxy, %)
+    if (maxSw > 100.01) warnings.push({ level: "error", msg: `Swirr max = ${maxSw.toFixed(1)}% — exceeds 100% (saturation cap violated).` });
+    if (minSw < 5) warnings.push({ level: "warn", msg: `Swirr min = ${minSw.toFixed(1)}% — below 5%; engine clamps to 5% to avoid k overshoot.` });
+    if (avgSw > 90) warnings.push({ level: "warn", msg: `Swirr avg = ${avgSw.toFixed(1)}% — mostly water-bearing zones; Timur k will be very low (use only on net pay).` });
+
+    // Rt checks
+    if (minRes <= 0) warnings.push({ level: "error", msg: `Rt min ≤ 0 Ω·m — invalid resistivity, Archie Sw cannot be computed.` });
+    if (maxRes > 2000) warnings.push({ level: "warn", msg: `Rt max = ${maxRes.toFixed(0)} Ω·m — extremely high; may indicate tight/cemented zone or tool spike.` });
+
+    // Constants sanity (informational)
+    warnings.push({ level: "info", msg: "Constants: a=1.0, m=2.0, n=2.0, Rw=0.04 Ω·m (typical Gulf Coast brine). Adjust if formation water salinity differs." });
+
+    return {
+      warnings,
+      stats: {
+        minPor: minPor.toFixed(1), maxPor: maxPor.toFixed(1), avgPor: avgPor.toFixed(1),
+        minSw: minSw.toFixed(1), maxSw: maxSw.toFixed(1), avgSw: avgSw.toFixed(1),
+        minRes: minRes.toFixed(2), maxRes: maxRes.toFixed(1),
+      },
+    };
+  }, [data]);
   return (
     <div className="space-y-4">
       <Card className="bg-muted/20 border-border/30">
