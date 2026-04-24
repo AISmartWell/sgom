@@ -1543,6 +1543,8 @@ const StepArchie = ({ data }: { data: PetroPoint[] }) => {
 };
 
 const StepTimur = ({ data }: { data: PetroPoint[] }) => {
+  const chartRef = useRef<HTMLDivElement>(null);
+  const [exporting, setExporting] = useState<null | "png" | "svg" | "csv">(null);
   const chartData = useMemo(() => {
     const step = Math.max(1, Math.floor(data.length / 120));
     return data
