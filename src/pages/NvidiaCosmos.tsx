@@ -197,7 +197,49 @@ const NvidiaCosmos = () => {
           </div>
         </Card>
 
-        {/* Three Module Cards */}
+        {/* Integration Transparency — investor-facing honesty disclosure */}
+        <Card className="glass-card border-orange-500/30 bg-orange-500/5">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Activity className="h-5 w-5 text-orange-400" />
+              Integration Transparency · Live API vs Simulation
+            </CardTitle>
+            <CardDescription>
+              Honest disclosure of which Cosmos modules currently call live NVIDIA endpoints vs. run as deterministic on-platform simulations. Full Cosmos foundation model integration (H100/DGX Cloud) is on the Phase I R&D roadmap.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid md:grid-cols-3 gap-3 text-sm">
+              <div className="p-3 rounded-lg border border-[#76b900]/30 bg-[#76b900]/5">
+                <div className="flex items-center gap-2 mb-2">
+                  <Cpu className="h-4 w-4 text-[#9bd400]" />
+                  <span className="font-semibold text-[#9bd400] uppercase text-xs tracking-wider">Live NVIDIA API</span>
+                </div>
+                <div className="text-xs text-muted-foreground leading-relaxed">
+                  Real GPU inference via NVIDIA NIM (<code className="text-foreground">nemotron-nano-12b-v2-vl</code>): Core CV analysis, Seismic interpretation, AI Analyst chat.
+                </div>
+              </div>
+              <div className="p-3 rounded-lg border border-orange-500/30 bg-orange-500/5">
+                <div className="flex items-center gap-2 mb-2">
+                  <Activity className="h-4 w-4 text-orange-400" />
+                  <span className="font-semibold text-orange-400 uppercase text-xs tracking-wider">Hybrid · Live AI + Physics</span>
+                </div>
+                <div className="text-xs text-muted-foreground leading-relaxed">
+                  <span className="text-foreground font-medium">Cosmos Predict demo</span> — calls Lovable AI Gateway (NVIDIA NIM upstream) for reasoning, with deterministic physics fallback. Cosmos Predict foundation model not yet wired.
+                </div>
+              </div>
+              <div className="p-3 rounded-lg border border-amber-500/30 bg-amber-500/5">
+                <div className="flex items-center gap-2 mb-2">
+                  <Lightbulb className="h-4 w-4 text-amber-400" />
+                  <span className="font-semibold text-amber-400 uppercase text-xs tracking-wider">Simulation</span>
+                </div>
+                <div className="text-xs text-muted-foreground leading-relaxed">
+                  <span className="text-foreground font-medium">Cosmos Transfer & Reason demos</span> — deterministic client-side simulations calibrated against FORMATION_DB and historical SPT data. Foundation model integration requires GPU H100 + adapter layer.
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
         <Tabs defaultValue="predict" className="w-full">
           <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="predict" className="gap-2">
