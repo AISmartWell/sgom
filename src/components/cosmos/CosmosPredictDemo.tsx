@@ -337,6 +337,14 @@ Return JSON: {"formation_name","formation_type","net_pay_ft","porosity_pct","wat
         <div style={{ color: C.muted, fontSize: 11 }}>×</div>
         <div style={{ color: C.blue, fontSize: 11, letterSpacing: "0.1em" }}>SGOM · PREDICT</div>
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8 }}>
+          <span
+            title="Hybrid: Lovable AI Gateway (NVIDIA NIM upstream) for chain-of-thought reasoning + deterministic physics fallback. Cosmos Predict foundation model not yet wired (Phase I R&D)."
+            style={{
+              background: "#f28c0025", color: C.orange, fontSize: 8, fontWeight: 700,
+              padding: "2px 6px", borderRadius: 3, letterSpacing: "0.1em",
+              border: "1px solid #f28c0050", cursor: "help",
+            }}
+          >HYBRID · LIVE AI + PHYSICS</span>
           {hasRealData && (
             <span style={{
               background: "#76b90030", color: C.nvidia, fontSize: 8, fontWeight: 700,
