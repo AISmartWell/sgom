@@ -2912,7 +2912,7 @@ const GeophysicalExpertise = () => {
         {/* Step 7: Timur Permeability */}
         <TabsContent value="timur-k" className="mt-0">
           {petroData.length > 0 ? (
-            <StepTimur data={petroData} />
+            <StepTimur data={petroData} wellName={selectedWell?.well_name ?? null} />
           ) : (
             <div className="text-center py-16 text-muted-foreground">Loading well data...</div>
           )}
