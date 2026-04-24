@@ -2656,7 +2656,16 @@ const GeophysicalExpertise = () => {
           )}
         </TabsContent>
 
-        {/* Step 7: Ko Ko Rules */}
+        {/* Step 7: Timur Permeability */}
+        <TabsContent value="timur-k" className="mt-0">
+          {petroData.length > 0 ? (
+            <StepTimur data={petroData} />
+          ) : (
+            <div className="text-center py-16 text-muted-foreground">Loading well data...</div>
+          )}
+        </TabsContent>
+
+        {/* Step 8: Ko Ko Rules */}
         <TabsContent value="koko" className="mt-0">
           {petroData.length > 0 ? (
             <StepKoKo data={petroData} />
