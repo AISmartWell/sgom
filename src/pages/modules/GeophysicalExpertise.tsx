@@ -1673,6 +1673,73 @@ const StepTimur = ({ data }: { data: PetroPoint[] }) => {
       },
     };
   }, [data]);
+
+  // ── Exports ──
+  const downloadBlob = (blob: Blob, filename: string) => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename; document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+  };
+
+  const exportCSV = useCallback(() => {
+    setExporting("csv");
+    try {
+      const lines: string[] = [];
+      lines.push("# Step 7 — Timur Permeability Export");
+      lines.push(`# Generated: ${new Date().toISOString()}`);
+      lines.push(`# Pearson r (log10 k vs Archie Sw%) = ${correlation.r.toFixed(4)} (${correlation.label}, n=${correlation.n})`);
+      lines.push(`# Avg k = ${stats.avgK} mD, Max k = ${stats.maxK} mD`);
+      lines.push("");
+      lines.push("depth_ft,porosity_pct,archie_sw_pct,k_mD,log10_k,classification");
+      for (const r of chartData) {
+        const cls = classifyPermeability(r.k);
+        lines.push(`${r.depth},${r.por},${r.swirr},${r.k},${r.kLog},${cls}`);
+      }
+      const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+      downloadBlob(blob, `timur_permeability_${Date.now()}.csv`);
+      toast.success("CSV exported");
+    } catch (e) {
+      console.error(e); toast.error("CSV export failed");
+    } finally { setExporting(null); }
+  }, [chartData, correlation, stats]);
+
+  const exportSVG = useCallback(() => {
+    setExporting("svg");
+    try {
+      const svgEl = chartRef.current?.querySelector("svg");
+      if (!svgEl) { toast.error("Chart not ready"); setExporting(null); return; }
+      const clone = svgEl.cloneNode(true) as SVGElement;
+      clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+      // Inline background for readability
+      const bg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      bg.setAttribute("width", "100%"); bg.setAttribute("height", "100%"); bg.setAttribute("fill", "#0b1220");
+      clone.insertBefore(bg, clone.firstChild);
+      const xml = new XMLSerializer().serializeToString(clone);
+      const blob = new Blob([`<?xml version="1.0" encoding="UTF-8"?>\n${xml}`], { type: "image/svg+xml" });
+      downloadBlob(blob, `timur_chart_${Date.now()}.svg`);
+      toast.success("SVG exported");
+    } catch (e) {
+      console.error(e); toast.error("SVG export failed");
+    } finally { setExporting(null); }
+  }, []);
+
+  const exportPNG = useCallback(async () => {
+    setExporting("png");
+    try {
+      const html2canvas = (await import("html2canvas")).default;
+      if (!chartRef.current) { toast.error("Chart not ready"); setExporting(null); return; }
+      const canvas = await html2canvas(chartRef.current, { scale: 2, backgroundColor: "#0b1220", useCORS: true, logging: false });
+      canvas.toBlob((blob) => {
+        if (!blob) { toast.error("PNG export failed"); return; }
+        downloadBlob(blob, `timur_chart_${Date.now()}.png`);
+        toast.success("PNG exported");
+      }, "image/png");
+    } catch (e) {
+      console.error(e); toast.error("PNG export failed");
+    } finally { setExporting(null); }
+  }, []);
+
   return (
     <div className="space-y-4">
       <Card className="bg-muted/20 border-border/30">
