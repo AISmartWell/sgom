@@ -34,6 +34,8 @@ export interface IntervalResult {
   isReservoir: boolean;
   archieSwCalc: number | null;  // Sw from Archie
   hydroSat: number | null;      // 1 - Sw
+  timurPermMd: number | null;   // k from Timur (mD)
+  permClass: "excellent" | "good" | "fair" | "poor" | "tight" | null;
 }
 
 export interface InterpretationSummary {
