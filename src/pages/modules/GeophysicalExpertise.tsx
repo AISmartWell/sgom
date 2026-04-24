@@ -1780,15 +1780,36 @@ const StepTimur = ({ data }: { data: PetroPoint[] }) => {
         ))}
       </div>
 
-      {/* k vs Depth Chart (log scale) */}
+      {/* k vs Sw Correlation Overlay */}
       <Card className="bg-muted/20 border-border/30">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm">Permeability vs Depth (log₁₀ scale)</CardTitle>
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <CardTitle className="text-sm">Permeability vs Water Saturation — Correlation Overlay</CardTitle>
+            <div className="flex items-center gap-2 text-[11px]">
+              <Badge variant="outline" className="font-mono">
+                Pearson r = {correlation.r.toFixed(3)}
+              </Badge>
+              <Badge
+                variant="outline"
+                className="capitalize"
+                style={{
+                  color: Math.abs(correlation.r) > 0.7 ? "#22c55e" : Math.abs(correlation.r) > 0.4 ? "#eab308" : "#f97316",
+                  borderColor: Math.abs(correlation.r) > 0.7 ? "#22c55e" : Math.abs(correlation.r) > 0.4 ? "#eab308" : "#f97316",
+                }}
+              >
+                {correlation.label} (n={correlation.n})
+              </Badge>
+            </div>
+          </div>
+          <p className="text-[10px] text-muted-foreground mt-1">
+            Overlay of log₁₀ k <span className="text-primary">(blue, bottom axis)</span> and Archie Sw% <span className="text-cyan-400">(cyan, top axis)</span> vs depth.
+            Expected: <span className="font-semibold">inverse correlation</span> — higher Sw → lower k (Timur: k ∝ 1/Swirr²).
+          </p>
         </CardHeader>
         <CardContent>
-          <div className="h-[320px]">
+          <div className="h-[380px]">
             <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={chartData} layout="vertical" margin={{ top: 5, right: 15, bottom: 5, left: 10 }}>
+              <ComposedChart data={chartData} layout="vertical" margin={{ top: 20, right: 20, bottom: 20, left: 10 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
                 <YAxis
                   dataKey="depth"
@@ -1798,24 +1819,49 @@ const StepTimur = ({ data }: { data: PetroPoint[] }) => {
                   tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
                   label={{ value: "Depth (ft)", angle: -90, position: "insideLeft", style: { fontSize: 10, fill: "hsl(var(--muted-foreground))" } }}
                 />
+                {/* Bottom X-axis: log10 k */}
                 <XAxis
+                  xAxisId="k"
                   type="number"
                   domain={[-3, 3]}
                   ticks={[-3, -2, -1, 0, 1, 2, 3]}
-                  tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
-                  label={{ value: "log₁₀ k (mD)", position: "insideBottom", offset: -2, style: { fontSize: 10, fill: "hsl(var(--muted-foreground))" } }}
+                  orientation="bottom"
+                  stroke="hsl(var(--primary))"
+                  tick={{ fontSize: 10, fill: "hsl(var(--primary))" }}
+                  label={{ value: "log₁₀ k (mD)", position: "insideBottom", offset: -5, style: { fontSize: 10, fill: "hsl(var(--primary))" } }}
                 />
-                <ReferenceLine x={0} stroke="#eab308" strokeDasharray="6 3" label={{ value: "1 mD", position: "top", style: { fontSize: 9, fill: "#eab308" } }} />
-                <ReferenceLine x={1} stroke="#84cc16" strokeDasharray="6 3" label={{ value: "10 mD", position: "top", style: { fontSize: 9, fill: "#84cc16" } }} />
-                <ReferenceLine x={2} stroke="#22c55e" strokeDasharray="6 3" label={{ value: "100 mD", position: "top", style: { fontSize: 9, fill: "#22c55e" } }} />
-                <Line dataKey="kLog" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} name="log₁₀ k" />
+                {/* Top X-axis: Sw% (reversed so high Sw → left, mirroring low k) */}
+                <XAxis
+                  xAxisId="sw"
+                  type="number"
+                  domain={[0, 100]}
+                  ticks={[0, 25, 50, 75, 100]}
+                  orientation="top"
+                  reversed
+                  stroke="#22d3ee"
+                  tick={{ fontSize: 10, fill: "#22d3ee" }}
+                  label={{ value: "Archie Sw (%) — reversed", position: "insideTop", offset: -5, style: { fontSize: 10, fill: "#22d3ee" } }}
+                />
+                <ReferenceLine xAxisId="k" x={0} stroke="#eab308" strokeDasharray="6 3" label={{ value: "1 mD", position: "top", style: { fontSize: 9, fill: "#eab308" } }} />
+                <ReferenceLine xAxisId="k" x={1} stroke="#84cc16" strokeDasharray="6 3" />
+                <ReferenceLine xAxisId="k" x={2} stroke="#22c55e" strokeDasharray="6 3" />
+                <Line xAxisId="k" dataKey="kLog" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} name="log₁₀ k (mD)" isAnimationActive={false} />
+                <Line xAxisId="sw" dataKey="swirr" stroke="#22d3ee" strokeWidth={2} dot={false} name="Archie Sw (%)" strokeDasharray="4 2" isAnimationActive={false} />
                 <Tooltip
                   contentStyle={{ background: "hsl(var(--background))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 11 }}
-                  formatter={(_val: number, _name: string, item: any) => [`${item.payload.k.toFixed(3)} mD (φ=${item.payload.por.toFixed(1)}%, Swirr=${item.payload.swirr.toFixed(1)}%)`, "k (Timur)"]}
                   labelFormatter={(v: number) => `Depth: ${v.toFixed(0)} ft`}
+                  formatter={(val: number, name: string, item: any) => {
+                    if (name === "log₁₀ k (mD)") return [`${item.payload.k.toFixed(3)} mD (log₁₀=${val.toFixed(2)})`, "k (Timur)"];
+                    if (name === "Archie Sw (%)") return [`${val.toFixed(1)} %`, "Sw (Archie)"];
+                    return [val, name];
+                  }}
                 />
+                <Legend wrapperStyle={{ fontSize: 11, paddingTop: 8 }} />
               </ComposedChart>
             </ResponsiveContainer>
+          </div>
+          <div className="mt-3 p-2 rounded bg-muted/30 border border-border/30 text-[10px] text-muted-foreground">
+            <strong className="text-foreground">Interpretation:</strong> The two curves should mirror each other (inverse). Where Sw drops (cyan moves right →), log₁₀ k should rise (blue moves right →). Strong negative correlation in raw form (r &lt; −0.7) confirms physical consistency — but here Sw axis is <em>reversed</em>, so visually both lines should track <em>together</em> in net-pay zones.
           </div>
         </CardContent>
       </Card>
