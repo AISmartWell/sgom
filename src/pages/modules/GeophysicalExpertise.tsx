@@ -1542,7 +1542,7 @@ const StepArchie = ({ data }: { data: PetroPoint[] }) => {
   );
 };
 
-const StepTimur = ({ data }: { data: PetroPoint[] }) => {
+const StepTimur = ({ data, wellName }: { data: PetroPoint[]; wellName?: string | null }) => {
   const chartRef = useRef<HTMLDivElement>(null);
   const [exporting, setExporting] = useState<null | "png" | "svg" | "csv">(null);
   const chartData = useMemo(() => {
@@ -1740,8 +1740,118 @@ const StepTimur = ({ data }: { data: PetroPoint[] }) => {
     } finally { setExporting(null); }
   }, []);
 
+  // ── Brawner 10-15 dedicated calculator ──
+  const isBrawner = (wellName ?? "").toLowerCase().includes("brawner");
+  const brawnerStats = useMemo(() => {
+    const pors = data.map(p => p.por).filter(v => Number.isFinite(v) && v > 0);
+    const swirrs = data
+      .map(p => calcArchieSwFromInputs(p.por / 100, p.res) * 100)
+      .filter(v => Number.isFinite(v) && v > 0);
+    if (pors.length === 0 || swirrs.length === 0) {
+      return { avgPor: 12.0, avgSwirr: 35.0, source: "reference" as const };
+    }
+    return {
+      avgPor: pors.reduce((a, b) => a + b, 0) / pors.length,
+      avgSwirr: swirrs.reduce((a, b) => a + b, 0) / swirrs.length,
+      source: "log" as const,
+    };
+  }, [data]);
+
+  const [bPor, setBPor] = useState<number>(brawnerStats.avgPor);
+  const [bSwirr, setBSwirr] = useState<number>(brawnerStats.avgSwirr);
+  useEffect(() => {
+    setBPor(Math.round(brawnerStats.avgPor * 10) / 10);
+    setBSwirr(Math.round(brawnerStats.avgSwirr * 10) / 10);
+  }, [brawnerStats.avgPor, brawnerStats.avgSwirr]);
+
+  const brawnerK = useMemo(
+    () => calcTimurPermeability(bPor / 100, bSwirr / 100),
+    [bPor, bSwirr]
+  );
+  const brawnerClass = classifyPermeability(brawnerK);
+
   return (
     <div className="space-y-4">
+      {/* Brawner 10-15 dedicated Timur calculator */}
+      <Card className={`border-2 ${isBrawner ? "border-primary/60 bg-primary/5" : "border-amber-500/40 bg-amber-500/5"}`}>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <Calculator className="h-4 w-4 text-primary" />
+            Brawner 10-15 — Timur Permeability Calculator
+            <Badge variant={isBrawner ? "default" : "outline"} className="ml-auto text-[10px]">
+              {isBrawner
+                ? `Live: ${wellName} (φ, Swirr from log)`
+                : `Reference mode — current: ${wellName ?? "n/a"}`}
+            </Badge>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            {isBrawner
+              ? <>Defaults are taken from <b>Brawner 10-15</b> log averages (Mississippian Lime, Oklahoma). Adjust φ and S<sub>wirr</sub> to test sensitivity.</>
+              : <>Brawner 10-15 is not the currently selected well. Showing reference values (φ ≈ 12%, S<sub>wirr</sub> ≈ 35% — Mississippian Lime baseline). Select <b>Brawner 10-15</b> in the well picker to use real log-derived averages.</>}
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs">
+                <span className="font-semibold">Porosity φ (%)</span>
+                <span className="font-mono text-primary">{bPor.toFixed(1)}%</span>
+              </div>
+              <input
+                type="range" min={1} max={35} step={0.5}
+                value={bPor}
+                onChange={(e) => setBPor(parseFloat(e.target.value))}
+                className="w-full accent-primary"
+              />
+              <div className="flex justify-between text-[10px] text-muted-foreground">
+                <span>1%</span><span>avg log: {brawnerStats.avgPor.toFixed(1)}%</span><span>35%</span>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs">
+                <span className="font-semibold">S<sub>wirr</sub> (%)</span>
+                <span className="font-mono text-primary">{bSwirr.toFixed(1)}%</span>
+              </div>
+              <input
+                type="range" min={5} max={100} step={1}
+                value={bSwirr}
+                onChange={(e) => setBSwirr(parseFloat(e.target.value))}
+                className="w-full accent-primary"
+              />
+              <div className="flex justify-between text-[10px] text-muted-foreground">
+                <span>5%</span><span>Archie avg: {brawnerStats.avgSwirr.toFixed(1)}%</span><span>100%</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-background/50 p-4 rounded-lg font-mono text-center text-sm">
+            k = 0.136 · ({(bPor / 100).toFixed(3)})<sup>4.4</sup> / ({(bSwirr / 100).toFixed(3)})<sup>2</sup>
+            {" = "}
+            <span className="text-lg font-bold text-primary">{brawnerK.toFixed(3)} mD</span>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2 text-xs">
+            <div className="p-2 bg-muted/30 rounded text-center">
+              <div className="text-muted-foreground">Permeability</div>
+              <div className="font-bold text-foreground text-base">{brawnerK.toFixed(3)} mD</div>
+            </div>
+            <div className="p-2 bg-muted/30 rounded text-center">
+              <div className="text-muted-foreground">Class</div>
+              <div className="font-bold capitalize" style={{ color: permClassColor(brawnerClass) }}>
+                {brawnerClass ?? "n/a"}
+              </div>
+            </div>
+            <div className="p-2 bg-muted/30 rounded text-center">
+              <div className="text-muted-foreground">Data source</div>
+              <div className="font-bold text-foreground">
+                {brawnerStats.source === "log" ? "LAS log" : "Reference"}
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <Card className="bg-muted/20 border-border/30">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm flex items-center gap-2">
@@ -2912,7 +3022,7 @@ const GeophysicalExpertise = () => {
         {/* Step 7: Timur Permeability */}
         <TabsContent value="timur-k" className="mt-0">
           {petroData.length > 0 ? (
-            <StepTimur data={petroData} />
+            <StepTimur data={petroData} wellName={selectedWell?.well_name ?? null} />
           ) : (
             <div className="text-center py-16 text-muted-foreground">Loading well data...</div>
           )}
