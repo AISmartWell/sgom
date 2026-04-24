@@ -298,6 +298,13 @@ export const segmentIntervals = (data: PetroPoint[], minThickness = 5): Interval
 
     const hydroSat = archieSwCalc !== null ? 100 - archieSwCalc : null;
 
+    // Timur (1968) permeability — uses Archie Sw as Swirr proxy
+    const swirrFrac = archieSwCalc !== null ? archieSwCalc / 100 : null;
+    const timurPermMd = swirrFrac !== null
+      ? calcTimurPermeability(porFrac, swirrFrac)
+      : null;
+    const permClass = classifyPermeability(timurPermMd);
+
     return {
       top,
       bottom,
@@ -315,6 +322,8 @@ export const segmentIntervals = (data: PetroPoint[], minThickness = 5): Interval
       isReservoir,
       archieSwCalc: archieSwCalc !== null ? Math.round(archieSwCalc * 10) / 10 : null,
       hydroSat: hydroSat !== null ? Math.round(hydroSat * 10) / 10 : null,
+      timurPermMd: timurPermMd !== null ? Math.round(timurPermMd * 1000) / 1000 : null,
+      permClass,
     };
   });
 };
