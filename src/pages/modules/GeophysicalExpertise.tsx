@@ -94,6 +94,14 @@ const STEPS = [
   },
   {
     num: 7,
+    key: "timur-k",
+    label: "k (Timur)",
+    icon: Calculator,
+    formula: "k = 0.136 · φ⁴·⁴ / Swirr²",
+    description: "Timur (1968) permeability from porosity and irreducible Sw. Output: mD. Classification: >100 excellent, 10–100 good, 1–10 fair, 0.1–1 poor, <0.1 tight.",
+  },
+  {
+    num: 7,
     key: "koko",
     label: "Ko Ko Rules",
     icon: Zap,
