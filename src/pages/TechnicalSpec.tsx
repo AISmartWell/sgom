@@ -243,7 +243,7 @@ const TechnicalSpec = () => {
                { icon: "🤖", name: "AI Analyst", route: "/dashboard/ai-analyst",
                  desc: "AI-powered analytical assistant for natural language queries about well data, geological interpretation, and SPT recommendations. Powered by Claude via secure Edge Function proxy (spt-chat). Context-aware responses with MCDA scoring integration." },
                { icon: "🛢️", name: "Well Screening Pilot", route: "/dashboard/oklahoma-pilot",
-                 desc: "Multi-state well screening pilot (TX, OK, KS, NM, CO, ND, WY). Filters by production rate, water cut, formation. Interactive map with analyzed wells table. Full 9-stage pipeline visualization per well. Timur equation constraints for permeability estimation." },
+                 desc: "Multi-state well screening pilot (TX, OK, KS, NM, CO, ND, WY). Filters by production rate, water cut, formation. Interactive map with analyzed wells table. Full 9-stage pipeline visualization per well. Timur (1968) permeability k = 0.136·φ⁴·⁴/Swirr² implemented as Step 7 in Geophysical Expertise (Stage 8) alongside Archie Sw." },
                { icon: "🎯", name: "AI Well Selection & Ranking", route: "/dashboard/well-selection",
                  desc: "ML-based well ranking by multiple criteria. Filter by county, type, operator. MCDA scoring with inverted Water Cut & GOR metrics." },
                { icon: "📡", name: "Data Collection & Integration", route: "/dashboard/data-collection",
