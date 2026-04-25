@@ -14,6 +14,9 @@ import {
   Activity,
   Brain,
   Sparkles,
+  Target,
+  CheckCircle2,
+  Gauge,
 } from "lucide-react";
 
 const STAGES = [
@@ -83,7 +86,7 @@ const Innovation = () => {
           Back to Home
         </Button>
 
-        <div className="mb-10">
+        <div className="mb-8">
           <Badge variant="outline" className="mb-3 border-primary text-primary">
             <Sparkles className="mr-1 h-3 w-3" />
             R&D Whitepaper
@@ -96,6 +99,66 @@ const Innovation = () => {
             automated pipeline. Each stage addresses a distinct scientific challenge.
           </p>
         </div>
+
+        {/* Core Thesis — what the AI actually does */}
+        <Card className="glass-card border-primary/40 mb-10 bg-gradient-to-br from-primary/10 via-background to-background">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-3 text-xl">
+              <div className="h-11 w-11 rounded-lg bg-primary/20 text-primary flex items-center justify-center">
+                <Target className="h-6 w-6" />
+              </div>
+              <span className="flex-1">Our Core Thesis</span>
+              <Badge className="bg-primary text-primary-foreground">What our AI does</Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-base leading-relaxed">
+              Our artificial intelligence determines the{" "}
+              <strong className="text-primary">restoration potential of a well</strong> — whether
+              an idle, low-rate, or abandoned wellbore can be brought back into productive
+              service. Instead of plugging it (P&A), operators receive a quantitative,
+              evidence-backed answer: <em>does this well still have economic life?</em>
+            </p>
+            <div className="grid md:grid-cols-3 gap-3">
+              <div className="p-3 rounded-lg bg-background/60 border border-border/50">
+                <div className="flex items-center gap-2 mb-1">
+                  <Gauge className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-semibold">Restoration Potential Score</span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  A 0–100 calibrated score (RPS) per well, validated against held-out production
+                  outcomes.
+                </p>
+              </div>
+              <div className="p-3 rounded-lg bg-background/60 border border-border/50">
+                <div className="flex items-center gap-2 mb-1">
+                  <CheckCircle2 className="h-4 w-4 text-success" />
+                  <span className="text-sm font-semibold">Decision, not just data</span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Output is a clear recommendation — Restore / Monitor / P&A — with full
+                  audit trail of evidence.
+                </p>
+              </div>
+              <div className="p-3 rounded-lg bg-background/60 border border-border/50">
+                <div className="flex items-center gap-2 mb-1">
+                  <Brain className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-semibold">Self-learning model</span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Trained on degraded, fragmented legacy data — exactly the conditions of the
+                  3.7M+ idle US wells.
+                </p>
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground leading-relaxed border-t border-border/50 pt-3">
+              Reference validation well: <strong className="text-foreground">Brawner 10-15</strong>{" "}
+              (API 42-467-30979). The 9 stages below are not generic analytics — each one feeds a
+              specific input into the final RPS computation.
+            </p>
+          </CardContent>
+        </Card>
+
 
         <div className="space-y-4 mb-10">
           {STAGES.map((s) => {
