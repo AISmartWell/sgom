@@ -14,6 +14,9 @@ import {
   Activity,
   Brain,
   Sparkles,
+  Target,
+  CheckCircle2,
+  Gauge,
 } from "lucide-react";
 
 const STAGES = [
