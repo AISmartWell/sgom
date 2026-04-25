@@ -702,10 +702,10 @@ const InvestorDeck = () => {
         </div>
         <div className="p-5 rounded-xl bg-card border border-border">
           <div className="h-14 w-14 rounded-full bg-success/20 flex items-center justify-center mb-3 text-xl font-bold text-success">
-            AA
+            UP
           </div>
-          <h3 className="text-base font-semibold">Alexander Alishoev</h3>
-          <p className="text-xs text-success mb-1">Lead Developer</p>
+          <h3 className="text-base font-semibold">Usman Pervaiz</h3>
+          <p className="text-xs text-success mb-1">Software Developer · BS CS</p>
           <p className="text-xs text-muted-foreground">Full-stack development, AI/ML integration, platform architecture.</p>
         </div>
         <div className="p-5 rounded-xl bg-card border border-border">
