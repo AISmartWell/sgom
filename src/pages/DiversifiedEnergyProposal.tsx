@@ -302,7 +302,7 @@ const DiversifiedEnergyProposal = () => {
               { name: "Edward Rubinstein", role: "CEO · Co-Founder · Strategy & Partnerships" },
               { name: "Natalia Zaruchevskaya", role: "Co-Founder · Business Development" },
               { name: "Anatoliy Nikouline", role: "CEO of Maxxwell Production · SPT Technology" },
-              { name: "Alexander Alishoev", role: "CTO · Platform Architecture" },
+              { name: "Usman Pervaiz", role: "CTO · Platform Architecture" },
             ].map((person, i) => (
               <div key={i} className="p-3 rounded-lg border border-gray-100" style={{ background: "#f9fafb" }}>
                 <p className="font-semibold" style={{ color: "#1a1a2e" }}>{person.name}</p>

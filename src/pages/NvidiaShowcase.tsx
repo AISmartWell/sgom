@@ -68,7 +68,7 @@ NVIDIA TECHNOLOGIES USED:
 
 TEAM:
 • Anatoliy Nikouline — CEO & SPT Engineer, Maxxwell Production (10+ years field experience, patent inventor)
-• Alexander Alishoev — Lead Developer, Full-Stack & AI/ML Architecture
+• Usman Pervaiz — Lead Developer, Full-Stack & AI/ML Architecture
 • Edward Rubinstein — Strategy & Partnerships
 • Natalia Zaruchevskaya — Co-Founder, Business Development
 • Maxxwell Production — Technology Partner (since 2012, worked with Chevron, Baker Hughes, Halliburton)
@@ -395,7 +395,7 @@ NVIDIA INCEPTION: Official Member`;
                       detail: "Patent inventor (US 8,863,823), 10+ years field experience. Add as Founder/CEO.",
                     },
                     {
-                      name: "Alexander Alishoev",
+                      name: "Usman Pervaiz",
                       role: "Lead Developer",
                       company: "AI Smart Well",
                       detail: "Full-stack & AI/ML architecture. Add as CTO/Technical Lead.",
