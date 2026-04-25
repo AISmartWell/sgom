@@ -68,7 +68,7 @@ NVIDIA TECHNOLOGIES USED:
 
 TEAM:
 • Anatoliy Nikouline — CEO & SPT Engineer, Maxxwell Production (10+ years field experience, patent inventor)
-• Usman Pervaiz — Lead Developer, Full-Stack & AI/ML Architecture
+• Usman Pervaiz — Software Developer (BS CS), Full-Stack & AI/ML Architecture
 • Edward Rubinstein — Strategy & Partnerships
 • Natalia Zaruchevskaya — Co-Founder, Business Development
 • Maxxwell Production — Technology Partner (since 2012, worked with Chevron, Baker Hughes, Halliburton)
@@ -396,7 +396,7 @@ NVIDIA INCEPTION: Official Member`;
                     },
                     {
                       name: "Usman Pervaiz",
-                      role: "Lead Developer",
+                      role: "Software Developer · BS CS",
                       company: "AI Smart Well",
                       detail: "Full-stack & AI/ML architecture. Add as CTO/Technical Lead.",
                     },
