@@ -378,6 +378,88 @@ const EconomicAnalysisDemo = () => {
         </TabsContent>
 
         <TabsContent value="quantum">
+          <Card className="glass-card border-primary/30 mb-4">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <span className="px-2 py-0.5 rounded-md bg-primary/15 text-primary text-[10px] font-mono tracking-wider uppercase">
+                  How it works
+                </span>
+                Quantum Amplitude Estimation (QAE) — Methodology
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4 text-sm">
+              <p className="text-muted-foreground leading-relaxed">
+                QAE (Brassard, Høyer, Mosca, Tapp · 2000) replaces classical Monte Carlo for
+                expectation estimation. For target accuracy <span className="font-mono text-foreground">ε</span>,
+                classical MC needs <span className="font-mono text-foreground">O(1/ε²)</span> samples;
+                QAE needs only <span className="font-mono text-primary">O(1/ε)</span> oracle calls — a
+                quadratic speed-up.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="p-3 rounded-lg bg-muted/30 border border-border/40">
+                  <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-2">
+                    Classical Monte Carlo
+                  </p>
+                  <p className="text-xs">Error convergence: <span className="font-mono">O(1/√N)</span></p>
+                  <p className="text-xs">For ε = 1%: ~<span className="font-mono">10 000</span> simulations</p>
+                  <p className="text-xs">Source of randomness: seeded PRNG (stableHash)</p>
+                </div>
+                <div className="p-3 rounded-lg bg-primary/10 border border-primary/30">
+                  <p className="text-xs font-mono uppercase tracking-wider text-primary mb-2">
+                    Quantum Amplitude Estimation
+                  </p>
+                  <p className="text-xs">Error convergence: <span className="font-mono">O(1/N)</span></p>
+                  <p className="text-xs">For ε = 1%: ~<span className="font-mono">100</span> oracle calls</p>
+                  <p className="text-xs">Source of randomness: amplitude superposition</p>
+                </div>
+              </div>
+
+              <div>
+                <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-2">
+                  Algorithmic Pipeline
+                </p>
+                <ol className="list-decimal list-inside space-y-1.5 text-xs leading-relaxed">
+                  <li>
+                    <span className="font-medium">Encode uncertainties</span> — oil price P, decline rate D, OPEX,
+                    water cut, initial rate q<sub>i</sub> as amplitudes:
+                    <span className="font-mono ml-1">|ψ⟩ = Σ √p(x) |x⟩</span>
+                  </li>
+                  <li>
+                    <span className="font-medium">Apply oracle 𝒜</span> — computes NPV(x) and tags
+                    profitable outcomes (NPV &gt; 0) with phase:
+                    <span className="font-mono ml-1">𝒜|0⟩ = √a |good⟩ + √(1−a) |bad⟩</span>
+                  </li>
+                  <li>
+                    <span className="font-medium">Grover operator</span> —
+                    <span className="font-mono ml-1">Q = −𝒜·S₀·𝒜⁻¹·S<sub>χ</sub></span>
+                    amplifies the "good" subspace.
+                  </li>
+                  <li>
+                    <span className="font-medium">Quantum Phase Estimation</span> on Q extracts
+                    <span className="font-mono ml-1">a = P(NPV &gt; 0)</span> with error
+                    <span className="font-mono ml-1">O(1/N)</span>.
+                  </li>
+                  <li>
+                    <span className="font-medium">Decode</span> → P10 / P50 / P90 NPV, IRR distribution, Payback.
+                  </li>
+                </ol>
+              </div>
+
+              <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/30">
+                <p className="text-xs font-mono uppercase tracking-wider text-amber-400 mb-1">
+                  Current implementation status
+                </p>
+                <p className="text-xs leading-relaxed">
+                  <span className="font-medium">CPU-emulated QAE</span> with deterministic seeded PRNG —
+                  reproducible and matches the O(1/N) convergence envelope. Roadmap (Phase II R&D):
+                  export circuits to Qiskit / CUDA-Q → run on NVIDIA cuQuantum (30+ qubit GPU sim) →
+                  real QPU on IBM Quantum / IonQ via AWS Braket for portfolio of 100+ wells.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
           <QuantumMonteCarloSimulation
             baseOilPrice={oilPrice}
             baseTreatmentCost={treatmentCost}
