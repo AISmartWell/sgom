@@ -649,8 +649,13 @@ import LearningPath from "@/components/ml-training/LearningPath";
                </CardContent>
              </Card>
            </div>
-         </TabsContent>
-       </Tabs>
+          </TabsContent>
+
+          {/* Learning Path Tab */}
+          <TabsContent value="learning-path">
+            <LearningPath />
+          </TabsContent>
+        </Tabs>
      </div>
    );
  };
