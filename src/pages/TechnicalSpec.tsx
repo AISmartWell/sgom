@@ -37,7 +37,7 @@ const TechnicalSpec = () => {
             </h1>
             <p className="text-muted-foreground mt-1">AI Smart Well Platform — Developer Specification</p>
           </div>
-          <Badge className="ml-auto text-xs" variant="outline">v4.0 — April 2026</Badge>
+          <Badge className="ml-auto text-xs" variant="outline">v4.1 — April 2026</Badge>
         </div>
 
         <Separator />
@@ -492,8 +492,47 @@ const TechnicalSpec = () => {
           </div>
         </Section>
 
-        {/* 13. Deployment */}
-        <Section icon={Wrench} title="13. Deployment & Running">
+        {/* 13. Core Thesis & RPS */}
+        <Section icon={Brain} title="13. Core Thesis — Restoration Potential Score (RPS)">
+          <p><strong>Mission:</strong> The platform's AI determines the <em>restoration potential</em> of a well — whether an idle, low-rate, or abandoned wellbore can be brought back into productive service instead of being plugged (P&A).</p>
+          <p><strong>Restoration Potential Score (RPS):</strong> A calibrated 0–100 score per well, computed as the final aggregation of all 9 pipeline stages. Phase I R&D target: ≥75% predictive accuracy on held-out wells with known production outcomes (200+ well validation set).</p>
+          <p><strong>Decision Framework:</strong> RPS output maps to a three-way recommendation:</p>
+          <ul className="list-disc pl-5 space-y-1">
+            <li><strong className="text-success">Restore</strong> — High RPS; SPT or alternative EOR justified.</li>
+            <li><strong className="text-warning">Monitor</strong> — Medium RPS; revisit after additional data acquisition.</li>
+            <li><strong className="text-destructive">P&A</strong> — Low RPS; recommend plug and abandon.</li>
+          </ul>
+          <p><strong>Audit Trail:</strong> Every recommendation ships with the full evidence chain — log curves, decline parameters, analog wells, CV findings, economic Monte Carlo bands.</p>
+          <p><strong>Reference Validation Well:</strong> Brawner 10-15 (API 42-467-30979) — used for end-to-end calibration of the RPS algorithm and Cosmos Predict fluid simulation.</p>
+        </Section>
+
+        {/* 14. Brawner 10-15 Timur Calculator */}
+        <Section icon={Beaker} title="14. Stage 8 — Brawner 10-15 Timur Permeability Calculator">
+          <p><strong>Location:</strong> <code className="text-primary">/modules/geophysical-expertise</code> → Step 7 (k Timur).</p>
+          <p><strong>Formula:</strong> Timur (1968) empirical permeability from porosity and irreducible water saturation:</p>
+          <p className="font-mono text-foreground bg-muted/30 p-2 rounded">k = 0.136 · φ<sup>4.4</sup> / S<sub>wirr</sub><sup>2</sup></p>
+          <p>where <code>k</code> is in mD, <code>φ</code> is effective porosity (fraction), and <code>S<sub>wirr</sub></code> is irreducible water saturation (fraction).</p>
+          <p><strong>Reference well inputs (Brawner 10-15):</strong></p>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>API: 42-467-30979</li>
+            <li>Effective porosity φ: derived from RHOB/NPHI cross-plot on uploaded LAS or formation default</li>
+            <li>S<sub>wirr</sub>: estimated from Archie Sw at irreducible conditions or formation default</li>
+          </ul>
+          <p><strong>Live calculator:</strong> User adjusts φ and S<sub>wirr</sub> sliders; UI recomputes k in real time alongside the static reference value for Brawner 10-15. Used for sanity-checking field interpretations against the calibrated baseline.</p>
+          <p><strong>Constraint:</strong> Imperial units throughout (depths in ft); k reported in millidarcies (mD).</p>
+        </Section>
+
+        {/* 15. Team */}
+        <Section icon={Shield} title="15. Team & Contributors">
+          <ul className="list-disc pl-5 space-y-1">
+            <li><strong className="text-foreground">Sergey Chuikin</strong> — Founder & CEO. Inventor of SPT (US Patent 8,863,823).</li>
+            <li><strong className="text-foreground">Usman Pervaiz</strong> — Software Developer · BS CS. Full-stack implementation, AI/ML integration (NVIDIA NIM, Cosmos, Lovable AI Gateway), edge function architecture.</li>
+            <li><strong className="text-foreground">NVIDIA Inception</strong> — Technology partner (Cosmos Predict / Transfer / Reason, NIM models).</li>
+          </ul>
+        </Section>
+
+        {/* 16. Deployment */}
+        <Section icon={Wrench} title="16. Deployment & Running">
           <div className="space-y-2">
             <p><strong>Dev Server:</strong> <code className="text-primary">npm run dev</code> (Vite, port 8080)</p>
             <p><strong>Build:</strong> <code className="text-primary">npm run build</code></p>
