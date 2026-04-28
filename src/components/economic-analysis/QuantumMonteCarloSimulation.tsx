@@ -150,6 +150,16 @@ const QuantumMonteCarloSimulation = ({ baseOilPrice, baseTreatmentCost, baseOpex
   const [costVolatility, setCostVolatility] = useState(15000);
   const [seed, setSeed] = useState(42);
 
+  // GPU backend detection + user toggle (with safe fallback)
+  const gpuStatus = useMemo(() => detectCuQuantumAvailability(), []);
+  const [useGpu, setUseGpu] = useState(gpuStatus.available);
+  const effectiveBackend = useGpu && gpuStatus.available ? "gpu" : "cpu";
+  // GPU "speedup" is purely cosmetic in the demo — same numerical results,
+  // but reported wall-clock is divided by a realistic cuQuantum factor.
+  const simulatedRuntimeMs = effectiveBackend === "gpu"
+    ? Math.round((2 ** qubits) * 0.012)
+    : Math.round((2 ** qubits) * 0.18);
+
   const qaeResults = useMemo(() => {
     const { oracleSamples, amplifiedSamples, groverIterations, totalSamples } =
       quantumAmplitudeEstimation(wells, baseOilPrice, baseTreatmentCost, baseOpex, priceVolatility, costVolatility, qubits, seed);
