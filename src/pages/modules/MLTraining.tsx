@@ -22,10 +22,12 @@
    Zap,
    CheckCircle2,
    AlertCircle,
-   BarChart3,
-   LineChart,
- } from "lucide-react";
- import { LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from "recharts";
+  BarChart3,
+  LineChart,
+  GraduationCap,
+} from "lucide-react";
+import { LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from "recharts";
+import LearningPath from "@/components/ml-training/LearningPath";
  
  // Mock training data
  const generateTrainingData = (epochs: number) => {
@@ -224,24 +226,28 @@
        </Card>
  
        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-         <TabsList className="grid grid-cols-4 w-full max-w-2xl">
-           <TabsTrigger value="data" className="flex items-center gap-2">
-             <Database className="h-4 w-4" />
-              Data
-           </TabsTrigger>
-           <TabsTrigger value="config" disabled={!dataUploaded} className="flex items-center gap-2">
-             <Cpu className="h-4 w-4" />
-              Configuration
-           </TabsTrigger>
-           <TabsTrigger value="training" disabled={!dataUploaded} className="flex items-center gap-2">
-             <Brain className="h-4 w-4" />
-              Training
-           </TabsTrigger>
-           <TabsTrigger value="results" disabled={!modelTrained} className="flex items-center gap-2">
-             <BarChart3 className="h-4 w-4" />
-              Results
-           </TabsTrigger>
-         </TabsList>
+        <TabsList className="grid grid-cols-5 w-full max-w-3xl">
+          <TabsTrigger value="data" className="flex items-center gap-2">
+            <Database className="h-4 w-4" />
+             Data
+          </TabsTrigger>
+          <TabsTrigger value="config" disabled={!dataUploaded} className="flex items-center gap-2">
+            <Cpu className="h-4 w-4" />
+             Configuration
+          </TabsTrigger>
+          <TabsTrigger value="training" disabled={!dataUploaded} className="flex items-center gap-2">
+            <Brain className="h-4 w-4" />
+             Training
+          </TabsTrigger>
+          <TabsTrigger value="results" disabled={!modelTrained} className="flex items-center gap-2">
+            <BarChart3 className="h-4 w-4" />
+             Results
+          </TabsTrigger>
+          <TabsTrigger value="learning-path" className="flex items-center gap-2">
+            <GraduationCap className="h-4 w-4" />
+             Learning Path
+          </TabsTrigger>
+        </TabsList>
  
          {/* Data Tab */}
          <TabsContent value="data" className="space-y-6">
@@ -643,8 +649,13 @@
                </CardContent>
              </Card>
            </div>
-         </TabsContent>
-       </Tabs>
+          </TabsContent>
+
+          {/* Learning Path Tab */}
+          <TabsContent value="learning-path">
+            <LearningPath />
+          </TabsContent>
+        </Tabs>
      </div>
    );
  };
