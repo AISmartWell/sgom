@@ -22,10 +22,12 @@
    Zap,
    CheckCircle2,
    AlertCircle,
-   BarChart3,
-   LineChart,
- } from "lucide-react";
- import { LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from "recharts";
+  BarChart3,
+  LineChart,
+  GraduationCap,
+} from "lucide-react";
+import { LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from "recharts";
+import LearningPath from "@/components/ml-training/LearningPath";
  
  // Mock training data
  const generateTrainingData = (epochs: number) => {
