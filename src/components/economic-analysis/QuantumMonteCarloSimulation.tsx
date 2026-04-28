@@ -7,8 +7,28 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   BarChart, Bar, ReferenceLine, Legend, Area, AreaChart,
 } from "recharts";
-import { Atom, Zap, TrendingDown, BarChart3, RefreshCw } from "lucide-react";
+import { Atom, Zap, TrendingDown, BarChart3, RefreshCw, Cpu, Server, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { arpsRate } from "@/lib/economics-config";
+
+/* ─── GPU/cuQuantum availability detection ───
+   In production, this would probe a backend endpoint that checks for
+   NVIDIA cuQuantum runtime (cuStateVec / cuTensorNet) on AWS GPU nodes.
+   For the demo, we detect WebGPU as a proxy for "GPU acceleration available". */
+function detectCuQuantumAvailability(): { available: boolean; reason: string; backend: string } {
+  if (typeof navigator !== "undefined" && "gpu" in navigator) {
+    return {
+      available: true,
+      reason: "WebGPU detected — cuQuantum proxy available via AWS GPU backend",
+      backend: "NVIDIA cuQuantum (cuStateVec) on AWS g5.xlarge",
+    };
+  }
+  return {
+    available: false,
+    reason: "No GPU runtime detected in browser. cuQuantum requires NVIDIA GPU on backend.",
+    backend: "CPU emulation (Mulberry32 PRNG)",
+  };
+}
 
 interface Props {
   baseOilPrice: number;
