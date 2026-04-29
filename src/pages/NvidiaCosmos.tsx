@@ -144,7 +144,16 @@ const NvidiaCosmos = () => {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="border-primary/30">
+            <Button
+              size="sm"
+              className="bg-primary hover:bg-primary/90"
+              onClick={() => navigate("/cosmos-simulator")}
+            >
+              <Sparkles className="h-4 w-4 mr-1" />
+              Open Simulator
+              <ArrowRight className="h-4 w-4 ml-1" />
+            </Button>
+            <Badge variant="outline" className="border-primary/30 hidden sm:flex">
               <Cpu className="h-3 w-3 mr-1" />
               NVIDIA Inception Member
             </Badge>
