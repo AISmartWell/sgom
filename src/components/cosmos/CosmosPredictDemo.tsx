@@ -4,6 +4,7 @@ import {
   Tooltip, AreaChart, Area,
 } from "recharts";
 import { useWellLogs } from "@/hooks/useWellLogs";
+import CosmosPredictExtras from "./CosmosPredictExtras";
 
 const BRAWNER_WELL_ID = "51e4b111-58ae-40d5-9b3d-fbec2ad9aaea";
 
