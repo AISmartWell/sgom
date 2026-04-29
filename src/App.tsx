@@ -57,6 +57,7 @@ import DiversifiedEnergyProposal from "./pages/DiversifiedEnergyProposal";
 import KazakhstanTemplate from "./pages/KazakhstanTemplate";
 import KazakhstanProcess from "./pages/KazakhstanProcess";
 import CosmosDemo from "./pages/CosmosDemo";
+import CosmosSimulatorPage from "./pages/CosmosSimulator";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import FluidPhysicsSimulation from "./pages/FluidPhysicsSimulation";
@@ -128,6 +129,7 @@ const App = () => (
              <Route path="/kazakhstan-template" element={<KazakhstanTemplate />} />
               <Route path="/kazakhstan-process" element={<KazakhstanProcess />} />
                <Route path="/cosmos-demo" element={<CosmosDemo />} />
+               <Route path="/cosmos-simulator" element={<CosmosSimulatorPage />} />
                <Route path="/fluid-simulation" element={<FluidPhysicsSimulation />} />
                <Route path="/innovation" element={<Innovation />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
