@@ -4,6 +4,7 @@ import {
   Tooltip, AreaChart, Area,
 } from "recharts";
 import { useWellLogs } from "@/hooks/useWellLogs";
+import CosmosPredictExtras from "./CosmosPredictExtras";
 
 const BRAWNER_WELL_ID = "51e4b111-58ae-40d5-9b3d-fbec2ad9aaea";
 
@@ -589,6 +590,17 @@ Return JSON: {"formation_name","formation_type","net_pay_ft","porosity_pct","wat
                   </div>
                 ))}
               </div>
+
+              {/* Cosmos Predict — fracture, drainage, water cut & timeline */}
+              <CosmosPredictExtras
+                upliftFactor={result.uplift_factor}
+                preBblDay={result.pre_spt_bbl_day}
+                postBblDay={result.post_spt_bbl_day}
+                initialWaterCut={result.water_saturation_pct}
+                sptTop={sptZone.top}
+                sptBottom={sptZone.bottom}
+                permeability={result.permeability_md}
+              />
 
               {/* Production curve */}
               <div style={{
