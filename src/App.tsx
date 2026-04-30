@@ -59,6 +59,7 @@ import KazakhstanProcess from "./pages/KazakhstanProcess";
 import CosmosDemo from "./pages/CosmosDemo";
 import CosmosSimulatorPage from "./pages/CosmosSimulator";
 import CosmosSimulatorEmbed from "./pages/CosmosSimulatorEmbed";
+import CosmosRealTest from "./pages/CosmosRealTest";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import FluidPhysicsSimulation from "./pages/FluidPhysicsSimulation";
@@ -132,6 +133,7 @@ const App = () => (
                <Route path="/cosmos-demo" element={<CosmosDemo />} />
                <Route path="/cosmos-simulator" element={<CosmosSimulatorPage />} />
                <Route path="/cosmos-simulator-embed" element={<CosmosSimulatorEmbed />} />
+               <Route path="/cosmos-real-test" element={<CosmosRealTest />} />
                <Route path="/fluid-simulation" element={<FluidPhysicsSimulation />} />
                <Route path="/innovation" element={<Innovation />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
