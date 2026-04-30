@@ -146,6 +146,15 @@ const NvidiaCosmos = () => {
           <div className="flex items-center gap-2">
             <Button
               size="sm"
+              variant="outline"
+              className="border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10"
+              onClick={() => navigate("/cosmos-real-test")}
+            >
+              <Sparkles className="h-4 w-4 mr-1" />
+              Real-Data Test
+            </Button>
+            <Button
+              size="sm"
               className="bg-primary hover:bg-primary/90"
               onClick={() => navigate("/cosmos-simulator")}
             >
