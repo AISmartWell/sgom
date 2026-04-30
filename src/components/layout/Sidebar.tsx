@@ -281,6 +281,12 @@ const menuItems = [
     href: "/nvidia-cosmos",
     badge: "🌐",
   },
+  {
+    title: "Cosmos Real-Data Test",
+    icon: Sparkles,
+    href: "/cosmos-real-test",
+    badge: "✨",
+  },
 ];
 
 interface SidebarProps {
