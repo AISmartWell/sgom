@@ -37,6 +37,7 @@ import {
   ShieldCheck,
   Zap,
   Globe,
+  Sparkles,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -280,6 +281,12 @@ const menuItems = [
     icon: Globe,
     href: "/nvidia-cosmos",
     badge: "🌐",
+  },
+  {
+    title: "Cosmos Real-Data Test",
+    icon: Sparkles,
+    href: "/cosmos-real-test",
+    badge: "✨",
   },
 ];
 
