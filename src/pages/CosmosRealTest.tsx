@@ -73,7 +73,7 @@ const CosmosRealTest = () => {
   const navigate = useNavigate();
   const [history, setHistory] = useState<ProductionRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showSPT, setShowSPT] = useState(false);
+  const [showSPT, setShowSPT] = useState(true);
 
   useEffect(() => {
     (async () => {
