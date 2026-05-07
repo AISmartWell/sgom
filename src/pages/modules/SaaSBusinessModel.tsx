@@ -79,6 +79,90 @@ const advantages = [
   { title: "Dual Revenue Streams", description: "SaaS revenue (high margin, recurring) + SPT service revenue (project-based).", stat: "80%+", statLabel: "SaaS gross margin" },
 ];
 
+const revenueTiers = [
+  {
+    name: "Explorer",
+    mrr: "$3,200",
+    wells: "Up to 10 / mo",
+    arpu: "$350",
+    expansion: "20%",
+    ltv: "$12,600",
+    cacPayback: "4 months",
+    churn: "< 12%",
+    icon: Database,
+    accent: "muted",
+  },
+  {
+    name: "Professional",
+    mrr: "$9,600",
+    wells: "Up to 50 / mo",
+    arpu: "$200",
+    expansion: "35%",
+    ltv: "$51,200",
+    cacPayback: "3 months",
+    churn: "< 8%",
+    icon: Rocket,
+    accent: "primary",
+  },
+  {
+    name: "Enterprise",
+    mrr: "$24,000+",
+    wells: "Unlimited",
+    arpu: "$120",
+    expansion: "50%",
+    ltv: "$144,000+",
+    cacPayback: "2 months",
+    churn: "< 5%",
+    icon: Building2,
+    accent: "accent",
+  },
+];
+
+const moatItems = [
+  {
+    title: "Patented SPT Technology",
+    description: "US Patent 8,863,823 for Slot Perforation Technology. Proprietary EOR method with proven 2-3x production uplift.",
+    icon: Shield,
+    stat: "US 8,863,823",
+    statLabel: "granted patent",
+  },
+  {
+    title: "NVIDIA Cosmos AI Stack",
+    description: "Predict-Transfer-Reason pipeline powered by NVIDIA DGX H100. Cross-modal fusion of CV, geophysics and economics.",
+    icon: Cpu,
+    stat: "10-100x",
+    statLabel: "faster inference",
+  },
+  {
+    title: "9-Stage Analysis Pipeline",
+    description: "End-to-end workflow from field scanning to EOR optimization. No competitor covers all stages in a single platform.",
+    icon: Layers,
+    stat: "9 stages",
+    statLabel: "integrated pipeline",
+  },
+  {
+    title: "Real-Time Data Fusion",
+    description: "Satellite + drone + wireline + production history merged into unified Digital Twin. Real-time anomaly detection.",
+    icon: Globe,
+    stat: "4 sources",
+    statLabel: "fused in real time",
+  },
+  {
+    title: "Slot-Based Economics",
+    description: "Per-well SaaS pricing aligns customer success with vendor revenue. Natural expansion as clients grow.",
+    icon: PiggyBank,
+    stat: "80%+",
+    statLabel: "gross margin",
+  },
+  {
+    title: "Regulatory & ESG Ready",
+    description: "Built-in EPA reporting, methane detection via drone, and automated compliance documentation.",
+    icon: Award,
+    stat: "EPA",
+    statLabel: "reporting ready",
+  },
+];
+
 /* ── sections ── */
 const HeroSection = () => {
   const { ref, isVisible } = useScrollReveal(0.1);
