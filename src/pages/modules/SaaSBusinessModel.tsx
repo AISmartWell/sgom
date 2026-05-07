@@ -164,6 +164,58 @@ const moatItems = [
   },
 ];
 
+const droneTiers = [
+  {
+    name: "Drone Survey Add-on",
+    desc: "Autonomous flight plan + data processing (GeoTIFF, thermal orthomosaic)",
+    price: "$800",
+    unit: "/well",
+    target: "Operators, regulators",
+    icon: Plane,
+    highlight: false,
+    features: ["Autonomous waypoint generation", "GeoTIFF + RGB orthomosaic", "Basic anomaly detection", "48-hr turnaround"],
+  },
+  {
+    name: "Environmental Compliance Pack",
+    desc: "Methane plume report + EPA Subpart W data package",
+    price: "$1,500",
+    unit: "/well",
+    target: "DOI, EPA programs",
+    icon: Wind,
+    highlight: true,
+    features: ["CH₄ / CH₂ plume mapping", "EPA-ready submission data", "Thermal hot-spot segmentation", "Regulatory documentation"],
+  },
+  {
+    name: "Full Site Digital Twin",
+    desc: "3D orthomosaic + AI Smart Well subsurface model + fusion score",
+    price: "$3,200",
+    unit: "/well",
+    target: "State agencies, PE firms",
+    icon: Satellite,
+    highlight: false,
+    features: ["Subsurface + surface fusion", "Cross-modal attention scoring", "3D point cloud overlay", "State/Federal preset configs"],
+  },
+  {
+    name: "Ongoing Monitoring (IoT)",
+    desc: "Quarterly drone rescan + anomaly alert subscription",
+    price: "$200",
+    unit: "/well/mo",
+    target: "All segments",
+    icon: Activity,
+    highlight: false,
+    features: ["Quarterly autonomous rescan", "Real-time anomaly alerts", "Trend degradation tracking", "API webhook notifications"],
+  },
+];
+
+const droneCompare = [
+  { cap: "Subsurface analysis", trad: "Manual / slow", base: "AI-automated", drone: "AI-automated" },
+  { cap: "Surface condition assessment", trad: "Manual walkdown", base: "—", drone: "Autonomous drone" },
+  { cap: "Methane emission mapping", trad: "Rarely done", base: "—", drone: "Gas sensor + AI" },
+  { cap: "Cost per well assessment", trad: "$4,200+", base: "$500–800", drone: "$500–800" },
+  { cap: "Time per well", trad: "3–5 days", base: "Minutes", drone: "Minutes + 1 hr flight" },
+  { cap: "Regulatory report generation", trad: "Manual", base: "Partial", drone: "Automated package" },
+];
+
 /* ── sections ── */
 const HeroSection = () => {
   const { ref, isVisible } = useScrollReveal(0.1);
