@@ -659,6 +659,8 @@ const DroneComparisonSection = () => {
 
 /* ── main page ── */
 const SaaSBusinessModel = () => {
+  const [pricingMode, setPricingMode] = useState<"saas" | "drone">("saas");
+
   return (
     <div className="p-8 max-w-7xl mx-auto">
       <div className="mb-6">
@@ -668,13 +670,52 @@ const SaaSBusinessModel = () => {
         </Link>
       </div>
       <HeroSection />
-      <PricingSection />
-      <RevenueTiersSection />
+
+      {/* Pricing mode toggle */}
+      <div className="flex justify-center my-8">
+        <div className="inline-flex items-center gap-1 rounded-full border border-border bg-secondary/50 p-1">
+          <button
+            type="button"
+            onClick={() => setPricingMode("saas")}
+            className={`inline-flex items-center gap-2 px-5 py-2 rounded-full text-sm font-semibold transition-all ${
+              pricingMode === "saas"
+                ? "bg-primary text-primary-foreground shadow"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Database className="h-4 w-4" />
+            SaaS Pricing
+          </button>
+          <button
+            type="button"
+            onClick={() => setPricingMode("drone")}
+            className={`inline-flex items-center gap-2 px-5 py-2 rounded-full text-sm font-semibold transition-all ${
+              pricingMode === "drone"
+                ? "bg-primary text-primary-foreground shadow"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Plane className="h-4 w-4" />
+            Drone Pricing
+          </button>
+        </div>
+      </div>
+
+      {pricingMode === "saas" ? (
+        <>
+          <PricingSection />
+          <RevenueTiersSection />
+        </>
+      ) : (
+        <>
+          <DronePricingSection />
+          <DroneComparisonSection />
+        </>
+      )}
+
       <UnitEconomicsLab />
       <RevenueSection />
       <WhyHybridSection />
-      <DronePricingSection />
-      <DroneComparisonSection />
       <CompetitiveMoatSection />
     </div>
   );
