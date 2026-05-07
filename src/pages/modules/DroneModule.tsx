@@ -212,6 +212,9 @@ const DroneModule = () => {
             </CardContent>
           </Card>
 
+          {/* Visual architecture diagram */}
+          <ArchitectureDiagram />
+
           {/* Tech architecture */}
           <div className="grid md:grid-cols-3 gap-3">
             <Card>
