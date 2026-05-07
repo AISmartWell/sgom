@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import ArchitectureDiagram from "@/components/drone/ArchitectureDiagram";
 import {
   Plane,
   Satellite,
@@ -210,6 +211,9 @@ const DroneModule = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Visual architecture diagram */}
+          <ArchitectureDiagram />
 
           {/* Tech architecture */}
           <div className="grid md:grid-cols-3 gap-3">
