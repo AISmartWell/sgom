@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 import {
   ArrowLeft, Check, Database, Rocket, Building2, Droplets, Brain,
   Shield, Cpu, Globe, Zap, Award, TrendingUp, Users, Layers, Crown,
-  ChevronRight, BarChart4, PiggyBank,
+  ChevronRight, BarChart4, PiggyBank, Plane, FileText, Activity,
+  Satellite, Wind, XCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -161,6 +162,58 @@ const moatItems = [
     stat: "EPA",
     statLabel: "reporting ready",
   },
+];
+
+const droneTiers = [
+  {
+    name: "Drone Survey Add-on",
+    desc: "Autonomous flight plan + data processing (GeoTIFF, thermal orthomosaic)",
+    price: "$800",
+    unit: "/well",
+    target: "Operators, regulators",
+    icon: Plane,
+    highlight: false,
+    features: ["Autonomous waypoint generation", "GeoTIFF + RGB orthomosaic", "Basic anomaly detection", "48-hr turnaround"],
+  },
+  {
+    name: "Environmental Compliance Pack",
+    desc: "Methane plume report + EPA Subpart W data package",
+    price: "$1,500",
+    unit: "/well",
+    target: "DOI, EPA programs",
+    icon: Wind,
+    highlight: true,
+    features: ["CH₄ / CH₂ plume mapping", "EPA-ready submission data", "Thermal hot-spot segmentation", "Regulatory documentation"],
+  },
+  {
+    name: "Full Site Digital Twin",
+    desc: "3D orthomosaic + AI Smart Well subsurface model + fusion score",
+    price: "$3,200",
+    unit: "/well",
+    target: "State agencies, PE firms",
+    icon: Satellite,
+    highlight: false,
+    features: ["Subsurface + surface fusion", "Cross-modal attention scoring", "3D point cloud overlay", "State/Federal preset configs"],
+  },
+  {
+    name: "Ongoing Monitoring (IoT)",
+    desc: "Quarterly drone rescan + anomaly alert subscription",
+    price: "$200",
+    unit: "/well/mo",
+    target: "All segments",
+    icon: Activity,
+    highlight: false,
+    features: ["Quarterly autonomous rescan", "Real-time anomaly alerts", "Trend degradation tracking", "API webhook notifications"],
+  },
+];
+
+const droneCompare = [
+  { cap: "Subsurface analysis", trad: "Manual / slow", base: "AI-automated", drone: "AI-automated" },
+  { cap: "Surface condition assessment", trad: "Manual walkdown", base: "—", drone: "Autonomous drone" },
+  { cap: "Methane emission mapping", trad: "Rarely done", base: "—", drone: "Gas sensor + AI" },
+  { cap: "Cost per well assessment", trad: "$4,200+", base: "$500–800", drone: "$500–800" },
+  { cap: "Time per well", trad: "3–5 days", base: "Minutes", drone: "Minutes + 1 hr flight" },
+  { cap: "Regulatory report generation", trad: "Manual", base: "Partial", drone: "Automated package" },
 ];
 
 /* ── sections ── */
@@ -480,6 +533,130 @@ const CompetitiveMoatSection = () => {
   );
 };
 
+const DronePricingSection = () => {
+  const { ref, isVisible } = useScrollReveal();
+  return (
+    <section ref={ref} className={`py-16 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
+      <div className="mb-12 space-y-4">
+        <div className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary/50 px-4 py-1.5 text-sm text-muted-foreground">
+          <Plane className="h-4 w-4 text-primary" />
+          Drone Inspection Module
+        </div>
+        <h2 className="text-3xl md:text-4xl font-bold">Drone Service Pricing</h2>
+        <p className="text-muted-foreground text-lg max-w-2xl">
+          Above-ground + below-ground assessment pipeline. Add drone data to any tier for surface condition, methane mapping, and 3D site digital twin.
+        </p>
+      </div>
+
+      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {droneTiers.map((tier) => (
+          <div
+            key={tier.name}
+            className={`relative rounded-xl border p-5 flex flex-col transition-all hover:scale-[1.02] ${
+              tier.highlight ? "bg-card border-primary shadow-lg shadow-primary/10" : "bg-card border-border"
+            }`}
+          >
+            {tier.highlight && (
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-accent text-accent-foreground px-4 py-0.5 text-xs font-bold tracking-wide">
+                MOST POPULAR
+              </div>
+            )}
+            <div className="flex items-center gap-3 mb-4">
+              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${tier.highlight ? "bg-primary/10" : "bg-secondary"}`}>
+                <tier.icon className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <h3 className="text-xs font-bold tracking-[0.15em] text-muted-foreground">{tier.name.toUpperCase()}</h3>
+              </div>
+            </div>
+
+            <div className="mb-4">
+              <span className="text-3xl font-bold text-foreground">{tier.price}</span>
+              <span className="text-muted-foreground text-sm">{tier.unit}</span>
+            </div>
+            <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{tier.desc}</p>
+
+            <div className="space-y-2 flex-1">
+              {tier.features.map((f) => (
+                <div key={f} className="flex items-start gap-2 text-sm">
+                  <Check className="w-3.5 h-3.5 text-primary mt-0.5 shrink-0" />
+                  <span className="text-secondary-foreground">{f}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-4 pt-3 border-t border-border">
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{tier.target}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-6 bg-gradient-to-r from-primary/10 via-secondary/30 to-accent/10 rounded-xl border border-border p-5 flex flex-col md:flex-row md:items-center gap-4">
+        <div className="flex-1">
+          <h4 className="text-sm font-bold text-foreground mb-1">TAM Expansion</h4>
+          <p className="text-sm text-muted-foreground">
+            500,000 priority orphaned wells × $800 average drone survey = $400M+ serviceable market before Environmental Compliance and Digital Twin tiers.
+          </p>
+        </div>
+        <div className="shrink-0 bg-card rounded-lg border border-border px-5 py-3 text-center">
+          <div className="text-2xl font-bold text-primary">$400M+</div>
+          <div className="text-xs text-muted-foreground">drone TAM addition</div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const DroneComparisonSection = () => {
+  const { ref, isVisible } = useScrollReveal();
+  return (
+    <section ref={ref} className={`py-16 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
+      <div className="mb-8 space-y-4">
+        <div className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary/50 px-4 py-1.5 text-sm text-muted-foreground">
+          <Shield className="h-4 w-4 text-primary" />
+          Competitive Position
+        </div>
+        <h2 className="text-3xl md:text-4xl font-bold">Drone Competitive Comparison</h2>
+        <p className="text-muted-foreground text-lg max-w-2xl">
+          How AI Smart Well + Drone stacks up against traditional consultants and our base subsurface-only platform.
+        </p>
+      </div>
+
+      <div className="bg-card rounded-xl border border-border overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="border-b border-border bg-card/40">
+              <tr className="text-left text-xs uppercase tracking-wider text-muted-foreground">
+                <th className="py-3 px-4">Capability</th>
+                <th className="py-3 px-4">Traditional Consultants</th>
+                <th className="py-3 px-4">AI Smart Well (Pre-Drone)</th>
+                <th className="py-3 px-4 text-primary">AI Smart Well + Drone</th>
+              </tr>
+            </thead>
+            <tbody>
+              {droneCompare.map((c) => (
+                <tr key={c.cap} className="border-b border-border/40 last:border-0">
+                  <td className="py-3 px-4 font-medium text-foreground">{c.cap}</td>
+                  <td className="py-3 px-4 text-muted-foreground">{c.trad}</td>
+                  <td className="py-3 px-4 text-muted-foreground">
+                    {c.base === "—" ? <span className="inline-flex items-center gap-1 text-red-400"><XCircle className="h-3.5 w-3.5" /> Not offered</span> : c.base}
+                  </td>
+                  <td className="py-3 px-4 text-foreground font-medium">
+                    <span className="inline-flex items-center gap-1 text-emerald-400">
+                      <Check className="h-3.5 w-3.5" /> {c.drone}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  );
+};
+
 /* ── main page ── */
 const SaaSBusinessModel = () => {
   return (
@@ -496,6 +673,8 @@ const SaaSBusinessModel = () => {
       <UnitEconomicsLab />
       <RevenueSection />
       <WhyHybridSection />
+      <DronePricingSection />
+      <DroneComparisonSection />
       <CompetitiveMoatSection />
     </div>
   );
