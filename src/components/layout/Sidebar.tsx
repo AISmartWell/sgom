@@ -38,6 +38,7 @@ import {
   Zap,
   Globe,
   Sparkles,
+  Plane,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -287,6 +288,12 @@ const menuItems = [
     icon: Sparkles,
     href: "/cosmos-real-test",
     badge: "✨",
+  },
+  {
+    title: "Drone Module",
+    icon: Plane,
+    href: "/dashboard/drone-module",
+    badge: "🚁",
   },
 ];
 
