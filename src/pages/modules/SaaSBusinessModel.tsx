@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Check, Database, Rocket, Building2, Droplets, Brain } from "lucide-react";
+import {
+  ArrowLeft, Check, Database, Rocket, Building2, Droplets, Brain,
+  Shield, Cpu, Globe, Zap, Award, TrendingUp, Users, Layers, Crown,
+  ChevronRight, BarChart4, PiggyBank,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
@@ -73,6 +77,90 @@ const advantages = [
   { title: "Predictable + Scalable Revenue", description: "Monthly subscriptions provide a stable revenue floor. Per-well fees grow naturally.", stat: "70/30", statLabel: "subscription/usage split" },
   { title: "Aligned Incentives", description: "Clients succeed → they analyze more wells → our revenue grows. Natural upsell.", stat: "3x", statLabel: "avg. tier upgrade in 18 mo" },
   { title: "Dual Revenue Streams", description: "SaaS revenue (high margin, recurring) + SPT service revenue (project-based).", stat: "80%+", statLabel: "SaaS gross margin" },
+];
+
+const revenueTiers = [
+  {
+    name: "Explorer",
+    mrr: "$3,200",
+    wells: "Up to 10 / mo",
+    arpu: "$350",
+    expansion: "20%",
+    ltv: "$12,600",
+    cacPayback: "4 months",
+    churn: "< 12%",
+    icon: Database,
+    accent: "muted",
+  },
+  {
+    name: "Professional",
+    mrr: "$9,600",
+    wells: "Up to 50 / mo",
+    arpu: "$200",
+    expansion: "35%",
+    ltv: "$51,200",
+    cacPayback: "3 months",
+    churn: "< 8%",
+    icon: Rocket,
+    accent: "primary",
+  },
+  {
+    name: "Enterprise",
+    mrr: "$24,000+",
+    wells: "Unlimited",
+    arpu: "$120",
+    expansion: "50%",
+    ltv: "$144,000+",
+    cacPayback: "2 months",
+    churn: "< 5%",
+    icon: Building2,
+    accent: "accent",
+  },
+];
+
+const moatItems = [
+  {
+    title: "Patented SPT Technology",
+    description: "US Patent 8,863,823 for Slot Perforation Technology. Proprietary EOR method with proven 2-3x production uplift.",
+    icon: Shield,
+    stat: "US 8,863,823",
+    statLabel: "granted patent",
+  },
+  {
+    title: "NVIDIA Cosmos AI Stack",
+    description: "Predict-Transfer-Reason pipeline powered by NVIDIA DGX H100. Cross-modal fusion of CV, geophysics and economics.",
+    icon: Cpu,
+    stat: "10-100x",
+    statLabel: "faster inference",
+  },
+  {
+    title: "9-Stage Analysis Pipeline",
+    description: "End-to-end workflow from field scanning to EOR optimization. No competitor covers all stages in a single platform.",
+    icon: Layers,
+    stat: "9 stages",
+    statLabel: "integrated pipeline",
+  },
+  {
+    title: "Real-Time Data Fusion",
+    description: "Satellite + drone + wireline + production history merged into unified Digital Twin. Real-time anomaly detection.",
+    icon: Globe,
+    stat: "4 sources",
+    statLabel: "fused in real time",
+  },
+  {
+    title: "Slot-Based Economics",
+    description: "Per-well SaaS pricing aligns customer success with vendor revenue. Natural expansion as clients grow.",
+    icon: PiggyBank,
+    stat: "80%+",
+    statLabel: "gross margin",
+  },
+  {
+    title: "Regulatory & ESG Ready",
+    description: "Built-in EPA reporting, methane detection via drone, and automated compliance documentation.",
+    icon: Award,
+    stat: "EPA",
+    statLabel: "reporting ready",
+  },
 ];
 
 /* ── sections ── */
@@ -228,6 +316,170 @@ const WhyHybridSection = () => {
   );
 };
 
+const RevenueTiersSection = () => {
+  const { ref, isVisible } = useScrollReveal();
+  return (
+    <section ref={ref} className={`py-16 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
+      <div className="mb-12 space-y-4">
+        <div className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary/50 px-4 py-1.5 text-sm text-muted-foreground">
+          <BarChart4 className="h-4 w-4 text-primary" />
+          Unit Economics by Tier
+        </div>
+        <h2 className="text-3xl md:text-4xl font-bold">Revenue Tiers</h2>
+        <p className="text-muted-foreground text-lg max-w-2xl">
+          Detailed monetization profile per customer tier. Professional tier drives the majority of ARR growth through expansion revenue.
+        </p>
+      </div>
+
+      <div className="grid md:grid-cols-3 gap-6">
+        {revenueTiers.map((tier) => (
+          <div
+            key={tier.name}
+            className={`relative rounded-xl border p-6 flex flex-col transition-all hover:scale-[1.02] ${
+              tier.accent === "primary" ? "bg-card border-primary shadow-lg shadow-primary/10" : "bg-card border-border"
+            }`}
+          >
+            {tier.accent === "primary" && (
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-accent text-accent-foreground px-4 py-0.5 text-xs font-bold tracking-wide">
+                TOP GROWTH DRIVER
+              </div>
+            )}
+            <div className="flex items-center gap-3 mb-6">
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${tier.accent === "primary" ? "bg-primary/10" : "bg-secondary"}`}>
+                <tier.icon className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold tracking-[0.15em] text-muted-foreground">{tier.name.toUpperCase()}</h3>
+                <p className="text-2xl font-bold text-foreground">{tier.mrr}<span className="text-sm font-normal text-muted-foreground">/mo</span></p>
+              </div>
+            </div>
+
+            <div className="space-y-3 flex-1">
+              {[
+                { label: "Well Volume", value: tier.wells },
+                { label: "ARPU (per well)", value: tier.arpu },
+                { label: "Expansion Rate", value: tier.expansion },
+                { label: "Est. LTV", value: tier.ltv },
+                { label: "CAC Payback", value: tier.cacPayback },
+                { label: "Annual Churn", value: tier.churn },
+              ].map((row) => (
+                <div key={row.label} className="flex justify-between items-center py-2 border-b border-border/40 last:border-0">
+                  <span className="text-sm text-muted-foreground">{row.label}</span>
+                  <span className="text-sm font-semibold text-foreground">{row.value}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6 pt-4 border-t border-border">
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span>Annual run-rate</span>
+                <span className="font-bold text-primary">
+                  {tier.mrr.replace("+", "").replace(",", "") === "$3200"
+                    ? "$38.4K"
+                    : tier.mrr.replace("+", "").replace(",", "") === "$9600"
+                    ? "$115.2K"
+                    : "$288K+"}
+                </span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-8 bg-secondary/50 rounded-xl border border-border p-6">
+        <h4 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
+          <TrendingUp className="h-4 w-4 text-primary" />
+          Revenue Mix Hypothesis
+        </h4>
+        <div className="grid md:grid-cols-3 gap-4">
+          <div className="bg-card rounded-lg border border-border p-4">
+            <p className="text-xs text-muted-foreground mb-1">Year 1 Mix</p>
+            <div className="h-2 bg-muted rounded-full overflow-hidden mb-2">
+              <div className="h-full bg-primary w-[60%]" />
+            </div>
+            <p className="text-sm font-medium">60% Subscription / 40% Per-Well</p>
+          </div>
+          <div className="bg-card rounded-lg border border-border p-4">
+            <p className="text-xs text-muted-foreground mb-1">Year 2 Mix</p>
+            <div className="h-2 bg-muted rounded-full overflow-hidden mb-2">
+              <div className="h-full bg-primary w-[45%]" />
+            </div>
+            <p className="text-sm font-medium">45% Subscription / 55% Per-Well</p>
+          </div>
+          <div className="bg-card rounded-lg border border-border p-4">
+            <p className="text-xs text-muted-foreground mb-1">Year 3 Mix</p>
+            <div className="h-2 bg-muted rounded-full overflow-hidden mb-2">
+              <div className="h-full bg-primary w-[35%]" />
+            </div>
+            <p className="text-sm font-medium">35% Subscription / 65% Per-Well</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const CompetitiveMoatSection = () => {
+  const { ref, isVisible } = useScrollReveal();
+  return (
+    <section ref={ref} className={`py-16 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
+      <div className="mb-12 space-y-4">
+        <div className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary/50 px-4 py-1.5 text-sm text-muted-foreground">
+          <Shield className="h-4 w-4 text-primary" />
+          Defensible Position
+        </div>
+        <h2 className="text-3xl md:text-4xl font-bold">Competitive Moat</h2>
+        <p className="text-muted-foreground text-lg max-w-2xl">
+          Six interconnected barriers make the AI Smart Well platform difficult to replicate and expensive to displace once deployed.
+        </p>
+      </div>
+
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {moatItems.map((item) => (
+          <div
+            key={item.title}
+            className="group relative bg-card rounded-xl border border-border p-6 transition-all hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5"
+          >
+            <div className="flex items-start gap-4 mb-4">
+              <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center shrink-0 group-hover:bg-primary/10 transition-colors">
+                <item.icon className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-foreground leading-tight">{item.title}</h3>
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+              {item.description}
+            </p>
+            <div className="flex items-center justify-between pt-4 border-t border-border/50">
+              <div>
+                <div className="text-xl font-bold text-primary">{item.stat}</div>
+                <div className="text-xs text-muted-foreground">{item.statLabel}</div>
+              </div>
+              <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-8 bg-gradient-to-r from-primary/10 via-secondary/30 to-accent/10 rounded-xl border border-border p-6">
+        <div className="flex flex-col md:flex-row md:items-center gap-6">
+          <div className="flex-1">
+            <h4 className="text-lg font-bold text-foreground mb-2">Switching Cost Effect</h4>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Once a client&rsquo;s historical well data, trained ML models, and digital twins are hosted on the platform, migration costs exceed $200K in re-training and re-integration. This creates natural account stickiness and pricing power.
+            </p>
+          </div>
+          <div className="shrink-0 bg-card rounded-lg border border-border px-6 py-4 text-center">
+            <div className="text-3xl font-bold text-primary">&gt;$200K</div>
+            <div className="text-xs text-muted-foreground">estimated switch cost</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
 /* ── main page ── */
 const SaaSBusinessModel = () => {
   return (
@@ -240,9 +492,11 @@ const SaaSBusinessModel = () => {
       </div>
       <HeroSection />
       <PricingSection />
+      <RevenueTiersSection />
       <UnitEconomicsLab />
       <RevenueSection />
       <WhyHybridSection />
+      <CompetitiveMoatSection />
     </div>
   );
 };
