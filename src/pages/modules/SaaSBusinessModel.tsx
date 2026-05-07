@@ -673,6 +673,8 @@ const SaaSBusinessModel = () => {
       <UnitEconomicsLab />
       <RevenueSection />
       <WhyHybridSection />
+      <DronePricingSection />
+      <DroneComparisonSection />
       <CompetitiveMoatSection />
     </div>
   );
