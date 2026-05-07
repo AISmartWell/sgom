@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Check, Database, Rocket, Building2, Droplets, Brain } from "lucide-react";
+import {
+  ArrowLeft, Check, Database, Rocket, Building2, Droplets, Brain,
+  Shield, Cpu, Globe, Zap, Award, TrendingUp, Users, Layers, Crown,
+  ChevronRight, BarChart4, PiggyBank,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
