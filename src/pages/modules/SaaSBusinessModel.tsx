@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 import {
   ArrowLeft, Check, Database, Rocket, Building2, Droplets, Brain,
   Shield, Cpu, Globe, Zap, Award, TrendingUp, Users, Layers, Crown,
-  ChevronRight, BarChart4, PiggyBank,
+  ChevronRight, BarChart4, PiggyBank, Plane, FileText, Activity,
+  Satellite, Wind,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
