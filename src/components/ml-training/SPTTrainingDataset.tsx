@@ -338,6 +338,7 @@ const SEED_RECORDS: SPTRecord[] = [
     ],
   },
   {
+    id: "REDMAN-D-1",
     wellId: "REDMAN D #1 (API 142090023639)",
     source: "Maxxwell Production Inc. · SPT Cut Program TX-001 (Jan 29, 2014)",
     operator: "Rocking R Drilling & Prod (028853) · Client: ReduxEnergy",
