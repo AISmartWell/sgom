@@ -84,6 +84,7 @@ const SEED_RECORDS: SPTRecord[] = [
       { label: "Chevron Wolverine Procedure", url: "/training-data/spt/JTM_1093W_S202_Wolverine_Procedure.docx", type: "docx" },
       { label: "MAXXWELL Full SPT Program (35 pages, TX-098)", url: "/training-data/spt/Program_199JTM1093W.doc", type: "doc" },
       { label: "Wedge Wireline CN/CDL + Injection Profile (1989)", url: "/training-data/spt/Logging199JTM1093W.pdf", type: "pdf" },
+    ],
     status: "treated",
   },
   {
