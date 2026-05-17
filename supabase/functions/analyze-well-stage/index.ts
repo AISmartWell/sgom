@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { SPT_CASE_LIBRARY, CITATION_RULES } from "../_shared/spt-case-library.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -716,13 +717,19 @@ serve(async (req) => {
 
     const userContent = `Pre-calculated metrics for ${stageKey} stage:\n${computed.context}\n\nWell: ${wellDescription}\n\nProvide your DETAILED expert assessment based on the data above. Be specific, reference the actual numbers, and give actionable insights. Write 4-8 sentences.`;
 
+    // Inject SPT case library + citation rules for stages where it adds value
+    const SPT_AWARE_STAGES = new Set(["core_analysis", "spt_projection", "economic", "eor"]);
+    const augmentedSystem = SPT_AWARE_STAGES.has(stageKey)
+      ? `${verdictPrompt}\n\n${SPT_CASE_LIBRARY}\n\n${CITATION_RULES}`
+      : verdictPrompt;
+
     const aiPayload = {
       model: "google/gemini-2.5-flash",
       messages: [
-        { role: "system", content: verdictPrompt },
+        { role: "system", content: augmentedSystem },
         { role: "user", content: userContent },
       ],
-      max_tokens: 500,
+      max_tokens: SPT_AWARE_STAGES.has(stageKey) ? 900 : 500,
     };
 
     let aiResponse: Response | null = null;
