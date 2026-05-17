@@ -68,6 +68,7 @@ import ResetPassword from "./pages/ResetPassword";
 import FluidPhysicsSimulation from "./pages/FluidPhysicsSimulation";
 import Innovation from "./pages/Innovation";
 import AlbertaPetrel from "./pages/modules/AlbertaPetrel";
+import AdminImport from "./pages/modules/AdminImport";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -144,6 +145,7 @@ const App = () => (
                <Route path="/fluid-simulation" element={<FluidPhysicsSimulation />} />
                <Route path="/innovation" element={<Innovation />} />
                <Route path="/alberta-petrel" element={<AlbertaPetrel />} />
+               <Route path="/admin/import" element={<AdminImport />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
           <Route path="*" element={<NotFound />} />
