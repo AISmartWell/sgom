@@ -41,6 +41,13 @@ export type SPTRecord = {
   documents: { label: string; url: string; type: "pdf" | "docx" | "doc" | "xlsm" | "xlsx" | "jpg" | "gif" }[];
 };
 
+// Master Service Order (CUSA × Maxxwell, Sept 2015) — applies to all Chevron MCBU pilot wells (JTM 1093W, JTM 1606W, SE Matthews #10)
+const MASTER_SERVICE_ORDER = {
+  label: "CUSA × Maxxwell Master Service Order DRAFT (Sept 17, 2015)",
+  url: "/training-data/spt/CUSA_Maxxwell_Service_Order_DRAFT_2015.docx",
+  type: "docx" as const,
+};
+
 // Parsed from real Chevron / MAXXWELL files for well JTM 1093W
 const SEED_RECORDS: SPTRecord[] = [
   {
@@ -284,6 +291,50 @@ const SEED_RECORDS: SPTRecord[] = [
         url: "/training-data/spt/Admiralty_Pinto_02-01-002-05W2_HSP_Program.docx",
         type: "docx",
       },
+    ],
+  },
+  {
+    id: "SE-MATTHEWS-10",
+    wellId: "SE Matthews #10",
+    source: "Chevron USA · MCBU Pilot Program (Service Order CWxxx, Oct 2015 – Mar 2016)",
+    operator: "Chevron U.S.A. Inc. (Mid-Continent BU) · Contractor: Maxxwell Production, LLC",
+    field: "Chevron MCBU",
+    county: "—",
+    stateCode: "TX",
+    formation: "Pay zone ~6400–6500 ft (AIT-H / Density-Neutron log, Main Pass)",
+    bhpPsi: 0,
+    fluidPpg: 0,
+    pbtdFt: 6500,
+    injPackerFt: 0,
+    existingPerfs: { from: 6400, to: 6500 },
+    totalDepth: 6500,
+    casingOD: 5.5,
+    casingID: 4.95,
+    tubingOD: 2.88,
+    pressurePsi: 0,
+    slurryRateBblMin: 0,
+    sandConcentrationPpg: 0,
+    nitrogenPct: 0,
+    speedMmMin: 4.5,
+    intervals: [
+      { from: 6400, to: 6500 }, // candidate zone from Schlumberger AIT-H / DPHI-NPHI log
+    ],
+    netSlotsFt: 0,
+    grossSlotsFt: 0,
+    drainageAreaFt2: 0,
+    rockVolumeFt3: 0,
+    rockWeightTons: 0,
+    totalLossesPsi: 0,
+    nozzlesDifferentialPsi: 0,
+    status: "candidate",
+    notes:
+      "One of 5 designated pilot wells under the CUSA × Maxxwell Master Service Order (Sept 2015). Program window 10/1/2015 – 3/31/2016. Contractor responsible for hydro-slotting review of well logs to determine downhole intervals for continuous moving-jet slotting perforation. Engineer: Anatoli Nikouline (Maxxwell CEO). Schlumberger Main-Pass log (SP/GR/RWA, AIT-H 10–90\", DPHI/NPHI, DRHO, DCAL) covers casing shoe ~1000 ft down to TD; pay zone identified at ~6400–6500 ft. Wellbore Diagram template (SE_Matthews_10_WBDs.xlsx) provided but tubular/cement details not yet populated.",
+    documents: [
+      MASTER_SERVICE_ORDER,
+      { label: "SE Matthews #10 — Schlumberger log with header", url: "/training-data/spt/SE_Matthews_10_Log_with_Header.pdf", type: "pdf" },
+      { label: "SE Matthews #10 — Wellbore Diagram template (XLSX)", url: "/training-data/spt/SE_Matthews_10_WBDs.xlsx", type: "xlsx" },
+      { label: "Maxxwell EFT Form (payment setup, PDF)", url: "/training-data/spt/Maxxwell_EFT_Form.pdf", type: "pdf" },
+      { label: "Maxxwell EFT Form (payment setup, DOC)", url: "/training-data/spt/Maxxwell_EFT_Form.doc", type: "doc" },
     ],
   },
   {
