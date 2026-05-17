@@ -26,15 +26,35 @@ export type SPTRecord = {
   rockWeightTons: number;
   totalLossesPsi: number;
   nozzlesDifferentialPsi: number;
-  pdfUrl: string;
+  operator?: string;
+  field?: string;
+  county?: string;
+  stateCode?: string;
+  formation?: string;
+  bhpPsi?: number;
+  fluidPpg?: number;
+  pbtdFt?: number;
+  injPackerFt?: number;
+  existingPerfs?: { from: number; to: number };
+  documents: { label: string; url: string; type: "pdf" | "docx" }[];
 };
 
-// Parsed from 199JTM1093W.pdf (MAXXWELL PRODUCTION HSP/SPT report)
+// Parsed from real Chevron / MAXXWELL files for well JTM 1093W
 const SEED_RECORDS: SPTRecord[] = [
   {
-    id: "199JTM1093W",
-    wellId: "199JTM1093W",
-    source: "MAXXWELL Production · HSP report",
+    id: "JTM-1093W",
+    wellId: "JTM 1093W S202",
+    source: "Chevron Wolverine Project · MAXXWELL HSP",
+    operator: "Chevron USA Inc. (Mid-Continent BU)",
+    field: "McElroy FMT",
+    county: "Crane",
+    stateCode: "TX",
+    formation: "Grayburg",
+    bhpPsi: 800,
+    fluidPpg: 5.7,
+    pbtdFt: 3120,
+    injPackerFt: 2600,
+    existingPerfs: { from: 2766, to: 2951 },
     totalDepth: 3150,
     casingOD: 5.5,
     casingID: 4.95,
@@ -45,15 +65,10 @@ const SEED_RECORDS: SPTRecord[] = [
     nitrogenPct: 15,
     speedMmMin: 4.5,
     intervals: [
-      { from: 2848, to: 2849.5 },
-      { from: 2846, to: 2847.5 },
-      { from: 2844, to: 2845.5 },
-      { from: 2791, to: 2792 },
-      { from: 2789, to: 2790.5 },
-      { from: 2787, to: 2788.5 },
-      { from: 2779, to: 2780 },
-      { from: 2777, to: 2778.5 },
-      { from: 2775, to: 2776.5 },
+      { from: 2775, to: 2780 },
+      { from: 2787, to: 2792 },
+      { from: 2865, to: 2875 },
+      { from: 2890, to: 2900 },
     ],
     netSlotsFt: 12.5,
     grossSlotsFt: 74.5,
@@ -62,7 +77,10 @@ const SEED_RECORDS: SPTRecord[] = [
     rockWeightTons: 0.58,
     totalLossesPsi: 904,
     nozzlesDifferentialPsi: 4393,
-    pdfUrl: "/training-data/spt/199JTM1093W.pdf",
+    documents: [
+      { label: "MAXXWELL HSP report (199JTM1093W)", url: "/training-data/spt/199JTM1093W.pdf", type: "pdf" },
+      { label: "Chevron Wolverine Procedure", url: "/training-data/spt/JTM_1093W_S202_Wolverine_Procedure.docx", type: "docx" },
+    ],
   },
 ];
 
