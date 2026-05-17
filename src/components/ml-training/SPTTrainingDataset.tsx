@@ -36,6 +36,8 @@ export type SPTRecord = {
   pbtdFt?: number;
   injPackerFt?: number;
   existingPerfs?: { from: number; to: number };
+  status?: "treated" | "candidate";
+  notes?: string;
   documents: { label: string; url: string; type: "pdf" | "docx" | "doc" }[];
 };
 
@@ -82,6 +84,53 @@ const SEED_RECORDS: SPTRecord[] = [
       { label: "Chevron Wolverine Procedure", url: "/training-data/spt/JTM_1093W_S202_Wolverine_Procedure.docx", type: "docx" },
       { label: "MAXXWELL Full SPT Program (35 pages, TX-098)", url: "/training-data/spt/Program_199JTM1093W.doc", type: "doc" },
       { label: "Wedge Wireline CN/CDL + Injection Profile (1989)", url: "/training-data/spt/Logging199JTM1093W.pdf", type: "pdf" },
+    status: "treated",
+  },
+  {
+    id: "FCL-WORKMAN-HZ",
+    wellId: "FCL Workman Hz 3B13-20/4B10-19-1-31W1M",
+    source: "Federated Co-operatives Ltd · R.W. Shirkie Geological Consultants",
+    operator: "Federated Co-operatives Limited",
+    field: "Workman",
+    county: "Sec 20, Twp 1, Rge 31 W1M",
+    stateCode: "SK",
+    formation: "Sherwood Porosity (Mississippian)",
+    bhpPsi: 0,
+    fluidPpg: 8.96, // KCl mud 1075 kg/m³
+    pbtdFt: 5413, // 1650 m MD
+    injPackerFt: 0,
+    existingPerfs: { from: 4354, to: 5413 }, // lateral 1327–1650 m → 4354–5413 ft
+    totalDepth: 5413, // 1650 m MD = 5413 ft / TVD 3898 ft
+    casingOD: 9.625, // 244.5 mm surface csg
+    casingID: 9, // 228.6 mm ID
+    tubingOD: 0,
+    pressurePsi: 0,
+    slurryRateBblMin: 0,
+    sandConcentrationPpg: 0,
+    nitrogenPct: 0,
+    speedMmMin: 0,
+    intervals: [
+      // Lateral reservoir sections (m MD → ft)
+      { from: 4495, to: 4839 }, // 1370–1475 m: Fair (105 m)
+      { from: 4888, to: 5249 }, // 1490–1600 m: Poor-Fair (110 m)
+      { from: 5249, to: 5495 }, // 1600–1675 m: Poor (75 m)
+    ],
+    netSlotsFt: 0,
+    grossSlotsFt: 0,
+    drainageAreaFt2: 0,
+    rockVolumeFt3: 0,
+    rockWeightTons: 0,
+    totalLossesPsi: 0,
+    nozzlesDifferentialPsi: 0,
+    status: "candidate",
+    notes:
+      "Horizontal well, 325 m lateral. Target: Sherwood Porosity. Reservoir quality: 105 m Fair + 110 m Poor-Fair + 75 m Poor + 15 m Very Poor + 20 m Non-Poor. SPT candidate — not yet treated.",
+    documents: [
+      {
+        label: "R.W. Shirkie Geological Report (FCL Workman Hz, 2011)",
+        url: "/training-data/spt/9-19hz_Workman_Hz_Geological_Report.pdf",
+        type: "pdf",
+      },
     ],
   },
 ];
