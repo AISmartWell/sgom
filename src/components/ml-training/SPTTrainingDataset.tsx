@@ -328,13 +328,21 @@ const SEED_RECORDS: SPTRecord[] = [
     nozzlesDifferentialPsi: 0,
     status: "candidate",
     notes:
-      "One of 5 designated pilot wells under the CUSA × Maxxwell Master Service Order (Sept 2015). Program window 10/1/2015 – 3/31/2016. Contractor responsible for hydro-slotting review of well logs to determine downhole intervals for continuous moving-jet slotting perforation. Engineer: Anatoli Nikouline (Maxxwell CEO). Schlumberger Main-Pass log (SP/GR/RWA, AIT-H 10–90\", DPHI/NPHI, DRHO, DCAL) covers casing shoe ~1000 ft down to TD; pay zone identified at ~6400–6500 ft. Wellbore Diagram template (SE_Matthews_10_WBDs.xlsx) provided but tubular/cement details not yet populated.",
+      "One of 5 designated pilot wells under the CUSA × Maxxwell Master Service Order (Sept 2015). Program window 10/1/2015 – 3/31/2016. Contractor responsible for hydro-slotting review of well logs to determine downhole intervals for continuous moving-jet slotting perforation. Engineer: Anatoli Nikouline (Maxxwell CEO). Schlumberger Main-Pass log (SP/GR/RWA, AIT-H 10–90\", DPHI/NPHI, DRHO, DCAL) covers casing shoe ~1000 ft down to TD; pay zone identified at ~6400–6500 ft. Wellbore Diagram template (SE_Matthews_10_WBDs.xlsx) provided but tubular/cement details not yet populated. Vendor onboarding: Chevron Vendor Taxability Assessment package signed by A. Nikouline (CEO Maxxwell Production LLC, US entity) on Oct 10, 2015 — all services performed outside California, no withholding required.",
     documents: [
       MASTER_SERVICE_ORDER,
       { label: "SE Matthews #10 — Schlumberger log with header", url: "/training-data/spt/SE_Matthews_10_Log_with_Header.pdf", type: "pdf" },
       { label: "SE Matthews #10 — Wellbore Diagram template (XLSX)", url: "/training-data/spt/SE_Matthews_10_WBDs.xlsx", type: "xlsx" },
       { label: "Maxxwell EFT Form (payment setup, PDF)", url: "/training-data/spt/Maxxwell_EFT_Form.pdf", type: "pdf" },
       { label: "Maxxwell EFT Form (payment setup, DOC)", url: "/training-data/spt/Maxxwell_EFT_Form.doc", type: "doc" },
+      // Chevron Vendor Taxability Assessment package (signed by Anatoli Nikouline, CEO Maxxwell, Oct 10, 2015)
+      { label: "Chevron Vendor Taxability — Notice to Payees", url: "/training-data/spt/Chevron_Vendor_Taxability_Notice.pdf", type: "pdf" },
+      { label: "Chevron Vendor Taxability — Notice (alt copy)", url: "/training-data/spt/Chevron_Vendor_Taxability_Notice_p1.pdf", type: "pdf" },
+      { label: "Chevron Vendor Taxability — Form p2 (Maxxwell, blank)", url: "/training-data/spt/Chevron_Vendor_Taxability_Form_p2_Maxxwell_blank.pdf", type: "pdf" },
+      { label: "Chevron Vendor Taxability — Form p3 Guide to Forms (PDF)", url: "/training-data/spt/Chevron_Vendor_Taxability_Form_p3_GuideToForms.pdf", type: "pdf" },
+      { label: "Chevron Vendor Taxability — Form p3 Guide to Forms (DOCX)", url: "/training-data/spt/Chevron_Vendor_Taxability_Form_p3_GuideToForms.docx", type: "docx" },
+      { label: "Chevron Vendor Taxability — Form p2 SIGNED (Maxxwell, US LLC, services outside CA)", url: "/training-data/spt/Chevron_Vendor_Taxability_Form_Maxxwell_signed_p2.pdf", type: "pdf" },
+      { label: "Chevron Vendor Taxability — Form p3 SIGNED by A. Nikouline, CEO (Oct 10, 2015)", url: "/training-data/spt/Chevron_Vendor_Taxability_Form_Maxxwell_signed_p3.pdf", type: "pdf" },
     ],
   },
   {
