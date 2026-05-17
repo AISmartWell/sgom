@@ -341,9 +341,16 @@ import SPTTrainingDataset from "@/components/ml-training/SPTTrainingDataset";
                    </div>
                  )}
                </CardContent>
-             </Card>
-           </div>
-         </TabsContent>
+            </Card>
+          </div>
+
+          <SPTTrainingDataset
+            onIngest={() => {
+              setDataUploaded(true);
+              toast.success("SPT records added — data tab unlocked.");
+            }}
+          />
+        </TabsContent>
  
          {/* Config Tab */}
          <TabsContent value="config" className="space-y-6">
