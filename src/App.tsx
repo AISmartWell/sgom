@@ -21,6 +21,7 @@ import AIAnalyst from "./AIAnalyst";
 import CoreAnalysis from "./pages/modules/CoreAnalysis";
 import RealtimeDashboard from "./pages/modules/RealtimeDashboard";
 import LiveWellCardDemo from "./pages/modules/LiveWellCardDemo";
+import WellLiveDashboard from "./pages/modules/WellLiveDashboard";
 import EOROptimization from "./pages/modules/EOROptimization";
   import MLTraining from "./pages/modules/MLTraining";
 import GeophysicalExpertise from "./pages/modules/GeophysicalExpertise";
@@ -95,7 +96,8 @@ const App = () => (
             <Route path="reports" element={<Reports />} />
             <Route path="core-analysis" element={<CoreAnalysis />} />
             <Route path="realtime" element={<RealtimeDashboard />} />
-            <Route path="live-well-card" element={<LiveWellCardDemo />} />
+           <Route path="live-well-card" element={<LiveWellCardDemo />} />
+            <Route path="well-live-dashboard" element={<WellLiveDashboard />} />
             <Route path="telemetry-architecture" element={<TelemetryArchitecture />} />
             <Route path="eor-optimization" element={<EOROptimization />} />
              <Route path="ml-training" element={<MLTraining />} />
