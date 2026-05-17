@@ -134,6 +134,111 @@ const SEED_RECORDS: SPTRecord[] = [
       },
     ],
   },
+  {
+    id: "BARRACUDA-PINTO-03-04",
+    wellId: "Barracuda Pinto 03-04-002-03W2 (74G003)",
+    source: "Admiralty Oils Ltd · MAXXWELL HSP Program SK-003 (Dec 2013)",
+    operator: "Admiralty Oils Ltd.",
+    field: "Pinto",
+    county: "Sec 04 Twp 002 Rge 03W2",
+    stateCode: "SK",
+    formation: "Midale / Frobisher",
+    bhpPsi: 0,
+    fluidPpg: 9.43, // 1130 kg/m³ gel chemical
+    pbtdFt: 5200, // TVD 1584 m
+    injPackerFt: 4948, // 1508.2 m installation point
+    existingPerfs: { from: 5024, to: 5069 }, // 1531.5–1545.3 m
+    totalDepth: 5200,
+    casingOD: 4.5,
+    casingID: 4.09,
+    tubingOD: 2.88,
+    pressurePsi: 6019, // 41.5 MPa peak
+    slurryRateBblMin: 12.2, // 1.94 m³/min
+    sandConcentrationPpg: 0.25,
+    nitrogenPct: 0,
+    speedMmMin: 4.5,
+    intervals: [
+      // Top 8 cutting intervals from program (1531.5–1545.3 m → ft)
+      { from: 5024, to: 5026 }, // 1531.5–1532.0 m
+      { from: 5037, to: 5039 }, // 1535.6–1536.2 m approx
+      { from: 5054, to: 5057 }, // 1540.5–1541.5 m approx
+      { from: 5066, to: 5069 }, // 1545.0–1545.3 m
+    ],
+    netSlotsFt: 2.95, // 0.9 m total cut
+    grossSlotsFt: 45,
+    drainageAreaFt2: 138,
+    rockVolumeFt3: 4.2,
+    rockWeightTons: 0.33,
+    totalLossesPsi: 850,
+    nozzlesDifferentialPsi: 4100,
+    status: "candidate",
+    notes:
+      "41-stage HSP program. 22 tons abrasive (2 nozzles) or 44 tons (4 nozzles). Working pressure 27.5–41.5 MPa, slurry rate 0.6–1.94 m³/min. Correlated with offset well 07-27-004-07W2. Engineer: Anatoli Nikouline.",
+    documents: [
+      {
+        label: "MAXXWELL HSP Program SK-003 (Barracuda Pinto, PDF)",
+        url: "/training-data/spt/Barracuda_Pinto_03-04-002-03W2_HSP_Program.pdf",
+        type: "pdf",
+      },
+      {
+        label: "MAXXWELL HSP Program SK-003 (Barracuda Pinto, DOCX)",
+        url: "/training-data/spt/Barracuda_Pinto_03-04-002-03W2_HSP_Program.docx",
+        type: "docx",
+      },
+    ],
+  },
+  {
+    id: "ADMIRALTY-PINTO-02-01",
+    wellId: "Admiralty Pinto 02-01-002-05W2 (84E372)",
+    source: "Admiralty Oils Ltd · MAXXWELL HSP Program SK-003 (Dec 2013)",
+    operator: "Admiralty Oils Ltd.",
+    field: "Pinto",
+    county: "Sec 01 Twp 002 Rge 05W2",
+    stateCode: "SK",
+    formation: "Midale / Frobisher",
+    bhpPsi: 0,
+    fluidPpg: 9.43, // 1130 kg/m³
+    pbtdFt: 5249, // plug 1600 m
+    injPackerFt: 5204, // 1586.2 m
+    existingPerfs: { from: 5204, to: 5241 }, // 1586.2–1597.5 m treatment
+    totalDepth: 5417, // 1651 m
+    casingOD: 4.5,
+    casingID: 4.09,
+    tubingOD: 2.88,
+    pressurePsi: 6019, // 41.5 MPa
+    slurryRateBblMin: 12.2, // 1.94 m³/min
+    sandConcentrationPpg: 0.25,
+    nitrogenPct: 0,
+    speedMmMin: 4.5,
+    intervals: [
+      // Treatment 1586.2–1597.5 m, total 11.8 m of cuts across several sub-intervals
+      { from: 5204, to: 5215 }, // 1586.2–1589.5 m
+      { from: 5220, to: 5228 }, // 1591.0–1593.5 m
+      { from: 5233, to: 5241 }, // 1595.0–1597.5 m
+    ],
+    netSlotsFt: 38.7, // 11.8 m total
+    grossSlotsFt: 121,
+    drainageAreaFt2: 365,
+    rockVolumeFt3: 11.2,
+    rockWeightTons: 0.89,
+    totalLossesPsi: 920,
+    nozzlesDifferentialPsi: 4300,
+    status: "candidate",
+    notes:
+      "Treatment interval 1586.2–1597.5 m (11.8 m total). 27 tons sand (2 nozzles) or 54 tons (4 nozzles). Working pressure 27.5–41.5 MPa, slurry rate 0.3–1.94 m³/min. BHT 60°C. Plug at 1600 m, sump 2.0 m — attention required. Working time ~30 hours. Engineer: Anatoli Nikouline.",
+    documents: [
+      {
+        label: "MAXXWELL HSP Program SK-003 (Admiralty Pinto, PDF)",
+        url: "/training-data/spt/Admiralty_Pinto_02-01-002-05W2_HSP_Program.pdf",
+        type: "pdf",
+      },
+      {
+        label: "MAXXWELL HSP Program SK-003 (Admiralty Pinto, DOCX)",
+        url: "/training-data/spt/Admiralty_Pinto_02-01-002-05W2_HSP_Program.docx",
+        type: "docx",
+      },
+    ],
+  },
 ];
 
 interface Props {
