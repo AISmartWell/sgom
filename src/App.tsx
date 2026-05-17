@@ -96,7 +96,8 @@ const App = () => (
             <Route path="reports" element={<Reports />} />
             <Route path="core-analysis" element={<CoreAnalysis />} />
             <Route path="realtime" element={<RealtimeDashboard />} />
-            <Route path="live-well-card" element={<LiveWellCardDemo />} />
+           <Route path="live-well-card" element={<LiveWellCardDemo />} />
+            <Route path="well-live-dashboard" element={<WellLiveDashboard />} />
             <Route path="telemetry-architecture" element={<TelemetryArchitecture />} />
             <Route path="eor-optimization" element={<EOROptimization />} />
              <Route path="ml-training" element={<MLTraining />} />
