@@ -36,7 +36,7 @@ export type SPTRecord = {
   pbtdFt?: number;
   injPackerFt?: number;
   existingPerfs?: { from: number; to: number };
-  documents: { label: string; url: string; type: "pdf" | "docx" }[];
+  documents: { label: string; url: string; type: "pdf" | "docx" | "doc" }[];
 };
 
 // Parsed from real Chevron / MAXXWELL files for well JTM 1093W
@@ -80,6 +80,7 @@ const SEED_RECORDS: SPTRecord[] = [
     documents: [
       { label: "MAXXWELL HSP report (199JTM1093W)", url: "/training-data/spt/199JTM1093W.pdf", type: "pdf" },
       { label: "Chevron Wolverine Procedure", url: "/training-data/spt/JTM_1093W_S202_Wolverine_Procedure.docx", type: "docx" },
+      { label: "MAXXWELL Full SPT Program (35 pages, TX-098)", url: "/training-data/spt/Program_199JTM1093W.doc", type: "doc" },
     ],
   },
 ];
