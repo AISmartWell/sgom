@@ -729,7 +729,7 @@ serve(async (req) => {
         { role: "system", content: augmentedSystem },
         { role: "user", content: userContent },
       ],
-      max_tokens: 500,
+      max_tokens: SPT_AWARE_STAGES.has(stageKey) ? 900 : 500,
     };
 
     let aiResponse: Response | null = null;
