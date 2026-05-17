@@ -172,7 +172,31 @@ const SPTTrainingDataset = ({ onIngest }: Props) => {
           ))}
         </div>
 
-        {/* Detail */}
+        {/* Well context */}
+        {(selected.operator || selected.field) && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {selected.operator && <Metric label="Operator" value={selected.operator} />}
+            {selected.field && <Metric label="Field" value={selected.field} />}
+            {selected.county && (
+              <Metric label="County / State" value={`${selected.county}, ${selected.stateCode ?? ""}`} />
+            )}
+            {selected.formation && <Metric label="Formation" value={selected.formation} />}
+            {selected.bhpPsi !== undefined && <Metric label="BHP" value={`${selected.bhpPsi} psi`} />}
+            {selected.fluidPpg !== undefined && <Metric label="Fluid Gradient" value={`${selected.fluidPpg} ppg`} />}
+            {selected.pbtdFt !== undefined && <Metric label="PBTD" value={`${selected.pbtdFt} ft`} />}
+            {selected.injPackerFt !== undefined && (
+              <Metric label="Inj. Packer" value={`${selected.injPackerFt} ft`} />
+            )}
+            {selected.existingPerfs && (
+              <Metric
+                label="Existing Perfs"
+                value={`${selected.existingPerfs.from}–${selected.existingPerfs.to} ft`}
+              />
+            )}
+          </div>
+        )}
+
+        {/* HSP parameters */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2">
           <Metric label="Total Depth" value={`${selected.totalDepth} ft`} />
           <Metric label="Casing OD / ID" value={`${selected.casingOD}" / ${selected.casingID}"`} />
@@ -201,19 +225,27 @@ const SPTTrainingDataset = ({ onIngest }: Props) => {
           </div>
         </div>
 
-        <div className="flex items-center justify-between pt-2 border-t">
-          <span className="text-xs text-muted-foreground">
-            Source PDF preserved for audit trail
-          </span>
-          <a
-            href={selected.pdfUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs text-primary hover:underline flex items-center gap-1"
-          >
-            <FileText className="h-3 w-3" />
-            Open {selected.id}.pdf
-          </a>
+        <div className="pt-2 border-t space-y-2">
+          <p className="text-xs font-medium text-muted-foreground">
+            Source documents ({selected.documents.length})
+          </p>
+          <div className="flex flex-wrap gap-3">
+            {selected.documents.map((doc) => (
+              <a
+                key={doc.url}
+                href={doc.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-primary hover:underline flex items-center gap-1"
+              >
+                <FileText className="h-3 w-3" />
+                {doc.label}
+                <Badge variant="outline" className="text-[9px] uppercase ml-1">
+                  {doc.type}
+                </Badge>
+              </a>
+            ))}
+          </div>
         </div>
       </CardContent>
     </Card>
