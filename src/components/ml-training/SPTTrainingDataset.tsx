@@ -38,7 +38,7 @@ export type SPTRecord = {
   existingPerfs?: { from: number; to: number };
   status?: "treated" | "candidate";
   notes?: string;
-  documents: { label: string; url: string; type: "pdf" | "docx" | "doc" | "xlsm" | "xlsx" }[];
+  documents: { label: string; url: string; type: "pdf" | "docx" | "doc" | "xlsm" | "xlsx" | "jpg" | "gif" }[];
 };
 
 // Parsed from real Chevron / MAXXWELL files for well JTM 1093W
@@ -284,6 +284,65 @@ const SEED_RECORDS: SPTRecord[] = [
         url: "/training-data/spt/Admiralty_Pinto_02-01-002-05W2_HSP_Program.docx",
         type: "docx",
       },
+    ],
+  },
+  {
+    id: "REDMAN-D-1",
+    wellId: "REDMAN D #1 (API 142090023639)",
+    source: "Maxxwell Production Inc. · SPT Cut Program TX-001 (Jan 29, 2014)",
+    operator: "Rocking R Drilling & Prod (028853) · Client: ReduxEnergy",
+    field: "Wes Poteet",
+    county: "Montague",
+    stateCode: "TX",
+    formation: "Granite Wash 2670 (Pennsylvanian)",
+    bhpPsi: 0,
+    fluidPpg: 8.34, // fresh water + friction reducer
+    pbtdFt: 2959,
+    injPackerFt: 0,
+    existingPerfs: { from: 2670, to: 2685 },
+    totalDepth: 2959,
+    casingOD: 5.5,
+    casingID: 4.95,
+    tubingOD: 2.88,
+    pressurePsi: 6019, // 41.5 MPa peak
+    slurryRateBblMin: 5.5,
+    sandConcentrationPpg: 0.25,
+    nitrogenPct: 0,
+    speedMmMin: 4.5,
+    intervals: [
+      // 12 cuts from program — top section near 2651–2676 ft (Layers 1-2 + analogues 4-7)
+      { from: 2651.5, to: 2653.14 },
+      { from: 2674.5, to: 2676.14 },
+    ],
+    netSlotsFt: 3.28, // 1 m total cuts × 12 stages ≈ 3.3 ft net
+    grossSlotsFt: 25,
+    drainageAreaFt2: 95,
+    rockVolumeFt3: 2.9,
+    rockWeightTons: 0.23,
+    totalLossesPsi: 870,
+    nozzlesDifferentialPsi: 4200,
+    status: "treated",
+    notes:
+      "Vertical oil well, TD 2959 ft, perfs 2670-2685 ft (Granite Wash). Cum: 33,470 BBL oil / 251 MCF gas / 100,636 BBL water since 1984. Residual oil reserves estimated 30-40%. SPT program TX-001 by Anatoli Nikouline (Maxxwell) for ReduxEnergy: 20 tons abrasive (2 nozzles) or 40 tons (4 nozzles), working pressure 27.5–41.5 MPa. Water tank 19.5 m³ / cutting tank 10 m³. Layers 1-2 main targets, layers 4-7 are analogues by GIS. Lift 3 ft between cuts. Stops not permitted during slurry circulation.",
+    documents: [
+      { label: "Maxxwell SPT Cut Program TX-001 (REDMAN D #1)", url: "/training-data/spt/REDMAN_D_1_API142090023639_Cut_Program.pdf", type: "pdf" },
+      { label: "Surface equipment schematic (JPG)", url: "/training-data/spt/equipment/Surface.jpg", type: "jpg" },
+      { label: "Surface equipment animation (GIF)", url: "/training-data/spt/equipment/Surface.gif", type: "gif" },
+      { label: "Process diagram", url: "/training-data/spt/equipment/process-1.jpg", type: "jpg" },
+      { label: "Perforator — 3 nozzles", url: "/training-data/spt/equipment/Perforator-3-nozzles.pdf", type: "pdf" },
+      { label: "Perforator — 4 nozzles", url: "/training-data/spt/equipment/Perforator-4-nozzles.pdf", type: "pdf" },
+      { label: "Perforator — 4 nozzles (alt)", url: "/training-data/spt/equipment/Perforator-4-noz.pdf", type: "pdf" },
+      { label: "Centralizer Type 1", url: "/training-data/spt/equipment/Centralizer-1.pdf", type: "pdf" },
+      { label: "Centralizer Type 2", url: "/training-data/spt/equipment/Centralizer-2.pdf", type: "pdf" },
+      { label: "Support A", url: "/training-data/spt/equipment/Support-A.pdf", type: "pdf" },
+      { label: "Support B", url: "/training-data/spt/equipment/Support-B.pdf", type: "pdf" },
+      { label: "Support 1 (balls)", url: "/training-data/spt/equipment/Support-1(balls).pdf", type: "pdf" },
+      { label: "Support 2 (balls)", url: "/training-data/spt/equipment/Support-2(balls).pdf", type: "pdf" },
+      { label: "Temperature-Pressure-Cutting chart", url: "/training-data/spt/equipment/Temperature-Pressure-Cutting.jpg", type: "jpg" },
+      { label: "Cutting speed — 4 mm/min", url: "/training-data/spt/equipment/Cutting-Speed-4-mm-per-min.jpg", type: "jpg" },
+      { label: "Fracturing diagram", url: "/training-data/spt/equipment/Fracturing.jpg", type: "jpg" },
+      { label: "Hydro-slotting thesis (Stanford/ETD 2003)", url: "/training-data/spt/equipment/etd-01242003-103649-1.pdf", type: "pdf" },
+      { label: "Hydro-slotting thesis (DOCX)", url: "/training-data/spt/equipment/etd-01242003-103649-1.docx", type: "docx" },
     ],
   },
 ];
