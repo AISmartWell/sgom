@@ -38,7 +38,7 @@ export type SPTRecord = {
   existingPerfs?: { from: number; to: number };
   status?: "treated" | "candidate";
   notes?: string;
-  documents: { label: string; url: string; type: "pdf" | "docx" | "doc" }[];
+  documents: { label: string; url: string; type: "pdf" | "docx" | "doc" | "xlsm" | "xlsx" }[];
 };
 
 // Parsed from real Chevron / MAXXWELL files for well JTM 1093W
@@ -84,8 +84,14 @@ const SEED_RECORDS: SPTRecord[] = [
       { label: "Chevron Wolverine Procedure", url: "/training-data/spt/JTM_1093W_S202_Wolverine_Procedure.docx", type: "docx" },
       { label: "MAXXWELL Full SPT Program (35 pages, TX-098)", url: "/training-data/spt/Program_199JTM1093W.doc", type: "doc" },
       { label: "Wedge Wireline CN/CDL + Injection Profile (1989)", url: "/training-data/spt/Logging199JTM1093W.pdf", type: "pdf" },
+      { label: "Silagina GIS Pre-Treatment Recommendation (19.11.2015)", url: "/training-data/spt/JTM1093W_Silagina_GIS_Report_2015.docx", type: "docx" },
+      { label: "Fig.1 — GIS log (GR/Caliper/Thermogram)", url: "/training-data/spt/JTM1093W_Fig1_GIS.pdf", type: "pdf" },
+      { label: "Fig.2 — Well correlation scheme", url: "/training-data/spt/JTM1093W_Fig2_Correlation.pdf", type: "pdf" },
+      { label: "MAXXWELL v2 Procedure Workbook (XLSM)", url: "/training-data/spt/JTM1093W_S202_Wolverine_Maxxwellv2.xlsm", type: "xlsm" },
     ],
     status: "treated",
+    notes:
+      "Pre-treatment GIS analysis by geophysicist T.V. Silagina (Chevron, Nov 2015) identified pay zones in Formation E (2761-2820 ft) and D5 (2826-2910 ft). Main fluid-receiving interval 2890-2956 ft. Recommended SPT intervals: E (2761-2793, 2798-2802, 2813-2820 ft) and D5 (2843-2854, 2861-2869, 2875-2910 ft).",
   },
   {
     id: "FCL-WORKMAN-HZ",
