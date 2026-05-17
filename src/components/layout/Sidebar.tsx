@@ -146,6 +146,12 @@ const menuItems = [
     badge: "📡",
   },
   {
+    title: "Well Live Dashboard",
+    icon: Activity,
+    href: "/dashboard/well-live-dashboard",
+    badge: "🟢",
+  },
+  {
     title: "Telemetry Architecture",
     icon: Activity,
     href: "/dashboard/telemetry-architecture",
