@@ -328,7 +328,7 @@ const SEED_RECORDS: SPTRecord[] = [
     nozzlesDifferentialPsi: 0,
     status: "candidate",
     notes:
-      "One of 5 designated pilot wells under the CUSA × Maxxwell Master Service Order (Sept 2015). Program window 10/1/2015 – 3/31/2016. Contractor responsible for hydro-slotting review of well logs to determine downhole intervals for continuous moving-jet slotting perforation. Engineer: Anatoli Nikouline (Maxxwell CEO). Schlumberger Main-Pass log (SP/GR/RWA, AIT-H 10–90\", DPHI/NPHI, DRHO, DCAL) covers casing shoe ~1000 ft down to TD; pay zone identified at ~6400–6500 ft. Wellbore Diagram template (SE_Matthews_10_WBDs.xlsx) provided but tubular/cement details not yet populated.",
+      "One of 5 designated pilot wells under the CUSA × Maxxwell Master Service Order (Sept 2015). Program window 10/1/2015 – 3/31/2016. Contractor responsible for hydro-slotting review of well logs to determine downhole intervals for continuous moving-jet slotting perforation. Engineer: Anatoli Nikouline (Maxxwell CEO). Schlumberger Main-Pass log (SP/GR/RWA, AIT-H 10–90\", DPHI/NPHI, DRHO, DCAL) covers casing shoe ~1000 ft down to TD; pay zone identified at ~6400–6500 ft. Wellbore Diagram template (SE_Matthews_10_WBDs.xlsx) provided but tubular/cement details not yet populated. Vendor onboarding: Chevron Vendor Taxability Assessment package signed by A. Nikouline (CEO Maxxwell Production LLC, US entity) on Oct 10, 2015 — all services performed outside California, no withholding required.",
     documents: [
       MASTER_SERVICE_ORDER,
       { label: "SE Matthews #10 — Schlumberger log with header", url: "/training-data/spt/SE_Matthews_10_Log_with_Header.pdf", type: "pdf" },
