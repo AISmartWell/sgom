@@ -21,6 +21,7 @@ import AIAnalyst from "./AIAnalyst";
 import CoreAnalysis from "./pages/modules/CoreAnalysis";
 import RealtimeDashboard from "./pages/modules/RealtimeDashboard";
 import LiveWellCardDemo from "./pages/modules/LiveWellCardDemo";
+import WellLiveDashboard from "./pages/modules/WellLiveDashboard";
 import EOROptimization from "./pages/modules/EOROptimization";
   import MLTraining from "./pages/modules/MLTraining";
 import GeophysicalExpertise from "./pages/modules/GeophysicalExpertise";
