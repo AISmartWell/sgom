@@ -212,12 +212,20 @@ const SPTTrainingDataset = ({ onIngest }: Props) => {
                 <span className="font-mono text-sm font-medium">{r.wellId}</span>
               </div>
               <p className="text-xs text-muted-foreground">{r.source}</p>
-              <div className="flex gap-1 mt-2">
+              <div className="flex flex-wrap gap-1 mt-2">
+                {r.status && (
+                  <Badge
+                    variant={r.status === "treated" ? "default" : "secondary"}
+                    className="text-[10px] uppercase"
+                  >
+                    {r.status}
+                  </Badge>
+                )}
                 <Badge variant="outline" className="text-[10px]">
                   TD {r.totalDepth} ft
                 </Badge>
                 <Badge variant="outline" className="text-[10px]">
-                  {r.intervals.length} slots
+                  {r.intervals.length} {r.status === "candidate" ? "zones" : "slots"}
                 </Badge>
               </div>
             </button>
