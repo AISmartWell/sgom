@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { MessageCircle, X, Send, Bot, User, Loader2, Trash2 } from "lucide-react";
+import { MessageCircle, X, Send, Bot, User, Loader2, Trash2, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -216,7 +216,36 @@ const SPTChatWidget = () => {
                     >
                       {m.role === "assistant" ? (
                         <div className="prose prose-sm dark:prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
-                          <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content}</ReactMarkdown>
+                          <ReactMarkdown
+                            remarkPlugins={[remarkGfm]}
+                            components={{
+                              a: ({ href, title, children }) => {
+                                const isDoc = !!href && href.startsWith("/training-data/");
+                                if (isDoc) {
+                                  const filename = href!.split("/").pop() || "document";
+                                  return (
+                                    <a
+                                      href={href}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      title={title || filename}
+                                      className="inline-flex items-center gap-1 px-1.5 py-0.5 mx-0.5 rounded-md bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-colors text-[11px] font-medium no-underline align-middle"
+                                    >
+                                      <FileText className="h-3 w-3 shrink-0" />
+                                      <span className="truncate max-w-[160px]">{filename}</span>
+                                    </a>
+                                  );
+                                }
+                                return (
+                                  <a href={href} target="_blank" rel="noopener noreferrer" title={title} className="text-primary underline">
+                                    {children}
+                                  </a>
+                                );
+                              },
+                            }}
+                          >
+                            {m.content}
+                          </ReactMarkdown>
                         </div>
                       ) : (
                         <p className="whitespace-pre-wrap">{m.content}</p>
