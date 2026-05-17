@@ -96,6 +96,7 @@ Treatment: pressure 5000 psi · slurry 5.54 bbl/min · sand 0.25 ppg · N₂ 15%
 Cuts: 2775–80, 2787–92, 2865–75, 2890–2900 ft · net slots 12.5 ft / gross 74.5 ft
 Drainage 226 ft² · rock volume 7.31 ft³ / 0.58 t · losses 904 psi · ΔP nozzles 4393 psi
 Pre-treatment GIS (Silagina, Nov 2015): pay zones Fm E 2761–2820 ft + D5 2826–2910 ft, main fluid-receiving 2890–2956 ft.
+**Sources:** /training-data/spt/JTM1093W_S202_Wolverine_Maxxwellv2.xlsm (program); /training-data/spt/JTM1093W_Fig1_GIS.pdf (GIS map); /training-data/spt/JTM1093W_Fig2_Correlation.pdf (well correlation); /training-data/spt/JTM1093W_Silagina_GIS_Report_2015.docx (Silagina interpretation, pay zones & cut intervals).
 
 ### Case 2 — JTM 1606W (CANDIDATE, Chevron Wolverine, McElroy TX, Grayburg Pay A1)
 Injector, drilled 2011. TD 2763 ft · 5.5"/4.95" csg · 2.88" tbg · packer 2557 ft · open hole 2671–2763 ft
