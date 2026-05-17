@@ -717,10 +717,16 @@ serve(async (req) => {
 
     const userContent = `Pre-calculated metrics for ${stageKey} stage:\n${computed.context}\n\nWell: ${wellDescription}\n\nProvide your DETAILED expert assessment based on the data above. Be specific, reference the actual numbers, and give actionable insights. Write 4-8 sentences.`;
 
+    // Inject SPT case library + citation rules for stages where it adds value
+    const SPT_AWARE_STAGES = new Set(["core_analysis", "spt_projection", "economic", "eor"]);
+    const augmentedSystem = SPT_AWARE_STAGES.has(stageKey)
+      ? `${verdictPrompt}\n\n${SPT_CASE_LIBRARY}\n\n${CITATION_RULES}`
+      : verdictPrompt;
+
     const aiPayload = {
       model: "google/gemini-2.5-flash",
       messages: [
-        { role: "system", content: verdictPrompt },
+        { role: "system", content: augmentedSystem },
         { role: "user", content: userContent },
       ],
       max_tokens: 500,
