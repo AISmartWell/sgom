@@ -28,6 +28,7 @@
 } from "lucide-react";
 import { LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from "recharts";
 import LearningPath from "@/components/ml-training/LearningPath";
+import SPTTrainingDataset from "@/components/ml-training/SPTTrainingDataset";
  
  // Mock training data
  const generateTrainingData = (epochs: number) => {
@@ -340,9 +341,16 @@ import LearningPath from "@/components/ml-training/LearningPath";
                    </div>
                  )}
                </CardContent>
-             </Card>
-           </div>
-         </TabsContent>
+            </Card>
+          </div>
+
+          <SPTTrainingDataset
+            onIngest={() => {
+              setDataUploaded(true);
+              toast.success("SPT records added — data tab unlocked.");
+            }}
+          />
+        </TabsContent>
  
          {/* Config Tab */}
          <TabsContent value="config" className="space-y-6">
