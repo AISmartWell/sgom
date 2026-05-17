@@ -41,6 +41,13 @@ export type SPTRecord = {
   documents: { label: string; url: string; type: "pdf" | "docx" | "doc" | "xlsm" | "xlsx" | "jpg" | "gif" }[];
 };
 
+// Master Service Order (CUSA × Maxxwell, Sept 2015) — applies to all Chevron MCBU pilot wells (JTM 1093W, JTM 1606W, SE Matthews #10)
+const MASTER_SERVICE_ORDER = {
+  label: "CUSA × Maxxwell Master Service Order DRAFT (Sept 17, 2015)",
+  url: "/training-data/spt/CUSA_Maxxwell_Service_Order_DRAFT_2015.docx",
+  type: "docx" as const,
+};
+
 // Parsed from real Chevron / MAXXWELL files for well JTM 1093W
 const SEED_RECORDS: SPTRecord[] = [
   {
