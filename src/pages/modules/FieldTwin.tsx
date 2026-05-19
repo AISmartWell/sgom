@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Boxes, Layers, Radar, Activity, Mountain, Waves, AlertTriangle, TrendingUp } from "lucide-react";
+import { ArrowLeft, Boxes, Layers, Radar, Activity, Mountain, Waves, AlertTriangle, TrendingUp, Wind } from "lucide-react";
 import {
   ResponsiveContainer,
   ComposedChart,
