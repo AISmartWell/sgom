@@ -45,6 +45,7 @@ import ReservesMapPage from "./pages/modules/ReservesMapPage";
 import AnalysisReports from "./pages/modules/AnalysisReports";
 import AIEOROptimization from "./pages/modules/AIEOROptimization";
 import DroneModule from "./pages/modules/DroneModule";
+import FieldTwin from "./pages/modules/FieldTwin";
 import NvidiaInception from "./pages/NvidiaInception";
 import NvidiaShowcase from "./pages/NvidiaShowcase";
 import NvidiaCosmos from "./pages/NvidiaCosmos";
@@ -123,6 +124,7 @@ const App = () => (
              <Route path="analysis-reports" element={<AnalysisReports />} />
              <Route path="ai-eor-optimization" element={<AIEOROptimization />} /><Route path="ai-analyst" element={<AIAnalyst />} />
              <Route path="drone-module" element={<DroneModule />} />
+             <Route path="field-twin" element={<FieldTwin />} />
           </Route>
            <Route path="/nvidia-inception" element={<NvidiaInception />} />
            <Route path="/nvidia-showcase" element={<NvidiaShowcase />} />
