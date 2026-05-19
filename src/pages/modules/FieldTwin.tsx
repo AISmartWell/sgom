@@ -585,12 +585,53 @@ const FieldTwin = () => {
         {/* Center: 3D scene */}
         <Card className="glass-card lg:col-span-2 overflow-hidden">
           <CardContent className="p-0">
-            <div className="h-[560px] bg-slate-950">
+            <div className="relative h-[560px] bg-slate-950">
               <Suspense fallback={<div className="h-full flex items-center justify-center text-muted-foreground">Loading twin…</div>}>
                 <Canvas camera={{ position: [10, 7, 10], fov: 50 }}>
-                  <Scene layers={layers} selectedId={selectedId} setSelectedId={setSelectedId} />
+                  <Scene
+                    layers={layers}
+                    selectedId={selectedId}
+                    setSelectedId={setSelectedId}
+                    ch4Field={ch4Field}
+                    hotspots={hotspots}
+                  />
                 </Canvas>
               </Suspense>
+
+              {/* CH₄ legend overlay */}
+              {layers.methane && (
+                <div className="absolute bottom-3 left-3 bg-slate-900/85 backdrop-blur border border-border/60 rounded-md px-3 py-2 text-[10px] space-y-1.5 pointer-events-none">
+                  <div className="flex items-center gap-1.5 text-muted-foreground font-semibold uppercase tracking-wider">
+                    <Wind className="h-3 w-3 text-primary" /> CH₄ (ppm)
+                  </div>
+                  {CH4_LEVELS.map((l, i) => {
+                    const prev = i === 0 ? 0 : CH4_LEVELS[i - 1].max;
+                    const range =
+                      l.max === Infinity ? `> ${prev}` : `${prev.toFixed(1)}–${l.max}`;
+                    return (
+                      <div key={l.label} className="flex items-center gap-2">
+                        <span
+                          className="inline-block w-3 h-3 rounded-sm"
+                          style={{ background: l.color }}
+                        />
+                        <span className="text-foreground/90 w-16">{l.label}</span>
+                        <span className="text-muted-foreground font-mono">{range}</span>
+                      </div>
+                    );
+                  })}
+                  {selected && (
+                    <div className="pt-1 mt-1 border-t border-border/50">
+                      <span className="text-muted-foreground">{selected.name}: </span>
+                      <span
+                        className="font-mono font-semibold"
+                        style={{ color: ch4Color(selectedWellCH4) }}
+                      >
+                        {selectedWellCH4.toFixed(1)} ppm
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
             <div className="px-4 py-2 border-t border-border/50 flex items-center justify-between text-[11px] text-muted-foreground">
               <span>Drag to rotate · Scroll to zoom · Right-click to pan</span>
