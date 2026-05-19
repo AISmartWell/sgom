@@ -475,11 +475,32 @@ const FieldTwin = () => {
     owc: true,
     dynamic: true,
     drone: true,
+    methane: true,
   });
 
   const selected = WELLS.find((w) => w.id === selectedId);
   const series = useMemo(() => (selected ? buildWellSeries(selected) : []), [selected]);
   const sptDelta = series.length > 1 ? series[series.length - 1].spt - series[0].spt : 0;
+
+  // CH₄ concentration grid (deterministic)
+  const ch4Field = useMemo(() => buildCH4Field(), []);
+
+  // Nearest CH₄ hotspots around selected well (top-3 samples within 2.5 units)
+  const hotspots = useMemo(() => {
+    if (!selected) return [];
+    const ranked = ch4Field
+      .map((s) => ({
+        pos: [s.x, 0, s.z] as [number, number, number],
+        ppm: s.ppm,
+        d: Math.hypot(s.x - selected.position[0], s.z - selected.position[2]),
+      }))
+      .filter((s) => s.d < 2.5 && s.ppm > 5)
+      .sort((a, b) => b.ppm - a.ppm)
+      .slice(0, 3);
+    return ranked.map(({ pos, ppm }) => ({ pos, ppm }));
+  }, [ch4Field, selected]);
+
+  const selectedWellCH4 = selected ? wellCH4(selected, ch4Field) : 0;
 
   const toggle = (k: keyof LayerState) => setLayers((s) => ({ ...s, [k]: !s[k] }));
 
