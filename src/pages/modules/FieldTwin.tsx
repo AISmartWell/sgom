@@ -408,10 +408,12 @@ type LayerState = {
   methane: boolean;
 };
 
-const Scene = ({ layers, selectedId, setSelectedId }: {
+const Scene = ({ layers, selectedId, setSelectedId, ch4Field, hotspots }: {
   layers: LayerState;
   selectedId: string | null;
   setSelectedId: (id: string) => void;
+  ch4Field: CH4Sample[];
+  hotspots: { pos: [number, number, number]; ppm: number }[];
 }) => {
   const selectedWell = WELLS.find((w) => w.id === selectedId);
 
@@ -426,6 +428,8 @@ const Scene = ({ layers, selectedId, setSelectedId }: {
       {layers.owc && <OWC />}
       {layers.faults && <Fault />}
       {layers.dynamic && <FloodFront />}
+      {layers.methane && <MethaneHeatmap field={ch4Field} opacity={0.55} />}
+      {layers.methane && hotspots.length > 0 && <MethaneHotspots sources={hotspots} />}
       {layers.wells && WELLS.map((w) => (
         <Well key={w.id} w={w} selected={selectedId === w.id} onSelect={setSelectedId} />
       ))}
