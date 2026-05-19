@@ -334,6 +334,8 @@ const FieldTwin = () => {
   });
 
   const selected = WELLS.find((w) => w.id === selectedId);
+  const series = useMemo(() => (selected ? buildWellSeries(selected) : []), [selected]);
+  const sptDelta = series.length > 1 ? series[series.length - 1].spt - series[0].spt : 0;
 
   const toggle = (k: keyof LayerState) => setLayers((s) => ({ ...s, [k]: !s[k] }));
 
