@@ -301,6 +301,12 @@ const menuItems = [
     href: "/dashboard/drone-module",
     badge: "🚁",
   },
+  {
+    title: "Field Digital Twin",
+    icon: Layers,
+    href: "/dashboard/field-twin",
+    badge: "🏗️",
+  },
 ];
 
 interface SidebarProps {
