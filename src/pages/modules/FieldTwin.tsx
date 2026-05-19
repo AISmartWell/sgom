@@ -8,7 +8,20 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Boxes, Layers, Radar, Activity, Mountain, Waves, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Boxes, Layers, Radar, Activity, Mountain, Waves, AlertTriangle, TrendingUp } from "lucide-react";
+import {
+  ResponsiveContainer,
+  ComposedChart,
+  LineChart,
+  Line,
+  Area,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  Legend,
+  ReferenceLine,
+} from "recharts";
 
 // ============================================================
 // Deterministic seed helpers (no Math.random per project memory)
@@ -43,6 +56,43 @@ const WELLS: WellInfo[] = [
   { id: "w3", name: "Brawner 12-15", position: [2.5, 0, 1.8], status: "producing", oil_bpd: 54, wct: 0.51, formation: "Mississippi Lime", sptScore: 0.62, surfaceRisk: "low" },
   { id: "w4", name: "Brawner 13-15", position: [-1.2, 0, -2.4], status: "shut-in", oil_bpd: 0, wct: 0.92, formation: "Cherokee", sptScore: 0.41, surfaceRisk: "high" },
 ];
+
+// ============================================================
+// Deterministic 24-month series for selected well (no Math.random)
+// ============================================================
+type WellSeriesPoint = { month: string; oil: number; wct: number; spt: number };
+
+const buildWellSeries = (w: WellInfo): WellSeriesPoint[] => {
+  const months = 24;
+  const out: WellSeriesPoint[] = [];
+  // Reverse Arps-style: start higher, decline toward current oil_bpd
+  const startOil = Math.max(w.oil_bpd * 1.8, 25);
+  const endOil = w.oil_bpd;
+  const startWct = Math.max(w.wct - 0.35, 0.05);
+  const endWct = w.wct;
+  const startSpt = Math.max(w.sptScore - 0.25, 0.15);
+  const endSpt = w.sptScore;
+
+  const now = new Date();
+  for (let i = 0; i < months; i++) {
+    const t = i / (months - 1);
+    const d = new Date(now.getFullYear(), now.getMonth() - (months - 1 - i), 1);
+    const month = d.toLocaleString("en-US", { month: "short", year: "2-digit" });
+
+    const noiseOil = (stableHash(`${w.id}_oil_${i}`) - 0.5) * 0.18;
+    const noiseWct = (stableHash(`${w.id}_wct_${i}`) - 0.5) * 0.06;
+    const noiseSpt = (stableHash(`${w.id}_spt_${i}`) - 0.5) * 0.08;
+
+    // Exponential-ish decline for oil
+    const oilTrend = startOil * Math.pow(endOil / Math.max(startOil, 1), t);
+    const oil = Math.max(0, oilTrend * (1 + noiseOil));
+    const wct = Math.min(0.99, Math.max(0, startWct + (endWct - startWct) * t + noiseWct));
+    const spt = Math.min(1, Math.max(0, startSpt + (endSpt - startSpt) * t + noiseSpt));
+
+    out.push({ month, oil: +oil.toFixed(1), wct: +(wct * 100).toFixed(1), spt: +spt.toFixed(3) });
+  }
+  return out;
+};
 
 // ============================================================
 // Subsurface layers
@@ -284,6 +334,8 @@ const FieldTwin = () => {
   });
 
   const selected = WELLS.find((w) => w.id === selectedId);
+  const series = useMemo(() => (selected ? buildWellSeries(selected) : []), [selected]);
+  const sptDelta = series.length > 1 ? series[series.length - 1].spt - series[0].spt : 0;
 
   const toggle = (k: keyof LayerState) => setLayers((s) => ({ ...s, [k]: !s[k] }));
 
@@ -409,6 +461,135 @@ const FieldTwin = () => {
                   <StageLine n={6} label="SPT" value={`Score ${selected.sptScore.toFixed(2)}`} />
                   <StageLine n={8} label="Geophys" value="Sw=0.31" />
                   <StageLine n={9} label="EOR" value={selected.sptScore > 0.7 ? "SPT recommended" : "Re-eval"} />
+                </div>
+
+                <div className="pt-3 border-t border-border/50 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Oil / WCT — 24 mo
+                    </p>
+                    <span className="text-[10px] text-muted-foreground">monthly</span>
+                  </div>
+                  <div className="h-36">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <ComposedChart data={series} margin={{ top: 4, right: 4, left: -24, bottom: 0 }}>
+                        <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="2 2" vertical={false} />
+                        <XAxis
+                          dataKey="month"
+                          tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }}
+                          interval={5}
+                          tickLine={false}
+                          axisLine={false}
+                        />
+                        <YAxis
+                          yAxisId="oil"
+                          tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }}
+                          tickLine={false}
+                          axisLine={false}
+                          width={36}
+                        />
+                        <YAxis
+                          yAxisId="wct"
+                          orientation="right"
+                          domain={[0, 100]}
+                          tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }}
+                          tickLine={false}
+                          axisLine={false}
+                          width={28}
+                        />
+                        <Tooltip
+                          contentStyle={{
+                            background: "hsl(var(--popover))",
+                            border: "1px solid hsl(var(--border))",
+                            borderRadius: 6,
+                            fontSize: 11,
+                          }}
+                          formatter={(v: number, n: string) =>
+                            n === "WCT" ? [`${v}%`, n] : [`${v} BPD`, n]
+                          }
+                        />
+                        <Legend wrapperStyle={{ fontSize: 10 }} iconSize={8} />
+                        <Area
+                          yAxisId="oil"
+                          type="monotone"
+                          dataKey="oil"
+                          name="Oil"
+                          stroke="#22c55e"
+                          fill="#22c55e"
+                          fillOpacity={0.18}
+                          strokeWidth={1.8}
+                          dot={false}
+                        />
+                        <Line
+                          yAxisId="wct"
+                          type="monotone"
+                          dataKey="wct"
+                          name="WCT"
+                          stroke="#1A9FFF"
+                          strokeWidth={1.8}
+                          dot={false}
+                        />
+                      </ComposedChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-1">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      SPT Score Trend
+                    </p>
+                    <span
+                      className={`text-[10px] flex items-center gap-1 ${
+                        sptDelta >= 0 ? "text-success" : "text-destructive"
+                      }`}
+                    >
+                      <TrendingUp className="h-3 w-3" />
+                      {sptDelta >= 0 ? "+" : ""}
+                      {(sptDelta * 100).toFixed(1)} pts
+                    </span>
+                  </div>
+                  <div className="h-28">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={series} margin={{ top: 4, right: 4, left: -24, bottom: 0 }}>
+                        <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="2 2" vertical={false} />
+                        <XAxis
+                          dataKey="month"
+                          tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }}
+                          interval={5}
+                          tickLine={false}
+                          axisLine={false}
+                        />
+                        <YAxis
+                          domain={[0, 1]}
+                          tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }}
+                          tickLine={false}
+                          axisLine={false}
+                          width={36}
+                        />
+                        <ReferenceLine
+                          y={0.7}
+                          stroke="#1A9FFF"
+                          strokeDasharray="3 3"
+                          label={{ value: "SPT cutoff 0.70", fontSize: 9, fill: "#1A9FFF", position: "insideTopRight" }}
+                        />
+                        <Tooltip
+                          contentStyle={{
+                            background: "hsl(var(--popover))",
+                            border: "1px solid hsl(var(--border))",
+                            borderRadius: 6,
+                            fontSize: 11,
+                          }}
+                          formatter={(v: number) => [v.toFixed(3), "SPT"]}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="spt"
+                          stroke="#a78bfa"
+                          strokeWidth={2}
+                          dot={false}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
                 </div>
 
                 <Button className="w-full" size="sm" onClick={() => navigate("/dashboard/spt-projection")}>
