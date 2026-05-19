@@ -463,6 +463,135 @@ const FieldTwin = () => {
                   <StageLine n={9} label="EOR" value={selected.sptScore > 0.7 ? "SPT recommended" : "Re-eval"} />
                 </div>
 
+                <div className="pt-3 border-t border-border/50 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Oil / WCT — 24 mo
+                    </p>
+                    <span className="text-[10px] text-muted-foreground">monthly</span>
+                  </div>
+                  <div className="h-36">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <ComposedChart data={series} margin={{ top: 4, right: 4, left: -24, bottom: 0 }}>
+                        <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="2 2" vertical={false} />
+                        <XAxis
+                          dataKey="month"
+                          tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }}
+                          interval={5}
+                          tickLine={false}
+                          axisLine={false}
+                        />
+                        <YAxis
+                          yAxisId="oil"
+                          tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }}
+                          tickLine={false}
+                          axisLine={false}
+                          width={36}
+                        />
+                        <YAxis
+                          yAxisId="wct"
+                          orientation="right"
+                          domain={[0, 100]}
+                          tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }}
+                          tickLine={false}
+                          axisLine={false}
+                          width={28}
+                        />
+                        <Tooltip
+                          contentStyle={{
+                            background: "hsl(var(--popover))",
+                            border: "1px solid hsl(var(--border))",
+                            borderRadius: 6,
+                            fontSize: 11,
+                          }}
+                          formatter={(v: number, n: string) =>
+                            n === "WCT" ? [`${v}%`, n] : [`${v} BPD`, n]
+                          }
+                        />
+                        <Legend wrapperStyle={{ fontSize: 10 }} iconSize={8} />
+                        <Area
+                          yAxisId="oil"
+                          type="monotone"
+                          dataKey="oil"
+                          name="Oil"
+                          stroke="#22c55e"
+                          fill="#22c55e"
+                          fillOpacity={0.18}
+                          strokeWidth={1.8}
+                          dot={false}
+                        />
+                        <Line
+                          yAxisId="wct"
+                          type="monotone"
+                          dataKey="wct"
+                          name="WCT"
+                          stroke="#1A9FFF"
+                          strokeWidth={1.8}
+                          dot={false}
+                        />
+                      </ComposedChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-1">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      SPT Score Trend
+                    </p>
+                    <span
+                      className={`text-[10px] flex items-center gap-1 ${
+                        sptDelta >= 0 ? "text-success" : "text-destructive"
+                      }`}
+                    >
+                      <TrendingUp className="h-3 w-3" />
+                      {sptDelta >= 0 ? "+" : ""}
+                      {(sptDelta * 100).toFixed(1)} pts
+                    </span>
+                  </div>
+                  <div className="h-28">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={series} margin={{ top: 4, right: 4, left: -24, bottom: 0 }}>
+                        <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="2 2" vertical={false} />
+                        <XAxis
+                          dataKey="month"
+                          tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }}
+                          interval={5}
+                          tickLine={false}
+                          axisLine={false}
+                        />
+                        <YAxis
+                          domain={[0, 1]}
+                          tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }}
+                          tickLine={false}
+                          axisLine={false}
+                          width={36}
+                        />
+                        <ReferenceLine
+                          y={0.7}
+                          stroke="#1A9FFF"
+                          strokeDasharray="3 3"
+                          label={{ value: "SPT cutoff 0.70", fontSize: 9, fill: "#1A9FFF", position: "insideTopRight" }}
+                        />
+                        <Tooltip
+                          contentStyle={{
+                            background: "hsl(var(--popover))",
+                            border: "1px solid hsl(var(--border))",
+                            borderRadius: 6,
+                            fontSize: 11,
+                          }}
+                          formatter={(v: number) => [v.toFixed(3), "SPT"]}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="spt"
+                          stroke="#a78bfa"
+                          strokeWidth={2}
+                          dot={false}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
                 <Button className="w-full" size="sm" onClick={() => navigate("/dashboard/spt-projection")}>
                   Open SPT projection
                 </Button>
