@@ -256,6 +256,145 @@ const OWC = () => (
 );
 
 // ============================================================
+// CH₄ concentration field (drone gas sensor) — deterministic
+// ============================================================
+type CH4Sample = { x: number; z: number; ppm: number };
+
+// CH4 ppm thresholds (ambient ≈ 1.9 ppm)
+const CH4_LEVELS = [
+  { label: "Background", max: 2.5, color: "#1e3a8a" },   // deep blue
+  { label: "Low", max: 5, color: "#06b6d4" },             // cyan
+  { label: "Elevated", max: 15, color: "#22c55e" },       // green
+  { label: "High", max: 50, color: "#eab308" },           // yellow
+  { label: "Critical", max: 200, color: "#f97316" },      // orange
+  { label: "Leak", max: Infinity, color: "#ef4444" },     // red
+];
+
+const ch4Color = (ppm: number) => CH4_LEVELS.find((l) => ppm <= l.max)!.color;
+
+const buildCH4Field = (): CH4Sample[] => {
+  const grid: CH4Sample[] = [];
+  const N = 28; // 28×28 ≈ 784 samples
+  const half = 5;
+  // Per-well emission strength based on surfaceRisk + WCT (proxy for leaks)
+  const sources = WELLS.map((w) => ({
+    x: w.position[0],
+    z: w.position[2],
+    strength:
+      (w.surfaceRisk === "high" ? 140 : w.surfaceRisk === "med" ? 55 : 12) *
+      (0.7 + w.wct * 0.6),
+    radius: w.surfaceRisk === "high" ? 2.4 : w.surfaceRisk === "med" ? 1.8 : 1.2,
+  }));
+  for (let i = 0; i < N; i++) {
+    for (let j = 0; j < N; j++) {
+      const x = -half + (i / (N - 1)) * 2 * half;
+      const z = -half + (j / (N - 1)) * 2 * half;
+      let ppm = 1.9; // ambient background
+      for (const s of sources) {
+        const d = Math.hypot(x - s.x, z - s.z);
+        // Gaussian-like falloff
+        ppm += s.strength * Math.exp(-(d * d) / (2 * s.radius * s.radius));
+      }
+      // Deterministic small noise via stableHash
+      const n = (stableHash(`ch4_${i}_${j}`) - 0.5) * 1.8;
+      ppm = Math.max(1.7, ppm + n);
+      grid.push({ x, z, ppm });
+    }
+  }
+  return grid;
+};
+
+// Per-well max ppm at well location (for hotspot ranking)
+const wellCH4 = (w: WellInfo, field: CH4Sample[]): number => {
+  let best = 0;
+  for (const s of field) {
+    const d = Math.hypot(s.x - w.position[0], s.z - w.position[2]);
+    if (d < 0.5 && s.ppm > best) best = s.ppm;
+  }
+  return best;
+};
+
+const MethaneHeatmap = ({ field, opacity }: { field: CH4Sample[]; opacity: number }) => {
+  // Use one InstancedMesh for performance
+  const meshRef = useRef<THREE.InstancedMesh>(null);
+  const cellSize = useMemo(() => {
+    if (field.length < 2) return 0.35;
+    // distance between two neighbouring samples in x
+    let minDx = Infinity;
+    for (let i = 1; i < field.length; i++) {
+      const dx = Math.abs(field[i].x - field[i - 1].x);
+      if (dx > 0.001 && dx < minDx) minDx = dx;
+    }
+    return minDx * 1.05;
+  }, [field]);
+
+  useMemo(() => {
+    if (!meshRef.current) return;
+    const dummy = new THREE.Object3D();
+    const color = new THREE.Color();
+    field.forEach((s, i) => {
+      dummy.position.set(s.x, 2.92, s.z);
+      dummy.rotation.set(-Math.PI / 2, 0, 0);
+      // Scale by intensity a bit so leaks read bigger
+      const scale = Math.min(1.6, 0.6 + Math.log10(Math.max(s.ppm, 2)) * 0.35);
+      dummy.scale.set(scale, scale, 1);
+      dummy.updateMatrix();
+      meshRef.current!.setMatrixAt(i, dummy.matrix);
+      color.set(ch4Color(s.ppm));
+      meshRef.current!.setColorAt(i, color);
+    });
+    meshRef.current.instanceMatrix.needsUpdate = true;
+    if (meshRef.current.instanceColor) meshRef.current.instanceColor.needsUpdate = true;
+  }, [field, cellSize]);
+
+  return (
+    <instancedMesh ref={meshRef} args={[undefined, undefined, field.length]}>
+      <planeGeometry args={[cellSize, cellSize]} />
+      <meshBasicMaterial transparent opacity={opacity} side={THREE.DoubleSide} depthWrite={false} />
+    </instancedMesh>
+  );
+};
+
+// Pulsing ring around nearest CH₄ hotspots for the selected well
+const MethaneHotspots = ({ sources }: { sources: { pos: [number, number, number]; ppm: number }[] }) => {
+  const refs = useRef<(THREE.Mesh | null)[]>([]);
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    refs.current.forEach((m, i) => {
+      if (!m) return;
+      const s = 1 + Math.sin(t * 2 + i) * 0.15;
+      m.scale.set(s, s, 1);
+      const mat = m.material as THREE.MeshBasicMaterial;
+      mat.opacity = 0.55 + Math.sin(t * 2 + i) * 0.2;
+    });
+  });
+  return (
+    <>
+      {sources.map((s, i) => (
+        <group key={i} position={[s.pos[0], 2.95, s.pos[2]]}>
+          <mesh ref={(el) => (refs.current[i] = el)} rotation={[-Math.PI / 2, 0, 0]}>
+            <ringGeometry args={[0.35, 0.55, 32]} />
+            <meshBasicMaterial color={ch4Color(s.ppm)} transparent opacity={0.7} side={THREE.DoubleSide} />
+          </mesh>
+          <Html position={[0, 0.25, 0]} center distanceFactor={10} style={{ pointerEvents: "none" }}>
+            <div
+              className="px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold whitespace-nowrap"
+              style={{
+                background: "rgba(15,23,42,0.85)",
+                color: ch4Color(s.ppm),
+                border: `1px solid ${ch4Color(s.ppm)}`,
+              }}
+            >
+              {s.ppm.toFixed(1)} ppm CH₄
+            </div>
+          </Html>
+        </group>
+      ))}
+    </>
+  );
+};
+
+// ============================================================
 // Scene
 // ============================================================
 type LayerState = {
@@ -266,6 +405,7 @@ type LayerState = {
   owc: boolean;
   dynamic: boolean;
   drone: boolean;
+  methane: boolean;
 };
 
 const Scene = ({ layers, selectedId, setSelectedId }: {
