@@ -58,6 +58,43 @@ const WELLS: WellInfo[] = [
 ];
 
 // ============================================================
+// Deterministic 24-month series for selected well (no Math.random)
+// ============================================================
+type WellSeriesPoint = { month: string; oil: number; wct: number; spt: number };
+
+const buildWellSeries = (w: WellInfo): WellSeriesPoint[] => {
+  const months = 24;
+  const out: WellSeriesPoint[] = [];
+  // Reverse Arps-style: start higher, decline toward current oil_bpd
+  const startOil = Math.max(w.oil_bpd * 1.8, 25);
+  const endOil = w.oil_bpd;
+  const startWct = Math.max(w.wct - 0.35, 0.05);
+  const endWct = w.wct;
+  const startSpt = Math.max(w.sptScore - 0.25, 0.15);
+  const endSpt = w.sptScore;
+
+  const now = new Date();
+  for (let i = 0; i < months; i++) {
+    const t = i / (months - 1);
+    const d = new Date(now.getFullYear(), now.getMonth() - (months - 1 - i), 1);
+    const month = d.toLocaleString("en-US", { month: "short", year: "2-digit" });
+
+    const noiseOil = (stableHash(`${w.id}_oil_${i}`) - 0.5) * 0.18;
+    const noiseWct = (stableHash(`${w.id}_wct_${i}`) - 0.5) * 0.06;
+    const noiseSpt = (stableHash(`${w.id}_spt_${i}`) - 0.5) * 0.08;
+
+    // Exponential-ish decline for oil
+    const oilTrend = startOil * Math.pow(endOil / Math.max(startOil, 1), t);
+    const oil = Math.max(0, oilTrend * (1 + noiseOil));
+    const wct = Math.min(0.99, Math.max(0, startWct + (endWct - startWct) * t + noiseWct));
+    const spt = Math.min(1, Math.max(0, startSpt + (endSpt - startSpt) * t + noiseSpt));
+
+    out.push({ month, oil: +oil.toFixed(1), wct: +(wct * 100).toFixed(1), spt: +spt.toFixed(3) });
+  }
+  return out;
+};
+
+// ============================================================
 // Subsurface layers
 // ============================================================
 const LAYERS = [
