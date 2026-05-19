@@ -123,6 +123,7 @@ const App = () => (
              <Route path="analysis-reports" element={<AnalysisReports />} />
              <Route path="ai-eor-optimization" element={<AIEOROptimization />} /><Route path="ai-analyst" element={<AIAnalyst />} />
              <Route path="drone-module" element={<DroneModule />} />
+             <Route path="field-twin" element={<FieldTwin />} />
           </Route>
            <Route path="/nvidia-inception" element={<NvidiaInception />} />
            <Route path="/nvidia-showcase" element={<NvidiaShowcase />} />
