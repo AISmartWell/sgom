@@ -549,6 +549,7 @@ const FieldTwin = () => {
             <ToggleRow icon={<Waves className="h-4 w-4" />} label="OWC Contact" checked={layers.owc} onChange={() => toggle("owc")} />
             <ToggleRow icon={<Waves className="h-4 w-4" />} label="Dynamic Front" checked={layers.dynamic} onChange={() => toggle("dynamic")} />
             <ToggleRow icon={<Radar className="h-4 w-4" />} label="Drone Orbit" checked={layers.drone} onChange={() => toggle("drone")} />
+            <ToggleRow icon={<Wind className="h-4 w-4" />} label="CH₄ Concentration" checked={layers.methane} onChange={() => toggle("methane")} />
 
             <div className="pt-3 mt-3 border-t border-border/50 space-y-2">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Wells</p>
