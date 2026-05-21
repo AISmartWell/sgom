@@ -338,7 +338,7 @@ const RevenueSection = () => {
       <div className="mt-8 bg-card rounded-xl border border-border p-5">
         <p className="text-sm text-muted-foreground">
           <span className="font-semibold text-foreground">Key Assumptions:</span>{" "}
-          Avg. 20 wells/client/mo (Yr1) → 40 wells (Yr3) • Blended per-well rate ~$200 • Annual churn &lt;10% • Excludes SPT hardware/service revenue stream
+          Avg. 20 wells/client/mo (Yr1) → 40 wells (Yr3) • Blended per-well rate ~$1,200 • Annual churn &lt;10% • Excludes SPT hardware/service revenue stream
         </p>
       </div>
     </section>
