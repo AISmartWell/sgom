@@ -127,9 +127,9 @@ const UnitEconomicsLab = () => {
   const [enverusShare, setEnverusShare] = useState(100);
   // Pricing-tab inputs (initialised from current marketing tiers)
   const [prices, setPrices] = useState<Record<Tier, Prices>>({
-    explorer: { sub: 3200, perWell: 350 },
-    professional: { sub: 9600, perWell: 200 },
-    enterprise: { sub: 24000, perWell: 120 },
+    explorer: { sub: 3200, perWell: 2000 },
+    professional: { sub: 9600, perWell: 1200 },
+    enterprise: { sub: 24000, perWell: 800 },
   });
 
   /* ── COST CALCULATION ── */
