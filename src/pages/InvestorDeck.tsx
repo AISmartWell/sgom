@@ -308,9 +308,9 @@ const InvestorDeck = () => {
           <h3 className="text-base font-semibold mb-2">SGOM Subscriptions (B2B)</h3>
           <div className="grid grid-cols-3 gap-2 mb-3">
             {[
-              { tier: "Explorer", price: "$3,200/mo", wells: "Up to 10 wells/mo", perWell: "$350/well", color: "text-muted-foreground" },
-              { tier: "Professional", price: "$9,600/mo", wells: "Up to 50 wells/mo", perWell: "$200/well", color: "text-primary" },
-              { tier: "Enterprise", price: "$24,000/mo", wells: "Unlimited", perWell: "$120/well", color: "text-accent" },
+              { tier: "Explorer", price: "$3,200/mo", wells: "Up to 10 wells/mo", perWell: "$2,000/well", color: "text-muted-foreground" },
+              { tier: "Professional", price: "$9,600/mo", wells: "Up to 50 wells/mo", perWell: "$1,200/well", color: "text-primary" },
+              { tier: "Enterprise", price: "$24,000/mo", wells: "Unlimited", perWell: "$800/well", color: "text-accent" },
             ].map((t) => (
               <div key={t.tier} className="p-2 rounded-lg bg-background/50 text-center">
                 <p className={`text-xs font-semibold ${t.color}`}>{t.tier}</p>
@@ -322,7 +322,7 @@ const InvestorDeck = () => {
           </div>
           <div className="space-y-1 text-xs">
             <div className="flex justify-between"><span className="text-muted-foreground">Client savings vs manual</span><span className="font-medium text-success">$10,100/well</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">Target LTV</span><span className="font-medium">$200K–$500K+</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground">Target LTV</span><span className="font-medium">$300K–$1M+</span></div>
           </div>
           <p className="text-[10px] text-muted-foreground mt-2">Hybrid model: subscription + per-well fees for scalable recurring revenue</p>
         </div>
