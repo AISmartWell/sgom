@@ -34,7 +34,7 @@ const plans = [
   {
     name: "EXPLORER",
     price: "$3,200",
-    perWell: "$350",
+    perWell: "$2,000",
     wells: "Up to 10 wells/mo",
     icon: Database,
     popular: false,
@@ -43,7 +43,7 @@ const plans = [
   {
     name: "PROFESSIONAL",
     price: "$9,600",
-    perWell: "$200",
+    perWell: "$1,200",
     wells: "Up to 50 wells/mo",
     icon: Rocket,
     popular: true,
@@ -52,7 +52,7 @@ const plans = [
   {
     name: "ENTERPRISE",
     price: "$24,000",
-    perWell: "$120",
+    perWell: "$800",
     wells: "Unlimited wells",
     icon: Building2,
     popular: false,
@@ -85,9 +85,9 @@ const revenueTiers = [
     name: "Explorer",
     mrr: "$3,200",
     wells: "Up to 10 / mo",
-    arpu: "$350",
+    arpu: "$2,000",
     expansion: "20%",
-    ltv: "$12,600",
+    ltv: "$72,000",
     cacPayback: "4 months",
     churn: "< 12%",
     icon: Database,
@@ -97,9 +97,9 @@ const revenueTiers = [
     name: "Professional",
     mrr: "$9,600",
     wells: "Up to 50 / mo",
-    arpu: "$200",
+    arpu: "$1,200",
     expansion: "35%",
-    ltv: "$51,200",
+    ltv: "$307,200",
     cacPayback: "3 months",
     churn: "< 8%",
     icon: Rocket,
@@ -109,9 +109,9 @@ const revenueTiers = [
     name: "Enterprise",
     mrr: "$24,000+",
     wells: "Unlimited",
-    arpu: "$120",
+    arpu: "$800",
     expansion: "50%",
-    ltv: "$144,000+",
+    ltv: "$960,000+",
     cacPayback: "2 months",
     churn: "< 5%",
     icon: Building2,
@@ -338,7 +338,7 @@ const RevenueSection = () => {
       <div className="mt-8 bg-card rounded-xl border border-border p-5">
         <p className="text-sm text-muted-foreground">
           <span className="font-semibold text-foreground">Key Assumptions:</span>{" "}
-          Avg. 20 wells/client/mo (Yr1) → 40 wells (Yr3) • Blended per-well rate ~$200 • Annual churn &lt;10% • Excludes SPT hardware/service revenue stream
+          Avg. 20 wells/client/mo (Yr1) → 40 wells (Yr3) • Blended per-well rate ~$1,200 • Annual churn &lt;10% • Excludes SPT hardware/service revenue stream
         </p>
       </div>
     </section>
