@@ -34,7 +34,7 @@ const plans = [
   {
     name: "EXPLORER",
     price: "$3,200",
-    perWell: "$350",
+    perWell: "$2,000",
     wells: "Up to 10 wells/mo",
     icon: Database,
     popular: false,
@@ -43,7 +43,7 @@ const plans = [
   {
     name: "PROFESSIONAL",
     price: "$9,600",
-    perWell: "$200",
+    perWell: "$1,200",
     wells: "Up to 50 wells/mo",
     icon: Rocket,
     popular: true,
@@ -52,7 +52,7 @@ const plans = [
   {
     name: "ENTERPRISE",
     price: "$24,000",
-    perWell: "$120",
+    perWell: "$800",
     wells: "Unlimited wells",
     icon: Building2,
     popular: false,
