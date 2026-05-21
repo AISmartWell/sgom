@@ -233,7 +233,7 @@ const HeroSection = () => {
               AI-Powered Geological Analysis
             </div>
             <h1 className="text-4xl md:text-6xl font-bold leading-tight tracking-tight">
-              <span className="text-primary">SGOM</span><br />
+              <span className="text-primary">AI Smart Well</span><br />
               <span className="text-foreground">SaaS Business Model</span>
             </h1>
             <p className="text-lg text-muted-foreground max-w-md leading-relaxed">
