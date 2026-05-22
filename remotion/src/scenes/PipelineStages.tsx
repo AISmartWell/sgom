@@ -3,12 +3,13 @@ import { AbsoluteFill, useCurrentFrame, interpolate, spring, useVideoConfig } fr
 const stages = [
   { num: 1, icon: "🛰️", title: "Field Scanning", color: "hsl(205,100%,60%)" },
   { num: 2, icon: "📂", title: "Data Classification", color: "hsl(195,90%,55%)" },
-  { num: 3, icon: "📈", title: "Cumulative Analysis", color: "hsl(170,80%,50%)" },
-  { num: 4, icon: "🚀", title: "SPT Projection", color: "hsl(150,70%,50%)" },
-  { num: 5, icon: "💵", title: "Economic Analysis", color: "hsl(45,90%,55%)" },
-  { num: 6, icon: "📊", title: "Geophysical", color: "hsl(30,85%,55%)" },
-  { num: 7, icon: "🔬", title: "Core Analysis", color: "hsl(280,70%,60%)" },
-  { num: 8, icon: "🧠", title: "EOR Optimization", color: "hsl(340,80%,55%)" },
+  { num: 3, icon: "🔬", title: "Core Analysis", color: "hsl(280,70%,60%)" },
+  { num: 4, icon: "📈", title: "Cumulative Analysis", color: "hsl(170,80%,50%)" },
+  { num: 5, icon: "🌊", title: "Seismic Reinterpretation", color: "hsl(190,85%,55%)" },
+  { num: 6, icon: "🚀", title: "SPT Projection", color: "hsl(150,70%,50%)" },
+  { num: 7, icon: "💵", title: "Economic Analysis", color: "hsl(45,90%,55%)" },
+  { num: 8, icon: "📊", title: "Geophysical Expertise", color: "hsl(30,85%,55%)" },
+  { num: 9, icon: "🧠", title: "EOR Optimization", color: "hsl(340,80%,55%)" },
 ];
 
 export const PipelineStages = () => {
