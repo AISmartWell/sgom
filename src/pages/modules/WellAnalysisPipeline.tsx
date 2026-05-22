@@ -288,7 +288,7 @@ const WellAnalysisPipeline = () => {
           <h1 className="text-3xl font-bold">Well Analysis Pipeline</h1>
         </div>
         <p className="text-muted-foreground">
-          Select a well and run the full 8-stage analysis — from field scanning to EOR recommendation
+          Select a well and run the full 9-stage analysis — from field scanning to EOR recommendation
         </p>
       </div>
 

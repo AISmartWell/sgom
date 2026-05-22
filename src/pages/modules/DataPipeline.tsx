@@ -90,7 +90,7 @@ const PIPELINE_STEPS = [
   {
     id: 6,
     title: "AI Analysis & Reports",
-    description: "Each well can be run through the 8-stage AI pipeline (Gemini) for SPT candidacy scoring and EOR recommendations.",
+    description: "Each well can be run through the 9-stage AI pipeline (Gemini) for SPT candidacy scoring and EOR recommendations.",
     icon: Brain,
     color: "hsl(var(--success))",
     detail: "Edge Function → Gemini API → structured tool_call → stage results",
