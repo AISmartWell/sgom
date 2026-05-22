@@ -32,7 +32,7 @@ export const PipelineStages = () => {
         color: "hsl(205,100%,65%)",
         fontWeight: 600,
       }}>
-        8-Stage AI Pipeline
+        9-Stage AI Pipeline
       </div>
 
       {/* Grid of stages */}

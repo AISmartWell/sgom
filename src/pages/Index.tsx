@@ -236,7 +236,7 @@ const Index = () => {
               </div>
               <div className="absolute bottom-0 left-0 right-0 p-6">
                 <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-primary/20 text-primary border border-primary/30 mb-2">
-                  8-Stage Pipeline
+                  9-Stage Pipeline
                 </span>
                 <h3 className="text-lg font-bold text-white">Core Analysis Engine</h3>
                 <p className="text-sm text-white/60 mt-1">End-to-end automated well screening — from satellite field scanning to EOR recommendations</p>
@@ -251,7 +251,7 @@ const Index = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/[0.02] to-transparent" />
         <div className="relative max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <span className="text-primary font-semibold text-sm tracking-widest uppercase">8-Stage AI Pipeline</span>
+            <span className="text-primary font-semibold text-sm tracking-widest uppercase">9-Stage AI Pipeline</span>
             <h2 className="text-4xl md:text-5xl font-bold mt-3 mb-4">Core Analysis Engine</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
               End-to-end automated well screening — from satellite field scanning to final EOR treatment recommendations

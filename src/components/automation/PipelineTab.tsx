@@ -36,7 +36,7 @@ export function PipelineTab({ pipelineRunning, pipelineProgress, pipelineStep, o
           <Play className="h-5 w-5 text-primary" />
           Full Analysis Pipeline
         </CardTitle>
-        <CardDescription>One-click execution: Import → 8-Stage Analysis → Report Generation</CardDescription>
+        <CardDescription>One-click execution: Import → 9-Stage Analysis → Report Generation</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Start / progress header */}

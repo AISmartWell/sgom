@@ -354,7 +354,7 @@ const FieldScanMap = ({ wells, loading, onWellSelected }: FieldScanMapProps) => 
             </div>
             {selectedScanWell && (
               <p className="text-xs text-muted-foreground mt-2">
-                ✅ Well selected — click <strong>Run Full Analysis</strong> to start the 8-stage pipeline
+                ✅ Well selected — click <strong>Run Full Analysis</strong> to start the 9-stage pipeline
               </p>
             )}
           </div>
