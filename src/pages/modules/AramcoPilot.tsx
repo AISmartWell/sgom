@@ -6,15 +6,29 @@ import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import {
   Building2, Target, Database, Layers, Cpu, ShieldCheck, FileSpreadsheet,
   CheckCircle2, AlertTriangle, TrendingDown, Globe, Gauge, Activity, FileText, Download, Waves,
-  DollarSign, Users, Server, Briefcase, Search,
+  DollarSign, Users, Server, Briefcase, Search, Info,
 } from "lucide-react";
 import {
   ResponsiveContainer, ComposedChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Cell,
 } from "recharts";
 import AramcoStageRunner from "@/components/aramco-pilot/AramcoStageRunner";
+
+// ─── Unit Economics breakdown (sync with Economics tab line items) ─────────────
+const UNIT_ECONOMICS = [
+  { k: "GPU compute (H100)",     v: 14, n: "3.5 GPU-h @ $4/h — Stage 3 core CV + Stage 5 seismic CV + Stage 8 petrophysics ML" },
+  { k: "LLM tokens",             v: 22, n: "Gemini 2.5 + GPT-5 reasoning across Stages 1, 2, 6, 7, 9 — ~1.2M tokens in+out" },
+  { k: "NVIDIA NIM inference",   v: 12, n: "Cosmos Predict / Transfer / Reason endpoints (seismic + reservoir simulation)" },
+  { k: "Metered data lookups",   v: 15, n: "IHS / Enverus API — formation tops, offset production, completions" },
+  { k: "Monte Carlo (Stage 7)",  v:  2, n: "10k iterations on NPV / IRR / payback" },
+  { k: "Storage & egress",       v:  3, n: "S3 ~15 GB/well (LAS, core, seismic, dossier PDF) + CloudFront" },
+  { k: "Vector DB (pgvector)",   v:  2, n: "Analog wells, formation embeddings, SPT case library" },
+  { k: "QC reserve (15% wells)", v:  4, n: "Petrophysicist review on |Δ|>15% — 2h @ $250/h, prorated" },
+];
+const UE_TOTAL = UNIT_ECONOMICS.reduce((s, r) => s + r.v, 0); // $74
 
 // ─── Funnel 500 → 4 ────────────────────────────────────────────────────────────
 const FUNNEL = [
