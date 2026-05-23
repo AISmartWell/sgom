@@ -6,15 +6,29 @@ import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import {
   Building2, Target, Database, Layers, Cpu, ShieldCheck, FileSpreadsheet,
   CheckCircle2, AlertTriangle, TrendingDown, Globe, Gauge, Activity, FileText, Download, Waves,
-  DollarSign, Users, Server, Briefcase, Search,
+  DollarSign, Users, Server, Briefcase, Search, Info,
 } from "lucide-react";
 import {
   ResponsiveContainer, ComposedChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Cell,
 } from "recharts";
 import AramcoStageRunner from "@/components/aramco-pilot/AramcoStageRunner";
+
+// ─── Unit Economics breakdown (sync with Economics tab line items) ─────────────
+const UNIT_ECONOMICS = [
+  { k: "GPU compute (H100)",     v: 14, n: "3.5 GPU-h @ $4/h — Stage 3 core CV + Stage 5 seismic CV + Stage 8 petrophysics ML" },
+  { k: "LLM tokens",             v: 22, n: "Gemini 2.5 + GPT-5 reasoning across Stages 1, 2, 6, 7, 9 — ~1.2M tokens in+out" },
+  { k: "NVIDIA NIM inference",   v: 12, n: "Cosmos Predict / Transfer / Reason endpoints (seismic + reservoir simulation)" },
+  { k: "Metered data lookups",   v: 15, n: "IHS / Enverus API — formation tops, offset production, completions" },
+  { k: "Monte Carlo (Stage 7)",  v:  2, n: "10k iterations on NPV / IRR / payback" },
+  { k: "Storage & egress",       v:  3, n: "S3 ~15 GB/well (LAS, core, seismic, dossier PDF) + CloudFront" },
+  { k: "Vector DB (pgvector)",   v:  2, n: "Analog wells, formation embeddings, SPT case library" },
+  { k: "QC reserve (15% wells)", v:  4, n: "Petrophysicist review on |Δ|>15% — 2h @ $250/h, prorated" },
+];
+const UE_TOTAL = UNIT_ECONOMICS.reduce((s, r) => s + r.v, 0); // $74
 
 // ─── Funnel 500 → 4 ────────────────────────────────────────────────────────────
 const FUNNEL = [
@@ -106,14 +120,67 @@ export default function AramcoPilot() {
             { l: "Wells In",        v: "500",          c: "text-primary" },
             { l: "SPT-Ready Out",   v: "4",            c: "text-success" },
             { l: "Timeline",        v: "3–4 weeks",    c: "text-cyan-400" },
-            { l: "Price / Well",    v: "$50–150",      c: "text-amber-400" },
-            { l: "Engagement",      v: "Fee-for-Analysis", c: "text-violet-400" },
           ].map((k) => (
             <div key={k.l} className="rounded-lg border border-border/50 bg-background/40 p-3">
               <p className="text-[10px] uppercase text-muted-foreground tracking-wider">{k.l}</p>
               <p className={`text-lg font-bold ${k.c}`}>{k.v}</p>
             </div>
           ))}
+
+          {/* Price / Well — backed by Unit Economics breakdown */}
+          <HoverCard openDelay={80}>
+            <HoverCardTrigger asChild>
+              <button
+                type="button"
+                onClick={() => setTab("economics")}
+                className="rounded-lg border border-amber-500/40 bg-amber-500/5 p-3 text-left hover:bg-amber-500/10 transition-colors"
+              >
+                <p className="text-[10px] uppercase text-muted-foreground tracking-wider flex items-center gap-1">
+                  Price / Well <Info className="h-2.5 w-2.5" />
+                </p>
+                <p className="text-lg font-bold text-amber-400">
+                  ~${UE_TOTAL} <span className="text-[10px] font-normal text-muted-foreground">($50–$120)</span>
+                </p>
+              </button>
+            </HoverCardTrigger>
+            <HoverCardContent className="w-96 p-0" align="start">
+              <div className="p-3 border-b border-border/50">
+                <p className="text-xs font-semibold flex items-center gap-1.5">
+                  <Cpu className="h-3.5 w-3.5 text-primary" /> True marginal cost — per well
+                </p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">
+                  NVIDIA compute + Lovable AI tokens + storage, summed across all 9 stages
+                </p>
+              </div>
+              <div className="p-2 space-y-0.5 max-h-[280px] overflow-y-auto">
+                {UNIT_ECONOMICS.map((row) => (
+                  <div key={row.k} className="grid grid-cols-[1fr_auto] gap-2 px-2 py-1.5 rounded hover:bg-muted/30">
+                    <div>
+                      <p className="text-[11px] font-medium">{row.k}</p>
+                      <p className="text-[10px] text-muted-foreground leading-tight">{row.n}</p>
+                    </div>
+                    <p className="text-[11px] font-bold text-amber-400 self-start">${row.v}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="px-3 py-2 border-t border-border/50 bg-primary/5 flex items-center justify-between">
+                <span className="text-[11px] font-bold">Total marginal / well</span>
+                <span className="text-sm font-bold text-primary">${UE_TOTAL}</span>
+              </div>
+              <div className="px-3 py-1.5 border-t border-border/50 bg-muted/20 flex items-center justify-between">
+                <span className="text-[10px] text-muted-foreground">× 500 wells (Aramco pilot)</span>
+                <span className="text-[11px] font-semibold">${(UE_TOTAL * 500 / 1000).toFixed(1)}k</span>
+              </div>
+              <p className="text-[9px] text-muted-foreground px-3 py-1.5 border-t border-border/50">
+                Click card to open full Economics breakdown (FTE + infra + 3 scenarios)
+              </p>
+            </HoverCardContent>
+          </HoverCard>
+
+          <div className="rounded-lg border border-border/50 bg-background/40 p-3">
+            <p className="text-[10px] uppercase text-muted-foreground tracking-wider">Engagement</p>
+            <p className="text-lg font-bold text-violet-400">Fee-for-Analysis</p>
+          </div>
         </div>
       </div>
 
