@@ -638,6 +638,50 @@ export default function AramcoPilot() {
 
               <Separator />
 
+              {/* MARGINAL BREAKDOWN — honest line items */}
+              <div>
+                <p className="font-semibold mb-2 text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                  <Cpu className="h-3.5 w-3.5" /> True marginal cost per well — line-item breakdown
+                </p>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Line item</TableHead>
+                      <TableHead>What it covers</TableHead>
+                      <TableHead className="text-right">$ / well</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {[
+                      { i: "GPU compute",            d: "Stage 3 CV core photos + Stage 5 seismic CV + Stage 8 petrophysics ML — ~3.5 GPU-h H100 @ $4/h", c: "$14" },
+                      { i: "LLM tokens (Gemini 2.5 + GPT-5)", d: "Stages 1, 2, 6, 7, 9 reasoning + QA double-check — ~1.2M tokens combined in+out", c: "$22" },
+                      { i: "NVIDIA NIM inference",   d: "Cosmos Predict / Transfer / Reason endpoints for seismic and reservoir simulation", c: "$12" },
+                      { i: "Metered data lookups",   d: "IHS / Enverus per-well API calls (formation tops, offset production, completions)", c: "$15" },
+                      { i: "Monte Carlo simulation", d: "Stage 7 economics — 10k iterations on NPV / IRR / payback", c: "$2" },
+                      { i: "Storage & egress",       d: "S3 delta ~15 GB/well (LAS, core, seismic slices, dossier PDF) + CloudFront delivery", c: "$3" },
+                      { i: "Vector DB queries",      d: "pgvector lookups for analog wells, formation embeddings, SPT case library", c: "$2" },
+                      { i: "Manual QC reserve",      d: "15% of wells trigger |Δ|>15% review — 2h petrophysicist @ $250/h, prorated", c: "$4" },
+                    ].map((row) => (
+                      <TableRow key={row.i}>
+                        <TableCell className="text-xs font-medium">{row.i}</TableCell>
+                        <TableCell className="text-xs text-muted-foreground">{row.d}</TableCell>
+                        <TableCell className="text-right text-xs font-semibold">{row.c}</TableCell>
+                      </TableRow>
+                    ))}
+                    <TableRow className="bg-primary/10">
+                      <TableCell className="font-bold text-xs" colSpan={2}>TRUE MARGINAL per well</TableCell>
+                      <TableCell className="text-right font-bold text-sm text-primary">~$74</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+                <p className="text-[11px] text-muted-foreground mt-2">
+                  Range in practice: <span className="text-foreground font-semibold">$50 – $120 / well</span> depending on core-photo count,
+                  seismic cube size, and whether Monte Carlo runs at 1k vs 10k iterations.
+                </p>
+              </div>
+
+              <Separator />
+
               {/* SCENARIOS */}
               <div>
                 <p className="font-semibold mb-2 text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-2">
@@ -647,17 +691,17 @@ export default function AramcoPilot() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Cost component</TableHead>
-                      <TableHead className="text-right">Marginal only (compute+API)</TableHead>
+                      <TableHead className="text-right">Marginal only (post-payback)</TableHead>
                       <TableHead className="text-right">Aramco Pilot — 500 wells / yr</TableHead>
                       <TableHead className="text-right">SaaS scale — 5,000 wells / yr</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {[
-                      { c: "FTE amortization",       a: "—",       b: "$5,694",  d: "$569"  },
-                      { c: "Infra + G&A amortization", a: "—",     b: "$1,580",  d: "$158"  },
-                      { c: "Marginal compute & API", a: "$20",     b: "$20",     d: "$20"   },
-                      { c: "Risk / contingency 15%", a: "$3",      b: "$1,094",  d: "$112"  },
+                      { c: "FTE amortization",         a: "—",   b: "$5,694", d: "$569" },
+                      { c: "Infra + G&A amortization", a: "—",   b: "$1,580", d: "$158" },
+                      { c: "Marginal compute + API + data + QC", a: "$74", b: "$74", d: "$74" },
+                      { c: "Risk / contingency 15%",   a: "$11", b: "$1,102", d: "$120" },
                     ].map((row) => (
                       <TableRow key={row.c}>
                         <TableCell className="text-xs">{row.c}</TableCell>
@@ -668,9 +712,9 @@ export default function AramcoPilot() {
                     ))}
                     <TableRow className="bg-primary/10">
                       <TableCell className="font-bold text-xs">TOTAL per well (our cost)</TableCell>
-                      <TableCell className="text-right font-bold text-sm text-success">~$23</TableCell>
-                      <TableCell className="text-right font-bold text-sm text-primary">~$8,388</TableCell>
-                      <TableCell className="text-right font-bold text-sm text-success">~$859</TableCell>
+                      <TableCell className="text-right font-bold text-sm text-success">~$85</TableCell>
+                      <TableCell className="text-right font-bold text-sm text-primary">~$8,450</TableCell>
+                      <TableCell className="text-right font-bold text-sm text-success">~$921</TableCell>
                     </TableRow>
                     <TableRow className="bg-success/5">
                       <TableCell className="font-semibold text-xs">SLB / Halliburton equivalent</TableCell>
@@ -680,9 +724,9 @@ export default function AramcoPilot() {
                     </TableRow>
                     <TableRow className="bg-success/10">
                       <TableCell className="font-bold text-xs">Cost advantage</TableCell>
-                      <TableCell className="text-right font-bold text-sm text-success">2,000× – 6,500×</TableCell>
-                      <TableCell className="text-right font-bold text-sm text-success">6× – 18×</TableCell>
-                      <TableCell className="text-right font-bold text-sm text-success">58× – 175×</TableCell>
+                      <TableCell className="text-right font-bold text-sm text-success">590× – 1,800×</TableCell>
+                      <TableCell className="text-right font-bold text-sm text-success">6× – 17×</TableCell>
+                      <TableCell className="text-right font-bold text-sm text-success">54× – 163×</TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>
@@ -692,27 +736,28 @@ export default function AramcoPilot() {
 
               <div className="grid md:grid-cols-3 gap-3">
                 <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3">
-                  <p className="text-xs font-semibold text-amber-300 mb-1">Marginal only ($23/well)</p>
+                  <p className="text-xs font-semibold text-amber-300 mb-1">Marginal only (~$85/well)</p>
                   <p className="text-[11px] text-muted-foreground">
-                    What it physically costs to run one extra well through the pipeline once the team and infra are paid for.
-                    Useful for incremental pricing decisions, NOT for P&L.
+                    True variable cost of processing one extra well once the team and infra are already paid for.
+                    Use for incremental pricing, never for full P&L.
                   </p>
                 </div>
                 <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
-                  <p className="text-xs font-semibold text-primary mb-1">Aramco Pilot ($8.4k/well)</p>
+                  <p className="text-xs font-semibold text-primary mb-1">Aramco Pilot (~$8.5k/well)</p>
                   <p className="text-[11px] text-muted-foreground">
-                    Realistic year-1 unit economics: entire fixed cost base spread over the pilot's 500 wells.
-                    Still 6–18× cheaper than SLB/Halliburton's traditional engagement.
+                    Realistic year-1 unit economics — entire $3.6M fixed base spread over the pilot's 500 wells.
+                    Still 6–17× cheaper than SLB/Halliburton's traditional engagement.
                   </p>
                 </div>
                 <div className="rounded-lg border border-success/30 bg-success/5 p-3">
-                  <p className="text-xs font-semibold text-success mb-1">SaaS scale ($0.9k/well)</p>
+                  <p className="text-xs font-semibold text-success mb-1">SaaS scale (~$0.9k/well)</p>
                   <p className="text-[11px] text-muted-foreground">
-                    Steady-state SaaS unit cost at 5,000 wells/yr across multiple operators.
-                    Enables $5–10k list price per well with healthy margins.
+                    Steady-state cost at 5,000 wells/yr across multiple operators.
+                    Enables $5–10k list price per well with 80%+ gross margin.
                   </p>
                 </div>
               </div>
+
 
               <div className="rounded-lg border border-border/60 bg-background/40 p-3">
                 <p className="text-xs font-semibold mb-1">Assumptions & sensitivities</p>
