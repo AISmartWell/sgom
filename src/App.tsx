@@ -70,6 +70,7 @@ import FluidPhysicsSimulation from "./pages/FluidPhysicsSimulation";
 import Innovation from "./pages/Innovation";
 import AlbertaPetrel from "./pages/modules/AlbertaPetrel";
 import AdminImport from "./pages/modules/AdminImport";
+import BayesianDCA from "./pages/modules/BayesianDCA";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
