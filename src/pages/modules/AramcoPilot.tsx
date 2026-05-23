@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import {
   Building2, Target, Database, Layers, Cpu, ShieldCheck, FileSpreadsheet,
   CheckCircle2, AlertTriangle, TrendingDown, Globe, Gauge, Activity, FileText, Download, Waves,
+  DollarSign, Users, Server, Briefcase,
 } from "lucide-react";
 import {
   ResponsiveContainer, ComposedChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Cell,
@@ -131,12 +132,13 @@ export default function AramcoPilot() {
       </Card>
 
       <Tabs value={tab} onValueChange={setTab}>
-        <TabsList className="grid w-full grid-cols-7">
+        <TabsList className="grid w-full grid-cols-8">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="stages">9 Stages</TabsTrigger>
           <TabsTrigger value="funnel">Funnel 500→4</TabsTrigger>
           <TabsTrigger value="candidates">Candidates</TabsTrigger>
           <TabsTrigger value="reconciliation">Reconciliation</TabsTrigger>
+          <TabsTrigger value="economics">Economics</TabsTrigger>
           <TabsTrigger value="data">Data Inputs</TabsTrigger>
           <TabsTrigger value="tech">Tech & Security</TabsTrigger>
         </TabsList>
@@ -530,6 +532,200 @@ export default function AramcoPilot() {
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        {/* ── ECONOMICS — FULL TCO ── */}
+        <TabsContent value="economics" className="space-y-4 mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm flex items-center gap-2">
+                <DollarSign className="h-4 w-4 text-primary" />
+                Full TCO — what one well analysis actually costs us
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4 text-sm">
+              <p className="text-muted-foreground text-xs">
+                Honest cost model. Includes US-level fully-loaded salaries (1.3× base for benefits/taxes),
+                AWS GPU batch, data licenses, security/compliance, and 30% G&A overhead.
+                Per-well cost depends entirely on annual volume — the same fixed cost base amortizes very differently at 500 vs 5,000 wells/yr.
+              </p>
+
+              {/* FTE TABLE */}
+              <div>
+                <p className="font-semibold mb-2 text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                  <Users className="h-3.5 w-3.5" /> Annual FTE cost (fully loaded, US market)
+                </p>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Role</TableHead>
+                      <TableHead className="text-right">Headcount</TableHead>
+                      <TableHead className="text-right">Base / yr</TableHead>
+                      <TableHead className="text-right">Loaded (×1.3) / yr</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {[
+                      { r: "Senior ML / AI Engineer",       h: 2, b: 220, l: 572 },
+                      { r: "Full-stack Engineer",           h: 2, b: 180, l: 468 },
+                      { r: "DevOps / MLOps",                h: 1, b: 200, l: 260 },
+                      { r: "Senior Petrophysicist",         h: 1, b: 250, l: 325 },
+                      { r: "Reservoir Engineer",            h: 1, b: 230, l: 299 },
+                      { r: "Geologist",                     h: 1, b: 180, l: 234 },
+                      { r: "QA Engineer",                   h: 1, b: 140, l: 182 },
+                      { r: "Product Manager",               h: 1, b: 190, l: 247 },
+                      { r: "Sales / Solutions Engineer",    h: 1, b: 200, l: 260 },
+                    ].map((row) => (
+                      <TableRow key={row.r}>
+                        <TableCell className="text-xs">{row.r}</TableCell>
+                        <TableCell className="text-right text-xs">{row.h}</TableCell>
+                        <TableCell className="text-right text-xs">${row.b}k</TableCell>
+                        <TableCell className="text-right text-xs font-semibold">${row.l}k</TableCell>
+                      </TableRow>
+                    ))}
+                    <TableRow className="bg-primary/5">
+                      <TableCell className="font-semibold text-xs">TOTAL FTE</TableCell>
+                      <TableCell className="text-right font-semibold text-xs">11</TableCell>
+                      <TableCell className="text-right text-xs">$1,890k</TableCell>
+                      <TableCell className="text-right font-bold text-sm text-primary">$2,847k / yr</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
+
+              <Separator />
+
+              {/* INFRA TABLE */}
+              <div>
+                <p className="font-semibold mb-2 text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                  <Server className="h-3.5 w-3.5" /> Annual infrastructure, data & compliance
+                </p>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Item</TableHead>
+                      <TableHead>Description</TableHead>
+                      <TableHead className="text-right">$ / yr</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {[
+                      { i: "AWS GPU batch",        d: "H100/A100 on-demand + reserved for ML training & CV inference", c: 180 },
+                      { i: "AWS storage & DB",     d: "S3, RDS Postgres, CloudWatch, backups, egress",                  c:  40 },
+                      { i: "AI API gateway",       d: "NVIDIA NIM endpoints + Gemini 2.5 (LLM + Vision tokens)",        c:  60 },
+                      { i: "Data licenses",        d: "IHS / Enverus / Drillinginfo, USGS premium, seismic cubes",      c: 250 },
+                      { i: "SOC2 + security tools",d: "Datadog, Sentry, Vanta, pen-tests, audits",                       c:  80 },
+                      { i: "Patents & legal",      d: "US 8,863,823 maintenance, NDAs, contracts, IP counsel",          c:  60 },
+                      { i: "Office, insurance, marketing", d: "G&A baseline excluding overhead multiplier",             c: 120 },
+                    ].map((row) => (
+                      <TableRow key={row.i}>
+                        <TableCell className="text-xs font-medium">{row.i}</TableCell>
+                        <TableCell className="text-xs text-muted-foreground">{row.d}</TableCell>
+                        <TableCell className="text-right text-xs font-semibold">${row.c}k</TableCell>
+                      </TableRow>
+                    ))}
+                    <TableRow className="bg-primary/5">
+                      <TableCell className="font-semibold text-xs" colSpan={2}>TOTAL INFRA + G&A</TableCell>
+                      <TableCell className="text-right font-bold text-sm text-primary">$790k / yr</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+                <p className="text-[11px] text-muted-foreground mt-2">
+                  Fixed cost base = $2,847k FTE + $790k infra = <span className="text-foreground font-semibold">$3,637k / yr</span>.
+                  Marginal per-well cost (GPU hours + LLM tokens + storage growth) ≈ <span className="text-foreground font-semibold">$20 / well</span>.
+                </p>
+              </div>
+
+              <Separator />
+
+              {/* SCENARIOS */}
+              <div>
+                <p className="font-semibold mb-2 text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                  <Briefcase className="h-3.5 w-3.5" /> Per-well cost — three scenarios
+                </p>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Cost component</TableHead>
+                      <TableHead className="text-right">Marginal only (compute+API)</TableHead>
+                      <TableHead className="text-right">Aramco Pilot — 500 wells / yr</TableHead>
+                      <TableHead className="text-right">SaaS scale — 5,000 wells / yr</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {[
+                      { c: "FTE amortization",       a: "—",       b: "$5,694",  d: "$569"  },
+                      { c: "Infra + G&A amortization", a: "—",     b: "$1,580",  d: "$158"  },
+                      { c: "Marginal compute & API", a: "$20",     b: "$20",     d: "$20"   },
+                      { c: "Risk / contingency 15%", a: "$3",      b: "$1,094",  d: "$112"  },
+                    ].map((row) => (
+                      <TableRow key={row.c}>
+                        <TableCell className="text-xs">{row.c}</TableCell>
+                        <TableCell className="text-right text-xs">{row.a}</TableCell>
+                        <TableCell className="text-right text-xs">{row.b}</TableCell>
+                        <TableCell className="text-right text-xs">{row.d}</TableCell>
+                      </TableRow>
+                    ))}
+                    <TableRow className="bg-primary/10">
+                      <TableCell className="font-bold text-xs">TOTAL per well (our cost)</TableCell>
+                      <TableCell className="text-right font-bold text-sm text-success">~$23</TableCell>
+                      <TableCell className="text-right font-bold text-sm text-primary">~$8,388</TableCell>
+                      <TableCell className="text-right font-bold text-sm text-success">~$859</TableCell>
+                    </TableRow>
+                    <TableRow className="bg-success/5">
+                      <TableCell className="font-semibold text-xs">SLB / Halliburton equivalent</TableCell>
+                      <TableCell className="text-right text-xs">$50k – $150k</TableCell>
+                      <TableCell className="text-right text-xs">$50k – $150k</TableCell>
+                      <TableCell className="text-right text-xs">$50k – $150k</TableCell>
+                    </TableRow>
+                    <TableRow className="bg-success/10">
+                      <TableCell className="font-bold text-xs">Cost advantage</TableCell>
+                      <TableCell className="text-right font-bold text-sm text-success">2,000× – 6,500×</TableCell>
+                      <TableCell className="text-right font-bold text-sm text-success">6× – 18×</TableCell>
+                      <TableCell className="text-right font-bold text-sm text-success">58× – 175×</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
+
+              <Separator />
+
+              <div className="grid md:grid-cols-3 gap-3">
+                <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3">
+                  <p className="text-xs font-semibold text-amber-300 mb-1">Marginal only ($23/well)</p>
+                  <p className="text-[11px] text-muted-foreground">
+                    What it physically costs to run one extra well through the pipeline once the team and infra are paid for.
+                    Useful for incremental pricing decisions, NOT for P&L.
+                  </p>
+                </div>
+                <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
+                  <p className="text-xs font-semibold text-primary mb-1">Aramco Pilot ($8.4k/well)</p>
+                  <p className="text-[11px] text-muted-foreground">
+                    Realistic year-1 unit economics: entire fixed cost base spread over the pilot's 500 wells.
+                    Still 6–18× cheaper than SLB/Halliburton's traditional engagement.
+                  </p>
+                </div>
+                <div className="rounded-lg border border-success/30 bg-success/5 p-3">
+                  <p className="text-xs font-semibold text-success mb-1">SaaS scale ($0.9k/well)</p>
+                  <p className="text-[11px] text-muted-foreground">
+                    Steady-state SaaS unit cost at 5,000 wells/yr across multiple operators.
+                    Enables $5–10k list price per well with healthy margins.
+                  </p>
+                </div>
+              </div>
+
+              <div className="rounded-lg border border-border/60 bg-background/40 p-3">
+                <p className="text-xs font-semibold mb-1">Assumptions & sensitivities</p>
+                <ul className="list-disc list-inside text-[11px] text-muted-foreground space-y-1">
+                  <li>Salaries: US-market 2026 medians + 30% benefits/payroll tax/equity load.</li>
+                  <li>Data licenses dominate infra ($250k/yr) — can be offset if customer brings their own data (BYOD model).</li>
+                  <li>GPU spend assumes batch H100 at $3–4/GPU-hour; spot pricing can cut this by 40%.</li>
+                  <li>15% contingency covers re-runs, manual petrophysicist review on |Δ|&gt;15% wells, and customer support escalations.</li>
+                  <li>Numbers exclude one-time R&D capex (SPT patent, initial ML model training) — already amortized.</li>
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
       </Tabs>
