@@ -128,6 +128,7 @@ const App = () => (
              <Route path="drone-module" element={<DroneModule />} />
              <Route path="field-twin" element={<FieldTwin />} />
              <Route path="bayesian-dca" element={<BayesianDCA />} />
+             <Route path="aramco-pilot" element={<AramcoPilot />} />
 
           </Route>
            <Route path="/nvidia-inception" element={<NvidiaInception />} />
