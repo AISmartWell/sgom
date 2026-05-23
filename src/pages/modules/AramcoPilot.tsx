@@ -132,10 +132,11 @@ export default function AramcoPilot() {
       </Card>
 
       <Tabs value={tab} onValueChange={setTab}>
-        <TabsList className="grid w-full grid-cols-8">
+        <TabsList className="grid w-full grid-cols-9">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="stages">9 Stages</TabsTrigger>
           <TabsTrigger value="funnel">Funnel 500→4</TabsTrigger>
+          <TabsTrigger value="bypassed">Bypassed</TabsTrigger>
           <TabsTrigger value="candidates">Candidates</TabsTrigger>
           <TabsTrigger value="reconciliation">Reconciliation</TabsTrigger>
           <TabsTrigger value="economics">Economics</TabsTrigger>
