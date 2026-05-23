@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import {
   Building2, Target, Database, Layers, Cpu, ShieldCheck, FileSpreadsheet,
   CheckCircle2, AlertTriangle, TrendingDown, Globe, Gauge, Activity, FileText, Download, Waves,
-  DollarSign, Users, Server, Briefcase,
+  DollarSign, Users, Server, Briefcase, Search,
 } from "lucide-react";
 import {
   ResponsiveContainer, ComposedChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Cell,
@@ -132,10 +132,11 @@ export default function AramcoPilot() {
       </Card>
 
       <Tabs value={tab} onValueChange={setTab}>
-        <TabsList className="grid w-full grid-cols-8">
+        <TabsList className="grid w-full grid-cols-9">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="stages">9 Stages</TabsTrigger>
           <TabsTrigger value="funnel">Funnel 500→4</TabsTrigger>
+          <TabsTrigger value="bypassed">Bypassed</TabsTrigger>
           <TabsTrigger value="candidates">Candidates</TabsTrigger>
           <TabsTrigger value="reconciliation">Reconciliation</TabsTrigger>
           <TabsTrigger value="economics">Economics</TabsTrigger>
@@ -354,6 +355,102 @@ export default function AramcoPilot() {
                   ))}
                 </TableBody>
               </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ── BYPASSED RESERVES ── */}
+        <TabsContent value="bypassed" className="space-y-4 mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm flex items-center gap-2">
+                <Layers className="h-4 w-4 text-primary" />
+                Bypassed Reserves Recovery — Low-Productivity Wells (Stage 5)
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-xs text-muted-foreground">
+                Every well with Water Cut &gt;70% or oil rate &lt;10 BPD is auto-routed through Stage 5
+                (Seismic Reinterpretation). CV detects bright spots, AVO Class III, flat spots at OWC and
+                re-classifies lithology to surface pay zones missed by the original completion.
+              </p>
+
+              <div className="grid md:grid-cols-4 gap-3">
+                <div className="p-3 rounded-lg bg-primary/10 border border-primary/20 text-center">
+                  <p className="text-2xl font-bold text-primary">~180</p>
+                  <p className="text-[10px] text-muted-foreground">Low-productivity wells<br/>(of 500 screened)</p>
+                </div>
+                <div className="p-3 rounded-lg bg-success/10 border border-success/20 text-center">
+                  <p className="text-2xl font-bold text-success">~450</p>
+                  <p className="text-[10px] text-muted-foreground">Bypassed zones detected<br/>(avg 2.5 per well)</p>
+                </div>
+                <div className="p-3 rounded-lg bg-warning/10 border border-warning/20 text-center">
+                  <p className="text-2xl font-bold text-warning">+2.5–4.2</p>
+                  <p className="text-[10px] text-muted-foreground">MMBOE additional<br/>recovery potential</p>
+                </div>
+                <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-center">
+                  <p className="text-2xl font-bold text-destructive">20–40%</p>
+                  <p className="text-[10px] text-muted-foreground">Original reserves<br/>missed (industry avg)</p>
+                </div>
+              </div>
+
+              <div className="rounded-lg border border-border/50 bg-background/40 p-4 space-y-3">
+                <p className="text-xs font-semibold flex items-center gap-2">
+                  <Search className="h-3.5 w-3.5 text-primary" />
+                  Detection Pipeline (per low-productivity well)
+                </p>
+                <div className="grid md:grid-cols-3 gap-3 text-xs">
+                  <div className="p-2 rounded border border-border/30">
+                    <p className="font-semibold text-primary mb-1">1. CV Anomaly Scan</p>
+                    <p className="text-muted-foreground text-[11px]">
+                      Bright Spot, AVO Class III, Flat Spot at OWC — auto-detected on seismic snapshots.
+                    </p>
+                  </div>
+                  <div className="p-2 rounded border border-border/30">
+                    <p className="font-semibold text-primary mb-1">2. Lithology Re-classification</p>
+                    <p className="text-muted-foreground text-[11px]">
+                      Sand / Silt / Shale / Carbonate split, cross-checked with LAS Vsh (Larionov).
+                    </p>
+                  </div>
+                  <div className="p-2 rounded border border-border/30">
+                    <p className="font-semibold text-primary mb-1">3. Zone Prioritization</p>
+                    <p className="text-muted-foreground text-[11px]">
+                      HIGH / MEDIUM / LOW potential with MBOE estimate &amp; confidence; feeds Stage 6 (SPT).
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-lg border border-border/50 bg-background/40 p-4 space-y-2">
+                <p className="text-xs font-semibold">Example output per well</p>
+                <div className="space-y-1.5 text-[11px]">
+                  {[
+                    { f: "Arab-D upper", d: "6,800–7,050 ft", lith: "Tight Carbonate", pot: "HIGH",   mboe: "14–22", conf: 86, ind: "Bright Spot + AVO III" },
+                    { f: "Hanifa",       d: "8,120–8,340 ft", lith: "Carbonate",       pot: "MEDIUM", mboe: "7–11",  conf: 71, ind: "Dim Spot anomaly" },
+                    { f: "Khuff-B",      d: "9,450–9,610 ft", lith: "Dolomite",        pot: "LOW",    mboe: "3–6",   conf: 58, ind: "Flat Spot @ OWC" },
+                  ].map((z, i) => (
+                    <div key={i} className="flex items-center justify-between gap-2 p-1.5 rounded bg-muted/20 border border-border/20">
+                      <span className="font-medium w-24">{z.f}</span>
+                      <span className="text-muted-foreground w-32">{z.d}</span>
+                      <span className="text-muted-foreground w-28">{z.lith}</span>
+                      <Badge className={`text-[9px] ${z.pot==="HIGH"?"bg-success/15 text-success border-success/30":z.pot==="MEDIUM"?"bg-warning/15 text-warning border-warning/30":"bg-muted text-muted-foreground border-border"}`}>{z.pot}</Badge>
+                      <span className="text-primary font-semibold w-20 text-right">{z.mboe} MBOE</span>
+                      <span className="text-muted-foreground text-[10px] w-32 text-right">{z.ind}</span>
+                      <span className="text-muted-foreground w-10 text-right">{z.conf}%</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-lg border border-success/40 bg-success/5 p-3 flex items-start gap-2">
+                <CheckCircle2 className="h-4 w-4 text-success mt-0.5 shrink-0" />
+                <p className="text-xs">
+                  <span className="font-semibold text-success">Outcome:</span> bypassed zones are ranked
+                  and fed directly into Stage 6 (SPT Projection) — the patented Slot Perforation Technology
+                  (US&nbsp;8,863,823) targets missed pay without re-drilling, converting dead wells into
+                  revenue with payback typically &lt;9&nbsp;months.
+                </p>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
