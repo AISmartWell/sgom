@@ -138,7 +138,7 @@ export default function AramcoPilot() {
           <TabsTrigger value="reconciliation">Reconciliation</TabsTrigger>
           <TabsTrigger value="data">Data Inputs</TabsTrigger>
           <TabsTrigger value="tech">Tech & Security</TabsTrigger>
-          <TabsTrigger value="commercial">Commercial</TabsTrigger>
+          
         </TabsList>
 
         {/* ── OVERVIEW ── */}
