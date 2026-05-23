@@ -138,6 +138,12 @@ const menuItems = [
     href: "/dashboard/oklahoma-pilot",
     badge: "🛢️",
   },
+  {
+    title: "Aramco Pilot 500→4",
+    icon: Building2,
+    href: "/dashboard/aramco-pilot",
+    badge: "🇸🇦",
+  },
   // ── Additional Modules ──
   {
     title: "Real-Time Monitor",

@@ -71,6 +71,7 @@ import Innovation from "./pages/Innovation";
 import AlbertaPetrel from "./pages/modules/AlbertaPetrel";
 import AdminImport from "./pages/modules/AdminImport";
 import BayesianDCA from "./pages/modules/BayesianDCA";
+import AramcoPilot from "./pages/modules/AramcoPilot";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -127,6 +128,7 @@ const App = () => (
              <Route path="drone-module" element={<DroneModule />} />
              <Route path="field-twin" element={<FieldTwin />} />
              <Route path="bayesian-dca" element={<BayesianDCA />} />
+             <Route path="aramco-pilot" element={<AramcoPilot />} />
 
           </Route>
            <Route path="/nvidia-inception" element={<NvidiaInception />} />
