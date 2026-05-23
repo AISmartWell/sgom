@@ -126,6 +126,8 @@ const App = () => (
              <Route path="ai-eor-optimization" element={<AIEOROptimization />} /><Route path="ai-analyst" element={<AIAnalyst />} />
              <Route path="drone-module" element={<DroneModule />} />
              <Route path="field-twin" element={<FieldTwin />} />
+             <Route path="bayesian-dca" element={<BayesianDCA />} />
+
           </Route>
            <Route path="/nvidia-inception" element={<NvidiaInception />} />
            <Route path="/nvidia-showcase" element={<NvidiaShowcase />} />
