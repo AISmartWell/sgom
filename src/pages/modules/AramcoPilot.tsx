@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import {
   Building2, Target, Database, Layers, Cpu, ShieldCheck, FileSpreadsheet,
   CheckCircle2, AlertTriangle, TrendingDown, Globe, Gauge, Activity, FileText, Download, Waves,
-  DollarSign, Users, Server, Briefcase,
+  DollarSign, Users, Server, Briefcase, Search,
 } from "lucide-react";
 import {
   ResponsiveContainer, ComposedChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Cell,
