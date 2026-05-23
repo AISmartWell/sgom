@@ -133,14 +133,128 @@ export default function AramcoPilot() {
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList className="grid w-full grid-cols-8">
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="stages">9 Stages</TabsTrigger>
           <TabsTrigger value="funnel">Funnel 500→4</TabsTrigger>
           <TabsTrigger value="candidates">Candidates</TabsTrigger>
           <TabsTrigger value="reconciliation">Reconciliation</TabsTrigger>
           <TabsTrigger value="geophysical">Geophysical</TabsTrigger>
           <TabsTrigger value="data">Data Inputs</TabsTrigger>
           <TabsTrigger value="tech">Tech & Security</TabsTrigger>
-          
         </TabsList>
+
+        {/* ── 9 STAGES ── */}
+        <TabsContent value="stages" className="space-y-4 mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm flex items-center gap-2">
+                <Layers className="h-4 w-4 text-primary" />
+                9-Stage AI Pipeline — applied per well to all 500 Aramco assets
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {[
+                {
+                  n: 1, name: "Field Scanning", icon: "🛰️",
+                  inp: "Aramco well master list (500 wells: Ghawar / Khurais / Berri), lat/long, operator metadata",
+                  proc: "Geocode + plot on map, regional KPI rollup, formation auto-tag against FORMATION_DB (Arab-D, Hanifa, Khuff-B, Marrat)",
+                  out: "Interactive field map, 500-well registry with formation tags",
+                  cut: "Formations outside Arab-D / Hanifa / Khuff scope → drop",
+                  kept: "500 → 500", color: "border-blue-500/40",
+                },
+                {
+                  n: 2, name: "Data Classification", icon: "📂",
+                  inp: "CSV passports + monthly production history (≥24 mo)",
+                  proc: "Data Quality Score per category (Identity / Location / Geology / Production / Operations), AI auto-fill from neighbour wells",
+                  out: "DQ-tagged dataset, missing-field heatmap, auto-fill suggestions with confidence",
+                  cut: "<24 mo history or gaps >6 mo → drop",
+                  kept: "500 → 312", color: "border-emerald-500/40",
+                },
+                {
+                  n: 3, name: "Core Analysis (CV)", icon: "🔬",
+                  inp: "Core photos (optional, where Aramco provides) + formation defaults",
+                  proc: "Gemini Vision: lithology, porosity, fractures, mineralogy, reservoir quality; reconciled vs petrophysics",
+                  out: "Per-well core report (6 sections) + Deviation Report vs FORMATION_DB",
+                  cut: "Quality flag only — does not drop wells",
+                  kept: "312 → 312", color: "border-purple-500/40",
+                },
+                {
+                  n: 4, name: "Cumulative Analysis", icon: "📈",
+                  inp: "Production history + reservoir properties",
+                  proc: "Arps DCA (b=0.5 for carbonate), IOIP / Remaining IOIP, Economic Limit, EUR uncertainty",
+                  out: "Decline curves, EUR estimate, remaining-reserves map",
+                  cut: "Remaining IOIP <1.2 MMbbl or EUR uncertainty >40% → drop",
+                  kept: "312 → 184", color: "border-cyan-500/40",
+                },
+                {
+                  n: 5, name: "Seismic Interpretation", icon: "🌊",
+                  inp: "2D/3D seismic snapshots (where available), horizon picks",
+                  proc: "CV horizon tracking, fault detection, anomaly map, bypassed-reserves overlay",
+                  out: "Seismic QC overlay, structural confidence per well",
+                  cut: "Confidence flag — feeds MCDA, no hard drop",
+                  kept: "184 → 184", color: "border-sky-500/40",
+                },
+                {
+                  n: 6, name: "SPT Projection", icon: "🎯",
+                  inp: "Reservoir + production + completion state",
+                  proc: "MCDA (6 criteria): WC, GOR, depth, formation match, last stim age, casing integrity; SPT candidacy 0–100",
+                  out: "SPT score per well, radar profile, projected Δ-rate (+bbl/d)",
+                  cut: "WC 20–60%, last stim ≥3y, MCDA ≥75 → keep",
+                  kept: "184 → 96 → 42", color: "border-amber-500/40",
+                },
+                {
+                  n: 7, name: "Economic Analysis", icon: "💰",
+                  inp: "Δ-rate forecast, OPEX, SPT job cost, Brent strip",
+                  proc: "Monte Carlo NPV/IRR/payback @ $70/bbl, QAE sensitivity, tornado",
+                  out: "Per-well economic dossier with P10/P50/P90",
+                  cut: "IRR <25% or Payback >18 mo → drop",
+                  kept: "42 → 14", color: "border-orange-500/40",
+                },
+                {
+                  n: 8, name: "Geophysical Expertise", icon: "📊",
+                  inp: "LAS curves (GR, RES, NPHI, RHOB, PEF, DT) where provided",
+                  proc: "Schlumberger workflow: Vsh (Larionov), φ (D/N), Sw (Archie), k (Timur); pay-zone cutoffs per formation",
+                  out: "Net-pay tracks, φ/Sw/k logs, evidence pack with LAS line refs",
+                  cut: "|Δ| vs Aramco petrophysicist >15% → manual review, not auto-drop",
+                  kept: "14 → 14 (validated)", color: "border-violet-500/40",
+                },
+                {
+                  n: 9, name: "EOR Optimization", icon: "⚙️",
+                  inp: "All prior stage outputs + SPT patent (US 8,863,823) constraints",
+                  proc: "Final EOR recommendation: SPT prioritised; alternatives (acid, refrac, water-shutoff) ranked",
+                  out: "Final 4 SPT-Ready dossiers + audit trail + reconciliation Δ <15%",
+                  cut: "Full evidence pack required → final shortlist",
+                  kept: "14 → 4 SPT-Ready", color: "border-green-500/40",
+                },
+              ].map((s) => (
+                <div key={s.n} className={`rounded-lg border ${s.color} bg-background/40 p-4`}>
+                  <div className="flex items-start justify-between gap-3 mb-2 flex-wrap">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl">{s.icon}</span>
+                      <Badge className="bg-primary/20 text-primary border-primary/40 text-xs">Stage {s.n}</Badge>
+                      <h3 className="font-semibold text-sm">{s.name}</h3>
+                    </div>
+                    <Badge variant="outline" className="text-[10px]">Wells: {s.kept}</Badge>
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-2 text-xs">
+                    <div><span className="text-muted-foreground">Input:</span> {s.inp}</div>
+                    <div><span className="text-muted-foreground">Process:</span> {s.proc}</div>
+                    <div><span className="text-muted-foreground">Output:</span> {s.out}</div>
+                    <div><span className="text-muted-foreground">Cutoff:</span> <span className="text-amber-300">{s.cut}</span></div>
+                  </div>
+                </div>
+              ))}
+
+              <div className="rounded-lg border border-success/40 bg-success/5 p-3 flex items-start gap-2">
+                <CheckCircle2 className="h-4 w-4 text-success mt-0.5" />
+                <p className="text-xs">
+                  <span className="font-semibold text-success">Final: 500 → 4 SPT-Ready</span> — every well carries a full
+                  9-stage audit trail (REAL / DERIVED / FORMATION-BASED tags), reconciled against Aramco reference data with
+                  |Δ| &lt; 15% threshold.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         {/* ── OVERVIEW ── */}
         <TabsContent value="overview" className="space-y-4 mt-4">
