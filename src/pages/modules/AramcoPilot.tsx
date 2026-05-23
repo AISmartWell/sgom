@@ -772,15 +772,16 @@ export default function AramcoPilot() {
 
               <Separator />
 
-              {/* PILOT PRICING @ $2,000/well */}
-              <div className="rounded-lg border-2 border-primary/40 bg-primary/5 p-4 space-y-3">
+              {/* PILOT PRICING @ $2,000/well — 28-day sprint */}
+              <div className="rounded-lg border-2 border-success/40 bg-success/5 p-4 space-y-3">
                 <div className="flex items-center gap-2">
-                  <Target className="h-4 w-4 text-primary" />
-                  <p className="text-sm font-bold text-primary">Aramco Pilot Pricing — $2,000 / well (loss-leader)</p>
+                  <Target className="h-4 w-4 text-success" />
+                  <p className="text-sm font-bold text-success">Aramco Pilot — 500 wells × $2,000 / well · 28-day sprint</p>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Strategic entry price. Below full TCO ($8.5k) but above true marginal ($85). Year-1 loss
-                  funded as customer acquisition cost for the Aramco reference and Y2 expansion option.
+                  Fixed-scope 28-day engagement. Team is loaded pro-rata (28/365 = 7.67%), not annualized.
+                  BYOD data, lean 6-FTE squad, AWS H100 batch. Result: <span className="text-success font-semibold">profitable pilot</span>,
+                  not loss-leader.
                 </p>
 
                 <Table>
@@ -795,22 +796,22 @@ export default function AramcoPilot() {
                   <TableBody>
                     <TableRow className="bg-success/5">
                       <TableCell className="text-xs font-semibold text-success">REVENUE</TableCell>
-                      <TableCell className="text-xs">500 wells × $2,000</TableCell>
+                      <TableCell className="text-xs">500 wells × $2,000 (50% upfront / 50% on delivery)</TableCell>
                       <TableCell className="text-right text-xs font-bold text-success">$1,000,000</TableCell>
                       <TableCell className="text-right text-xs font-bold text-success">$2,000</TableCell>
                     </TableRow>
 
-                    <TableRow><TableCell colSpan={4} className="text-[11px] uppercase tracking-wider text-muted-foreground pt-3">Lean pilot cost structure (Aramco-dedicated)</TableCell></TableRow>
+                    <TableRow><TableCell colSpan={4} className="text-[11px] uppercase tracking-wider text-muted-foreground pt-3">Cost structure — 28 days, pro-rata FTE (7.67% of annual)</TableCell></TableRow>
                     {[
-                      { l: "2 × Senior ML Engineer",    d: "Dedicated to Aramco pipeline tuning",                    t: 572, w: 1144 },
-                      { l: "1 × Senior Petrophysicist", d: "QC, |Δ|>15% review, formation calibration",              t: 325, w: 650  },
-                      { l: "1 × Full-stack Engineer",   d: "Dossiers, dashboards, Aramco SSO integration",           t: 234, w: 468  },
-                      { l: "0.5 × DevOps / MLOps",      d: "AWS batch, monitoring, security",                        t: 130, w: 260  },
-                      { l: "0.5 × PM / Solutions",      d: "Aramco liaison, weekly steering, delivery",              t: 124, w: 248  },
-                      { l: "GPU + storage + AI API",    d: "Lean infra: H100 batch + Gemini/NIM, no premium tools",  t: 130, w: 260  },
-                      { l: "SOC2 + security + legal",   d: "Aramco compliance pack, NDAs, MSA",                      t:  60, w: 120  },
-                      { l: "Data licenses",             d: "BYOD — Aramco provides LAS/seismic/production internally", t: 0, w: 0    },
-                      { l: "Marginal compute + QC",     d: "500 wells × $85 (incl. 15% contingency)",                t:  43, w:  85  },
+                      { l: "2 × Senior ML Engineer",    d: "Pipeline tuning, SPT model calibration (28d)",            t: 43.9, w:  88 },
+                      { l: "1 × Senior Petrophysicist", d: "QC, |Δ|>15% review, formation calibration (28d)",         t: 24.9, w:  50 },
+                      { l: "1 × Full-stack Engineer",   d: "Dossiers, Aramco SSO, dashboards (28d)",                  t: 17.9, w:  36 },
+                      { l: "0.5 × DevOps / MLOps",      d: "AWS H100 batch orchestration, monitoring (28d)",          t: 10.0, w:  20 },
+                      { l: "0.5 × PM / Solutions",      d: "Aramco liaison, daily standups, delivery (28d)",          t:  9.5, w:  19 },
+                      { l: "GPU + storage (28d)",       d: "H100 batch ~2,000 GPU-h @ $3.5 + S3",                     t: 10.0, w:  20 },
+                      { l: "SOC2 + MSA + legal",        d: "One-time Aramco compliance + contract setup",             t: 35.0, w:  70 },
+                      { l: "Data licenses",             d: "BYOD — Aramco provides LAS / seismic / production",       t:  0,   w:   0 },
+                      { l: "Marginal compute + QC",     d: "500 wells × $85 (LLM, NIM, vector DB, contingency)",      t: 42.5, w:  85 },
                     ].map((r) => (
                       <TableRow key={r.l}>
                         <TableCell className="text-xs font-medium">{r.l}</TableCell>
@@ -820,31 +821,31 @@ export default function AramcoPilot() {
                       </TableRow>
                     ))}
                     <TableRow className="bg-amber-500/5">
-                      <TableCell className="font-semibold text-xs">TOTAL pilot cost</TableCell>
-                      <TableCell className="text-xs text-muted-foreground">6 FTE + lean infra, BYOD</TableCell>
-                      <TableCell className="text-right font-bold text-sm">$1,618k</TableCell>
-                      <TableCell className="text-right font-bold text-sm">$3,235</TableCell>
+                      <TableCell className="font-semibold text-xs">TOTAL pilot cost (28 days)</TableCell>
+                      <TableCell className="text-xs text-muted-foreground">6 FTE pro-rata + lean infra + BYOD</TableCell>
+                      <TableCell className="text-right font-bold text-sm">$193.7k</TableCell>
+                      <TableCell className="text-right font-bold text-sm">$387</TableCell>
                     </TableRow>
-                    <TableRow className="bg-destructive/10">
-                      <TableCell className="font-bold text-xs text-destructive">P&L (Year 1)</TableCell>
-                      <TableCell className="text-xs text-muted-foreground">Revenue − Cost</TableCell>
-                      <TableCell className="text-right font-bold text-sm text-destructive">−$618k</TableCell>
-                      <TableCell className="text-right font-bold text-sm text-destructive">−$1,235</TableCell>
+                    <TableRow className="bg-success/10">
+                      <TableCell className="font-bold text-xs text-success">PROFIT (28 days)</TableCell>
+                      <TableCell className="text-xs text-muted-foreground">Revenue − Cost · gross margin 81%</TableCell>
+                      <TableCell className="text-right font-bold text-sm text-success">+$806.3k</TableCell>
+                      <TableCell className="text-right font-bold text-sm text-success">+$1,613</TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>
 
                 <div className="grid md:grid-cols-3 gap-3">
                   <div className="rounded-lg border border-success/30 bg-success/5 p-3">
-                    <p className="text-xs font-semibold text-success mb-1">Customer pays 24× less</p>
+                    <p className="text-xs font-semibold text-success mb-1">Customer pays 24–74× less</p>
                     <p className="text-[11px] text-muted-foreground">
-                      $2,000/well vs SLB/Halliburton $50k–$150k. Aramco saves $24M–$74M on the 500-well program.
+                      $1.0M in 28 days vs SLB/Halliburton $25M–$75M in 6–12 months. Aramco saves $24M–$74M and 5–11 months.
                     </p>
                   </div>
                   <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
-                    <p className="text-xs font-semibold text-primary mb-1">CAC justified</p>
+                    <p className="text-xs font-semibold text-primary mb-1">Profitable from day 1</p>
                     <p className="text-[11px] text-muted-foreground">
-                      $618k Y1 loss = customer acquisition cost. Industry standard CAC for $10M+ enterprise contract is $1–3M.
+                      +$806k cash profit on the pilot itself. No CAC subsidy required — Aramco reference comes for free.
                     </p>
                   </div>
                   <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3">
@@ -856,13 +857,24 @@ export default function AramcoPilot() {
                 </div>
 
                 <div className="rounded-lg border border-border/60 bg-background/40 p-3">
-                  <p className="text-xs font-semibold mb-1">Conditions required to make $2,000/well work</p>
+                  <p className="text-xs font-semibold mb-1">28-day delivery plan & feasibility</p>
+                  <ul className="list-disc list-inside text-[11px] text-muted-foreground space-y-1">
+                    <li><span className="text-foreground font-semibold">Days 1–3:</span> BYOD data ingest (LAS, seismic, production CSV) + Aramco SSO + MSA execution.</li>
+                    <li><span className="text-foreground font-semibold">Days 4–14:</span> Stages 1–7 + 9 on 500 wells (AI pipeline, ~10–14 days end-to-end).</li>
+                    <li><span className="text-foreground font-semibold">Stage 8:</span> petrophysics on 500 wells = single AWS H100 batch in ~6 hours (~$7k GPU).</li>
+                    <li><span className="text-foreground font-semibold">Days 15–28:</span> QC by petrophysicist on |Δ|&gt;15% wells, dossier export, Aramco review.</li>
+                    <li><span className="text-foreground font-semibold">Risks:</span> BYOD delay → schedule slips; H100 spot capacity → fallback to on-demand (+30% GPU).</li>
+                  </ul>
+                </div>
+
+                <div className="rounded-lg border border-border/60 bg-background/40 p-3">
+                  <p className="text-xs font-semibold mb-1">Conditions required to make 28-day pilot work</p>
                   <ol className="list-decimal list-inside text-[11px] text-muted-foreground space-y-1">
-                    <li><span className="text-foreground font-semibold">BYOD mandatory</span> — Aramco provides LAS, seismic, production data; saves $250k/yr in IHS/Enverus licenses.</li>
+                    <li><span className="text-foreground font-semibold">BYOD mandatory</span> — Aramco provides LAS, seismic, production by day 3. Saves $250k/yr in IHS/Enverus licenses.</li>
                     <li><span className="text-foreground font-semibold">Lean team of 6 FTE</span> dedicated to pilot — full company team ($2.85M FTE) is NOT loaded onto this contract.</li>
                     <li><span className="text-foreground font-semibold">Y2 expansion clause</span> in MSA — right of first refusal on follow-on 5,000+ well program at $5–10k/well.</li>
                     <li><span className="text-foreground font-semibold">Reference + case study rights</span> — Aramco logo, public testimonial, joint white paper on SPT EOR uplift.</li>
-                    <li><span className="text-foreground font-semibold">Milestone payments</span> — 30% upfront ($300k), 40% at 250-well delivery ($400k), 30% at completion ($300k) to fund payroll.</li>
+                    <li><span className="text-foreground font-semibold">Milestone payments</span> — 50% upfront ($500k), 50% on delivery ($500k) to fund 28-day payroll.</li>
                   </ol>
                 </div>
               </div>
