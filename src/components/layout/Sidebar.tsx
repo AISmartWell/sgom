@@ -307,6 +307,13 @@ const menuItems = [
     href: "/dashboard/field-twin",
     badge: "🏗️",
   },
+  {
+    title: "Bayesian DCA Monitor",
+    icon: Brain,
+    href: "/dashboard/bayesian-dca",
+    badge: "🧮",
+  },
+
 ];
 
 interface SidebarProps {

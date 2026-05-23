@@ -70,6 +70,7 @@ import FluidPhysicsSimulation from "./pages/FluidPhysicsSimulation";
 import Innovation from "./pages/Innovation";
 import AlbertaPetrel from "./pages/modules/AlbertaPetrel";
 import AdminImport from "./pages/modules/AdminImport";
+import BayesianDCA from "./pages/modules/BayesianDCA";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -125,6 +126,8 @@ const App = () => (
              <Route path="ai-eor-optimization" element={<AIEOROptimization />} /><Route path="ai-analyst" element={<AIAnalyst />} />
              <Route path="drone-module" element={<DroneModule />} />
              <Route path="field-twin" element={<FieldTwin />} />
+             <Route path="bayesian-dca" element={<BayesianDCA />} />
+
           </Route>
            <Route path="/nvidia-inception" element={<NvidiaInception />} />
            <Route path="/nvidia-showcase" element={<NvidiaShowcase />} />
