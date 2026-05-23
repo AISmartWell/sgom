@@ -685,6 +685,285 @@ export default function AramcoPilot() {
 
         {/* ── ECONOMICS — FULL TCO ── */}
         <TabsContent value="economics" className="space-y-4 mt-4">
+          {/* ─── Aramco Pilot — Total Project Cost (28 days × 500 wells) ─── */}
+          <Card className="border-primary/40 bg-gradient-to-br from-primary/5 via-background to-background">
+            <CardHeader>
+              <CardTitle className="text-sm flex items-center gap-2">
+                <Briefcase className="h-4 w-4 text-primary" />
+                Aramco Pilot — Total Project Cost (28 days · 500 wells)
+              </CardTitle>
+              <p className="text-[11px] text-muted-foreground mt-1">
+                Full bottom-up budget for the 4-week engagement. Direct compute + data, allocated team time,
+                pro-rata infrastructure, Aramco-specific overhead, contingency. All numbers in USD.
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-5 text-sm">
+
+              {/* 1. Direct compute & data (marginal × 500) */}
+              <div>
+                <p className="font-semibold mb-2 text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                  <Cpu className="h-3.5 w-3.5" /> 1 · Direct compute & data — variable cost × 500 wells
+                </p>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Line item</TableHead>
+                      <TableHead className="text-right">$ / well</TableHead>
+                      <TableHead className="text-right">× 500 wells</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {UNIT_ECONOMICS.map((row) => (
+                      <TableRow key={row.k}>
+                        <TableCell className="text-xs">
+                          <p className="font-medium">{row.k}</p>
+                          <p className="text-[10px] text-muted-foreground">{row.n}</p>
+                        </TableCell>
+                        <TableCell className="text-right text-xs">${row.v}</TableCell>
+                        <TableCell className="text-right text-xs font-semibold">${(row.v * 500).toLocaleString()}</TableCell>
+                      </TableRow>
+                    ))}
+                    <TableRow className="bg-primary/10">
+                      <TableCell className="font-bold text-xs">Subtotal — direct compute & data</TableCell>
+                      <TableCell className="text-right font-bold text-xs">${UE_TOTAL}</TableCell>
+                      <TableCell className="text-right font-bold text-sm text-primary">${(UE_TOTAL * 500).toLocaleString()}</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
+
+              <Separator />
+
+              {/* 2. Project team allocation — 28 days */}
+              <div>
+                <p className="font-semibold mb-2 text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                  <Users className="h-3.5 w-3.5" /> 2 · Project team — allocated FTE-days × loaded daily rate
+                </p>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Role</TableHead>
+                      <TableHead className="text-right">Headcount</TableHead>
+                      <TableHead className="text-right">Allocation</TableHead>
+                      <TableHead className="text-right">FTE-days</TableHead>
+                      <TableHead className="text-right">Loaded $/day</TableHead>
+                      <TableHead className="text-right">Cost</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {[
+                      // loaded annual / 220 working days = daily rate
+                      { r: "Senior Petrophysicist",      h: 1, alloc: 1.0,  days: 20, rate: 1477, note: "Stage 3/8 review, reconciliation lead" },
+                      { r: "Reservoir Engineer",         h: 1, alloc: 1.0,  days: 20, rate: 1359, note: "Stage 4/7 DCA, EUR, economics" },
+                      { r: "Geologist",                  h: 1, alloc: 0.75, days: 15, rate: 1064, note: "Stage 1/5 formations + seismic QC" },
+                      { r: "Senior ML / AI Engineer",    h: 2, alloc: 0.6,  days: 24, rate: 1300, note: "Stage 3/5/6 CV + MCDA pipelines" },
+                      { r: "Full-stack Engineer",        h: 1, alloc: 0.5,  days: 10, rate: 1064, note: "Aramco tenant, dossier rendering" },
+                      { r: "DevOps / MLOps",             h: 1, alloc: 0.5,  days: 10, rate: 1182, note: "GPU batch orchestration, KSA region" },
+                      { r: "QA Engineer",                h: 1, alloc: 0.75, days: 15, rate:  827, note: "Per-well dossier QC + Δ-checks" },
+                      { r: "Product / Solutions",        h: 1, alloc: 0.5,  days: 10, rate: 1182, note: "Aramco liaison, scope, sign-off" },
+                      { r: "Sales / Account Exec",       h: 1, alloc: 0.25, days:  5, rate: 1182, note: "Commercial coordination" },
+                    ].map((row) => {
+                      const cost = row.days * row.rate;
+                      return (
+                        <TableRow key={row.r}>
+                          <TableCell className="text-xs">
+                            <p className="font-medium">{row.r}</p>
+                            <p className="text-[10px] text-muted-foreground">{row.note}</p>
+                          </TableCell>
+                          <TableCell className="text-right text-xs">{row.h}</TableCell>
+                          <TableCell className="text-right text-xs">{(row.alloc * 100).toFixed(0)}%</TableCell>
+                          <TableCell className="text-right text-xs">{row.days}</TableCell>
+                          <TableCell className="text-right text-xs">${row.rate.toLocaleString()}</TableCell>
+                          <TableCell className="text-right text-xs font-semibold">${cost.toLocaleString()}</TableCell>
+                        </TableRow>
+                      );
+                    })}
+                    <TableRow className="bg-primary/10">
+                      <TableCell className="font-bold text-xs" colSpan={5}>Subtotal — team labor (28 days)</TableCell>
+                      <TableCell className="text-right font-bold text-sm text-primary">$162,711</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+                <p className="text-[10px] text-muted-foreground mt-1">
+                  Daily rate = loaded annual salary / 220 working days. Allocations reflect a 28-day pilot,
+                  not a single dedicated team. Other engagements run in parallel on remaining capacity.
+                </p>
+              </div>
+
+              <Separator />
+
+              {/* 3. Infrastructure & data — pro-rata 28/365 */}
+              <div>
+                <p className="font-semibold mb-2 text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                  <Server className="h-3.5 w-3.5" /> 3 · Infrastructure & data licenses — pro-rata 28 / 365 days
+                </p>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Item</TableHead>
+                      <TableHead className="text-right">Annual base</TableHead>
+                      <TableHead className="text-right">28-day share</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {[
+                      { i: "AWS GPU batch (reserved capacity)",     y: 180000 },
+                      { i: "AWS storage, RDS, CloudWatch, backups", y:  40000 },
+                      { i: "AI API gateway (NIM + Gemini base)",    y:  60000 },
+                      { i: "Data licenses (IHS / Enverus / USGS)",  y: 250000 },
+                      { i: "SOC2 + security tooling (Datadog, Vanta)", y: 80000 },
+                      { i: "Patents, legal, IP counsel",            y:  60000 },
+                      { i: "G&A baseline (office, insurance)",      y: 120000 },
+                    ].map((row) => {
+                      const share = Math.round((row.y * 28) / 365);
+                      return (
+                        <TableRow key={row.i}>
+                          <TableCell className="text-xs">{row.i}</TableCell>
+                          <TableCell className="text-right text-xs">${(row.y / 1000).toFixed(0)}k</TableCell>
+                          <TableCell className="text-right text-xs font-semibold">${share.toLocaleString()}</TableCell>
+                        </TableRow>
+                      );
+                    })}
+                    <TableRow className="bg-primary/10">
+                      <TableCell className="font-bold text-xs">Subtotal — infrastructure (28 days)</TableCell>
+                      <TableCell className="text-right text-xs">$790k / yr</TableCell>
+                      <TableCell className="text-right font-bold text-sm text-primary">$60,603</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
+
+              <Separator />
+
+              {/* 4. Aramco-specific overhead */}
+              <div>
+                <p className="font-semibold mb-2 text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                  <ShieldCheck className="h-3.5 w-3.5" /> 4 · Aramco-specific overhead
+                </p>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Item</TableHead>
+                      <TableHead>Description</TableHead>
+                      <TableHead className="text-right">Cost</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {[
+                      { i: "Data ingest & ETL",           d: "500 well passports + production history + LAS/seismic intake, mapping to internal schema", c: 12000 },
+                      { i: "KSA data residency",          d: "AWS Bahrain (me-south-1) — short-term GPU reservation surcharge over baseline", c:  8000 },
+                      { i: "Security clearance & NDA",    d: "Aramco vendor onboarding, NDA legal review, background checks for assigned team", c:  6000 },
+                      { i: "On-site visit (kickoff + handover)", d: "2 trips × 2 people (Dhahran), flights + hotel + per diem", c: 14000 },
+                      { i: "Aramco tenant & SSO",         d: "Dedicated isolated tenant, SAML SSO integration, audit logging", c:  5000 },
+                      { i: "Reconciliation workshops",    d: "4 working sessions with Aramco petrophysics / reservoir teams (remote + on-site)", c:  9000 },
+                      { i: "Deliverable production",      d: "500 per-well PDFs + master report + XLSX workbooks + audit log, design & QA", c: 11000 },
+                      { i: "Final presentation & defense",d: "Executive readout, technical Q&A, methodology defense to Aramco panel", c:  5000 },
+                    ].map((row) => (
+                      <TableRow key={row.i}>
+                        <TableCell className="text-xs font-medium">{row.i}</TableCell>
+                        <TableCell className="text-xs text-muted-foreground">{row.d}</TableCell>
+                        <TableCell className="text-right text-xs font-semibold">${row.c.toLocaleString()}</TableCell>
+                      </TableRow>
+                    ))}
+                    <TableRow className="bg-primary/10">
+                      <TableCell className="font-bold text-xs" colSpan={2}>Subtotal — Aramco-specific</TableCell>
+                      <TableCell className="text-right font-bold text-sm text-primary">$70,000</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
+
+              <Separator />
+
+              {/* 5. TOTAL */}
+              <div>
+                <p className="font-semibold mb-2 text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                  <DollarSign className="h-3.5 w-3.5" /> 5 · Total project cost — what the pilot costs us
+                </p>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Component</TableHead>
+                      <TableHead className="text-right">Amount</TableHead>
+                      <TableHead className="text-right">Share</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {(() => {
+                      const direct = UE_TOTAL * 500;        // 37,000
+                      const team = 162711;
+                      const infra = 60603;
+                      const aramco = 70000;
+                      const subtotal = direct + team + infra + aramco; // 330,314
+                      const contingency = Math.round(subtotal * 0.15); // ~49,547
+                      const total = subtotal + contingency;            // ~379,861
+                      const rows = [
+                        { c: "1 · Direct compute & data (500 × $" + UE_TOTAL + ")", v: direct },
+                        { c: "2 · Project team labor (28 days)",                    v: team },
+                        { c: "3 · Infrastructure pro-rata (28 / 365)",              v: infra },
+                        { c: "4 · Aramco-specific overhead",                        v: aramco },
+                        { c: "Risk & contingency (15%)",                            v: contingency },
+                      ];
+                      return (
+                        <>
+                          {rows.map((r) => (
+                            <TableRow key={r.c}>
+                              <TableCell className="text-xs">{r.c}</TableCell>
+                              <TableCell className="text-right text-xs font-semibold">${r.v.toLocaleString()}</TableCell>
+                              <TableCell className="text-right text-xs text-muted-foreground">{((r.v / total) * 100).toFixed(1)}%</TableCell>
+                            </TableRow>
+                          ))}
+                          <TableRow className="bg-primary/15">
+                            <TableCell className="font-bold text-sm">TOTAL — our cost to deliver the 500-well pilot</TableCell>
+                            <TableCell className="text-right font-bold text-base text-primary">${total.toLocaleString()}</TableCell>
+                            <TableCell className="text-right text-xs">100%</TableCell>
+                          </TableRow>
+                          <TableRow className="bg-success/10">
+                            <TableCell className="font-semibold text-xs">Effective cost per well</TableCell>
+                            <TableCell className="text-right font-bold text-sm text-success">${Math.round(total / 500).toLocaleString()}</TableCell>
+                            <TableCell className="text-right text-xs text-muted-foreground">total / 500</TableCell>
+                          </TableRow>
+                        </>
+                      );
+                    })()}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Pricing reference cards */}
+              <div className="grid md:grid-cols-3 gap-3 pt-2">
+                <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
+                  <p className="text-[10px] uppercase text-muted-foreground tracking-wider">Our cost</p>
+                  <p className="text-xl font-bold text-primary">~$380k</p>
+                  <p className="text-[11px] text-muted-foreground mt-1">
+                    Total 28-day cost to deliver the full 500-well pilot — direct + team + infra + Aramco overhead + 15% contingency.
+                  </p>
+                </div>
+                <div className="rounded-lg border border-success/30 bg-success/5 p-3">
+                  <p className="text-[10px] uppercase text-muted-foreground tracking-wider">Suggested price to Aramco</p>
+                  <p className="text-xl font-bold text-success">$750k – $1.2M</p>
+                  <p className="text-[11px] text-muted-foreground mt-1">
+                    $1.5k – $2.4k per well · ~2–3× our cost · margin funds continued R&D and dataset growth.
+                  </p>
+                </div>
+                <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3">
+                  <p className="text-[10px] uppercase text-muted-foreground tracking-wider">SLB / Halliburton equivalent</p>
+                  <p className="text-xl font-bold text-amber-300">$25M – $75M</p>
+                  <p className="text-[11px] text-muted-foreground mt-1">
+                    Traditional screening of 500 wells at $50k – $150k each. Aramco still saves <span className="text-success font-semibold">20× – 100×</span> at our list price.
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-[10px] text-muted-foreground italic">
+                All figures are bottom-up, fully loaded (1.3× salary multiplier), and use US-market rates.
+                Daily rate = loaded annual / 220 working days. Infrastructure prorated linearly 28/365.
+                Contingency 15% covers data-quality reprocessing, scope creep, and extra reconciliation cycles.
+              </p>
+            </CardContent>
+          </Card>
+
+
           <Card>
             <CardHeader>
               <CardTitle className="text-sm flex items-center gap-2">
