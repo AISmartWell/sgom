@@ -14,6 +14,7 @@ import {
 import {
   ResponsiveContainer, ComposedChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Cell,
 } from "recharts";
+import AramcoStageRunner from "@/components/aramco-pilot/AramcoStageRunner";
 
 // ─── Funnel 500 → 4 ────────────────────────────────────────────────────────────
 const FUNNEL = [
