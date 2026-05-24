@@ -1,7 +1,18 @@
 import { useState, useEffect, useRef } from "react";
-import { Satellite, Grid3X3, CheckCircle2 } from "lucide-react";
+import { Satellite, Grid3X3, CheckCircle2, Flame, Layers } from "lucide-react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+
+// NASA GIBS — free public WMTS tiles, no API key required
+const gibsDate = () => {
+  // GIBS imagery has ~1 day latency; use yesterday's date
+  const d = new Date();
+  d.setUTCDate(d.getUTCDate() - 1);
+  return d.toISOString().slice(0, 10);
+};
+const GIBS = (layer: string, level: number, fmt: "png" | "jpg" = "jpg") =>
+  `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/${layer}/default/${gibsDate()}/GoogleMapsCompatible_Level${level}/{z}/{y}/{x}.${fmt}`;
+
 
 interface SatelliteInitVisualizationProps {
   stage: "idle" | "initializing" | "scanning" | "analyzing" | "filtering" | "cleanup" | "complete";
