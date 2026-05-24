@@ -45,9 +45,14 @@ export const SatelliteInitVisualization = ({ stage }: SatelliteInitVisualization
   const [satelliteLoaded, setSatelliteLoaded] = useState(false);
   const [gridOverlay, setGridOverlay] = useState(false);
   const [scanProgress, setScanProgress] = useState(0);
+  const [showThermal, setShowThermal] = useState(true);
+  const [showTrueColor, setShowTrueColor] = useState(false);
   const mapRef = useRef<L.Map | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const gridLayerRef = useRef<L.LayerGroup | null>(null);
+  const thermalLayerRef = useRef<L.TileLayer | null>(null);
+  const trueColorLayerRef = useRef<L.TileLayer | null>(null);
+
 
   const isActive = stage !== "idle";
   const pastInit = ["scanning", "analyzing", "filtering", "cleanup", "complete"].includes(stage);
