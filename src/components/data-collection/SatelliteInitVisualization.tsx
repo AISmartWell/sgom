@@ -1,7 +1,18 @@
 import { useState, useEffect, useRef } from "react";
-import { Satellite, Grid3X3, CheckCircle2 } from "lucide-react";
+import { Satellite, Grid3X3, CheckCircle2, Flame, Layers } from "lucide-react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+
+// NASA GIBS — free public WMTS tiles, no API key required
+const gibsDate = () => {
+  // GIBS imagery has ~1 day latency; use yesterday's date
+  const d = new Date();
+  d.setUTCDate(d.getUTCDate() - 1);
+  return d.toISOString().slice(0, 10);
+};
+const GIBS = (layer: string, level: number, fmt: "png" | "jpg" = "jpg") =>
+  `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/${layer}/default/${gibsDate()}/GoogleMapsCompatible_Level${level}/{z}/{y}/{x}.${fmt}`;
+
 
 interface SatelliteInitVisualizationProps {
   stage: "idle" | "initializing" | "scanning" | "analyzing" | "filtering" | "cleanup" | "complete";
@@ -34,9 +45,14 @@ export const SatelliteInitVisualization = ({ stage }: SatelliteInitVisualization
   const [satelliteLoaded, setSatelliteLoaded] = useState(false);
   const [gridOverlay, setGridOverlay] = useState(false);
   const [scanProgress, setScanProgress] = useState(0);
+  const [showThermal, setShowThermal] = useState(true);
+  const [showTrueColor, setShowTrueColor] = useState(false);
   const mapRef = useRef<L.Map | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const gridLayerRef = useRef<L.LayerGroup | null>(null);
+  const thermalLayerRef = useRef<L.TileLayer | null>(null);
+  const trueColorLayerRef = useRef<L.TileLayer | null>(null);
+
 
   const isActive = stage !== "idle";
   const pastInit = ["scanning", "analyzing", "filtering", "cleanup", "complete"].includes(stage);
@@ -72,8 +88,39 @@ export const SatelliteInitVisualization = ({ stage }: SatelliteInitVisualization
     return () => {
       map.remove();
       mapRef.current = null;
+      thermalLayerRef.current = null;
+      trueColorLayerRef.current = null;
     };
   }, [isActive]);
+
+  // Toggle NASA GIBS VIIRS Thermal Anomalies (active flares/fires)
+  useEffect(() => {
+    if (!mapRef.current || !satelliteLoaded) return;
+    if (showThermal && !thermalLayerRef.current) {
+      thermalLayerRef.current = L.tileLayer(
+        GIBS("VIIRS_SNPP_Thermal_Anomalies_375m_All", 7, "png"),
+        { opacity: 0.85, maxZoom: 9, attribution: "NASA GIBS / VIIRS" }
+      ).addTo(mapRef.current);
+    } else if (!showThermal && thermalLayerRef.current) {
+      mapRef.current.removeLayer(thermalLayerRef.current);
+      thermalLayerRef.current = null;
+    }
+  }, [showThermal, satelliteLoaded]);
+
+  // Toggle NASA GIBS VIIRS True Color (daily fresh imagery)
+  useEffect(() => {
+    if (!mapRef.current || !satelliteLoaded) return;
+    if (showTrueColor && !trueColorLayerRef.current) {
+      trueColorLayerRef.current = L.tileLayer(
+        GIBS("VIIRS_SNPP_CorrectedReflectance_TrueColor", 9, "jpg"),
+        { opacity: 0.7, maxZoom: 9, attribution: "NASA GIBS / VIIRS" }
+      ).addTo(mapRef.current);
+    } else if (!showTrueColor && trueColorLayerRef.current) {
+      mapRef.current.removeLayer(trueColorLayerRef.current);
+      trueColorLayerRef.current = null;
+    }
+  }, [showTrueColor, satelliteLoaded]);
+
 
   // Scan line animation
   useEffect(() => {
@@ -208,12 +255,37 @@ export const SatelliteInitVisualization = ({ stage }: SatelliteInitVisualization
         )}
       </div>
 
+      {/* GIBS overlay controls */}
+      <div className="absolute top-9 right-2 z-[1000] flex flex-col gap-1 bg-black/70 backdrop-blur-sm rounded-md border border-border/50 p-1.5">
+        <button
+          onClick={() => setShowThermal((v) => !v)}
+          className={`flex items-center gap-1.5 px-2 py-1 rounded text-[9px] font-medium transition-colors ${
+            showThermal ? "bg-orange-500/30 text-orange-300 border border-orange-500/50" : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
+          }`}
+          title="VIIRS Thermal Anomalies — active gas flares & fires (NASA, free)"
+        >
+          <Flame className="h-3 w-3" />
+          Flares
+        </button>
+        <button
+          onClick={() => setShowTrueColor((v) => !v)}
+          className={`flex items-center gap-1.5 px-2 py-1 rounded text-[9px] font-medium transition-colors ${
+            showTrueColor ? "bg-primary/30 text-primary border border-primary/50" : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
+          }`}
+          title="VIIRS daily True Color imagery (NASA GIBS, free)"
+        >
+          <Layers className="h-3 w-3" />
+          VIIRS RGB
+        </button>
+      </div>
+
       {/* Coordinates bar */}
       <div className="relative z-[1000] flex justify-between px-2 py-1 bg-black/80 text-[8px] font-mono text-muted-foreground border-t border-border/50">
         <span>33.5°N–36.5°N / 95.5°W–103.0°W</span>
-        <span>ESRI World Imagery • NAD83</span>
-        <span>Source: ArcGIS Online</span>
+        <span>ESRI base • NASA GIBS overlay • {gibsDate()}</span>
+        <span>Free • No API key</span>
       </div>
+
     </div>
   );
 };
