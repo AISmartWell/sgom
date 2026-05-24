@@ -255,12 +255,37 @@ export const SatelliteInitVisualization = ({ stage }: SatelliteInitVisualization
         )}
       </div>
 
+      {/* GIBS overlay controls */}
+      <div className="absolute top-9 right-2 z-[1000] flex flex-col gap-1 bg-black/70 backdrop-blur-sm rounded-md border border-border/50 p-1.5">
+        <button
+          onClick={() => setShowThermal((v) => !v)}
+          className={`flex items-center gap-1.5 px-2 py-1 rounded text-[9px] font-medium transition-colors ${
+            showThermal ? "bg-orange-500/30 text-orange-300 border border-orange-500/50" : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
+          }`}
+          title="VIIRS Thermal Anomalies — active gas flares & fires (NASA, free)"
+        >
+          <Flame className="h-3 w-3" />
+          Flares
+        </button>
+        <button
+          onClick={() => setShowTrueColor((v) => !v)}
+          className={`flex items-center gap-1.5 px-2 py-1 rounded text-[9px] font-medium transition-colors ${
+            showTrueColor ? "bg-primary/30 text-primary border border-primary/50" : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
+          }`}
+          title="VIIRS daily True Color imagery (NASA GIBS, free)"
+        >
+          <Layers className="h-3 w-3" />
+          VIIRS RGB
+        </button>
+      </div>
+
       {/* Coordinates bar */}
       <div className="relative z-[1000] flex justify-between px-2 py-1 bg-black/80 text-[8px] font-mono text-muted-foreground border-t border-border/50">
         <span>33.5°N–36.5°N / 95.5°W–103.0°W</span>
-        <span>ESRI World Imagery • NAD83</span>
-        <span>Source: ArcGIS Online</span>
+        <span>ESRI base • NASA GIBS overlay • {gibsDate()}</span>
+        <span>Free • No API key</span>
       </div>
+
     </div>
   );
 };
