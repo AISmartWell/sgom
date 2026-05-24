@@ -88,8 +88,39 @@ export const SatelliteInitVisualization = ({ stage }: SatelliteInitVisualization
     return () => {
       map.remove();
       mapRef.current = null;
+      thermalLayerRef.current = null;
+      trueColorLayerRef.current = null;
     };
   }, [isActive]);
+
+  // Toggle NASA GIBS VIIRS Thermal Anomalies (active flares/fires)
+  useEffect(() => {
+    if (!mapRef.current || !satelliteLoaded) return;
+    if (showThermal && !thermalLayerRef.current) {
+      thermalLayerRef.current = L.tileLayer(
+        GIBS("VIIRS_SNPP_Thermal_Anomalies_375m_All", 7, "png"),
+        { opacity: 0.85, maxZoom: 9, attribution: "NASA GIBS / VIIRS" }
+      ).addTo(mapRef.current);
+    } else if (!showThermal && thermalLayerRef.current) {
+      mapRef.current.removeLayer(thermalLayerRef.current);
+      thermalLayerRef.current = null;
+    }
+  }, [showThermal, satelliteLoaded]);
+
+  // Toggle NASA GIBS VIIRS True Color (daily fresh imagery)
+  useEffect(() => {
+    if (!mapRef.current || !satelliteLoaded) return;
+    if (showTrueColor && !trueColorLayerRef.current) {
+      trueColorLayerRef.current = L.tileLayer(
+        GIBS("VIIRS_SNPP_CorrectedReflectance_TrueColor", 9, "jpg"),
+        { opacity: 0.7, maxZoom: 9, attribution: "NASA GIBS / VIIRS" }
+      ).addTo(mapRef.current);
+    } else if (!showTrueColor && trueColorLayerRef.current) {
+      mapRef.current.removeLayer(trueColorLayerRef.current);
+      trueColorLayerRef.current = null;
+    }
+  }, [showTrueColor, satelliteLoaded]);
+
 
   // Scan line animation
   useEffect(() => {
