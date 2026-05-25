@@ -211,7 +211,7 @@ export const SatelliteInitVisualization = ({ stage }: SatelliteInitVisualization
     gridLayerRef.current = group;
   };
 
-  if (!isActive) return null;
+  // Always render — block visible even before scan starts
 
   return (
     <div className="relative rounded-lg overflow-hidden border border-border bg-black">
