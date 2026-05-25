@@ -59,7 +59,7 @@ export const SatelliteInitVisualization = ({ stage }: SatelliteInitVisualization
 
   // Initialize map
   useEffect(() => {
-    if (!isActive || !containerRef.current || mapRef.current) return;
+    if (!containerRef.current || mapRef.current) return;
 
     const map = L.map(containerRef.current, {
       center: FIELD_CENTER,
@@ -91,7 +91,7 @@ export const SatelliteInitVisualization = ({ stage }: SatelliteInitVisualization
       thermalLayerRef.current = null;
       trueColorLayerRef.current = null;
     };
-  }, [isActive]);
+  }, []);
 
   // Toggle NASA GIBS VIIRS Thermal Anomalies (active flares/fires)
   useEffect(() => {
@@ -154,20 +154,10 @@ export const SatelliteInitVisualization = ({ stage }: SatelliteInitVisualization
     }
   }, [satelliteLoaded, stage, pastInit]);
 
-  // Reset on idle
+  // Reset progress on idle (keep map alive so block is always visible)
   useEffect(() => {
     if (stage === "idle") {
-      setSatelliteLoaded(false);
-      setGridOverlay(false);
       setScanProgress(0);
-      if (gridLayerRef.current && mapRef.current) {
-        mapRef.current.removeLayer(gridLayerRef.current);
-        gridLayerRef.current = null;
-      }
-      if (mapRef.current) {
-        mapRef.current.remove();
-        mapRef.current = null;
-      }
     }
   }, [stage]);
 
@@ -221,7 +211,7 @@ export const SatelliteInitVisualization = ({ stage }: SatelliteInitVisualization
     gridLayerRef.current = group;
   };
 
-  if (!isActive) return null;
+  // Always render — block visible even before scan starts
 
   return (
     <div className="relative rounded-lg overflow-hidden border border-border bg-black">
