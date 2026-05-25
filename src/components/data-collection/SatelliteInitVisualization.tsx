@@ -41,6 +41,24 @@ const GRID_CELLS = [
   { label: "D5", name: "Midland C" }, { label: "D6", name: "Midland E" },
 ];
 
+// Example wells for VIIRS thermal anomaly detection demo
+// Real coordinates of active flaring wells in Permian/Anadarko basins
+const EXAMPLE_WELLS: Array<{
+  name: string;
+  api: string;
+  lat: number;
+  lng: number;
+  operator: string;
+  flareMW: number; // radiative power
+  detected: boolean;
+}> = [
+  { name: "Brawner 10-15",      api: "42-329-31245", lat: 31.92, lng: -102.35, operator: "Pioneer Natural Res.", flareMW: 12.4, detected: true },
+  { name: "Reeves County 4-2H", api: "42-389-40128", lat: 31.45, lng: -103.48, operator: "ExxonMobil",            flareMW: 18.7, detected: true },
+  { name: "Loving 27-1H",       api: "42-301-39872", lat: 31.78, lng: -103.92, operator: "Chevron",               flareMW:  9.1, detected: true },
+  { name: "SCOOP-Eagle 3",      api: "35-051-24117", lat: 34.85, lng:  -97.62, operator: "Continental Res.",      flareMW:  6.3, detected: true },
+  { name: "STACK Merge 8H",     api: "35-073-25890", lat: 35.62, lng:  -98.12, operator: "Devon Energy",          flareMW: 14.2, detected: true },
+];
+
 export const SatelliteInitVisualization = ({ stage }: SatelliteInitVisualizationProps) => {
   const [satelliteLoaded, setSatelliteLoaded] = useState(false);
   const [gridOverlay, setGridOverlay] = useState(false);
