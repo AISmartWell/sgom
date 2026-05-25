@@ -91,7 +91,7 @@ export const SatelliteInitVisualization = ({ stage }: SatelliteInitVisualization
       thermalLayerRef.current = null;
       trueColorLayerRef.current = null;
     };
-  }, [isActive]);
+  }, []);
 
   // Toggle NASA GIBS VIIRS Thermal Anomalies (active flares/fires)
   useEffect(() => {
