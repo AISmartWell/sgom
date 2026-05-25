@@ -18,6 +18,7 @@ import {
   Settings,
   Satellite,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -70,7 +71,7 @@ const FIELD_NAMES = [
   ["Delaware W", "Delaware C", "Delaware E", "Midland W", "Midland C", "Midland E"],
 ];
 
-const STAGES: { key: ScanStage; label: string; icon: any }[] = [
+const STAGES: { key: ScanStage; label: string; icon: LucideIcon }[] = [
   { key: "initializing", label: "Initialize", icon: Settings },
   { key: "scanning", label: "Scan Fields", icon: Radar },
   { key: "analyzing", label: "Analyze Wells", icon: Fuel },
