@@ -16,6 +16,7 @@ import {
   MapPin,
   Clock,
   Settings,
+  Satellite,
 } from "lucide-react";
 import {
   Select,
@@ -321,7 +322,18 @@ export const FieldScanDemo = () => {
         </div>
 
         {/* Satellite Init Visualization */}
-        <SatelliteInitVisualization stage={stage} />
+        <section className="space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <Satellite className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium">Satellite Data Initialization</span>
+            </div>
+            <Badge variant="outline" className="border-primary/50 text-primary">
+              NASA GIBS
+            </Badge>
+          </div>
+          <SatelliteInitVisualization stage={stage} />
+        </section>
 
         {/* Field Grid Map */}
         <div className="relative bg-slate-900/50 rounded-lg p-4 border border-border">
