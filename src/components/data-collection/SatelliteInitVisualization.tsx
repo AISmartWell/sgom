@@ -154,20 +154,10 @@ export const SatelliteInitVisualization = ({ stage }: SatelliteInitVisualization
     }
   }, [satelliteLoaded, stage, pastInit]);
 
-  // Reset on idle
+  // Reset progress on idle (keep map alive so block is always visible)
   useEffect(() => {
     if (stage === "idle") {
-      setSatelliteLoaded(false);
-      setGridOverlay(false);
       setScanProgress(0);
-      if (gridLayerRef.current && mapRef.current) {
-        mapRef.current.removeLayer(gridLayerRef.current);
-        gridLayerRef.current = null;
-      }
-      if (mapRef.current) {
-        mapRef.current.remove();
-        mapRef.current = null;
-      }
     }
   }, [stage]);
 
