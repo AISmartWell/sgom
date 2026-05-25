@@ -140,6 +140,43 @@ export const SatelliteInitVisualization = ({ stage }: SatelliteInitVisualization
     }
   }, [showTrueColor, satelliteLoaded]);
 
+  // Example wells overlay — shown together with the Flares (VIIRS thermal) layer
+  useEffect(() => {
+    if (!mapRef.current || !satelliteLoaded) return;
+
+    if (showThermal && !wellsLayerRef.current) {
+      const group = L.layerGroup();
+      EXAMPLE_WELLS.forEach((w) => {
+        // Pulsing flare marker
+        const html = `
+          <div style="position:relative;width:22px;height:22px;transform:translate(-11px,-11px)">
+            <div style="position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle, rgba(255,140,0,0.85) 0%, rgba(255,60,0,0.45) 45%, rgba(255,0,0,0) 75%);animation:flarePulse 1.8s ease-in-out infinite"></div>
+            <div style="position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:#fff;box-shadow:0 0 6px 2px rgba(255,180,0,0.95)"></div>
+          </div>
+          <style>@keyframes flarePulse{0%,100%{transform:scale(0.8);opacity:0.7}50%{transform:scale(1.25);opacity:1}}</style>
+        `;
+        const icon = L.divIcon({ className: "", html, iconSize: [22, 22] });
+        const marker = L.marker([w.lat, w.lng], { icon });
+        marker.bindTooltip(
+          `<div style="font-family:monospace;font-size:10px;line-height:1.4">
+            <div style="color:#ffb84d;font-weight:bold">🔥 ${w.name}</div>
+            <div style="color:#bbb">API: ${w.api}</div>
+            <div style="color:#bbb">Operator: ${w.operator}</div>
+            <div style="color:#fff">Flare radiative power: <b>${w.flareMW.toFixed(1)} MW</b></div>
+            <div style="color:#7dd3fc">VIIRS-detected ✓</div>
+          </div>`,
+          { direction: "top", offset: [0, -8], opacity: 0.95 }
+        );
+        marker.addTo(group);
+      });
+      group.addTo(mapRef.current);
+      wellsLayerRef.current = group;
+    } else if (!showThermal && wellsLayerRef.current) {
+      mapRef.current.removeLayer(wellsLayerRef.current);
+      wellsLayerRef.current = null;
+    }
+  }, [showThermal, satelliteLoaded]);
+
 
   // Scan line animation
   useEffect(() => {
