@@ -59,7 +59,7 @@ export const SatelliteInitVisualization = ({ stage }: SatelliteInitVisualization
 
   // Initialize map
   useEffect(() => {
-    if (!isActive || !containerRef.current || mapRef.current) return;
+    if (!containerRef.current || mapRef.current) return;
 
     const map = L.map(containerRef.current, {
       center: FIELD_CENTER,
