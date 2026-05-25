@@ -70,6 +70,7 @@ export const SatelliteInitVisualization = ({ stage }: SatelliteInitVisualization
   const gridLayerRef = useRef<L.LayerGroup | null>(null);
   const thermalLayerRef = useRef<L.TileLayer | null>(null);
   const trueColorLayerRef = useRef<L.TileLayer | null>(null);
+  const wellsLayerRef = useRef<L.LayerGroup | null>(null);
 
 
   const isActive = stage !== "idle";
