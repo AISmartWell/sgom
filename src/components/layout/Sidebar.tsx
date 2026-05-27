@@ -314,6 +314,12 @@ const menuItems = [
     badge: "🏗️",
   },
   {
+    title: "Digital Twin Monitor",
+    icon: Layers,
+    href: "/dashboard/digital-twin",
+    badge: "🔄",
+  },
+  {
     title: "Bayesian DCA Monitor",
     icon: Brain,
     href: "/dashboard/bayesian-dca",
