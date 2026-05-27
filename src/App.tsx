@@ -125,11 +125,13 @@ const App = () => (
              <Route path="production-history" element={<ProductionHistory />} />
              <Route path="reserves-map" element={<ReservesMapPage />} />
              <Route path="analysis-reports" element={<AnalysisReports />} />
-             <Route path="ai-eor-optimization" element={<AIEOROptimization />} /><Route path="ai-analyst" element={<AIAnalyst />} />
-             <Route path="drone-module" element={<DroneModule />} />
-             <Route path="field-twin" element={<FieldTwin />} />
-             <Route path="bayesian-dca" element={<BayesianDCA />} />
-             <Route path="aramco-pilot" element={<AramcoPilot />} />
+              <Route path="ai-eor-optimization" element={<AIEOROptimization />} />
+              <Route path="ai-analyst" element={<AIAnalyst />} />
+              <Route path="drone-module" element={<DroneModule />} />
+              <Route path="field-twin" element={<FieldTwin />} />
+              <Route path="digital-twin" element={<DigitalTwin />} />
+              <Route path="bayesian-dca" element={<BayesianDCA />} />
+              <Route path="aramco-pilot" element={<AramcoPilot />} />
 
           </Route>
            <Route path="/nvidia-inception" element={<NvidiaInception />} />
