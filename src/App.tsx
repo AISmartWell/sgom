@@ -46,6 +46,7 @@ import AnalysisReports from "./pages/modules/AnalysisReports";
 import AIEOROptimization from "./pages/modules/AIEOROptimization";
 import DroneModule from "./pages/modules/DroneModule";
 import FieldTwin from "./pages/modules/FieldTwin";
+import DigitalTwin from "./pages/modules/DigitalTwin";
 import NvidiaInception from "./pages/NvidiaInception";
 import NvidiaShowcase from "./pages/NvidiaShowcase";
 import NvidiaCosmos from "./pages/NvidiaCosmos";
