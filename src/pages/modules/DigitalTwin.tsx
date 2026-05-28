@@ -595,6 +595,167 @@ export default function DigitalTwin() {
               </div>
             </div>
           )}
+
+          {/* ═══ TAB 4 – LIVE EXAMPLE (Brawner 10-15) ═══ */}
+          {tab === 4 && (
+            <div className="flex flex-col gap-3.5">
+              {/* Well header */}
+              <div className="flex items-center justify-between flex-wrap gap-2 px-3 py-2.5 bg-card rounded-lg border border-border/50">
+                <div>
+                  <div className="text-[10px] text-muted-foreground tracking-[0.12em] uppercase">Case study · Live digital twin</div>
+                  <div className="text-[15px] font-medium mt-0.5">
+                    {EXAMPLE_WELL.name} <span className="text-muted-foreground text-[11px]">· API {EXAMPLE_WELL.api}</span>
+                  </div>
+                  <div className="text-[11px] text-muted-foreground">
+                    {EXAMPLE_WELL.field} · {EXAMPLE_WELL.formation} · {EXAMPLE_WELL.depth} ft · {EXAMPLE_WELL.operator}
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={resetExample}
+                    className="text-[11px] px-3 py-1.5 rounded-md border border-emerald-400/40 bg-emerald-400/10 text-emerald-400 font-mono hover:bg-emerald-400/20 transition-colors">
+                    ▶ Replay
+                  </button>
+                  <button onClick={() => setExPlaying(p => !p)}
+                    className="text-[11px] px-3 py-1.5 rounded-md border border-border/50 bg-transparent text-muted-foreground font-mono hover:bg-muted/30 transition-colors">
+                    {exPlaying ? "⏸ Pause" : "▶ Resume"}
+                  </button>
+                </div>
+              </div>
+
+              {/* Stage stepper */}
+              <div className="grid grid-cols-5 gap-1.5">
+                {EXAMPLE_STAGES.map((s, i) => {
+                  const done = i < exStage;
+                  const active = i === exStage;
+                  const pct = done ? 100 : active ? exProgress * 100 : 0;
+                  return (
+                    <div key={s.key} className="flex flex-col gap-1">
+                      <div className="h-[3px] rounded-full bg-border overflow-hidden">
+                        <div className="h-full transition-all duration-100"
+                          style={{ width: `${pct}%`, background: s.color }} />
+                      </div>
+                      <div className="text-[9px] tracking-[0.08em] uppercase"
+                        style={{ color: done || active ? s.color : "hsl(var(--muted-foreground))" }}>
+                        {i + 1}. {s.label}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Active stage card */}
+              <div className="p-3.5 bg-card rounded-lg border border-border/50"
+                style={{ borderLeft: `3px solid ${EXAMPLE_STAGES[exStage].color}` }}>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-2 h-2 rounded-full animate-pulse"
+                    style={{ background: EXAMPLE_STAGES[exStage].color,
+                      boxShadow: `0 0 0 4px ${EXAMPLE_STAGES[exStage].color}30` }} />
+                  <span className="text-[12px] font-medium"
+                    style={{ color: EXAMPLE_STAGES[exStage].color }}>
+                    Stage {exStage + 1}/5 · {EXAMPLE_STAGES[exStage].label}
+                  </span>
+                </div>
+                <div className="text-[11px] text-muted-foreground">{EXAMPLE_STAGES[exStage].sub}</div>
+              </div>
+
+              {/* Live KPIs (revealed as stages progress) */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                {[
+                  { unlock: 1, label: "Porosity (φ)",   val: `${EXAMPLE_WELL.porosity}%`, c: "text-blue-400" },
+                  { unlock: 1, label: "Permeability",   val: `${EXAMPLE_WELL.perm} md`,    c: "text-blue-400" },
+                  { unlock: 1, label: "Reservoir P",    val: `${EXAMPLE_WELL.pres} psi`,   c: "text-blue-400" },
+                  { unlock: 1, label: "Water sat.",     val: `${(EXAMPLE_WELL.sw*100).toFixed(0)}%`, c: "text-amber-400" },
+                  { unlock: 2, label: "Pre-SPT rate",   val: `${EXAMPLE_WELL.qPre} bbl/d`, c: "text-red-400" },
+                  { unlock: 2, label: "Post-SPT P50",   val: `${EXAMPLE_WELL.qPost} bbl/d`, c: "text-emerald-400" },
+                  { unlock: 3, label: "NPV₁₀ (P50)",    val: "$487K",                       c: "text-emerald-400" },
+                  { unlock: 4, label: "Rank · Score",   val: "#1 · 92",                     c: "text-emerald-400" },
+                ].map((k, i) => {
+                  const visible = exStage >= k.unlock;
+                  return (
+                    <div key={i}
+                      className="p-2.5 bg-card rounded-lg border border-border/50 transition-all duration-500"
+                      style={{ opacity: visible ? 1 : 0.18, transform: visible ? "translateY(0)" : "translateY(4px)" }}>
+                      <div className="text-[9px] text-muted-foreground mb-1 tracking-[0.1em] uppercase">{k.label}</div>
+                      <div className={cn("text-[16px] font-medium font-mono", visible ? k.c : "text-muted-foreground")}>
+                        {visible ? k.val : "—"}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Combined history + forecast chart (revealed at stage 2+) */}
+              <div className="transition-opacity duration-700"
+                style={{ opacity: exStage >= 2 ? 1 : 0.25 }}>
+                <div className="text-[10px] text-muted-foreground mb-2 tracking-[0.08em] uppercase">
+                  Production · 24-mo actual (red) → SPT event → 36-mo forecast P10 / P50 / P90
+                </div>
+                <div className="h-[200px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={EXAMPLE_COMBINED} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
+                      <defs>
+                        <linearGradient id="exP10" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="hsl(145 80% 50%)" stopOpacity="0.3" />
+                          <stop offset="100%" stopColor="hsl(145 80% 50%)" stopOpacity="0" />
+                        </linearGradient>
+                        <linearGradient id="exP90" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="hsl(0 85% 55%)" stopOpacity="0.18" />
+                          <stop offset="100%" stopColor="hsl(0 85% 55%)" stopOpacity="0" />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity="0.4" />
+                      <XAxis dataKey="month"
+                        tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))", fontFamily: "'IBM Plex Mono'" }}
+                        label={{ value: "month", position: "insideBottomRight", offset: -4,
+                          fontSize: 9, fill: "hsl(var(--muted-foreground))" }} />
+                      <YAxis
+                        tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))", fontFamily: "'IBM Plex Mono'" }}
+                        label={{ value: "bbl/d", angle: -90, position: "insideLeft",
+                          fontSize: 9, fill: "hsl(var(--muted-foreground))" }} />
+                      <Tooltip contentStyle={{ background: "hsl(var(--card))",
+                        border: "0.5px solid hsl(var(--border))", fontSize: "11px",
+                        fontFamily: "'IBM Plex Mono'" }} />
+                      <Area type="monotone" dataKey="actual" stroke="hsl(0 85% 55%)" strokeWidth={2}
+                        fill="hsl(0 85% 55%)" fillOpacity={0.1} name="Actual (pre-SPT)" />
+                      <Area type="monotone" dataKey="p10" stroke="hsl(145 80% 50%)" strokeWidth={1.5}
+                        fill="url(#exP10)" name="P10" />
+                      <Area type="monotone" dataKey="p50" stroke="hsl(45 100% 55%)" strokeWidth={2}
+                        fill="none" name="P50" />
+                      <Area type="monotone" dataKey="p90" stroke="hsl(0 85% 55%)" strokeWidth={1}
+                        fill="url(#exP90)" strokeDasharray="4 2" name="P90" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              {/* Final recommendation (stage 4) */}
+              <div className="transition-all duration-700 p-3.5 rounded-lg border"
+                style={{
+                  opacity: exStage >= 4 ? 1 : 0.2,
+                  borderColor: exStage >= 4 ? "hsl(145 80% 50% / 0.5)" : "hsl(var(--border))",
+                  background: exStage >= 4 ? "hsl(145 80% 50% / 0.06)" : "hsl(var(--card))",
+                }}>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-emerald-400 text-sm">✓</span>
+                  <span className="text-[12px] font-medium text-emerald-400">AI Smart Well Recommendation</span>
+                </div>
+                <div className="text-[12px] leading-relaxed">
+                  <span className="text-muted-foreground">Proceed with </span>
+                  <span className="text-emerald-400 font-medium">SPT @ 4 ft penetration, 8 stages</span>
+                  <span className="text-muted-foreground">. Expected rate uplift </span>
+                  <span className="text-emerald-400 font-medium">12 → 45 bbl/d (×3.75)</span>
+                  <span className="text-muted-foreground">. NPV₁₀ </span>
+                  <span className="text-emerald-400 font-medium">$487K (P50)</span>
+                  <span className="text-muted-foreground"> · IRR </span>
+                  <span className="text-emerald-400 font-medium">38%</span>
+                  <span className="text-muted-foreground"> · payback </span>
+                  <span className="text-emerald-400 font-medium">9 months</span>
+                  <span className="text-muted-foreground">. Twin will re-calibrate every 6 h as new SCADA arrives.</span>
+                </div>
+              </div>
+            </div>
+          )}
+
         </div>
       </div>
     </div>
