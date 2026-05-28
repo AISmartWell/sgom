@@ -824,16 +824,19 @@ export default function DigitalTwin() {
                 </div>
                 <div className="text-[12px] leading-relaxed">
                   <span className="text-muted-foreground">Proceed with </span>
-                  <span className="text-emerald-400 font-medium">SPT @ 4 ft penetration, 8 stages</span>
+                  <span className="text-emerald-400 font-medium">{preset.sptSpec}</span>
                   <span className="text-muted-foreground">. Expected rate uplift </span>
-                  <span className="text-emerald-400 font-medium">12 → 45 bbl/d (×3.75)</span>
+                  <span className="text-emerald-400 font-medium">{preset.upliftLabel}</span>
                   <span className="text-muted-foreground">. NPV₁₀ </span>
-                  <span className="text-emerald-400 font-medium">$487K (P50)</span>
+                  <span className="text-emerald-400 font-medium">{preset.npv} (P50)</span>
                   <span className="text-muted-foreground"> · IRR </span>
-                  <span className="text-emerald-400 font-medium">38%</span>
+                  <span className="text-emerald-400 font-medium">{preset.irr}</span>
                   <span className="text-muted-foreground"> · payback </span>
-                  <span className="text-emerald-400 font-medium">9 months</span>
+                  <span className="text-emerald-400 font-medium">{preset.payback}</span>
                   <span className="text-muted-foreground">. Twin will re-calibrate every 6 h as new SCADA arrives.</span>
+                </div>
+                <div className="mt-2 pt-2 border-t border-emerald-400/15 text-[11px] text-muted-foreground leading-relaxed">
+                  <span className="text-emerald-400/80 font-medium">Why SPT here: </span>{preset.rationale}
                 </div>
               </div>
             </div>
