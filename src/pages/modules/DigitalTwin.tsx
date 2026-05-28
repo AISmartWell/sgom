@@ -63,7 +63,49 @@ const LOOP_ARROWS = [
   { d: "M 215 220 Q 195 170 172 148", step: 3 },
 ];
 
-const TAB_LABELS = ["Field Map", "Scenario", "Twin Dashboard", "Feedback Loop"];
+const TAB_LABELS = ["Field Map", "Scenario", "Twin Dashboard", "Feedback Loop", "Live Example"];
+
+// ─── Concrete example: Brawner 10-15 (Anadarko Basin) ─────────────────────────
+const EXAMPLE_WELL = {
+  id: "BRW-10-15", name: "Brawner 10-15", api: "35-019-24680",
+  field: "Anadarko Basin · OK", operator: "Diversified Energy",
+  depth: 3240, formation: "Mississippian Lime",
+  porosity: 18.4, perm: 42, sw: 0.34, pres: 2410, temp: 178,
+  qPre: 12, qPost: 45, // bbl/d before/after SPT
+};
+
+const EXAMPLE_STAGES = [
+  { key: "ingest",   label: "Data Ingestion",       sub: "LAS · SEIS · 24mo history · 4 offsets", color: "#3B8BD4", duration: 1800 },
+  { key: "model",    label: "Reservoir Snapshot",    sub: "φ=18.4% · k=42 md · Sw=34% · P=2,410 psi", color: "#A08060", duration: 1600 },
+  { key: "simulate", label: "SPT Simulation",        sub: "Arps + Monte Carlo (50K) · 60 months",    color: "#7F77DD", duration: 2000 },
+  { key: "forecast", label: "P10 / P50 / P90 NPV",   sub: "NPV₁₀ = $487K (P50) · IRR 38%",            color: "#1D9E75", duration: 1700 },
+  { key: "rank",     label: "Ranked Recommendation", sub: "Rank #1 · Score 92/100 · SPT 4 ft",       color: "#EF9F27", duration: 1500 },
+];
+
+// Real-looking 24-month production history (Brawner 10-15)
+const EXAMPLE_HISTORY = [
+  35, 33, 31, 29, 27, 25, 24, 22, 21, 20, 19, 18,
+  17, 16, 16, 15, 14, 14, 13, 13, 12, 12, 12, 12,
+];
+
+// Post-SPT forecast (months 25..60), P50 hyperbolic decline
+const EXAMPLE_FORECAST = Array.from({ length: 36 }, (_, i) => {
+  const t = i;
+  const p50 = 45 / Math.pow(1 + 0.5 * 0.08 * t, 1 / 0.5);
+  const band = p50 * (0.18 + i * 0.004);
+  return {
+    month: 25 + i,
+    p10: +(p50 + band).toFixed(1),
+    p50: +p50.toFixed(1),
+    p90: +Math.max(0, p50 - band).toFixed(1),
+  };
+});
+
+const EXAMPLE_COMBINED = [
+  ...EXAMPLE_HISTORY.map((q, i) => ({ month: i + 1, actual: q, p10: null, p50: null, p90: null })),
+  { month: 24, actual: 12, p10: 45, p50: 45, p90: 45 }, // SPT event marker
+  ...EXAMPLE_FORECAST.map(f => ({ month: f.month, actual: null, p10: f.p10, p50: f.p50, p90: f.p90 })),
+];
 
 export default function DigitalTwin() {
   const [tab, setTab]           = useState(0);
