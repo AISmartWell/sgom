@@ -65,47 +65,109 @@ const LOOP_ARROWS = [
 
 const TAB_LABELS = ["Field Map", "Scenario", "Twin Dashboard", "Feedback Loop", "Live Example"];
 
-// ─── Concrete example: Brawner 10-15 (Anadarko Basin) ─────────────────────────
-const EXAMPLE_WELL = {
-  id: "BRW-10-15", name: "Brawner 10-15", api: "35-019-24680",
-  field: "Anadarko Basin · OK", operator: "Diversified Energy",
-  depth: 3240, formation: "Mississippian Lime",
-  porosity: 18.4, perm: 42, sw: 0.34, pres: 2410, temp: 178,
-  qPre: 12, qPost: 45, // bbl/d before/after SPT
+// ─── Live example presets ─────────────────────────────────────────────────────
+// Two complete digital-twin case studies. Same physics, same pipeline — only
+// the geology, units, fluid, and economics differ. Demonstrates that the twin
+// is field-agnostic: works for US tight carbonate and Saudi giant alike.
+
+type ExamplePreset = {
+  key: "brawner" | "ghawar";
+  badge: string;
+  well: {
+    id: string; name: string; api: string;
+    field: string; operator: string;
+    depth: string; formation: string;
+    porosity: number; perm: number; sw: number; pres: string; temp: string;
+    qPre: string; qPost: string;
+  };
+  stages: { key: string; label: string; sub: string; color: string; duration: number }[];
+  history: number[];        // 24-mo actual production (display units)
+  forecastQi: number;       // initial rate post-SPT (display units)
+  rateUnit: string;         // "bbl/d" | "m³/d"
+  sptSpec: string;          // e.g. "SPT @ 4 ft, 8 stages"
+  upliftLabel: string;
+  npv: string;
+  irr: string;
+  payback: string;
+  rationale: string;        // why SPT here (tight rock vs water-shutoff)
 };
 
-const EXAMPLE_STAGES = [
-  { key: "ingest",   label: "Data Ingestion",       sub: "LAS · SEIS · 24mo history · 4 offsets", color: "#3B8BD4", duration: 1800 },
-  { key: "model",    label: "Reservoir Snapshot",    sub: "φ=18.4% · k=42 md · Sw=34% · P=2,410 psi", color: "#A08060", duration: 1600 },
-  { key: "simulate", label: "SPT Simulation",        sub: "Arps + Monte Carlo (50K) · 60 months",    color: "#7F77DD", duration: 2000 },
-  { key: "forecast", label: "P10 / P50 / P90 NPV",   sub: "NPV₁₀ = $487K (P50) · IRR 38%",            color: "#1D9E75", duration: 1700 },
-  { key: "rank",     label: "Ranked Recommendation", sub: "Rank #1 · Score 92/100 · SPT 4 ft",       color: "#EF9F27", duration: 1500 },
-];
+const PRESETS: Record<"brawner" | "ghawar", ExamplePreset> = {
+  brawner: {
+    key: "brawner",
+    badge: "US · Imperial",
+    well: {
+      id: "BRW-10-15", name: "Brawner 10-15", api: "35-019-24680",
+      field: "Anadarko Basin · OK", operator: "Diversified Energy",
+      depth: "3,240 ft", formation: "Mississippian Lime",
+      porosity: 18.4, perm: 42, sw: 0.34, pres: "2,410 psi", temp: "178 °F",
+      qPre: "12 bbl/d", qPost: "45 bbl/d",
+    },
+    stages: [
+      { key: "ingest",   label: "Data Ingestion",       sub: "LAS · SEIS · 24mo history · 4 offsets", color: "#3B8BD4", duration: 1800 },
+      { key: "model",    label: "Reservoir Snapshot",    sub: "φ=18.4% · k=42 md · Sw=34% · P=2,410 psi", color: "#A08060", duration: 1600 },
+      { key: "simulate", label: "SPT Simulation",        sub: "Arps + Monte Carlo (50K) · 60 months",    color: "#7F77DD", duration: 2000 },
+      { key: "forecast", label: "P10 / P50 / P90 NPV",   sub: "NPV₁₀ = $487K (P50) · IRR 38%",            color: "#1D9E75", duration: 1700 },
+      { key: "rank",     label: "Ranked Recommendation", sub: "Rank #1 · Score 92/100 · SPT 4 ft",       color: "#EF9F27", duration: 1500 },
+    ],
+    history: [35, 33, 31, 29, 27, 25, 24, 22, 21, 20, 19, 18, 17, 16, 16, 15, 14, 14, 13, 13, 12, 12, 12, 12],
+    forecastQi: 45,
+    rateUnit: "bbl/d",
+    sptSpec: "SPT @ 4 ft penetration, 8 stages",
+    upliftLabel: "12 → 45 bbl/d (×3.75)",
+    npv: "$487K",
+    irr: "38%",
+    payback: "9 months",
+    rationale: "Tight carbonate (k=42 md) — SPT removes near-wellbore damage and creates radial flow channels to bypass formation skin.",
+  },
+  ghawar: {
+    key: "ghawar",
+    badge: "KSA · Metric",
+    well: {
+      id: "GHWR-512H", name: "Ghawar-512H", api: "KSA-GHW-0512",
+      field: "Ghawar · Saudi Arabia", operator: "Saudi Aramco",
+      depth: "2,150 m", formation: "Arab-D Carbonate",
+      porosity: 22.1, perm: 380, sw: 0.18, pres: "203 bar", temp: "99 °C",
+      qPre: "85 m³/d", qPost: "395 m³/d",
+    },
+    stages: [
+      { key: "ingest",   label: "Data Ingestion",       sub: "LAS · 3D seismic · 36mo MPFM · 6 offsets",  color: "#3B8BD4", duration: 1800 },
+      { key: "model",    label: "Reservoir Snapshot",    sub: "φ=22.1% · k=380 md · Sw=18% · P=203 bar",  color: "#A08060", duration: 1600 },
+      { key: "simulate", label: "SPT Simulation",        sub: "Arps + Monte Carlo (50K) · 60 months",     color: "#7F77DD", duration: 2000 },
+      { key: "forecast", label: "P10 / P50 / P90 NPV",   sub: "NPV₁₀ = $4.8M (P50) · IRR 52%",             color: "#1D9E75", duration: 1700 },
+      { key: "rank",     label: "Ranked Recommendation", sub: "Rank #1 · Score 96/100 · SPT 1.2 m",       color: "#EF9F27", duration: 1500 },
+    ],
+    // Arab-D giant: high rate, gradual water-cut driven decline
+    history: [220, 215, 208, 198, 190, 182, 175, 168, 160, 152, 145, 138, 132, 125, 118, 112, 108, 102, 98, 94, 90, 88, 86, 85],
+    forecastQi: 395,
+    rateUnit: "m³/d",
+    sptSpec: "SPT @ 1.2 m penetration, 12 stages, water-shutoff zones",
+    upliftLabel: "85 → 395 m³/d (×4.6)",
+    npv: "$4.8M",
+    irr: "52%",
+    payback: "5 months",
+    rationale: "High-k Arab-D (380 md) — SPT isolates watered-out zones and re-establishes selective oil inflow above WOC.",
+  },
+};
 
-// Real-looking 24-month production history (Brawner 10-15)
-const EXAMPLE_HISTORY = [
-  35, 33, 31, 29, 27, 25, 24, 22, 21, 20, 19, 18,
-  17, 16, 16, 15, 14, 14, 13, 13, 12, 12, 12, 12,
-];
-
-// Post-SPT forecast (months 25..60), P50 hyperbolic decline
-const EXAMPLE_FORECAST = Array.from({ length: 36 }, (_, i) => {
-  const t = i;
-  const p50 = 45 / Math.pow(1 + 0.5 * 0.08 * t, 1 / 0.5);
-  const band = p50 * (0.18 + i * 0.004);
-  return {
-    month: 25 + i,
-    p10: +(p50 + band).toFixed(1),
-    p50: +p50.toFixed(1),
-    p90: +Math.max(0, p50 - band).toFixed(1),
-  };
-});
-
-const EXAMPLE_COMBINED = [
-  ...EXAMPLE_HISTORY.map((q, i) => ({ month: i + 1, actual: q, p10: null, p50: null, p90: null })),
-  { month: 24, actual: 12, p10: 45, p50: 45, p90: 45 }, // SPT event marker
-  ...EXAMPLE_FORECAST.map(f => ({ month: f.month, actual: null, p10: f.p10, p50: f.p50, p90: f.p90 })),
-];
+const buildCombined = (p: ExamplePreset) => {
+  const forecast = Array.from({ length: 36 }, (_, i) => {
+    const t = i;
+    const p50 = p.forecastQi / Math.pow(1 + 0.5 * 0.08 * t, 1 / 0.5);
+    const band = p50 * (0.18 + i * 0.004);
+    return {
+      month: 25 + i,
+      p10: +(p50 + band).toFixed(1),
+      p50: +p50.toFixed(1),
+      p90: +Math.max(0, p50 - band).toFixed(1),
+    };
+  });
+  return [
+    ...p.history.map((q, i) => ({ month: i + 1, actual: q, p10: null, p50: null, p90: null })),
+    { month: 24, actual: p.history[p.history.length - 1], p10: p.forecastQi, p50: p.forecastQi, p90: p.forecastQi },
+    ...forecast.map(f => ({ month: f.month, actual: null, p10: f.p10, p50: f.p50, p90: f.p90 })),
+  ];
+};
 
 export default function DigitalTwin() {
   const [tab, setTab]           = useState(0);
@@ -114,6 +176,11 @@ export default function DigitalTwin() {
   const [price, setPrice]       = useState(70);
   const [units, setUnits]       = useState("US");
   const [loopStep, setLoopStep] = useState(0);
+  const [presetKey, setPresetKey] = useState<"brawner" | "ghawar">("brawner");
+  const preset = PRESETS[presetKey];
+  const EXAMPLE_WELL = preset.well;
+  const EXAMPLE_STAGES = preset.stages;
+  const EXAMPLE_COMBINED = useMemo(() => buildCombined(preset), [presetKey]);
   const [exStage, setExStage]   = useState(0);
   const [exPlaying, setExPlaying] = useState(true);
   const [exProgress, setExProgress] = useState(0);
