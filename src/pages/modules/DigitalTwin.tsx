@@ -793,7 +793,7 @@ export default function DigitalTwin() {
                           fontSize: 9, fill: "hsl(var(--muted-foreground))" }} />
                       <YAxis
                         tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))", fontFamily: "'IBM Plex Mono'" }}
-                        label={{ value: "bbl/d", angle: -90, position: "insideLeft",
+                        label={{ value: preset.rateUnit, angle: -90, position: "insideLeft",
                           fontSize: 9, fill: "hsl(var(--muted-foreground))" }} />
                       <Tooltip contentStyle={{ background: "hsl(var(--card))",
                         border: "0.5px solid hsl(var(--border))", fontSize: "11px",
