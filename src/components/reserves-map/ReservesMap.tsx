@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, CircleMarker, Popup, useMap, LayersControl } from "react-leaflet";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Map, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
