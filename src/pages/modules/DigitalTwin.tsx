@@ -744,14 +744,14 @@ export default function DigitalTwin() {
               {/* Live KPIs (revealed as stages progress) */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                 {[
-                  { unlock: 1, label: "Porosity (φ)",   val: `${EXAMPLE_WELL.porosity}%`, c: "text-blue-400" },
-                  { unlock: 1, label: "Permeability",   val: `${EXAMPLE_WELL.perm} md`,    c: "text-blue-400" },
-                  { unlock: 1, label: "Reservoir P",    val: `${EXAMPLE_WELL.pres} psi`,   c: "text-blue-400" },
+                  { unlock: 1, label: "Porosity (φ)",   val: `${EXAMPLE_WELL.porosity}%`,    c: "text-blue-400" },
+                  { unlock: 1, label: "Permeability",   val: `${EXAMPLE_WELL.perm} md`,       c: "text-blue-400" },
+                  { unlock: 1, label: "Reservoir P",    val: EXAMPLE_WELL.pres,               c: "text-blue-400" },
                   { unlock: 1, label: "Water sat.",     val: `${(EXAMPLE_WELL.sw*100).toFixed(0)}%`, c: "text-amber-400" },
-                  { unlock: 2, label: "Pre-SPT rate",   val: `${EXAMPLE_WELL.qPre} bbl/d`, c: "text-red-400" },
-                  { unlock: 2, label: "Post-SPT P50",   val: `${EXAMPLE_WELL.qPost} bbl/d`, c: "text-emerald-400" },
-                  { unlock: 3, label: "NPV₁₀ (P50)",    val: "$487K",                       c: "text-emerald-400" },
-                  { unlock: 4, label: "Rank · Score",   val: "#1 · 92",                     c: "text-emerald-400" },
+                  { unlock: 2, label: "Pre-SPT rate",   val: EXAMPLE_WELL.qPre,               c: "text-red-400" },
+                  { unlock: 2, label: "Post-SPT P50",   val: EXAMPLE_WELL.qPost,              c: "text-emerald-400" },
+                  { unlock: 3, label: "NPV₁₀ (P50)",    val: preset.npv,                      c: "text-emerald-400" },
+                  { unlock: 4, label: "Rank · Score",   val: presetKey === "ghawar" ? "#1 · 96" : "#1 · 92", c: "text-emerald-400" },
                 ].map((k, i) => {
                   const visible = exStage >= k.unlock;
                   return (
