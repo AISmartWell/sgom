@@ -666,15 +666,31 @@ export default function DigitalTwin() {
           {/* ═══ TAB 4 – LIVE EXAMPLE (Brawner 10-15) ═══ */}
           {tab === 4 && (
             <div className="flex flex-col gap-3.5">
+              {/* Preset switcher */}
+              <div className="flex items-center gap-1.5 p-1 bg-card rounded-lg border border-border/50 self-start">
+                {(["brawner", "ghawar"] as const).map(k => (
+                  <button key={k}
+                    onClick={() => { setPresetKey(k); setExStage(0); setExProgress(0); setExPlaying(true); }}
+                    className={cn(
+                      "text-[10px] px-3 py-1.5 rounded-md font-mono tracking-[0.08em] uppercase transition-all",
+                      presetKey === k
+                        ? "bg-primary/15 text-primary border border-primary/40"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}>
+                    {PRESETS[k].badge} · {PRESETS[k].well.operator}
+                  </button>
+                ))}
+              </div>
+
               {/* Well header */}
               <div className="flex items-center justify-between flex-wrap gap-2 px-3 py-2.5 bg-card rounded-lg border border-border/50">
                 <div>
                   <div className="text-[10px] text-muted-foreground tracking-[0.12em] uppercase">Case study · Live digital twin</div>
                   <div className="text-[15px] font-medium mt-0.5">
-                    {EXAMPLE_WELL.name} <span className="text-muted-foreground text-[11px]">· API {EXAMPLE_WELL.api}</span>
+                    {EXAMPLE_WELL.name} <span className="text-muted-foreground text-[11px]">· {EXAMPLE_WELL.api}</span>
                   </div>
                   <div className="text-[11px] text-muted-foreground">
-                    {EXAMPLE_WELL.field} · {EXAMPLE_WELL.formation} · {EXAMPLE_WELL.depth} ft · {EXAMPLE_WELL.operator}
+                    {EXAMPLE_WELL.field} · {EXAMPLE_WELL.formation} · {EXAMPLE_WELL.depth} · {EXAMPLE_WELL.operator}
                   </div>
                 </div>
                 <div className="flex gap-2">
