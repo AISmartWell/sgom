@@ -114,12 +114,45 @@ export default function DigitalTwin() {
   const [price, setPrice]       = useState(70);
   const [units, setUnits]       = useState("US");
   const [loopStep, setLoopStep] = useState(0);
+  const [exStage, setExStage]   = useState(0);
+  const [exPlaying, setExPlaying] = useState(true);
+  const [exProgress, setExProgress] = useState(0);
 
   useEffect(() => {
     if (tab !== 3) return;
     const t = setInterval(() => setLoopStep(s => (s + 1) % 4), 1400);
     return () => clearInterval(t);
   }, [tab]);
+
+  // Live example animation: advance through 5 stages
+  useEffect(() => {
+    if (tab !== 4 || !exPlaying) return;
+    const dur = EXAMPLE_STAGES[exStage].duration;
+    const start = Date.now();
+    const iv = setInterval(() => {
+      const p = Math.min(1, (Date.now() - start) / dur);
+      setExProgress(p);
+      if (p >= 1) {
+        clearInterval(iv);
+        if (exStage < EXAMPLE_STAGES.length - 1) {
+          setExStage(s => s + 1);
+          setExProgress(0);
+        } else {
+          setExPlaying(false);
+        }
+      }
+    }, 40);
+    return () => clearInterval(iv);
+  }, [tab, exStage, exPlaying]);
+
+  useEffect(() => {
+    if (tab === 4 && !exPlaying && exStage === EXAMPLE_STAGES.length - 1 && exProgress === 0) {
+      // entering tab fresh
+    }
+  }, [tab]);
+
+  const resetExample = () => { setExStage(0); setExProgress(0); setExPlaying(true); };
+
 
   const sptMult = +(1 + (sptDepth - 3) * 0.3).toFixed(2);
   const prodData = useMemo(() => genProduction(well.q0, sptMult), [well.id, sptMult]);
