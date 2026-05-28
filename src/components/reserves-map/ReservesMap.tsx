@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, CircleMarker, Popup, useMap, LayersControl } from "react-leaflet";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Map, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -197,10 +197,32 @@ const ReservesMap = () => {
                 style={{ height: "100%", width: "100%" }}
                 className="z-0"
               >
-                <TileLayer
-                  url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-                  attribution="ESRI Satellite"
-                />
+                <LayersControl position="topright">
+                  <LayersControl.BaseLayer checked name="🛰️ Satellite (ESRI)">
+                    <TileLayer
+                      url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+                      attribution="Tiles &copy; Esri — World Imagery"
+                    />
+                  </LayersControl.BaseLayer>
+                  <LayersControl.BaseLayer name="🌑 Dark (CARTO)">
+                    <TileLayer
+                      url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                      attribution="&copy; OSM &copy; CARTO"
+                    />
+                  </LayersControl.BaseLayer>
+                  <LayersControl.BaseLayer name="🗺️ Streets (OSM)">
+                    <TileLayer
+                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                      attribution="&copy; OpenStreetMap contributors"
+                    />
+                  </LayersControl.BaseLayer>
+                  <LayersControl.Overlay name="Labels & Boundaries">
+                    <TileLayer
+                      url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
+                      attribution="Esri Reference"
+                    />
+                  </LayersControl.Overlay>
+                </LayersControl>
                 <AutoFit wells={wells} />
                 {wells.map(w => {
                   const remainPct = w.ioip > 0 ? (w.remainingReserves / w.ioip) * 100 : 0;
