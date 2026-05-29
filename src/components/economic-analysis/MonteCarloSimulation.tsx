@@ -171,7 +171,7 @@ const MonteCarloSimulation = ({ baseOilPrice, baseTreatmentCost, baseOpex, wells
                 <label className="text-sm text-muted-foreground mb-2 block">
                   Iterations: <span className="font-semibold text-foreground">{iterations.toLocaleString()}</span>
                 </label>
-                <Slider value={[iterations]} onValueChange={([v]) => setIterations(v)} min={1000} max={10000} step={1000} />
+                <Slider value={[iterations]} onValueChange={([v]) => setIterations(v)} min={1000} max={50000} step={1000} />
               </div>
             </div>
             <p className="text-[10px] text-muted-foreground mt-3 italic">
@@ -188,29 +188,29 @@ const MonteCarloSimulation = ({ baseOilPrice, baseTreatmentCost, baseOpex, wells
             <CardContent className="pt-4 pb-3 text-center">
               <TrendingUp className="h-5 w-5 text-primary mx-auto mb-1" />
               <p className="text-xs text-muted-foreground">Mean ROI</p>
-              <p className="text-2xl font-bold">{results.mean.toFixed(0)}%</p>
-              <p className="text-[10px] text-muted-foreground">σ = {results.stdDev.toFixed(0)}%</p>
+              <p className="text-2xl font-bold">{safe.mean.toFixed(0)}%</p>
+              <p className="text-[10px] text-muted-foreground">σ = {safe.stdDev.toFixed(0)}%</p>
             </CardContent>
           </Card>
           <Card className="bg-green-500/10 border-green-500/20">
             <CardContent className="pt-4 pb-3 text-center">
               <ShieldCheck className="h-5 w-5 text-green-500 mx-auto mb-1" />
               <p className="text-xs text-muted-foreground">P(ROI &gt; 0%)</p>
-              <p className="text-2xl font-bold">{results.probPositive.toFixed(1)}%</p>
+              <p className="text-2xl font-bold">{safe.probPositive.toFixed(1)}%</p>
             </CardContent>
           </Card>
           <Card className="bg-green-500/10 border-green-500/20">
             <CardContent className="pt-4 pb-3 text-center">
               <TrendingUp className="h-5 w-5 text-green-500 mx-auto mb-1" />
               <p className="text-xs text-muted-foreground">P(ROI &gt; 100%)</p>
-              <p className="text-2xl font-bold">{results.probOver100.toFixed(1)}%</p>
+              <p className="text-2xl font-bold">{safe.probOver100.toFixed(1)}%</p>
             </CardContent>
           </Card>
           <Card className="bg-yellow-500/10 border-yellow-500/20">
             <CardContent className="pt-4 pb-3 text-center">
               <AlertTriangle className="h-5 w-5 text-yellow-500 mx-auto mb-1" />
               <p className="text-xs text-muted-foreground">P(ROI &gt; 200%)</p>
-              <p className="text-2xl font-bold">{results.probOver200.toFixed(1)}%</p>
+              <p className="text-2xl font-bold">{safe.probOver200.toFixed(1)}%</p>
             </CardContent>
           </Card>
         </div>
@@ -224,12 +224,12 @@ const MonteCarloSimulation = ({ baseOilPrice, baseTreatmentCost, baseOpex, wells
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={350}>
-              <BarChart data={results.bins} margin={{ bottom: 60 }}>
+              <BarChart data={safe.bins} margin={{ bottom: 60 }}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="range" angle={-45} textAnchor="end" height={80} interval={0} tick={{ fontSize: 10 }} />
                 <YAxis label={{ value: "Frequency", angle: -90, position: "insideLeft" }} />
                 <Tooltip />
-                <ReferenceLine x={results.bins.findIndex(b => b.midpoint >= results.p50) >= 0 ? results.bins[results.bins.findIndex(b => b.midpoint >= results.p50)]?.range : undefined} stroke="hsl(var(--primary))" strokeWidth={2} strokeDasharray="4 4" label={{ value: "P50", position: "top", fill: "hsl(var(--primary))" }} />
+                <ReferenceLine x={safe.bins.findIndex(b => b.midpoint >= safe.p50) >= 0 ? safe.bins[safe.bins.findIndex(b => b.midpoint >= safe.p50)]?.range : undefined} stroke="hsl(var(--primary))" strokeWidth={2} strokeDasharray="4 4" label={{ value: "P50", position: "top", fill: "hsl(var(--primary))" }} />
                 <Bar dataKey="count" name="Scenarios" fill="hsl(var(--primary))" radius={[2, 2, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -244,11 +244,11 @@ const MonteCarloSimulation = ({ baseOilPrice, baseTreatmentCost, baseOpex, wells
           <CardContent>
             <div className="grid grid-cols-5 gap-4 text-center">
               {[
-                { label: "P10 (Downside)", value: results.p10, color: "text-red-400" },
-                { label: "P25", value: results.p25, color: "text-orange-400" },
-                { label: "P50 (Median)", value: results.p50, color: "text-foreground" },
-                { label: "P75", value: results.p75, color: "text-green-400" },
-                { label: "P90 (Upside)", value: results.p90, color: "text-green-500" },
+                { label: "P10 (Downside)", value: safe.p10, color: "text-red-400" },
+                { label: "P25", value: safe.p25, color: "text-orange-400" },
+                { label: "P50 (Median)", value: safe.p50, color: "text-foreground" },
+                { label: "P75", value: safe.p75, color: "text-green-400" },
+                { label: "P90 (Upside)", value: safe.p90, color: "text-green-500" },
               ].map((p) => (
                 <div key={p.label} className="p-3 rounded-lg bg-muted/30">
                   <p className="text-xs text-muted-foreground mb-1">{p.label}</p>
