@@ -177,9 +177,21 @@ const MonteCarloSimulation = ({ baseOilPrice, baseTreatmentCost, baseOpex, wells
             <p className="text-[10px] text-muted-foreground mt-3 italic">
               Parameters varied: Oil Price (N(μ={baseOilPrice}, σ={priceVolatility})), CAPEX (N(μ={baseTreatmentCost/1000}K, σ={costVolatility/1000}K)), OPEX (N(μ={baseOpex}, σ=4)), Di (N(μ=well.Di, σ=0.008))
             </p>
+            <div className="mt-4 flex items-center gap-3">
+              <Cpu className={`h-4 w-4 ${running ? "text-primary animate-pulse" : "text-muted-foreground"}`} />
+              <div className="flex-1">
+                <Progress value={progress} className="h-1.5" />
+              </div>
+              <span className="text-[11px] font-mono text-muted-foreground min-w-[140px] text-right">
+                {running
+                  ? `Running… ${progress.toFixed(0)}%`
+                  : `${safe.iterations.toLocaleString()} iters · ${safe.elapsedMs.toFixed(0)} ms (Web Worker)`}
+              </span>
+            </div>
           </CardContent>
         </Card>
       </div>
+
 
       {/* KPI row */}
       <div ref={refs.kpiRef}>
