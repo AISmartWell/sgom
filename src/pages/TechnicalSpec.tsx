@@ -37,7 +37,7 @@ const TechnicalSpec = () => {
             </h1>
             <p className="text-muted-foreground mt-1">AI Smart Well Platform — Developer Specification</p>
           </div>
-          <Badge className="ml-auto text-xs" variant="outline">v4.1 — April 2026</Badge>
+          <Badge className="ml-auto text-xs" variant="outline">v4.2 — May 2026</Badge>
         </div>
 
         <Separator />
@@ -547,8 +547,22 @@ const TechnicalSpec = () => {
           </div>
         </Section>
 
+        {/* 17. Changelog */}
+        <Section icon={FileText} title="17. Changelog — Recent Architectural Decisions">
+          <div className="space-y-3">
+            <div>
+              <h4 className="font-semibold text-foreground">v4.2 — May 2026</h4>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>Monte Carlo (Stage 7):</strong> Migrated to dedicated Web Worker (<code>src/workers/monteCarlo.worker.ts</code>). Range extended from 1K–10K to 1K–50K iterations. Uses <code>Float64Array</code> + transferable objects for zero-copy results. Progress bar with elapsed time added.</li>
+                <li><strong>Digital Twin — Feedback Loop:</strong> Documented 5-step cycle (SENSE → MODEL → COMPARE → DECIDE → ACT). Two-tier loop: Fast (Edge on rig, seconds) + Slow (AWS + UI, days). Future tables: <code>production_residuals</code>, <code>recommendation_outcomes</code>. See <code>docs/ARCHITECTURE.md</code>.</li>
+                <li><strong>SCADA Integration:</strong> De-facto stack OPC UA on rig + MQTT to cloud. Planned <code>well_telemetry</code> table + <code>ingest-telemetry</code> edge function with HMAC validation. Demo source: <code>src/components/realtime/LiveWellCard.tsx</code>.</li>
+              </ul>
+            </div>
+          </div>
+        </Section>
+
         <div className="text-center text-xs text-muted-foreground pb-8">
-          AI Smart Well Platform — Technical Specification v4.0 — April 2026
+          AI Smart Well Platform — Technical Specification v4.2 — May 2026
         </div>
       </div>
     </div>
