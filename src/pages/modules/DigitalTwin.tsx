@@ -507,81 +507,160 @@ export default function DigitalTwin() {
           )}
 
           {/* ═══ TAB 2 – TWIN DASHBOARD ═══ */}
-          {tab === 2 && (
-            <div className="flex flex-col gap-3">
-              <div className="text-[11px] text-muted-foreground">
-                4-layer architecture · real-time sync · {WELLS.length} wells · NVIDIA DGX Cloud
-              </div>
-              {[
-                {
-                  name: "Geological layer", color: "#A08060", icon: "◈",
-                  items: [
-                    ["3D reservoir model", "Active", false],
-                    ["Porosity avg", "18.4%", false],
-                    ["Permeability avg", "42 md", false],
-                    ["Last seismic", "Apr 2026", true],
-                  ],
-                },
-                {
-                  name: "Hydrodynamic layer", color: "#3B8BD4", icon: "≋",
-                  items: [
-                    ["Reservoir pressure", units === "US" ? "2,410 psi" : "166 bar", false],
-                    ["Temperature",        units === "US" ? "178°F" : "81°C",         false],
-                    ["Fluid simulator", "Running", false],
-                    ["Water saturation", "34%", true],
-                  ],
-                },
-                {
-                  name: "Production layer", color: "#1D9E75", icon: "⚡",
-                  items: [
-                    ["Active wells", "2 / 8", true],
-                    ["Combined rate", units === "US" ? "83 bbl/d" : "13.2 m³/d", false],
-                    ["SCADA sync", "Live", false],
-                    ["Last data point", "2 min ago", false],
-                  ],
-                },
-                {
-                  name: "AI / ML layer", color: "#7F77DD", icon: "∿",
-                  items: [
-                    ["Bayesian DCA", "Updated", false],
-                    ["Monte Carlo (N)", "50,000", false],
-                    ["Model confidence", "87%", false],
-                    ["Next recalibration", "6h", false],
-                  ],
-                },
-              ].map((layer, i) => (
-                <div key={i} className="px-3.5 py-3 bg-card rounded-lg border border-border/50"
-                  style={{ borderLeft: `3px solid ${layer.color}` }}>
-                  <div className="flex items-center gap-2 mb-2.5">
-                    <span className="text-sm" style={{ color: layer.color }}>{layer.icon}</span>
-                    <span className="text-xs font-medium" style={{ color: layer.color }}>
-                      {layer.name}
-                    </span>
-                    <div className="ml-auto flex items-center gap-1.5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_0_2px_rgba(52,211,153,0.2)]" />
-                      <span className="text-[10px] text-emerald-400">online</span>
-                    </div>
+          {tab === 2 && (() => {
+            // Deterministic per-well variation (no Math.random)
+            const tw = WELLS[twinWellIdx];
+            const h = (s: string, salt: number) => {
+              let n = salt;
+              for (let i = 0; i < s.length; i++) n = (n * 31 + s.charCodeAt(i)) >>> 0;
+              return n;
+            };
+            const rnd = (salt: number, min: number, max: number) => {
+              const v = (h(tw.id, salt) % 1000) / 1000;
+              return min + v * (max - min);
+            };
+            const phi  = rnd(1, 14, 22);                  // porosity %
+            const perm = rnd(2, 18, 75);                  // permeability md
+            const pres = rnd(3, 2100, 2900);              // psi
+            const temp = rnd(4, 165, 195);                // °F
+            const sw   = rnd(5, 22, 48);                  // water saturation %
+            const lag  = rnd(6, 1, 4);                    // min
+            const conf = rnd(7, 78, 94);                  // model confidence %
+            const recal = rnd(8, 2, 11);                  // hours
+            const health = Math.round(85 + (conf - 78) * 0.9);
+            const active = tw.potential !== "none";
+            // Mini 24h health sparkline (deterministic walk)
+            const spark = Array.from({ length: 24 }, (_, i) => {
+              const v = ((h(tw.id, 100 + i) % 100) - 50) / 50; // -1..1
+              return Math.max(70, Math.min(100, health + v * 4 - Math.abs(12 - i) * 0.1));
+            });
+            const sparkMax = Math.max(...spark), sparkMin = Math.min(...spark);
+            const sparkPath = spark.map((v, i) => {
+              const x = (i / 23) * 100;
+              const y = 100 - ((v - sparkMin) / (sparkMax - sparkMin || 1)) * 100;
+              return `${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`;
+            }).join(" ");
+
+            const psi = (v: number) => units === "US" ? `${Math.round(v).toLocaleString()} psi` : `${(v * 0.0689).toFixed(0)} bar`;
+            const degF = (v: number) => units === "US" ? `${Math.round(v)}°F` : `${Math.round((v - 32) * 5/9)}°C`;
+            const rate = active ? rnd(9, 18, 65) : 0;
+            const rateLbl = units === "US" ? `${rate.toFixed(1)} bbl/d` : `${(rate * 0.159).toFixed(2)} m³/d`;
+
+            return (
+              <div className="flex flex-col gap-3">
+                <div className="text-[11px] text-muted-foreground">
+                  4-layer architecture · real-time sync · drill-down per well · NVIDIA DGX Cloud
+                </div>
+
+                {/* Well selector */}
+                <div className="flex flex-wrap gap-1.5">
+                  {WELLS.map((w, i) => (
+                    <button key={w.id} onClick={() => setTwinWellIdx(i)}
+                      className={cn(
+                        "px-2.5 py-1 rounded text-[10px] border transition-colors",
+                        i === twinWellIdx
+                          ? "bg-primary/15 border-primary text-primary"
+                          : "bg-card border-border/50 text-muted-foreground hover:text-foreground"
+                      )}>
+                      <span className="font-medium">{w.id}</span>
+                      <span className="ml-1.5" style={{ color: potColor(w.potential) }}>●</span>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Selected well summary + health sparkline */}
+                <div className="px-3.5 py-3 bg-card rounded-lg border border-border/50 flex items-center gap-4 flex-wrap">
+                  <div className="flex flex-col">
+                    <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Selected well</div>
+                    <div className="text-sm font-medium">{tw.id} · rank #{tw.rank} · score {tw.score}</div>
+                    <div className={cn("text-[10px]", potTailwind(tw.potential))}>{tw.potential.toUpperCase()} potential</div>
                   </div>
-                  <div className="grid grid-cols-2 gap-1.5">
-                    {layer.items.map(([k, v, w]) => cell(String(k), String(v), !!w))}
+                  <div className="flex-1 min-w-[180px]">
+                    <div className="flex justify-between text-[10px] text-muted-foreground mb-0.5">
+                      <span>Twin health · 24h</span>
+                      <span className="text-emerald-400">{health}%</span>
+                    </div>
+                    <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="w-full h-10">
+                      <path d={sparkPath} fill="none" stroke="hsl(145 80% 50%)" strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
+                    </svg>
                   </div>
                 </div>
-              ))}
-              <div className="grid grid-cols-3 gap-2.5">
+
                 {[
-                  { v: "94%",       l: "Digital twin health",   s: "4 layers active" },
-                  { v: "Real-time", l: "Data freshness",         s: "SCADA connected" },
-                  { v: "< 2 min",   l: "Simulation lag",         s: "DGX Cloud" },
-                ].map((s, i) => (
-                  <div key={i} className="p-2.5 bg-card rounded-lg text-center border border-border/50">
-                    <div className="text-[17px] font-medium text-emerald-400">{s.v}</div>
-                    <div className="text-[10px] text-muted-foreground mt-0.5">{s.l}</div>
-                    <div className="text-[10px] text-muted-foreground">{s.s}</div>
+                  {
+                    name: "Geological layer", color: "#A08060", icon: "◈",
+                    items: [
+                      ["3D reservoir model", "Active", false],
+                      ["Porosity",   `${phi.toFixed(1)}%`,   phi < 16],
+                      ["Permeability", `${perm.toFixed(0)} md`, perm < 25],
+                      ["Last seismic", "Apr 2026", true],
+                    ],
+                  },
+                  {
+                    name: "Hydrodynamic layer", color: "#3B8BD4", icon: "≋",
+                    items: [
+                      ["Reservoir pressure", psi(pres), pres < 2200],
+                      ["Temperature",        degF(temp), false],
+                      ["Fluid simulator", "Running", false],
+                      ["Water saturation", `${sw.toFixed(0)}%`, sw > 40],
+                    ],
+                  },
+                  {
+                    name: "Production layer", color: "#1D9E75", icon: "⚡",
+                    items: [
+                      ["Status", active ? "Producing" : "Idle", !active],
+                      ["Rate", active ? rateLbl : "—", !active],
+                      ["SCADA sync", active ? "Live" : "Offline", !active],
+                      ["Last data point", active ? `${lag.toFixed(1)} min ago` : "n/a", false],
+                    ],
+                  },
+                  {
+                    name: "AI / ML layer", color: "#7F77DD", icon: "∿",
+                    items: [
+                      ["Bayesian DCA", "Updated", false],
+                      ["Monte Carlo (N)", "50,000", false],
+                      ["Model confidence", `${conf.toFixed(0)}%`, conf < 82],
+                      ["Next recalibration", `${recal.toFixed(1)}h`, false],
+                    ],
+                  },
+                ].map((layer, i) => (
+                  <div key={i} className="px-3.5 py-3 bg-card rounded-lg border border-border/50"
+                    style={{ borderLeft: `3px solid ${layer.color}` }}>
+                    <div className="flex items-center gap-2 mb-2.5">
+                      <span className="text-sm" style={{ color: layer.color }}>{layer.icon}</span>
+                      <span className="text-xs font-medium" style={{ color: layer.color }}>
+                        {layer.name}
+                      </span>
+                      <div className="ml-auto flex items-center gap-1.5">
+                        <div className={cn("w-1.5 h-1.5 rounded-full",
+                          active ? "bg-emerald-400 shadow-[0_0_0_2px_rgba(52,211,153,0.2)]" : "bg-muted-foreground")} />
+                        <span className={cn("text-[10px]", active ? "text-emerald-400" : "text-muted-foreground")}>
+                          {active ? "online" : "idle"}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-1.5">
+                      {layer.items.map(([k, v, w]) => cell(String(k), String(v), !!w))}
+                    </div>
                   </div>
                 ))}
+
+                <div className="grid grid-cols-3 gap-2.5">
+                  {[
+                    { v: `${health}%`,           l: "Digital twin health",   s: `${tw.id} · 4 layers` },
+                    { v: `${lag.toFixed(1)} min`, l: "Data freshness",       s: "SCADA connected" },
+                    { v: `< 2 min`,              l: "Simulation lag",        s: "DGX Cloud" },
+                  ].map((s, i) => (
+                    <div key={i} className="p-2.5 bg-card rounded-lg text-center border border-border/50">
+                      <div className="text-[17px] font-medium text-emerald-400">{s.v}</div>
+                      <div className="text-[10px] text-muted-foreground mt-0.5">{s.l}</div>
+                      <div className="text-[10px] text-muted-foreground">{s.s}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           {/* ═══ TAB 3 – FEEDBACK LOOP ═══ */}
           {tab === 3 && (
