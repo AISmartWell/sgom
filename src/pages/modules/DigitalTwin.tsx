@@ -176,6 +176,7 @@ export default function DigitalTwin() {
   const [price, setPrice]       = useState(70);
   const [units, setUnits]       = useState("US");
   const [loopStep, setLoopStep] = useState(0);
+  const [twinWellIdx, setTwinWellIdx] = useState(0);
   const [presetKey, setPresetKey] = useState<"brawner" | "ghawar">("brawner");
   const preset = PRESETS[presetKey];
   const EXAMPLE_WELL = preset.well;
