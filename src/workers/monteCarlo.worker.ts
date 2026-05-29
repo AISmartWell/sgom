@@ -90,7 +90,7 @@ ctx.onmessage = (e: MessageEvent<MCWorkerInput>) => {
 
     if ((i + 1) % progressEvery === 0) {
       const progress: MCWorkerProgress = { type: "progress", done: i + 1, total: iterations };
-      (self as DedicatedWorkerGlobalScope).postMessage(progress);
+      ctx.postMessage(progress);
     }
   }
 
@@ -102,7 +102,8 @@ ctx.onmessage = (e: MessageEvent<MCWorkerInput>) => {
     rois,
     elapsedMs: performance.now() - t0,
   };
-  (self as DedicatedWorkerGlobalScope).postMessage(result, [rois.buffer]);
+  ctx.postMessage(result, [rois.buffer]);
+
 };
 
 export {};
