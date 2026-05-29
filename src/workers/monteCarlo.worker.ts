@@ -48,7 +48,10 @@ function normalRandom(rand: () => number, mean: number, stdDev: number): number 
   return mean + stdDev * Math.sqrt(-2 * Math.log(u1 || 1e-10)) * Math.cos(2 * Math.PI * u2);
 }
 
-self.onmessage = (e: MessageEvent<MCWorkerInput>) => {
+const ctx = self as unknown as DedicatedWorkerGlobalScope;
+
+ctx.onmessage = (e: MessageEvent<MCWorkerInput>) => {
+
   const msg = e.data;
   if (msg.type !== "run") return;
 
