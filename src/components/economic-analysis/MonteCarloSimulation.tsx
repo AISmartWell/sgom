@@ -1,14 +1,15 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
+import { Progress } from "@/components/ui/progress";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine,
 } from "recharts";
-import { Dice5, TrendingUp, AlertTriangle, ShieldCheck } from "lucide-react";
-import { arpsRate } from "@/lib/economics-config";
+import { Dice5, TrendingUp, AlertTriangle, ShieldCheck, Cpu } from "lucide-react";
 import TornadoChart from "./TornadoChart";
 import { useMonteCarloExport, ExportPDFButton } from "./MonteCarloExport";
+import type { MCWorkerInput, MCWorkerProgress, MCWorkerResult } from "@/workers/monteCarlo.worker";
 
 interface Props {
   baseOilPrice: number;
@@ -17,101 +18,123 @@ interface Props {
   wells: { name: string; addedProd: number; Di: number; b: number }[];
 }
 
-// Seeded pseudo-random (Mulberry32) for reproducibility
-function mulberry32(seed: number) {
-  return () => {
-    let t = (seed += 0x6d2b79f5);
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+interface SimStats {
+  bins: { range: string; count: number; midpoint: number }[];
+  mean: number;
+  stdDev: number;
+  p10: number; p25: number; p50: number; p75: number; p90: number;
+  probPositive: number; probOver100: number; probOver200: number;
+  iterations: number;
+  elapsedMs: number;
+}
+
+function summarize(sorted: Float64Array, elapsedMs: number): SimStats {
+  const n = sorted.length;
+  const min = Math.floor(sorted[0] / 25) * 25;
+  const max = Math.ceil(sorted[n - 1] / 25) * 25;
+  const bins: { range: string; count: number; midpoint: number }[] = [];
+  // Linear binning pass (sorted array → walk pointer)
+  let idx = 0;
+  for (let lo = min; lo < max; lo += 25) {
+    let count = 0;
+    while (idx < n && sorted[idx] < lo + 25) { count++; idx++; }
+    bins.push({ range: `${lo}–${lo + 25}%`, count, midpoint: lo + 12.5 });
+  }
+
+  let sum = 0;
+  for (let i = 0; i < n; i++) sum += sorted[i];
+  const mean = sum / n;
+  let varSum = 0;
+  for (let i = 0; i < n; i++) varSum += (sorted[i] - mean) ** 2;
+  const stdDev = Math.sqrt(varSum / n);
+
+  let pos = 0, over100 = 0, over200 = 0;
+  for (let i = 0; i < n; i++) {
+    if (sorted[i] > 0) pos++;
+    if (sorted[i] > 100) over100++;
+    if (sorted[i] > 200) over200++;
+  }
+
+  return {
+    bins, mean, stdDev,
+    p10: sorted[Math.floor(n * 0.1)],
+    p25: sorted[Math.floor(n * 0.25)],
+    p50: sorted[Math.floor(n * 0.5)],
+    p75: sorted[Math.floor(n * 0.75)],
+    p90: sorted[Math.floor(n * 0.9)],
+    probPositive: (pos / n) * 100,
+    probOver100: (over100 / n) * 100,
+    probOver200: (over200 / n) * 100,
+    iterations: n,
+    elapsedMs,
   };
 }
 
-// Box-Muller for normal distribution
-function normalRandom(rand: () => number, mean: number, stdDev: number): number {
-  const u1 = rand();
-  const u2 = rand();
-  return mean + stdDev * Math.sqrt(-2 * Math.log(u1 || 1e-10)) * Math.cos(2 * Math.PI * u2);
-}
-
-function runSimulation(
-  wells: Props["wells"],
-  basePrice: number,
-  baseCost: number,
-  baseOpex: number,
-  priceStd: number,
-  costStd: number,
-  opexStd: number,
-  diStd: number,
-  iterations: number,
-  seed: number,
-): number[] {
-  const rand = mulberry32(seed);
-  const rois: number[] = [];
-
-  for (let i = 0; i < iterations; i++) {
-    const price = Math.max(20, normalRandom(rand, basePrice, priceStd));
-    const cost = Math.max(10000, normalRandom(rand, baseCost, costStd));
-    const opex = Math.max(2, normalRandom(rand, baseOpex, opexStd));
-
-    let totalNet = 0;
-    let totalCapex = 0;
-
-    for (const w of wells) {
-      const di = Math.max(0.005, normalRandom(rand, w.Di, diStd));
-      let fiveYearNet = 0;
-      for (let m = 1; m <= 60; m++) {
-        const rate = arpsRate(w.addedProd, di, w.b, m);
-        fiveYearNet += rate * 30.44 * (price - opex);
-      }
-      totalNet += fiveYearNet;
-      totalCapex += cost;
-    }
-
-    const roi = totalCapex > 0 ? ((totalNet - totalCapex) / totalCapex) * 100 : 0;
-    rois.push(roi);
-  }
-
-  return rois.sort((a, b) => a - b);
-}
-
 const MonteCarloSimulation = ({ baseOilPrice, baseTreatmentCost, baseOpex, wells }: Props) => {
-  const [iterations, setIterations] = useState(5000);
+  const [iterations, setIterations] = useState(10000);
   const [priceVolatility, setPriceVolatility] = useState(15);
   const [costVolatility, setCostVolatility] = useState(15000);
   const [seed, setSeed] = useState(42);
+  const [results, setResults] = useState<SimStats | null>(null);
+  const [running, setRunning] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const workerRef = useRef<Worker | null>(null);
 
   const { exporting, exportPDF, refs } = useMonteCarloExport();
 
-  const results = useMemo(() => {
-    const rois = runSimulation(
-      wells, baseOilPrice, baseTreatmentCost, baseOpex,
-      priceVolatility, costVolatility, 4, 0.008,
-      iterations, seed,
-    );
+  useEffect(() => {
+    const worker = new Worker(new URL("@/workers/monteCarlo.worker.ts", import.meta.url), {
+      type: "module",
+    });
+    workerRef.current = worker;
+    return () => worker.terminate();
+  }, []);
 
-    const min = Math.floor(rois[0] / 25) * 25;
-    const max = Math.ceil(rois[rois.length - 1] / 25) * 25;
-    const bins: { range: string; count: number; midpoint: number }[] = [];
-    for (let lo = min; lo < max; lo += 25) {
-      const count = rois.filter((r) => r >= lo && r < lo + 25).length;
-      bins.push({ range: `${lo}–${lo + 25}%`, count, midpoint: lo + 12.5 });
-    }
+  useEffect(() => {
+    const worker = workerRef.current;
+    if (!worker) return;
 
-    const mean = rois.reduce((s, r) => s + r, 0) / rois.length;
-    const variance = rois.reduce((s, r) => s + (r - mean) ** 2, 0) / rois.length;
-    const stdDev = Math.sqrt(variance);
-    const p10 = rois[Math.floor(rois.length * 0.1)];
-    const p25 = rois[Math.floor(rois.length * 0.25)];
-    const p50 = rois[Math.floor(rois.length * 0.5)];
-    const p75 = rois[Math.floor(rois.length * 0.75)];
-    const p90 = rois[Math.floor(rois.length * 0.9)];
-    const probPositive = (rois.filter((r) => r > 0).length / rois.length) * 100;
-    const probOver100 = (rois.filter((r) => r > 100).length / rois.length) * 100;
-    const probOver200 = (rois.filter((r) => r > 200).length / rois.length) * 100;
+    setRunning(true);
+    setProgress(0);
 
-    return { bins, mean, stdDev, p10, p25, p50, p75, p90, probPositive, probOver100, probOver200 };
+    const onMessage = (e: MessageEvent<MCWorkerProgress | MCWorkerResult>) => {
+      const msg = e.data;
+      if (msg.type === "progress") {
+        setProgress((msg.done / msg.total) * 100);
+      } else if (msg.type === "result") {
+        setResults(summarize(msg.rois, msg.elapsedMs));
+        setRunning(false);
+        setProgress(100);
+      }
+    };
+    worker.addEventListener("message", onMessage);
+
+    const input: MCWorkerInput = {
+      type: "run",
+      wells,
+      basePrice: baseOilPrice,
+      baseCost: baseTreatmentCost,
+      baseOpex,
+      priceStd: priceVolatility,
+      costStd: costVolatility,
+      opexStd: 4,
+      diStd: 0.008,
+      iterations,
+      seed,
+    };
+    worker.postMessage(input);
+
+    return () => worker.removeEventListener("message", onMessage);
   }, [wells, baseOilPrice, baseTreatmentCost, baseOpex, priceVolatility, costVolatility, iterations, seed]);
+
+  // Placeholder while first run completes
+  const safe = results ?? {
+    bins: [], mean: 0, stdDev: 0,
+    p10: 0, p25: 0, p50: 0, p75: 0, p90: 0,
+    probPositive: 0, probOver100: 0, probOver200: 0,
+    iterations, elapsedMs: 0,
+  };
+
 
   return (
     <div className="space-y-6">
