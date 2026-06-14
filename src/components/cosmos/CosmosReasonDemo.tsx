@@ -179,9 +179,14 @@ const CosmosReasonDemo = () => {
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [showSummary, setShowSummary] = useState(false);
   const [streamedSummary, setStreamedSummary] = useState("");
+  const [liveMode, setLiveMode] = useState<"simulation" | "live-nvidia">("simulation");
+  const [liveOverride, setLiveOverride] = useState<{ score?: number; summary?: string } | null>(null);
   const stepsRef = useRef<HTMLDivElement>(null);
 
-  const { steps, totalScore, rank, summary } = computeReasoning(selectedWell);
+  const computed = computeReasoning(selectedWell);
+  const totalScore = liveOverride?.score ?? computed.totalScore;
+  const { steps, rank } = computed;
+  const summary = liveOverride?.summary ?? computed.summary;
 
   const runReasoning = async () => {
     setIsRunning(true);
