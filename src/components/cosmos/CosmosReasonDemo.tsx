@@ -10,6 +10,7 @@ import {
   ResponsiveContainer, Legend, Tooltip,
 } from "recharts";
 import { cn } from "@/lib/utils";
+import { callCosmos } from "./useCosmosInference";
 
 interface WellCandidate {
   id: string;
