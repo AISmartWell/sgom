@@ -30,10 +30,11 @@ serve(async (req) => {
   }
 
   try {
-    const { mode, well, prompt } = await req.json() as {
+    const { mode, well, prompt, modelOverride } = await req.json() as {
       mode: 'reason' | 'predict' | 'transfer';
       well?: WellPayload;
       prompt?: string;
+      modelOverride?: string;
     };
 
     const NVIDIA_API_KEY = Deno.env.get('NVIDIA_API_KEY');
