@@ -116,7 +116,7 @@ Given a target formation, generate a plausible synthetic well log profile summar
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: COSMOS_REASON_MODEL,
+        model: modelOverride || COSMOS_REASON_MODEL,
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt },
