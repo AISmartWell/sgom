@@ -6,8 +6,12 @@ const corsHeaders = {
 };
 
 const NVIDIA_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
-// Real NVIDIA Cosmos Reason model available via NIM
-const COSMOS_REASON_MODEL = 'nvidia/cosmos-reason1-7b';
+// NOTE: nvidia/cosmos-reason1-7b is DEPRECATED on the hosted API catalog
+// (only available as downloadable NIM container). For hosted inference we use
+// Meta Llama 3.3 70B (best hosted reasoning model on the NVIDIA API Catalog).
+// The integration architecture is identical to a real Cosmos Reason endpoint —
+// only the model id changes once Cosmos Reason is redeployed on the catalog.
+const COSMOS_REASON_MODEL = 'meta/llama-3.3-70b-instruct';
 
 interface WellPayload {
   name: string;
@@ -28,10 +32,11 @@ serve(async (req) => {
   }
 
   try {
-    const { mode, well, prompt } = await req.json() as {
+    const { mode, well, prompt, modelOverride } = await req.json() as {
       mode: 'reason' | 'predict' | 'transfer';
       well?: WellPayload;
       prompt?: string;
+      modelOverride?: string;
     };
 
     const NVIDIA_API_KEY = Deno.env.get('NVIDIA_API_KEY');
@@ -113,7 +118,7 @@ Given a target formation, generate a plausible synthetic well log profile summar
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: COSMOS_REASON_MODEL,
+        model: modelOverride || COSMOS_REASON_MODEL,
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt },
@@ -151,7 +156,7 @@ Given a target formation, generate a plausible synthetic well log profile summar
     return new Response(
       JSON.stringify({
         result: parsed,
-        model: COSMOS_REASON_MODEL,
+        model: modelOverride || COSMOS_REASON_MODEL,
         mode,
         live: true,
       }),

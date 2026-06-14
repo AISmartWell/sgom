@@ -10,6 +10,7 @@ import {
   ResponsiveContainer, Legend, Tooltip,
 } from "recharts";
 import { cn } from "@/lib/utils";
+import { callCosmos } from "./useCosmosInference";
 
 interface WellCandidate {
   id: string;
@@ -178,9 +179,14 @@ const CosmosReasonDemo = () => {
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [showSummary, setShowSummary] = useState(false);
   const [streamedSummary, setStreamedSummary] = useState("");
+  const [liveMode, setLiveMode] = useState<"simulation" | "live-nvidia">("simulation");
+  const [liveOverride, setLiveOverride] = useState<{ score?: number; summary?: string } | null>(null);
   const stepsRef = useRef<HTMLDivElement>(null);
 
-  const { steps, totalScore, rank, summary } = computeReasoning(selectedWell);
+  const computed = computeReasoning(selectedWell);
+  const totalScore = liveOverride?.score ?? computed.totalScore;
+  const { steps, rank } = computed;
+  const summary = liveOverride?.summary ?? computed.summary;
 
   const runReasoning = async () => {
     setIsRunning(true);
@@ -188,6 +194,31 @@ const CosmosReasonDemo = () => {
     setCompletedSteps([]);
     setShowSummary(false);
     setStreamedSummary("");
+    setLiveOverride(null);
+    setLiveMode("simulation");
+
+    // Fire real NVIDIA call in parallel with the animated CoT steps
+    const livePromise = callCosmos<{
+      score: number;
+      verdict: string;
+      uplift_bbl_d: number;
+      post_spt_oil: number;
+      key_reasons: string[];
+      summary: string;
+    }>("reason", {
+      well: {
+        name: selectedWell.name,
+        api: selectedWell.api,
+        formation: selectedWell.formation,
+        depth: selectedWell.depth,
+        oil: selectedWell.oil,
+        waterCut: selectedWell.waterCut,
+        gor: selectedWell.gor,
+        porosity: selectedWell.porosity,
+        permeability: selectedWell.permeability,
+        status: selectedWell.status,
+      },
+    });
 
     for (let i = 0; i < steps.length; i++) {
       setCurrentStep(i);
@@ -195,12 +226,23 @@ const CosmosReasonDemo = () => {
       setCompletedSteps(prev => [...prev, i]);
     }
 
+    const live = await livePromise;
+    let finalSummary = computed.summary;
+    if (live?.result) {
+      setLiveMode("live-nvidia");
+      const r = live.result;
+      setLiveOverride({
+        score: typeof r.score === "number" ? Math.round(r.score) : undefined,
+        summary: r.summary,
+      });
+      finalSummary = `[NVIDIA ${live.model}] ${r.summary} — Verdict: ${r.verdict}. Uplift +${r.uplift_bbl_d} bbl/d → ${r.post_spt_oil} bbl/d post-SPT. Key reasons: ${(r.key_reasons || []).join("; ")}.`;
+    }
+
     setShowSummary(true);
-    // Stream the summary text
-    const plainSummary = summary.replace(/\*\*/g, "");
+    const plainSummary = finalSummary.replace(/\*\*/g, "");
     for (let i = 0; i <= plainSummary.length; i++) {
       setStreamedSummary(plainSummary.slice(0, i));
-      await new Promise(r => setTimeout(r, 12));
+      await new Promise(r => setTimeout(r, 8));
     }
     setIsRunning(false);
   };
@@ -227,7 +269,7 @@ const CosmosReasonDemo = () => {
             <CardTitle className="text-xl flex items-center gap-2 flex-wrap">
               Cosmos Reason — Interactive Demo
               <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">XAI</Badge>
-              <IntegrationStatusBadge mode="simulation" tooltip="Reasoning chain is computed client-side from MCDA scores (deterministic). Real Cosmos Reason foundation model integration is on the Phase I R&D roadmap." />
+              <IntegrationStatusBadge mode={liveMode} tooltip={liveMode === "live-nvidia" ? "Live call to NVIDIA API Catalog (meta/llama-3.3-70b-instruct via cosmos-inference edge function). Cosmos Reason1-7B foundation model itself is deprecated on the hosted catalog and only available as a downloadable NIM container." : "Reasoning chain is computed client-side. Real NVIDIA API call is in flight or fell back."} />
             </CardTitle>
             <CardDescription>
               Chain-of-thought reasoning: why is this well the best SPT candidate?

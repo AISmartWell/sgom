@@ -5,6 +5,7 @@ import {
 } from "recharts";
 import { useWellLogs } from "@/hooks/useWellLogs";
 import CosmosPredictExtras from "./CosmosPredictExtras";
+import { callCosmos } from "./useCosmosInference";
 
 const BRAWNER_WELL_ID = "51e4b111-58ae-40d5-9b3d-fbec2ad9aaea";
 
@@ -154,6 +155,7 @@ const CosmosPredictDemo = () => {
   const [result, setResult] = useState<PredictResult | null>(null);
   const [streamText, setStreamText] = useState("");
   const [phase, setPhase] = useState<Phase>("idle");
+  const [liveMode, setLiveMode] = useState<"simulation" | "live-nvidia" | "live-ai-hybrid">("live-ai-hybrid");
   const logRef = useRef<HTMLDivElement>(null);
 
   // Reset SPT zone when data source changes
@@ -242,35 +244,42 @@ const CosmosPredictDemo = () => {
       prodData: buildProduction(uplift),
     };
 
+    setLiveMode("live-ai-hybrid");
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/spt-chat`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-          },
-          body: JSON.stringify({
-            message: `You are NVIDIA Cosmos Predict. Analyze this well zone and respond ONLY with valid JSON (no markdown):
-WELL: Brawner 10-15 | East Texas Basin, Van Zandt County | API 42-467-30979 | Rodessa/James Lime formation
+      const live = await callCosmos<any>("predict", {
+        prompt: `WELL: Brawner 10-15 | East Texas Basin, Van Zandt County | API 42-467-30979 | Rodessa/James Lime formation
 SPT TARGET ZONE: ${sptZone.top}–${sptZone.bottom} ft MD, ${thickness} ft thick
 AVG GR: ${avgGR} API, AVG RT: ${avgRT} Ω·m, AVG NPHI: ${avgNPHI}, AVG SW: ${avgSW}
-Return JSON: {"formation_name","formation_type","net_pay_ft","porosity_pct","water_saturation_pct","permeability_md","pre_spt_bbl_day","post_spt_bbl_day","uplift_factor","pressure_increase_pct","recovery_factor_pct","spt_slot_depth_ft","spt_slots_recommended","co2_reduction_tons_year","confidence_pct","reasoning"}`,
-          }),
-        }
-      );
-      if (response.ok) {
-        const data = await response.json();
-        const text = typeof data === "string" ? data : data.response || data.content || "";
-        const jsonMatch = text.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          const parsed = JSON.parse(jsonMatch[0]);
-          Object.assign(fallback, parsed, { prodData: buildProduction(parsed.uplift_factor || uplift) });
-        }
+Return ONLY JSON with keys: formation_name, formation_type, net_pay_ft, porosity_pct, water_saturation_pct, permeability_md, pre_spt_bbl_day, post_spt_bbl_day, uplift_factor, pressure_increase_pct, recovery_factor_pct, spt_slot_depth_ft, spt_slots_recommended, co2_reduction_tons_year, confidence_pct, reasoning`,
+      });
+      if (live?.result) {
+        setLiveMode("live-nvidia");
+        const r = live.result;
+        // Map cosmos-inference predict schema → component schema where possible
+        const mapped: Partial<PredictResult> = {
+          ...(r.formation_name && { formation_name: r.formation_name }),
+          ...(r.formation_type && { formation_type: r.formation_type }),
+          ...(r.net_pay_ft && { net_pay_ft: r.net_pay_ft }),
+          ...(r.porosity_pct && { porosity_pct: r.porosity_pct }),
+          ...(r.water_saturation_pct && { water_saturation_pct: r.water_saturation_pct }),
+          ...(r.permeability_md && { permeability_md: r.permeability_md }),
+          ...(r.pre_spt_bbl_day ?? r.pre_spt_bbl_d) && { pre_spt_bbl_day: r.pre_spt_bbl_day ?? r.pre_spt_bbl_d },
+          ...(r.post_spt_bbl_day ?? r.post_spt_bbl_d) && { post_spt_bbl_day: r.post_spt_bbl_day ?? r.post_spt_bbl_d },
+          ...(r.uplift_factor && { uplift_factor: r.uplift_factor }),
+          ...(r.pressure_increase_pct && { pressure_increase_pct: r.pressure_increase_pct }),
+          ...(r.recovery_factor_pct && { recovery_factor_pct: r.recovery_factor_pct }),
+          ...(r.spt_slot_depth_ft && { spt_slot_depth_ft: r.spt_slot_depth_ft }),
+          ...(r.spt_slots_recommended && { spt_slots_recommended: r.spt_slots_recommended }),
+          ...(r.co2_reduction_tons_year && { co2_reduction_tons_year: r.co2_reduction_tons_year }),
+          ...(r.confidence_pct && { confidence_pct: r.confidence_pct }),
+          ...(r.reasoning || r.physics_notes) && { reasoning: r.reasoning || r.physics_notes },
+        };
+        Object.assign(fallback, mapped, {
+          prodData: buildProduction(mapped.uplift_factor || fallback.uplift_factor),
+        });
       }
     } catch {
-      // Use physics-based fallback
+      // physics fallback already set
     }
 
     // Stream reasoning text
@@ -339,13 +348,18 @@ Return JSON: {"formation_name","formation_type","net_pay_ft","porosity_pct","wat
         <div style={{ color: C.blue, fontSize: 11, letterSpacing: "0.1em" }}>SGOM · PREDICT</div>
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8 }}>
           <span
-            title="Hybrid: Lovable AI Gateway (NVIDIA NIM upstream) for chain-of-thought reasoning + deterministic physics fallback. Cosmos Predict foundation model not yet wired (Phase I R&D)."
+            title={liveMode === "live-nvidia"
+              ? "Live call to NVIDIA API Catalog (meta/llama-3.3-70b-instruct via cosmos-inference). Real GPU inference."
+              : "Calling NVIDIA — falls back to deterministic physics model if the endpoint is unreachable."}
             style={{
-              background: "#f28c0025", color: C.orange, fontSize: 8, fontWeight: 700,
+              background: liveMode === "live-nvidia" ? "#76b90025" : "#f28c0025",
+              color: liveMode === "live-nvidia" ? C.nvidia : C.orange,
+              fontSize: 8, fontWeight: 700,
               padding: "2px 6px", borderRadius: 3, letterSpacing: "0.1em",
-              border: "1px solid #f28c0050", cursor: "help",
+              border: `1px solid ${liveMode === "live-nvidia" ? "#76b90050" : "#f28c0050"}`,
+              cursor: "help",
             }}
-          >HYBRID · LIVE AI + PHYSICS</span>
+          >{liveMode === "live-nvidia" ? "LIVE NVIDIA API" : "HYBRID · LIVE AI + PHYSICS"}</span>
           {hasRealData && (
             <span style={{
               background: "#76b90030", color: C.nvidia, fontSize: 8, fontWeight: 700,
