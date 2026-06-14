@@ -13,6 +13,7 @@ import {
   TrendingUp, Zap, ArrowRight, Sparkles, BarChart3,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { callCosmos } from "./useCosmosInference";
 
 // ── Region presets ──
 interface Region {
