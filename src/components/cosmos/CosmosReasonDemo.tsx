@@ -269,7 +269,7 @@ const CosmosReasonDemo = () => {
             <CardTitle className="text-xl flex items-center gap-2 flex-wrap">
               Cosmos Reason — Interactive Demo
               <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">XAI</Badge>
-              <IntegrationStatusBadge mode="simulation" tooltip="Reasoning chain is computed client-side from MCDA scores (deterministic). Real Cosmos Reason foundation model integration is on the Phase I R&D roadmap." />
+              <IntegrationStatusBadge mode={liveMode} tooltip={liveMode === "live-nvidia" ? "Live call to NVIDIA API Catalog (meta/llama-3.3-70b-instruct via cosmos-inference edge function). Cosmos Reason1-7B foundation model itself is deprecated on the hosted catalog and only available as a downloadable NIM container." : "Reasoning chain is computed client-side. Real NVIDIA API call is in flight or fell back."} />
             </CardTitle>
             <CardDescription>
               Chain-of-thought reasoning: why is this well the best SPT candidate?
