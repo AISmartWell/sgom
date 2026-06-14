@@ -474,6 +474,11 @@ export default function CosmosTransferDemo() {
                 {syntheticCount} exploration wells worth ~${(syntheticCount * 850000).toLocaleString()}, obtained in{" "}
                 <span className="text-blue-400">3 seconds of GPU compute</span>.
               </p>
+              {liveNotes && (
+                <p className="text-xs text-green-400 leading-relaxed mt-3 pt-3 border-t border-blue-500/20">
+                  <span className="font-semibold">NVIDIA · Live response:</span> {liveNotes}
+                </p>
+              )}
             </div>
           </div>
         )}
