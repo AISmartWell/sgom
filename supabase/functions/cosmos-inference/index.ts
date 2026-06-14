@@ -154,7 +154,7 @@ Given a target formation, generate a plausible synthetic well log profile summar
     return new Response(
       JSON.stringify({
         result: parsed,
-        model: COSMOS_REASON_MODEL,
+        model: modelOverride || COSMOS_REASON_MODEL,
         mode,
         live: true,
       }),
