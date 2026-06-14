@@ -6,8 +6,10 @@ const corsHeaders = {
 };
 
 const NVIDIA_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
-// Real NVIDIA Cosmos Reason model available via NIM
-const COSMOS_REASON_MODEL = 'nvidia/cosmos-reason1-7b';
+// NOTE: nvidia/cosmos-reason1-7b is DEPRECATED on the hosted API catalog
+// (only available as downloadable NIM container). For hosted inference we use
+// the Nemotron reasoning family — same NVIDIA stack, chat-completions compatible.
+const COSMOS_REASON_MODEL = 'nvidia/llama-3.1-nemotron-70b-instruct';
 
 interface WellPayload {
   name: string;
