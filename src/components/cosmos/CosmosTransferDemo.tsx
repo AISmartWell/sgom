@@ -148,6 +148,8 @@ export default function CosmosTransferDemo() {
   const [phase, setPhase] = useState<Phase>("idle");
   const [syntheticWells, setSyntheticWells] = useState<ReturnType<typeof genLogData>[]>([]);
   const [showResults, setShowResults] = useState(false);
+  const [liveMode, setLiveMode] = useState<"simulation" | "live-nvidia">("simulation");
+  const [liveNotes, setLiveNotes] = useState<string | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const syntheticCount = region.targetWells - region.realWells;
