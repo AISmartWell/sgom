@@ -161,8 +161,22 @@ export default function CosmosTransferDemo() {
     setPhase("encoding");
     setShowResults(false);
     setSyntheticWells([]);
+    setLiveMode("simulation");
+    setLiveNotes(null);
 
-    timerRef.current = setTimeout(() => {
+    // Fire real NVIDIA call in parallel with the animated steps
+    callCosmos<{ formation: string; depth_range_ft: [number, number]; synthetic_zones: any[]; augmentation_factor: number; notes: string }>(
+      "transfer",
+      {
+        well: { name: region.referenceWell?.name || region.name, formation: region.formations[0], depth: region.depthRange[0] } as any,
+        prompt: `Generate synthetic well log summary for ${region.formations.join(", ")} in ${region.name} (depth ${region.depthRange[0]}-${region.depthRange[1]} ft), augmenting from ${region.realWells} real wells to ${region.targetWells}. Return JSON.`,
+      }
+    ).then(live => {
+      if (live?.result) {
+        setLiveMode("live-nvidia");
+        setLiveNotes(live.result.notes || null);
+      }
+    });
       setPhase("generating");
 
       const wells: ReturnType<typeof genLogData>[] = [];
