@@ -5,6 +5,7 @@ import {
 } from "recharts";
 import { useWellLogs } from "@/hooks/useWellLogs";
 import CosmosPredictExtras from "./CosmosPredictExtras";
+import { callCosmos } from "./useCosmosInference";
 
 const BRAWNER_WELL_ID = "51e4b111-58ae-40d5-9b3d-fbec2ad9aaea";
 
