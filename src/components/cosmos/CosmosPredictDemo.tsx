@@ -155,6 +155,7 @@ const CosmosPredictDemo = () => {
   const [result, setResult] = useState<PredictResult | null>(null);
   const [streamText, setStreamText] = useState("");
   const [phase, setPhase] = useState<Phase>("idle");
+  const [liveMode, setLiveMode] = useState<"simulation" | "live-nvidia" | "live-ai-hybrid">("live-ai-hybrid");
   const logRef = useRef<HTMLDivElement>(null);
 
   // Reset SPT zone when data source changes
