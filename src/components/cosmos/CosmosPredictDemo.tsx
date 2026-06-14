@@ -244,35 +244,42 @@ const CosmosPredictDemo = () => {
       prodData: buildProduction(uplift),
     };
 
+    setLiveMode("live-ai-hybrid");
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/spt-chat`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-          },
-          body: JSON.stringify({
-            message: `You are NVIDIA Cosmos Predict. Analyze this well zone and respond ONLY with valid JSON (no markdown):
-WELL: Brawner 10-15 | East Texas Basin, Van Zandt County | API 42-467-30979 | Rodessa/James Lime formation
+      const live = await callCosmos<any>("predict", {
+        prompt: `WELL: Brawner 10-15 | East Texas Basin, Van Zandt County | API 42-467-30979 | Rodessa/James Lime formation
 SPT TARGET ZONE: ${sptZone.top}–${sptZone.bottom} ft MD, ${thickness} ft thick
 AVG GR: ${avgGR} API, AVG RT: ${avgRT} Ω·m, AVG NPHI: ${avgNPHI}, AVG SW: ${avgSW}
-Return JSON: {"formation_name","formation_type","net_pay_ft","porosity_pct","water_saturation_pct","permeability_md","pre_spt_bbl_day","post_spt_bbl_day","uplift_factor","pressure_increase_pct","recovery_factor_pct","spt_slot_depth_ft","spt_slots_recommended","co2_reduction_tons_year","confidence_pct","reasoning"}`,
-          }),
-        }
-      );
-      if (response.ok) {
-        const data = await response.json();
-        const text = typeof data === "string" ? data : data.response || data.content || "";
-        const jsonMatch = text.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          const parsed = JSON.parse(jsonMatch[0]);
-          Object.assign(fallback, parsed, { prodData: buildProduction(parsed.uplift_factor || uplift) });
-        }
+Return ONLY JSON with keys: formation_name, formation_type, net_pay_ft, porosity_pct, water_saturation_pct, permeability_md, pre_spt_bbl_day, post_spt_bbl_day, uplift_factor, pressure_increase_pct, recovery_factor_pct, spt_slot_depth_ft, spt_slots_recommended, co2_reduction_tons_year, confidence_pct, reasoning`,
+      });
+      if (live?.result) {
+        setLiveMode("live-nvidia");
+        const r = live.result;
+        // Map cosmos-inference predict schema → component schema where possible
+        const mapped: Partial<PredictResult> = {
+          ...(r.formation_name && { formation_name: r.formation_name }),
+          ...(r.formation_type && { formation_type: r.formation_type }),
+          ...(r.net_pay_ft && { net_pay_ft: r.net_pay_ft }),
+          ...(r.porosity_pct && { porosity_pct: r.porosity_pct }),
+          ...(r.water_saturation_pct && { water_saturation_pct: r.water_saturation_pct }),
+          ...(r.permeability_md && { permeability_md: r.permeability_md }),
+          ...(r.pre_spt_bbl_day ?? r.pre_spt_bbl_d) && { pre_spt_bbl_day: r.pre_spt_bbl_day ?? r.pre_spt_bbl_d },
+          ...(r.post_spt_bbl_day ?? r.post_spt_bbl_d) && { post_spt_bbl_day: r.post_spt_bbl_day ?? r.post_spt_bbl_d },
+          ...(r.uplift_factor && { uplift_factor: r.uplift_factor }),
+          ...(r.pressure_increase_pct && { pressure_increase_pct: r.pressure_increase_pct }),
+          ...(r.recovery_factor_pct && { recovery_factor_pct: r.recovery_factor_pct }),
+          ...(r.spt_slot_depth_ft && { spt_slot_depth_ft: r.spt_slot_depth_ft }),
+          ...(r.spt_slots_recommended && { spt_slots_recommended: r.spt_slots_recommended }),
+          ...(r.co2_reduction_tons_year && { co2_reduction_tons_year: r.co2_reduction_tons_year }),
+          ...(r.confidence_pct && { confidence_pct: r.confidence_pct }),
+          ...(r.reasoning || r.physics_notes) && { reasoning: r.reasoning || r.physics_notes },
+        };
+        Object.assign(fallback, mapped, {
+          prodData: buildProduction(mapped.uplift_factor || fallback.uplift_factor),
+        });
       }
     } catch {
-      // Use physics-based fallback
+      // physics fallback already set
     }
 
     // Stream reasoning text
