@@ -177,6 +177,8 @@ export default function CosmosTransferDemo() {
         setLiveNotes(live.result.notes || null);
       }
     });
+
+    timerRef.current = setTimeout(() => {
       setPhase("generating");
 
       const wells: ReturnType<typeof genLogData>[] = [];
