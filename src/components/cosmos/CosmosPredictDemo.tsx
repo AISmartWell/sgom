@@ -348,13 +348,18 @@ Return ONLY JSON with keys: formation_name, formation_type, net_pay_ft, porosity
         <div style={{ color: C.blue, fontSize: 11, letterSpacing: "0.1em" }}>SGOM · PREDICT</div>
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8 }}>
           <span
-            title="Hybrid: Lovable AI Gateway (NVIDIA NIM upstream) for chain-of-thought reasoning + deterministic physics fallback. Cosmos Predict foundation model not yet wired (Phase I R&D)."
+            title={liveMode === "live-nvidia"
+              ? "Live call to NVIDIA API Catalog (meta/llama-3.3-70b-instruct via cosmos-inference). Real GPU inference."
+              : "Calling NVIDIA — falls back to deterministic physics model if the endpoint is unreachable."}
             style={{
-              background: "#f28c0025", color: C.orange, fontSize: 8, fontWeight: 700,
+              background: liveMode === "live-nvidia" ? "#76b90025" : "#f28c0025",
+              color: liveMode === "live-nvidia" ? C.nvidia : C.orange,
+              fontSize: 8, fontWeight: 700,
               padding: "2px 6px", borderRadius: 3, letterSpacing: "0.1em",
-              border: "1px solid #f28c0050", cursor: "help",
+              border: `1px solid ${liveMode === "live-nvidia" ? "#76b90050" : "#f28c0050"}`,
+              cursor: "help",
             }}
-          >HYBRID · LIVE AI + PHYSICS</span>
+          >{liveMode === "live-nvidia" ? "LIVE NVIDIA API" : "HYBRID · LIVE AI + PHYSICS"}</span>
           {hasRealData && (
             <span style={{
               background: "#76b90030", color: C.nvidia, fontSize: 8, fontWeight: 700,
