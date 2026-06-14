@@ -194,6 +194,31 @@ const CosmosReasonDemo = () => {
     setCompletedSteps([]);
     setShowSummary(false);
     setStreamedSummary("");
+    setLiveOverride(null);
+    setLiveMode("simulation");
+
+    // Fire real NVIDIA call in parallel with the animated CoT steps
+    const livePromise = callCosmos<{
+      score: number;
+      verdict: string;
+      uplift_bbl_d: number;
+      post_spt_oil: number;
+      key_reasons: string[];
+      summary: string;
+    }>("reason", {
+      well: {
+        name: selectedWell.name,
+        api: selectedWell.api,
+        formation: selectedWell.formation,
+        depth: selectedWell.depth,
+        oil: selectedWell.oil,
+        waterCut: selectedWell.waterCut,
+        gor: selectedWell.gor,
+        porosity: selectedWell.porosity,
+        permeability: selectedWell.permeability,
+        status: selectedWell.status,
+      },
+    });
 
     for (let i = 0; i < steps.length; i++) {
       setCurrentStep(i);
@@ -201,12 +226,23 @@ const CosmosReasonDemo = () => {
       setCompletedSteps(prev => [...prev, i]);
     }
 
+    const live = await livePromise;
+    let finalSummary = computed.summary;
+    if (live?.result) {
+      setLiveMode("live-nvidia");
+      const r = live.result;
+      setLiveOverride({
+        score: typeof r.score === "number" ? Math.round(r.score) : undefined,
+        summary: r.summary,
+      });
+      finalSummary = `[NVIDIA ${live.model}] ${r.summary} — Verdict: ${r.verdict}. Uplift +${r.uplift_bbl_d} bbl/d → ${r.post_spt_oil} bbl/d post-SPT. Key reasons: ${(r.key_reasons || []).join("; ")}.`;
+    }
+
     setShowSummary(true);
-    // Stream the summary text
-    const plainSummary = summary.replace(/\*\*/g, "");
+    const plainSummary = finalSummary.replace(/\*\*/g, "");
     for (let i = 0; i <= plainSummary.length; i++) {
       setStreamedSummary(plainSummary.slice(0, i));
-      await new Promise(r => setTimeout(r, 12));
+      await new Promise(r => setTimeout(r, 8));
     }
     setIsRunning(false);
   };
