@@ -141,7 +141,7 @@ Given a target formation, generate a plausible synthetic well log profile summar
   "formation": string,
   "depth_range_ft": [number, number],
   "synthetic_zones": [{ "name": string, "thickness_ft": number, "porosity_pct": number, "sw_pct": number }],
-  "augmento the augmentation_factor": number,
+  "augmentation_factor": number,
   "notes": string
 }`;
         userPrompt = prompt ?? `Generate synthetic log for ${well?.formation ?? 'Mississippian Limestone'} at ~${well?.depth ?? 4500} ft.`;
