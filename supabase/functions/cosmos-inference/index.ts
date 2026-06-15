@@ -31,9 +31,11 @@ serve(async (req) => {
     return new Response('ok', { headers: corsHeaders });
   }
 
+  const startTime = Date.now();
+
   try {
     const { mode, well, prompt, modelOverride } = await req.json() as {
-      mode: 'reason' | 'predict' | 'transfer';
+      mode: 'reason' | 'predict' | 'transfer' | 'ping';
       well?: WellPayload;
       prompt?: string;
       modelOverride?: string;
@@ -51,6 +53,44 @@ serve(async (req) => {
     let userPrompt: string;
 
     switch (mode) {
+      case 'ping': {
+        // Lightweight health-check: minimal token usage
+        const pingResp = await fetch(NVIDIA_URL, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${NVIDIA_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: modelOverride || COSMOS_REASON_MODEL,
+            messages: [
+              { role: 'system', content: 'Respond with exactly one word: pong' },
+              { role: 'user', content: 'ping' },
+            ],
+            max_tokens: 2,
+            temperature: 0,
+          }),
+        });
+        if (!pingResp.ok) {
+          const err = await pingResp.text();
+          return new Response(
+            JSON.stringify({ error: `NVIDIA ping failed: ${pingResp.status}`, details: err.slice(0, 500), fallback: true }),
+            { status: pingResp.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+        const pingData = await pingResp.json();
+        const content = pingData.choices?.[0]?.message?.content?.trim().toLowerCase() ?? '';
+        return new Response(
+          JSON.stringify({
+            result: { status: 'ok', response: content, latency_ms: Date.now() - startTime },
+            model: modelOverride || COSMOS_REASON_MODEL,
+            mode: 'ping',
+            live: true,
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
       case 'reason':
         if (!well) throw new Error('well payload required for reason mode');
         systemPrompt = `You are NVIDIA Cosmos Reason, an explainable AI for oil & gas SPT (Slot Perforation Technology, US Patent 8,863,823) candidate selection.

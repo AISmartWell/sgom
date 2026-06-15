@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CosmosPredictDemo from "@/components/cosmos/CosmosPredictDemo";
 import CosmosReasonDemo from "@/components/cosmos/CosmosReasonDemo";
 import CosmosTransferDemo from "@/components/cosmos/CosmosTransferDemo";
+import NvidiaPingButton from "@/components/cosmos/NvidiaPingButton";
 import {
   ArrowLeft,
   Brain,
@@ -144,6 +145,7 @@ const NvidiaCosmos = () => {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <NvidiaPingButton />
             <Button
               size="sm"
               variant="outline"
