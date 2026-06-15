@@ -31,6 +31,8 @@ serve(async (req) => {
     return new Response('ok', { headers: corsHeaders });
   }
 
+  const startTime = Date.now();
+
   try {
     const { mode, well, prompt, modelOverride } = await req.json() as {
       mode: 'reason' | 'predict' | 'transfer';
