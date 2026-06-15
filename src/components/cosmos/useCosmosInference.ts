@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 
-export type CosmosMode = "reason" | "predict" | "transfer";
+export type CosmosMode = "reason" | "predict" | "transfer" | "ping";
 
 export interface CosmosResponse<T = any> {
   result: T;
