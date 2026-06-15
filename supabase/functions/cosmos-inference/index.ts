@@ -35,7 +35,7 @@ serve(async (req) => {
 
   try {
     const { mode, well, prompt, modelOverride } = await req.json() as {
-      mode: 'reason' | 'predict' | 'transfer';
+      mode: 'reason' | 'predict' | 'transfer' | 'ping';
       well?: WellPayload;
       prompt?: string;
       modelOverride?: string;
