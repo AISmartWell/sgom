@@ -448,8 +448,12 @@ const WellAnalysisPipeline = () => {
 
               {isComplete && result && (
                 <CardContent className="pt-0 space-y-3">
+                  {/* Educational slide deck for this stage */}
+                  <StageSlides stageKey={stage.key} />
+
                   {/* Mini-visualization */}
                   <StageVisualization stageKey={stage.key} metrics={result.metrics} />
+                  
                   
                   {/* Detailed stage visualizations for all 9 stages */}
                   {stage.key === "classification" && selectedWell && (
