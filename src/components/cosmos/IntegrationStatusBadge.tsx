@@ -35,7 +35,7 @@ const CONFIG: Record<IntegrationMode, {
     className: "bg-amber-500/15 text-amber-400 border-amber-500/40",
     icon: FlaskConical,
     defaultTooltip:
-      "Deterministic client-side simulation calibrated against FORMATION_DB and historical SPT data. Cosmos foundation model not yet integrated — requires GPU H100 endpoint and adapter layer (Phase I R&D).",
+      "Deterministic client-side simulation calibrated against FORMATION_DB and historical SPT data. SGOM Physics foundation model not yet integrated — requires GPU H100 endpoint and adapter layer (Phase I R&D).",
   },
 };
 
