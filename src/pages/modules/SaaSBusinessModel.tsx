@@ -128,7 +128,7 @@ const moatItems = [
     statLabel: "granted patent",
   },
   {
-    title: "NVIDIA Cosmos AI Stack",
+    title: "SGOM Physics AI Stack · NVIDIA NIM",
     description: "Predict-Transfer-Reason pipeline powered by NVIDIA DGX H100. Cross-modal fusion of CV, geophysics and economics.",
     icon: Cpu,
     stat: "10-100x",

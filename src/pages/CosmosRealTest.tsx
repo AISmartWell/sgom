@@ -35,7 +35,7 @@ interface ProductionRow {
   days_on: number | null;
 }
 
-// ── Cosmos Predict physics core (mirrors CosmosSimulator.tsx) ──
+// ── SGOM Predict physics core (mirrors CosmosSimulator.tsx) ──
 function hash(seed: number, salt = 0) {
   const x = Math.sin(seed * 9301 + salt * 49297 + 12345) * 233280;
   return x - Math.floor(x);
@@ -138,7 +138,7 @@ const CosmosRealTest = () => {
                 Cosmos Real-Data Validation Test
               </h1>
               <p className="text-xs text-muted-foreground">
-                NVIDIA Cosmos Predict vs actual production history
+                SGOM Predict (NVIDIA NIM) vs actual production history
               </p>
             </div>
           </div>
@@ -249,7 +249,7 @@ const CosmosRealTest = () => {
                 Production Forecast Validation · Oil Rate (bbl/day)
               </CardTitle>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Cosmos Predict natural decline overlaid on actual production
+                SGOM Predict natural decline overlaid on actual production
               </p>
             </div>
             <Button
@@ -305,12 +305,12 @@ const CosmosRealTest = () => {
                     stroke="#1A9FFF" strokeWidth={2.5} fill="url(#realFill)"
                   />
                   <Line
-                    type="monotone" dataKey="cosmosNatural" name="Cosmos Predict (Natural Decline)"
+                    type="monotone" dataKey="cosmosNatural" name="SGOM Predict (Natural Decline)"
                     stroke="#76b900" strokeWidth={2} strokeDasharray="6 3" dot={false}
                   />
                   {showSPT && (
                     <Line
-                      type="monotone" dataKey="cosmosSPT" name="Cosmos Predict (with SPT)"
+                      type="monotone" dataKey="cosmosSPT" name="SGOM Predict (with SPT)"
                       stroke="#f28c00" strokeWidth={2.5} dot={{ r: 3 }}
                     />
                   )}
@@ -334,7 +334,7 @@ const CosmosRealTest = () => {
                     Validation Verdict
                   </div>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    Cosmos Predict reproduces the natural Arps decline of {BRAWNER.name} with
+                    SGOM Predict reproduces the natural Arps decline of {BRAWNER.name} with
                     <span className="text-foreground font-mono"> MAPE {metrics.mape}%</span> and
                     <span className="text-foreground font-mono"> R² {metrics.r2}</span> across
                     {" "}{metrics.n} months of real production. The model uses real petrophysical

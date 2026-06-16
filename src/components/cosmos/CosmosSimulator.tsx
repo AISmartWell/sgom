@@ -190,7 +190,7 @@ const CosmosSimulator = () => {
         <div style={{
           background: C.nvidia, color: "#000", fontWeight: 700, fontSize: 10,
           letterSpacing: "0.12em", padding: "4px 10px", borderRadius: 3,
-        }}>NVIDIA COSMOS</div>
+        }}>SGOM PHYSICS SIMULATOR · NVIDIA NIM</div>
         <span style={{ color: C.muted, fontSize: 11 }}>×</span>
         <span style={{ color: C.blue, fontSize: 11, letterSpacing: "0.1em" }}>
           AI SMART WELL · FULL SIMULATOR

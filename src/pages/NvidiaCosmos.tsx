@@ -32,7 +32,7 @@ import { useNavigate } from "react-router-dom";
 const cosmosModules = [
   {
     id: "predict",
-    title: "Cosmos Predict",
+    title: "SGOM Predict",
     subtitle: "Post-SPT Formation Behavior Prediction",
     icon: Eye,
     color: "from-green-500/20 to-emerald-500/20",
@@ -54,11 +54,11 @@ const cosmosModules = [
       "Validated against 500+ historical SPT treatments",
     ],
     useCase:
-      "Engineer uploads LAS file for Well #5 → Cosmos Predict generates expected post-SPT log response → Platform calculates ROI before treatment decision.",
+      "Engineer uploads LAS file for Well #5 → SGOM Predict generates expected post-SPT log response → Platform calculates ROI before treatment decision.",
   },
   {
     id: "transfer",
-    title: "Cosmos Transfer",
+    title: "SGOM Transfer",
     subtitle: "Synthetic Well Log Generation",
     icon: Database,
     color: "from-blue-500/20 to-cyan-500/20",
@@ -80,11 +80,11 @@ const cosmosModules = [
       "Validated via blind tests against withheld real well data",
     ],
     useCase:
-      "Oklahoma Pilot has 12 wells → Cosmos Transfer generates 50 synthetic analogs → ML model trains on 62 wells → prediction accuracy increases from 72% to 91%.",
+      "Oklahoma Pilot has 12 wells → SGOM Transfer generates 50 synthetic analogs → ML model trains on 62 wells → prediction accuracy increases from 72% to 91%.",
   },
   {
     id: "reason",
-    title: "Cosmos Reason",
+    title: "SGOM Reason",
     subtitle: "Explainable AI Reasoning Chain",
     icon: MessageSquare,
     color: "from-purple-500/20 to-violet-500/20",
@@ -106,7 +106,7 @@ const cosmosModules = [
       "Supports follow-up questions and drilling into specific factors",
     ],
     useCase:
-      'Investor asks: "Why Well #5 over Well #3?" → Cosmos Reason: "Well #5 has 15% higher porosity in target zone (12.3% vs 10.7%), 40% lower water cut trajectory, and Mississippian Limestone responds 2.3× better to SPT historically."',
+      'Investor asks: "Why Well #5 over Well #3?" → SGOM Reason: "Well #5 has 15% higher porosity in target zone (12.3% vs 10.7%), 40% lower water cut trajectory, and Mississippian Limestone responds 2.3× better to SPT historically."',
   },
 ];
 
@@ -136,7 +136,7 @@ const NvidiaCosmos = () => {
             </Button>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-bold">NVIDIA Cosmos Integration</h1>
+                <h1 className="text-2xl font-bold">SGOM Physics Simulator · Powered by NVIDIA NIM</h1>
                 <Badge className="bg-green-500/20 text-green-400 border-green-500/30">World Foundation Model</Badge>
               </div>
               <p className="text-sm text-muted-foreground">
@@ -245,7 +245,7 @@ const NvidiaCosmos = () => {
                   <span className="font-semibold text-orange-400 uppercase text-xs tracking-wider">Hybrid · Live AI + Physics</span>
                 </div>
                 <div className="text-xs text-muted-foreground leading-relaxed">
-                  <span className="text-foreground font-medium">Cosmos Predict demo</span> — calls Lovable AI Gateway (NVIDIA NIM upstream) for reasoning, with deterministic physics fallback. Cosmos Predict foundation model not yet wired.
+                  <span className="text-foreground font-medium">SGOM Predict demo</span> — calls Lovable AI Gateway (NVIDIA NIM upstream) for reasoning, with deterministic physics fallback. SGOM Predict foundation model not yet wired.
                 </div>
               </div>
               <div className="p-3 rounded-lg border border-amber-500/30 bg-amber-500/5">
@@ -254,7 +254,7 @@ const NvidiaCosmos = () => {
                   <span className="font-semibold text-amber-400 uppercase text-xs tracking-wider">Simulation</span>
                 </div>
                 <div className="text-xs text-muted-foreground leading-relaxed">
-                  <span className="text-foreground font-medium">Cosmos Transfer & Reason demos</span> — deterministic client-side simulations calibrated against FORMATION_DB and historical SPT data. Foundation model integration requires GPU H100 + adapter layer.
+                  <span className="text-foreground font-medium">SGOM Transfer & Reason demos</span> — deterministic client-side simulations calibrated against FORMATION_DB and historical SPT data. Foundation model integration requires GPU H100 + adapter layer.
                 </div>
               </div>
             </div>
@@ -331,13 +331,13 @@ const NvidiaCosmos = () => {
           ))}
         </Tabs>
 
-        {/* Cosmos Predict Interactive Demo */}
+        {/* SGOM Predict Interactive Demo */}
         <CosmosPredictDemo />
 
-        {/* Cosmos Transfer Interactive Demo */}
+        {/* SGOM Transfer Interactive Demo */}
         <CosmosTransferDemo />
 
-        {/* Cosmos Reason Interactive Demo */}
+        {/* SGOM Reason Interactive Demo */}
         <CosmosReasonDemo />
 
         {/* Pipeline Integration Map */}
@@ -401,12 +401,12 @@ const NvidiaCosmos = () => {
               {/* Cosmos Layer */}
               <div className="space-y-3">
                 <h4 className="font-semibold text-center p-2 rounded-lg bg-green-500/10 border border-green-500/20 text-green-400">
-                  NVIDIA Cosmos Layer
+                  SGOM Physics Layer · NVIDIA NIM
                 </h4>
                 {[
-                  { name: "Cosmos Predict", desc: "Physics simulation" },
-                  { name: "Cosmos Transfer", desc: "Data augmentation" },
-                  { name: "Cosmos Reason", desc: "Chain-of-thought" },
+                  { name: "SGOM Predict", desc: "Physics simulation" },
+                  { name: "SGOM Transfer", desc: "Data augmentation" },
+                  { name: "SGOM Reason", desc: "Chain-of-thought" },
                 ].map((item) => (
                   <div key={item.name} className="text-sm text-center p-2 rounded bg-muted/30 border border-border/30">
                     <div className="font-medium">{item.name}</div>

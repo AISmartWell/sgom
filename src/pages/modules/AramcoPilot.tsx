@@ -21,7 +21,7 @@ import AramcoStageRunner from "@/components/aramco-pilot/AramcoStageRunner";
 const UNIT_ECONOMICS = [
   { k: "GPU compute (H100)",     v: 14, n: "3.5 GPU-h @ $4/h — Stage 3 core CV + Stage 5 seismic CV + Stage 8 petrophysics ML" },
   { k: "LLM tokens",             v: 22, n: "Gemini 2.5 + GPT-5 reasoning across Stages 1, 2, 6, 7, 9 — ~1.2M tokens in+out" },
-  { k: "NVIDIA NIM inference",   v: 12, n: "Cosmos Predict / Transfer / Reason endpoints (seismic + reservoir simulation)" },
+  { k: "NVIDIA NIM inference",   v: 12, n: "SGOM Predict / Transfer / Reason endpoints (seismic + reservoir simulation)" },
   { k: "Metered data lookups",   v: 15, n: "IHS / Enverus API — formation tops, offset production, completions" },
   { k: "Monte Carlo (Stage 7)",  v:  2, n: "10k iterations on NPV / IRR / payback" },
   { k: "Storage & egress",       v:  3, n: "S3 ~15 GB/well (LAS, core, seismic, dossier PDF) + CloudFront" },
@@ -647,7 +647,7 @@ export default function AramcoPilot() {
               <CardContent className="text-sm text-muted-foreground space-y-2">
                 <p><span className="text-foreground font-semibold">Light orchestration:</span> Lovable Cloud edge functions (Deno) — 9-stage pipeline coordinator.</p>
                 <p><span className="text-foreground font-semibold">Heavy ML / batch 500:</span> AWS GPU workers (NVIDIA NIM, Gemini 2.5 Pro) — batched 10 wells per job.</p>
-                <p><span className="text-foreground font-semibold">CV (core / seismic):</span> NVIDIA Cosmos — Predict, Transfer, Reason tools.</p>
+                <p><span className="text-foreground font-semibold">CV (core / seismic):</span> SGOM Physics Simulator · Powered by NVIDIA NIM — Predict, Transfer, Reason tools.</p>
                 <p><span className="text-foreground font-semibold">Petrophysics:</span> Schlumberger workflow (Archie, Timur k = 0.136·φ⁴·⁴/Swirr²) with carbonate calibration for Arab-D super-K.</p>
               </CardContent>
             </Card>
@@ -1083,7 +1083,7 @@ export default function AramcoPilot() {
                     {[
                       { i: "GPU compute",            d: "Stage 3 CV core photos + Stage 5 seismic CV + Stage 8 petrophysics ML — ~3.5 GPU-h H100 @ $4/h", c: "$14" },
                       { i: "LLM tokens (Gemini 2.5 + GPT-5)", d: "Stages 1, 2, 6, 7, 9 reasoning + QA double-check — ~1.2M tokens combined in+out", c: "$22" },
-                      { i: "NVIDIA NIM inference",   d: "Cosmos Predict / Transfer / Reason endpoints for seismic and reservoir simulation", c: "$12" },
+                      { i: "NVIDIA NIM inference",   d: "SGOM Predict / Transfer / Reason endpoints for seismic and reservoir simulation", c: "$12" },
                       { i: "Metered data lookups",   d: "IHS / Enverus per-well API calls (formation tops, offset production, completions)", c: "$15" },
                       { i: "Monte Carlo simulation", d: "Stage 7 economics — 10k iterations on NPV / IRR / payback", c: "$2" },
                       { i: "Storage & egress",       d: "S3 delta ~15 GB/well (LAS, core, seismic slices, dossier PDF) + CloudFront delivery", c: "$3" },

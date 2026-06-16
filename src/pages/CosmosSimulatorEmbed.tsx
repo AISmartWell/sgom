@@ -1,7 +1,7 @@
 import CosmosSimulator from "@/components/cosmos/CosmosSimulator";
 
 /**
- * Standalone embed version of the Cosmos Simulator.
+ * Standalone embed version of the SGOM Physics Simulator.
  * No header, no navigation — designed to be loaded inside an <iframe>
  * on external sites (e.g. www.aismartwell.com).
  */

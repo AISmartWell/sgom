@@ -804,7 +804,7 @@ const FluidPhysicsSimulation = () => {
               textTransform: "uppercase",
             }}
           >
-            NVIDIA COSMOS
+            SGOM PHYSICS SIMULATOR · NVIDIA NIM
           </button>
           <h1
             style={{
@@ -1346,10 +1346,10 @@ const FluidPhysicsSimulation = () => {
                 marginBottom: 16,
               }}
             >
-              NVIDIA COSMOS
+              SGOM PHYSICS SIMULATOR · NVIDIA NIM
             </h2>
             <p style={{ fontSize: 13, color: COLORS.textSecondary, lineHeight: 1.6 }}>
-              This simulation leverages NVIDIA Cosmos World Foundation Model for physics-aware
+              This simulation leverages SGOM Physics Simulator powered by NVIDIA NIM for physics-aware
               prediction of fluid behavior during SPT well restoration.
             </p>
             <button

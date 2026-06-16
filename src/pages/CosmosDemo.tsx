@@ -31,7 +31,7 @@ const CosmosDemo = () => {
             </div>
             <div>
               <h1 className="text-lg font-bold leading-tight">AI Smart Well</h1>
-              <p className="text-xs text-muted-foreground">NVIDIA Cosmos Integration Demo</p>
+              <p className="text-xs text-muted-foreground">SGOM Physics Simulator Demo · Powered by NVIDIA NIM</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -56,7 +56,7 @@ const CosmosDemo = () => {
             Interactive Demo — No Login Required
           </Badge>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
-            NVIDIA Cosmos × Oil & Gas AI
+            SGOM Physics Simulator · Powered by NVIDIA NIM × Oil & Gas AI
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             World Foundation Model trained on{" "}
@@ -86,11 +86,11 @@ const CosmosDemo = () => {
 
         <Separator />
 
-        {/* Cosmos Predict Demo */}
+        {/* SGOM Predict Demo */}
         <section className="space-y-4">
           <div className="flex items-center gap-2">
             <Eye className="h-5 w-5 text-green-400" />
-            <h3 className="text-xl font-bold">Cosmos Predict</h3>
+            <h3 className="text-xl font-bold">SGOM Predict</h3>
             <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-xs">
               Physics Simulation
             </Badge>
@@ -103,11 +103,11 @@ const CosmosDemo = () => {
 
         <Separator />
 
-        {/* Cosmos Transfer Demo */}
+        {/* SGOM Transfer Demo */}
         <section className="space-y-4">
           <div className="flex items-center gap-2">
             <Database className="h-5 w-5 text-blue-400" />
-            <h3 className="text-xl font-bold">Cosmos Transfer</h3>
+            <h3 className="text-xl font-bold">SGOM Transfer</h3>
             <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 text-xs">
               Data Augmentation
             </Badge>
@@ -120,11 +120,11 @@ const CosmosDemo = () => {
 
         <Separator />
 
-        {/* Cosmos Reason Demo */}
+        {/* SGOM Reason Demo */}
         <section className="space-y-4">
           <div className="flex items-center gap-2">
             <MessageSquare className="h-5 w-5 text-purple-400" />
-            <h3 className="text-xl font-bold">Cosmos Reason</h3>
+            <h3 className="text-xl font-bold">SGOM Reason</h3>
             <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30 text-xs">
               Explainable AI
             </Badge>
@@ -157,7 +157,7 @@ const CosmosDemo = () => {
         <section className="text-center py-8 space-y-4">
           <h3 className="text-2xl font-bold">Ready to Optimize Your Wells?</h3>
           <p className="text-muted-foreground max-w-xl mx-auto">
-            AI Smart Well combines NVIDIA Cosmos, GPU-accelerated analytics, and Maxxwell Production's patented SPT technology.
+            AI Smart Well combines SGOM Physics Simulator · Powered by NVIDIA NIM, GPU-accelerated analytics, and Maxxwell Production's patented SPT technology.
           </p>
           <div className="flex items-center justify-center gap-3">
             <Button size="lg" asChild>
@@ -176,7 +176,7 @@ const CosmosDemo = () => {
         {/* Footer */}
         <footer className="text-center py-6 border-t border-border/30">
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} AI Smart Well Inc. — Powered by NVIDIA Cosmos World Foundation Model
+            © {new Date().getFullYear()} AI Smart Well Inc. — Powered by SGOM Physics Simulator powered by NVIDIA NIM
           </p>
         </footer>
       </main>

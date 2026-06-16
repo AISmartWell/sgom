@@ -816,7 +816,7 @@ const FieldTwin = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
             <FreshnessItem label="Surface DEM" detail="Drone RGB+LiDAR+VPS" status="3 days ago" tone="success" />
             <FreshnessItem label="Subsurface" detail="Stage 5 Seismic v2.1" status="updated 1 week ago" tone="primary" />
-            <FreshnessItem label="Dynamic" detail="Cosmos Predict +12h" status="streaming" tone="warning" />
+            <FreshnessItem label="Dynamic" detail="SGOM Predict +12h" status="streaming" tone="warning" />
             <FreshnessItem label="Telemetry" detail="SCADA · 4 wells" status="live" tone="success" />
           </div>
         </CardContent>

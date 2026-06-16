@@ -428,18 +428,18 @@ const InvestorDeck = () => {
       </div>
     </div>,
 
-    // ===== SLIDE — NVIDIA Cosmos =====
+    // ===== SLIDE — SGOM Physics Simulator · Powered by NVIDIA NIM =====
     <div key="cosmos" className={`${slideClass} bg-background`}>
       <div className="flex items-center gap-3 mb-5">
         <Cpu className="h-8 w-8 text-primary" />
-        <h2 className="text-3xl md:text-4xl font-bold">NVIDIA Cosmos Integration</h2>
+        <h2 className="text-3xl md:text-4xl font-bold">SGOM Physics Simulator · Powered by NVIDIA NIM</h2>
       </div>
       <p className="text-muted-foreground mb-4">World Foundation Model trained on 20M+ hours of physical-world video — applied to reservoir physics</p>
       <div className="grid md:grid-cols-3 gap-4 mb-4">
         {[
-          { module: "Cosmos Predict", desc: "Predicts post-SPT formation behavior by treating well logs as physical time-series. Simulates reservoir response before field intervention.", metric: "91%", metricLabel: "Prediction Accuracy", color: "primary" },
-          { module: "Cosmos Transfer", desc: "Generates physically plausible synthetic well logs for data-sparse regions. Equivalent to adding 50+ virtual wells to training data.", metric: "10×", metricLabel: "Data Augmentation", color: "accent" },
-          { module: "Cosmos Reason", desc: "Chain-of-thought XAI: explains why a specific well is the best candidate in human language for engineers & investors.", metric: "XAI", metricLabel: "Explainability", color: "success" },
+          { module: "SGOM Predict", desc: "Predicts post-SPT formation behavior by treating well logs as physical time-series. Simulates reservoir response before field intervention.", metric: "91%", metricLabel: "Prediction Accuracy", color: "primary" },
+          { module: "SGOM Transfer", desc: "Generates physically plausible synthetic well logs for data-sparse regions. Equivalent to adding 50+ virtual wells to training data.", metric: "10×", metricLabel: "Data Augmentation", color: "accent" },
+          { module: "SGOM Reason", desc: "Chain-of-thought XAI: explains why a specific well is the best candidate in human language for engineers & investors.", metric: "XAI", metricLabel: "Explainability", color: "success" },
         ].map((m) => (
           <div key={m.module} className={`p-4 rounded-xl bg-${m.color}/10 border border-${m.color}/20`}>
             <Badge className={`mb-2 bg-${m.color}/20 text-${m.color} border-${m.color}/30`}>{m.module}</Badge>
