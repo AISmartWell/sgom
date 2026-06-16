@@ -87,7 +87,7 @@ const CosmosRealTest = () => {
     })();
   }, []);
 
-  // Combine real + Cosmos predictions
+  // Combine real + SGOM Physics predictions
   const chartData = useMemo(() => {
     return history.map((row, i) => {
       const days = row.days_on || 30;
@@ -135,7 +135,7 @@ const CosmosRealTest = () => {
             </div>
             <div>
               <h1 className="text-lg font-bold leading-tight">
-                Cosmos Real-Data Validation Test
+                SGOM Physics Real-Data Validation Test
               </h1>
               <p className="text-xs text-muted-foreground">
                 SGOM Predict (NVIDIA NIM) vs actual production history

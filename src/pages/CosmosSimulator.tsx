@@ -37,7 +37,7 @@ const CosmosSimulatorPage = () => {
           </Badge>
           <h2 className="text-3xl font-bold tracking-tight">SGOM Physics Simulator · Powered by NVIDIA NIM</h2>
           <p className="text-muted-foreground max-w-3xl leading-relaxed">
-            Adjust reservoir and SPT parameters in real time. Cosmos treats depth as a time axis to
+            Adjust reservoir and SPT parameters in real time. SGOM Physics treats depth as a time axis to
             forecast post-SPT production, drainage expansion, and water cut evolution over a 365-day horizon.
             Switch between <span className="text-foreground font-semibold">Predict</span>,{" "}
             <span className="text-foreground font-semibold">Transfer</span>, and{" "}

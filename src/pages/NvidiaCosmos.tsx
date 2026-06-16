@@ -49,7 +49,7 @@ const cosmosModules = [
     ],
     techDetails: [
       "Input: well logs (GR, RT, NPHI, RHOB) + production history",
-      'Cosmos treats depth as "time axis" — physics-aware temporal model',
+      'SGOM Physics treats depth as "time axis" — physics-aware temporal model',
       "Output: predicted log curves + production forecast post-SPT",
       "Validated against 500+ historical SPT treatments",
     ],
@@ -187,13 +187,13 @@ const NvidiaCosmos = () => {
                   World Foundation Model for Oil & Gas
                 </h2>
                 <p className="text-muted-foreground leading-relaxed">
-                  NVIDIA trained Cosmos on <span className="text-foreground font-semibold">20 million hours</span> of
+                  NVIDIA trained SGOM Physics on <span className="text-foreground font-semibold">20 million hours</span> of
                   real-world physics video — robots, factories, object motion. The model learned to understand physics:
                   what happens next if you take this action.
                 </p>
                 <p className="text-muted-foreground leading-relaxed">
                   Well logs are essentially <span className="text-foreground font-semibold">time series of formation properties along depth</span>.
-                  Depth = time. Formation = physical medium. Cosmos is built for exactly this type of data.
+                  Depth = time. Formation = physical medium. SGOM Physics is built for exactly this type of data.
                 </p>
               </div>
               <div className="space-y-3">
@@ -207,7 +207,7 @@ const NvidiaCosmos = () => {
                       <m.icon className="h-6 w-6" />
                     </div>
                     <div>
-                      <div className="font-semibold">Cosmos {m.label}</div>
+                      <div className="font-semibold">SGOM Physics {m.label}</div>
                       <div className="text-sm text-muted-foreground">{m.desc}</div>
                     </div>
                   </div>
@@ -225,7 +225,7 @@ const NvidiaCosmos = () => {
               Integration Transparency · Live API vs Simulation
             </CardTitle>
             <CardDescription>
-              Honest disclosure of which Cosmos modules currently call live NVIDIA endpoints vs. run as deterministic on-platform simulations. Full Cosmos foundation model integration (H100/DGX Cloud) is on the Phase I R&D roadmap.
+              Honest disclosure of which SGOM Physics modules currently call live NVIDIA endpoints vs. run as deterministic on-platform simulations. Full SGOM Physics foundation model integration (H100/DGX Cloud) is on the Phase I R&D roadmap.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -345,10 +345,10 @@ const NvidiaCosmos = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <GitBranch className="h-5 w-5 text-primary" />
-              Cosmos × SGOM Pipeline Integration
+              SGOM Physics × SGOM Pipeline Integration
             </CardTitle>
             <CardDescription>
-              How each Cosmos module maps to the 9-stage well analysis pipeline
+              How each SGOM Physics module maps to the 9-stage well analysis pipeline
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -398,7 +398,7 @@ const NvidiaCosmos = () => {
                 ))}
               </div>
 
-              {/* Cosmos Layer */}
+              {/* SGOM Physics Layer */}
               <div className="space-y-3">
                 <h4 className="font-semibold text-center p-2 rounded-lg bg-green-500/10 border border-green-500/20 text-green-400">
                   SGOM Physics Layer · NVIDIA NIM
@@ -459,11 +459,11 @@ const NvidiaCosmos = () => {
           <CardContent>
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-4">
-                <h4 className="font-semibold">Why Cosmos × SGOM</h4>
+                <h4 className="font-semibold">Why SGOM Physics × SGOM</h4>
                 <ul className="space-y-3">
                   {[
                     "First oil & gas platform to integrate World Foundation Model",
-                    "GPU-native pipeline: NIM → Triton → Cosmos → DGX Cloud",
+                    "GPU-native pipeline: NIM → Triton → SGOM Physics → DGX Cloud",
                     "Demonstrates NVIDIA AI stack depth beyond basic inference",
                     "Aligns with NVIDIA's industrial digitization thesis",
                   ].map((item, i) => (

@@ -466,7 +466,7 @@ const InvestorDeck = () => {
         ))}
       </div>
       <div className="p-3 rounded-xl bg-primary/10 border border-primary/20">
-        <p className="text-xs text-muted-foreground"><strong className="text-foreground">Why It Matters:</strong> Cosmos transforms SGOM from a statistical analysis tool into a <strong className="text-primary">physics-aware AI system</strong> — predicting real-world reservoir behavior, not just correlations. This is the key differentiator for NVIDIA Capital Connect.</p>
+        <p className="text-xs text-muted-foreground"><strong className="text-foreground">Why It Matters:</strong> SGOM Physics transforms SGOM from a statistical analysis tool into a <strong className="text-primary">physics-aware AI system</strong> — predicting real-world reservoir behavior, not just correlations. This is the key differentiator for NVIDIA Capital Connect.</p>
       </div>
     </div>,
 

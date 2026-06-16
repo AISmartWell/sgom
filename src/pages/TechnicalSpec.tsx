@@ -526,7 +526,7 @@ const TechnicalSpec = () => {
         <Section icon={Shield} title="15. Team & Contributors">
           <ul className="list-disc pl-5 space-y-1">
             <li><strong className="text-foreground">Sergey Chuikin</strong> — Founder & CEO. Inventor of SPT (US Patent 8,863,823).</li>
-            <li><strong className="text-foreground">Usman Pervaiz</strong> — Software Developer · BS CS. Full-stack implementation, AI/ML integration (NVIDIA NIM, Cosmos, Lovable AI Gateway), edge function architecture.</li>
+            <li><strong className="text-foreground">Usman Pervaiz</strong> — Software Developer · BS CS. Full-stack implementation, AI/ML integration (NVIDIA NIM, SGOM Physics, Lovable AI Gateway), edge function architecture.</li>
             <li><strong className="text-foreground">NVIDIA Inception</strong> — Technology partner (SGOM Predict / Transfer / Reason, NIM models).</li>
           </ul>
         </Section>

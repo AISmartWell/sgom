@@ -75,7 +75,7 @@ const CosmosDemo = () => {
                 <CardContent className="p-4 flex items-center gap-3">
                   <m.icon className={`h-8 w-8 ${m.color} flex-shrink-0`} />
                   <div className="text-left">
-                    <div className="font-semibold text-sm">Cosmos {m.label}</div>
+                    <div className="font-semibold text-sm">SGOM Physics {m.label}</div>
                     <div className="text-xs text-muted-foreground">{m.desc}</div>
                   </div>
                 </CardContent>
