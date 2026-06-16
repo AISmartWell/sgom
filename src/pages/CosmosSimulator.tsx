@@ -1,3 +1,4 @@
+import TrademarkDisclaimer from "@/components/cosmos/TrademarkDisclaimer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Sparkles, Cpu } from "lucide-react";
@@ -46,6 +47,7 @@ const CosmosSimulatorPage = () => {
         </section>
 
         <CosmosSimulator />
+        <TrademarkDisclaimer />
       </main>
     </div>
   );

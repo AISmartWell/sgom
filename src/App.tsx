@@ -137,6 +137,11 @@ const App = () => (
            <Route path="/nvidia-inception" element={<NvidiaInception />} />
            <Route path="/nvidia-showcase" element={<NvidiaShowcase />} />
            <Route path="/nvidia-cosmos" element={<NvidiaCosmos />} />
+           {/* SGOM Physics Simulator aliases (preferred public URLs) */}
+           <Route path="/sgom-physics" element={<NvidiaCosmos />} />
+           <Route path="/sgom-physics-demo" element={<CosmosDemo />} />
+           <Route path="/sgom-physics-simulator" element={<CosmosSimulatorPage />} />
+           <Route path="/sgom-physics-test" element={<CosmosRealTest />} />
            <Route path="/aws-activate" element={<AWSActivate />} />
            <Route path="/investor-deck" element={<InvestorDeck />} />
            <Route path="/docs" element={<TechnicalSpec />} />
