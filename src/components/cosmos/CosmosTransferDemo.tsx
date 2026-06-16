@@ -219,9 +219,9 @@ export default function CosmosTransferDemo() {
           </div>
           <div>
             <CardTitle className="text-xl flex items-center gap-2 flex-wrap">
-              Cosmos Transfer — Interactive Demo
+              SGOM Transfer — Interactive Demo
               <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">Data Augmentation</Badge>
-              <IntegrationStatusBadge mode={liveMode} tooltip={liveMode === "live-nvidia" ? "Live NVIDIA API call via cosmos-inference edge function (meta/llama-3.3-70b-instruct on the NVIDIA API Catalog). Synthetic curves shown are still the deterministic FORMATION_DB walk — real log-tensor generation needs Cosmos Transfer NIM (Phase I R&D)." : "Generating synthetic logs locally; real NVIDIA reasoning will be appended below if the call succeeds."} />
+              <IntegrationStatusBadge mode={liveMode} tooltip={liveMode === "live-nvidia" ? "Live NVIDIA API call via cosmos-inference edge function (meta/llama-3.3-70b-instruct on the NVIDIA API Catalog). Synthetic curves shown are still the deterministic FORMATION_DB walk — real log-tensor generation needs SGOM Transfer NIM (Phase I R&D)." : "Generating synthetic logs locally; real NVIDIA reasoning will be appended below if the call succeeds."} />
             </CardTitle>
             <CardDescription>
               Synthetic well log generation for data-scarce regions
@@ -299,7 +299,7 @@ export default function CosmosTransferDemo() {
             className="bg-blue-600 hover:bg-blue-700 gap-2"
           >
             <Play className="h-4 w-4" />
-            {phase === "complete" ? "Regenerate" : "Run Cosmos Transfer"}
+            {phase === "complete" ? "Regenerate" : "Run SGOM Transfer"}
           </Button>
           {phase !== "idle" && (
             <div className="flex-1 space-y-1">
@@ -461,7 +461,7 @@ export default function CosmosTransferDemo() {
             <div className="p-4 rounded-xl bg-blue-500/5 border border-blue-500/20">
               <h4 className="font-semibold flex items-center gap-2 mb-3">
                 <Zap className="h-4 w-4 text-blue-400" />
-                Cosmos Transfer — Verdict
+                SGOM Transfer — Verdict
               </h4>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 For region <span className="text-foreground font-medium">{region.name}</span>, generated{" "}

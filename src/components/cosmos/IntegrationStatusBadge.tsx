@@ -28,14 +28,14 @@ const CONFIG: Record<IntegrationMode, {
     className: "bg-orange-500/15 text-orange-400 border-orange-500/40",
     icon: Activity,
     defaultTooltip:
-      "Calls Lovable AI Gateway (NVIDIA NIM upstream) for chain-of-thought reasoning, with deterministic physics-based fallback if the model is unavailable. Cosmos Predict foundation model itself is not yet wired (requires AWS H100 / DGX Cloud — Phase I R&D).",
+      "Calls Lovable AI Gateway (NVIDIA NIM upstream) for chain-of-thought reasoning, with deterministic physics-based fallback if the model is unavailable. SGOM Predict foundation model itself is not yet wired (requires AWS H100 / DGX Cloud — Phase I R&D).",
   },
   "simulation": {
     label: "Simulation",
     className: "bg-amber-500/15 text-amber-400 border-amber-500/40",
     icon: FlaskConical,
     defaultTooltip:
-      "Deterministic client-side simulation calibrated against FORMATION_DB and historical SPT data. Cosmos foundation model not yet integrated — requires GPU H100 endpoint and adapter layer (Phase I R&D).",
+      "Deterministic client-side simulation calibrated against FORMATION_DB and historical SPT data. SGOM Physics foundation model not yet integrated — requires GPU H100 endpoint and adapter layer (Phase I R&D).",
   },
 };
 

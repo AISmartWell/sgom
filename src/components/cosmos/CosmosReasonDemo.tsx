@@ -155,7 +155,7 @@ function computeReasoning(well: WellCandidate): { steps: ReasonStep[]; totalScor
   const monthlyGain = (postSPT - well.oil) * 30;
   const roi12 = Math.round(monthlyGain * 12 * 65);
 
-  const summary = `**Cosmos Reason Verdict:** ${well.name} scores **${totalScore}/100** for SPT candidacy. ` +
+  const summary = `**SGOM Reason Verdict:** ${well.name} scores **${totalScore}/100** for SPT candidacy. ` +
     `Post-treatment forecast: ${well.oil} → ${postSPT.toFixed(1)} bbl/d (+${uplift} bbl/d). ` +
     `Estimated 12-month incremental revenue: **$${roi12.toLocaleString()}** at $65/bbl WTI. ` +
     (totalScore >= 75 ? "**Recommended for SPT treatment.** This well is an excellent candidate based on all six MCDA parameters." :
@@ -267,9 +267,9 @@ const CosmosReasonDemo = () => {
           </div>
           <div className="flex-1">
             <CardTitle className="text-xl flex items-center gap-2 flex-wrap">
-              Cosmos Reason — Interactive Demo
+              SGOM Reason — Interactive Demo
               <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">XAI</Badge>
-              <IntegrationStatusBadge mode={liveMode} tooltip={liveMode === "live-nvidia" ? "Live call to NVIDIA API Catalog (meta/llama-3.3-70b-instruct via cosmos-inference edge function). Cosmos Reason1-7B foundation model itself is deprecated on the hosted catalog and only available as a downloadable NIM container." : "Reasoning chain is computed client-side. Real NVIDIA API call is in flight or fell back."} />
+              <IntegrationStatusBadge mode={liveMode} tooltip={liveMode === "live-nvidia" ? "Live call to NVIDIA API Catalog (meta/llama-3.3-70b-instruct via cosmos-inference edge function). SGOM Reason1-7B foundation model itself is deprecated on the hosted catalog and only available as a downloadable NIM container." : "Reasoning chain is computed client-side. Real NVIDIA API call is in flight or fell back."} />
             </CardTitle>
             <CardDescription>
               Chain-of-thought reasoning: why is this well the best SPT candidate?
@@ -337,7 +337,7 @@ const CosmosReasonDemo = () => {
             className="bg-purple-600 hover:bg-purple-700 text-white gap-2"
           >
             <Play className="h-4 w-4" />
-            {isRunning ? "Reasoning..." : "Run Cosmos Reason"}
+            {isRunning ? "Reasoning..." : "Run SGOM Reason"}
           </Button>
           {isRunning && (
             <div className="flex-1 flex items-center gap-3">
@@ -437,7 +437,7 @@ const CosmosReasonDemo = () => {
             <div className="p-4 rounded-xl bg-purple-500/5 border border-purple-500/20">
               <div className="flex items-center gap-2 mb-2">
                 <Brain className="h-4 w-4 text-purple-400" />
-                <span className="text-sm font-semibold text-purple-400">Cosmos Reason — Final Verdict</span>
+                <span className="text-sm font-semibold text-purple-400">SGOM Reason — Final Verdict</span>
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 {streamedSummary}

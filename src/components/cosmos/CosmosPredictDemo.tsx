@@ -343,7 +343,7 @@ Return ONLY JSON with keys: formation_name, formation_type, net_pay_ft, porosity
           letterSpacing: "0.12em",
           padding: "4px 10px",
           borderRadius: 3,
-        }}>NVIDIA COSMOS</div>
+        }}>SGOM PHYSICS SIMULATOR · NVIDIA NIM</div>
         <div style={{ color: C.muted, fontSize: 11 }}>×</div>
         <div style={{ color: C.blue, fontSize: 11, letterSpacing: "0.1em" }}>SGOM · PREDICT</div>
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8 }}>
@@ -535,9 +535,9 @@ Return ONLY JSON with keys: formation_name, formation_type, net_pay_ft, porosity
                     }}>{done ? "✓" : ""}</div>
                     <div style={{ fontSize: 11, color: active ? C.text : done ? C.nvidia : C.muted }}>
                       {[
-                        "Cosmos Tokenizer · Encoding well log sequence",
-                        "Cosmos Predict · Physics-aware subsurface simulation",
-                        "Cosmos Reason · Geological chain-of-thought",
+                        "SGOM Tokenizer · Encoding well log sequence",
+                        "SGOM Predict · Physics-aware subsurface simulation",
+                        "SGOM Reason · Geological chain-of-thought",
                       ][i]}
                     </div>
                   </div>
@@ -605,7 +605,7 @@ Return ONLY JSON with keys: formation_name, formation_type, net_pay_ft, porosity
                 ))}
               </div>
 
-              {/* Cosmos Predict — fracture, drainage, water cut & timeline */}
+              {/* SGOM Predict — fracture, drainage, water cut & timeline */}
               <CosmosPredictExtras
                 upliftFactor={result.uplift_factor}
                 preBblDay={result.pre_spt_bbl_day}
@@ -690,7 +690,7 @@ Return ONLY JSON with keys: formation_name, formation_type, net_pay_ft, porosity
                 Drag the green zone on the well log<br />to select SPT target interval,<br />then press RUN COSMOS PREDICT
               </div>
               <div style={{ fontSize: 9, color: C.border, letterSpacing: "0.12em", marginTop: 8 }}>
-                NVIDIA COSMOS WFM · PHYSICS-AWARE SUBSURFACE SIMULATION
+                SGOM PHYSICS · NVIDIA NIM · PHYSICS-AWARE SUBSURFACE SIMULATION
               </div>
             </div>
           )}

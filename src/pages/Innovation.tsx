@@ -30,7 +30,7 @@ const STAGES = [
     n: 2,
     icon: FolderSearch,
     title: "Data Classification",
-    body: "AI auto-fills missing parameters using a 3-tier transparency strategy — Tier 1: real LAS/CSV data; Tier 2: formation-specific defaults from FORMATION_DB (200+ formations); Tier 3: NVIDIA Cosmos Transfer synthetic generation. Log curve completeness improves from 42% to 94%; pay zone identification accuracy from 55% to 87%.",
+    body: "AI auto-fills missing parameters using a 3-tier transparency strategy — Tier 1: real LAS/CSV data; Tier 2: formation-specific defaults from FORMATION_DB (200+ formations); Tier 3: SGOM Physics Simulator · Powered by NVIDIA NIM Transfer synthetic generation. Log curve completeness improves from 42% to 94%; pay zone identification accuracy from 55% to 87%.",
   },
   {
     n: 3,
@@ -54,13 +54,13 @@ const STAGES = [
     n: 6,
     icon: TrendingUp,
     title: "SPT Projection",
-    body: "MCDA ranking across 8+ weighted parameters including inverted Water Cut and GOR for SPT readiness scoring. Powered by NVIDIA Cosmos Reason — step-by-step explainable ranking citing specific log features, decline trends, and analog wells.",
+    body: "MCDA ranking across 8+ weighted parameters including inverted Water Cut and GOR for SPT readiness scoring. Powered by SGOM Physics Simulator · Powered by NVIDIA NIM Reason — step-by-step explainable ranking citing specific log features, decline trends, and analog wells.",
   },
   {
     n: 7,
     icon: DollarSign,
     title: "Economic Analysis",
-    body: "Full Schlumberger petrophysical workflow (9 steps) on LAS 2.0 files. Standard mnemonics: GR, RT, NPHI, RHOB, SP, CALI. Outputs: Vsh, φe, Sw, net pay, lithology. Cutoffs: Vsh<0.4, φe>0.08, Sw<0.6. NVIDIA Cosmos Predict runs physics-grounded fluid simulation — pressure, saturation, rate evolution under varying SPT parameters, calibrated against reference well Brawner 10-15 (API 42-467-30979).",
+    body: "Full Schlumberger petrophysical workflow (9 steps) on LAS 2.0 files. Standard mnemonics: GR, RT, NPHI, RHOB, SP, CALI. Outputs: Vsh, φe, Sw, net pay, lithology. Cutoffs: Vsh<0.4, φe>0.08, Sw<0.6. SGOM Predict (NVIDIA NIM) runs physics-grounded fluid simulation — pressure, saturation, rate evolution under varying SPT parameters, calibrated against reference well Brawner 10-15 (API 42-467-30979).",
   },
   {
     n: 8,
@@ -194,7 +194,7 @@ const Innovation = () => {
               tools, fragmented records, and missing modalities. Training a self-learning geological
               model on such data requires solving <strong className="text-foreground">domain shift
               adaptation</strong>, <strong className="text-foreground">missing modality inference
-              via Cosmos Transfer</strong>, and <strong className="text-foreground">calibrated
+              via SGOM Transfer</strong>, and <strong className="text-foreground">calibrated
               uncertainty quantification</strong> for regulatory-grade output. These are open ML
               research problems — not engineering tasks. Phase I will validate RPS against 200+
               wells with known production outcomes, establishing the scientific foundation for

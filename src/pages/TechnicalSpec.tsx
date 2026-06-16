@@ -85,7 +85,7 @@ const TechnicalSpec = () => {
               <ul className="list-disc pl-5 space-y-1">
                 <li>Google Gemini 2.5 Flash (via Lovable AI) — core analysis, seismic interpretation, report generation</li>
                 <li>NVIDIA NIM (nemotron-nano-12b-v2-vl) — seismic CV analysis (with Gemini fallback)</li>
-                <li>NVIDIA Cosmos — Predict (video forecasting), Transfer (domain adaptation), Reason (physics reasoning)</li>
+                <li>SGOM Physics Simulator · Powered by NVIDIA NIM — Predict (video forecasting), Transfer (domain adaptation), Reason (physics reasoning)</li>
                 <li>Computer Vision — rock classification, seismic fault/horizon detection</li>
                 <li>Quantum-Inspired Monte Carlo (QAE) — economic risk assessment</li>
                 <li>ML well ranking — multi-criteria scoring</li>
@@ -286,8 +286,8 @@ const TechnicalSpec = () => {
                  desc: "Hybrid SaaS pricing: Explorer ($3,200/mo + $350/well, ≤10 wells/mo), Professional ($9,600/mo + $200/well, ≤50 wells/mo), Enterprise ($24,000/mo + $120/well, unlimited). 3-year projection: Y1 $0.6M → Y2 $2.2M → Y3 $5.8M ARR. ~80% gross margin." },
                { icon: "🌊", name: "Fluid Physics Simulation", route: "/fluid-simulation",
                  desc: "Interactive Canvas-based fluid dynamics simulation. Visualizes fluid behavior in reservoir conditions with physics engine (gravity, viscosity, particle interactions). Real-time parameter controls." },
-               { icon: "🌐", name: "NVIDIA Cosmos Demo", route: "/cosmos-demo",
-                 desc: "Three NVIDIA Cosmos modules: Predict (video forecasting for production trends), Transfer (domain adaptation from satellite to subsurface), Reason (physics-informed reasoning for reservoir behavior). Interactive demos with visualization." },
+               { icon: "🌐", name: "SGOM Physics Simulator · Powered by NVIDIA NIM Demo", route: "/cosmos-demo",
+                 desc: "Three SGOM Physics Simulator · Powered by NVIDIA NIM modules: Predict (video forecasting for production trends), Transfer (domain adaptation from satellite to subsurface), Reason (physics-informed reasoning for reservoir behavior). Interactive demos with visualization." },
                { icon: "🚀", name: "AI EOR SPT Optimization", route: "/dashboard/ai-eor-optimization",
                  desc: "Unified AI-driven EOR optimization combining all pipeline stages with automated SPT well selection. Prospect database with real-time scoring." },
             ].map((mod) => (
@@ -475,10 +475,10 @@ const TechnicalSpec = () => {
               { route: "/technical-response", desc: "Technical response document" },
               { route: "/nvidia-inception", desc: "NVIDIA Inception program page" },
               { route: "/nvidia-showcase", desc: "NVIDIA technology showcase" },
-              { route: "/nvidia-cosmos", desc: "NVIDIA Cosmos integration overview" },
+              { route: "/nvidia-cosmos", desc: "SGOM Physics Simulator · Powered by NVIDIA NIM integration overview" },
               { route: "/nvidia-capital-connect", desc: "NVIDIA Capital Connect letter" },
               { route: "/aws-activate", desc: "AWS Activate program page" },
-              { route: "/cosmos-demo", desc: "NVIDIA Cosmos interactive demos" },
+              { route: "/cosmos-demo", desc: "SGOM Physics Simulator · Powered by NVIDIA NIM interactive demos" },
               { route: "/fluid-simulation", desc: "Fluid physics simulation" },
               { route: "/diversified-energy-proposal", desc: "Diversified Energy proposal" },
               { route: "/kazakhstan-template", desc: "Kazakhstan project template" },
@@ -503,7 +503,7 @@ const TechnicalSpec = () => {
             <li><strong className="text-destructive">P&A</strong> — Low RPS; recommend plug and abandon.</li>
           </ul>
           <p><strong>Audit Trail:</strong> Every recommendation ships with the full evidence chain — log curves, decline parameters, analog wells, CV findings, economic Monte Carlo bands.</p>
-          <p><strong>Reference Validation Well:</strong> Brawner 10-15 (API 42-467-30979) — used for end-to-end calibration of the RPS algorithm and Cosmos Predict fluid simulation.</p>
+          <p><strong>Reference Validation Well:</strong> Brawner 10-15 (API 42-467-30979) — used for end-to-end calibration of the RPS algorithm and SGOM Predict fluid simulation.</p>
         </Section>
 
         {/* 14. Brawner 10-15 Timur Calculator */}
@@ -526,8 +526,8 @@ const TechnicalSpec = () => {
         <Section icon={Shield} title="15. Team & Contributors">
           <ul className="list-disc pl-5 space-y-1">
             <li><strong className="text-foreground">Sergey Chuikin</strong> — Founder & CEO. Inventor of SPT (US Patent 8,863,823).</li>
-            <li><strong className="text-foreground">Usman Pervaiz</strong> — Software Developer · BS CS. Full-stack implementation, AI/ML integration (NVIDIA NIM, Cosmos, Lovable AI Gateway), edge function architecture.</li>
-            <li><strong className="text-foreground">NVIDIA Inception</strong> — Technology partner (Cosmos Predict / Transfer / Reason, NIM models).</li>
+            <li><strong className="text-foreground">Usman Pervaiz</strong> — Software Developer · BS CS. Full-stack implementation, AI/ML integration (NVIDIA NIM, SGOM Physics, Lovable AI Gateway), edge function architecture.</li>
+            <li><strong className="text-foreground">NVIDIA Inception</strong> — Technology partner (SGOM Predict / Transfer / Reason, NIM models).</li>
           </ul>
         </Section>
 

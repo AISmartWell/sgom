@@ -290,13 +290,13 @@ const menuItems = [
     badge: "📄",
   },
   {
-    title: "NVIDIA Cosmos",
+    title: "NVIDIA SGOM Physics",
     icon: Globe,
     href: "/nvidia-cosmos",
     badge: "🌐",
   },
   {
-    title: "Cosmos Real-Data Test",
+    title: "SGOM Physics Real-Data Test",
     icon: Sparkles,
     href: "/cosmos-real-test",
     badge: "✨",
