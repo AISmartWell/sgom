@@ -176,9 +176,10 @@ const CosmosDemo = () => {
         {/* Footer */}
         <footer className="text-center py-6 border-t border-border/30">
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} AI Smart Well Inc. — Powered by SGOM Physics Simulator powered by NVIDIA NIM
+            © {new Date().getFullYear()} AI Smart Well Inc. — SGOM Physics Simulator · Powered by NVIDIA NIM
           </p>
         </footer>
+        <TrademarkDisclaimer />
       </main>
     </div>
   );

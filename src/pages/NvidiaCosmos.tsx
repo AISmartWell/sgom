@@ -493,6 +493,7 @@ const NvidiaCosmos = () => {
             </div>
           </CardContent>
         </Card>
+        <TrademarkDisclaimer />
       </div>
     </div>
   );

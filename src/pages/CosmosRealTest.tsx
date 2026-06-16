@@ -347,6 +347,7 @@ const CosmosRealTest = () => {
             </CardContent>
           </Card>
         )}
+        <TrademarkDisclaimer />
       </main>
     </div>
   );

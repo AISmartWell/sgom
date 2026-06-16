@@ -46,6 +46,7 @@ const CosmosSimulatorPage = () => {
         </section>
 
         <CosmosSimulator />
+        <TrademarkDisclaimer />
       </main>
     </div>
   );
