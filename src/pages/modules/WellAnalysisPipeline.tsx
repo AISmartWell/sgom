@@ -14,6 +14,7 @@ import SPTProjectionStageViz from "@/components/oklahoma-pilot/stage-viz/SPTProj
 import EconomicStageViz from "@/components/oklahoma-pilot/stage-viz/EconomicStageViz";
 import PilotWellLog from "@/components/oklahoma-pilot/PilotWellLog";
 import PipelineReport from "@/components/pipeline/PipelineReport";
+import StageSlides from "@/components/pipeline/StageSlides";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
