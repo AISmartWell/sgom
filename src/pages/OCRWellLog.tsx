@@ -2,10 +2,11 @@ import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Upload, ScanText, Loader2, FileImage, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Upload, ScanText, Loader2, FileImage, CheckCircle2, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import demoPaperLog from "@/assets/demo-paper-well-log.jpg";
 
 type OcrResult = {
   well_name?: string | null;
@@ -46,6 +47,16 @@ const OCRWellLog = () => {
     const reader = new FileReader();
     reader.onload = () => setPreview(reader.result as string);
     reader.readAsDataURL(file);
+  }, []);
+
+  const loadDemo = useCallback(async () => {
+    setFileName("BRAWNER 10-15 — 1962 paper log (demo)");
+    setResult(null);
+    const resp = await fetch(demoPaperLog);
+    const blob = await resp.blob();
+    const reader = new FileReader();
+    reader.onload = () => setPreview(reader.result as string);
+    reader.readAsDataURL(blob);
   }, []);
 
   const recognize = useCallback(async () => {
@@ -115,6 +126,11 @@ const OCRWellLog = () => {
             </div>
             {fileName && <div className="text-xs mt-2 text-primary">{fileName}</div>}
           </label>
+
+          <Button variant="outline" size="sm" onClick={loadDemo} className="w-full">
+            <Sparkles className="mr-2 h-4 w-4" />
+            Load demo: 1962 paper log (Brawner 10-15)
+          </Button>
 
           {preview && (
             <div className="rounded-lg overflow-hidden border border-border bg-black/40">
