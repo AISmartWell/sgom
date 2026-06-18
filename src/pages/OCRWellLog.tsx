@@ -127,6 +127,11 @@ const OCRWellLog = () => {
             {fileName && <div className="text-xs mt-2 text-primary">{fileName}</div>}
           </label>
 
+          <Button variant="outline" size="sm" onClick={loadDemo} className="w-full">
+            <Sparkles className="mr-2 h-4 w-4" />
+            Load demo: 1962 paper log (Brawner 10-15)
+          </Button>
+
           {preview && (
             <div className="rounded-lg overflow-hidden border border-border bg-black/40">
               <img src={preview} alt="scan preview" className="w-full max-h-[500px] object-contain" />
