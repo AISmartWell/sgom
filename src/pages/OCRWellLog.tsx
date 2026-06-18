@@ -49,6 +49,16 @@ const OCRWellLog = () => {
     reader.readAsDataURL(file);
   }, []);
 
+  const loadDemo = useCallback(async () => {
+    setFileName("BRAWNER 10-15 — 1962 paper log (demo)");
+    setResult(null);
+    const resp = await fetch(demoPaperLog);
+    const blob = await resp.blob();
+    const reader = new FileReader();
+    reader.onload = () => setPreview(reader.result as string);
+    reader.readAsDataURL(blob);
+  }, []);
+
   const recognize = useCallback(async () => {
     if (!preview) return;
     setLoading(true);
