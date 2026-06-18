@@ -73,6 +73,7 @@ import AlbertaPetrel from "./pages/modules/AlbertaPetrel";
 import AdminImport from "./pages/modules/AdminImport";
 import BayesianDCA from "./pages/modules/BayesianDCA";
 import AramcoPilot from "./pages/modules/AramcoPilot";
+import OCRWellLog from "./pages/OCRWellLog";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -110,6 +111,7 @@ const App = () => (
              <Route path="geophysical" element={<GeophysicalExpertise />} />
              <Route path="field-scanning" element={<FieldScanning />} />
              <Route path="data-classification" element={<DataClassification />} />
+             <Route path="ocr" element={<OCRWellLog />} />
              <Route path="cumulative-analysis" element={<CumulativeAnalysis />} />
              <Route path="multi-tenant" element={<MultiTenantDemo />} />
              <Route path="saas-business-model" element={<SaaSBusinessModel />} />

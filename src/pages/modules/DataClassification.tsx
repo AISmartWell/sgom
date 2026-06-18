@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, FolderSearch } from "lucide-react";
+import { ArrowLeft, FolderSearch, ScanText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { DataClassificationDemo } from "@/components/data-classification/DataClassificationDemo";
 
@@ -28,10 +28,16 @@ const DataClassification = () => {
             Download and categorize well information into structured data categories
           </p>
         </div>
-        <Badge variant="outline" className="text-primary border-primary">
-          <FolderSearch className="mr-1 h-3 w-3" />
-          Stage 2
-        </Badge>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => navigate("/dashboard/ocr")}>
+            <ScanText className="mr-2 h-4 w-4" />
+            OCR Paper Scan
+          </Button>
+          <Badge variant="outline" className="text-primary border-primary">
+            <FolderSearch className="mr-1 h-3 w-3" />
+            Stage 2
+          </Badge>
+        </div>
       </div>
 
       <div className="max-w-5xl mx-auto">
