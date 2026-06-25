@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Upload, ScanText, Loader2, FileImage, CheckCircle2, Sparkles } from "lucide-react";
+import { ArrowLeft, Upload, ScanText, Loader2, FileImage, CheckCircle2, Sparkles, Activity, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -151,6 +151,23 @@ const OCRWellLog = () => {
           <h2 className="font-semibold text-lg flex items-center gap-2">
             <CheckCircle2 className="h-4 w-4 text-primary" /> Extracted data
           </h2>
+
+          {result && (() => {
+            const wn = (result.well_name || "").toLowerCase();
+            const isBrawner = wn.includes("brawner") || fileName.toLowerCase().includes("brawner");
+            if (!isBrawner) return null;
+            return (
+              <Button
+                onClick={() => navigate("/dashboard/digital-twin/brawner-10-15")}
+                className="w-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/25"
+                variant="outline"
+              >
+                <Activity className="mr-2 h-4 w-4" />
+                Open Digital Twin for {result.well_name || "Brawner 10-15"}
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            );
+          })()}
 
           {!result && (
             <div className="text-sm text-muted-foreground italic">
