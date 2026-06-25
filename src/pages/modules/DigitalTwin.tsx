@@ -1,10 +1,18 @@
 import { useState, useEffect, useMemo } from "react";
+import { useParams, useSearchParams } from "react-router-dom";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer,
 } from "recharts";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+
+// Slug → preset key map for deep-link routes like /dashboard/digital-twin/brawner-10-15
+const SLUG_PRESET: Record<string, "brawner" | "ghawar"> = {
+  "brawner-10-15": "brawner",
+  "brawner": "brawner",
+  "ghawar": "ghawar",
+};
 
 const WELLS = [
   { id: "BRW-10",  x: 155, y: 100, rank: 1, score: 92, depth: 3240, q0: 45, potential: "high" },
@@ -170,14 +178,27 @@ const buildCombined = (p: ExamplePreset) => {
 };
 
 export default function DigitalTwin() {
-  const [tab, setTab]           = useState(0);
+  const { wellSlug } = useParams<{ wellSlug?: string }>();
+  const [searchParams] = useSearchParams();
+  const initialPreset = (wellSlug && SLUG_PRESET[wellSlug]) || "brawner";
+  const initialTab = wellSlug ? 4 : Number(searchParams.get("tab") ?? 0);
+  const [tab, setTab]           = useState(initialTab);
   const [well, setWell]         = useState(WELLS[0]);
   const [sptDepth, setSptDepth] = useState(4);
   const [price, setPrice]       = useState(70);
   const [units, setUnits]       = useState("US");
   const [loopStep, setLoopStep] = useState(0);
   const [twinWellIdx, setTwinWellIdx] = useState(0);
-  const [presetKey, setPresetKey] = useState<"brawner" | "ghawar">("brawner");
+  const [presetKey, setPresetKey] = useState<"brawner" | "ghawar">(initialPreset);
+
+  // If the deep-link slug changes (user navigates to /digital-twin/brawner-10-15
+  // from OCR), re-sync tab + preset.
+  useEffect(() => {
+    if (wellSlug && SLUG_PRESET[wellSlug]) {
+      setPresetKey(SLUG_PRESET[wellSlug]);
+      setTab(4);
+    }
+  }, [wellSlug]);
   const preset = PRESETS[presetKey];
   const EXAMPLE_WELL = preset.well;
   const EXAMPLE_STAGES = preset.stages;
