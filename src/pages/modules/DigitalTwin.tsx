@@ -1,10 +1,18 @@
 import { useState, useEffect, useMemo } from "react";
+import { useParams, useSearchParams } from "react-router-dom";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer,
 } from "recharts";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+
+// Slug → preset key map for deep-link routes like /dashboard/digital-twin/brawner-10-15
+const SLUG_PRESET: Record<string, "brawner" | "ghawar"> = {
+  "brawner-10-15": "brawner",
+  "brawner": "brawner",
+  "ghawar": "ghawar",
+};
 
 const WELLS = [
   { id: "BRW-10",  x: 155, y: 100, rank: 1, score: 92, depth: 3240, q0: 45, potential: "high" },
@@ -170,14 +178,27 @@ const buildCombined = (p: ExamplePreset) => {
 };
 
 export default function DigitalTwin() {
-  const [tab, setTab]           = useState(0);
+  const { wellSlug } = useParams<{ wellSlug?: string }>();
+  const [searchParams] = useSearchParams();
+  const initialPreset = (wellSlug && SLUG_PRESET[wellSlug]) || "brawner";
+  const initialTab = wellSlug ? 4 : Number(searchParams.get("tab") ?? 0);
+  const [tab, setTab]           = useState(initialTab);
   const [well, setWell]         = useState(WELLS[0]);
   const [sptDepth, setSptDepth] = useState(4);
   const [price, setPrice]       = useState(70);
   const [units, setUnits]       = useState("US");
   const [loopStep, setLoopStep] = useState(0);
   const [twinWellIdx, setTwinWellIdx] = useState(0);
-  const [presetKey, setPresetKey] = useState<"brawner" | "ghawar">("brawner");
+  const [presetKey, setPresetKey] = useState<"brawner" | "ghawar">(initialPreset);
+
+  // If the deep-link slug changes (user navigates to /digital-twin/brawner-10-15
+  // from OCR), re-sync tab + preset.
+  useEffect(() => {
+    if (wellSlug && SLUG_PRESET[wellSlug]) {
+      setPresetKey(SLUG_PRESET[wellSlug]);
+      setTab(4);
+    }
+  }, [wellSlug]);
   const preset = PRESETS[presetKey];
   const EXAMPLE_WELL = preset.well;
   const EXAMPLE_STAGES = preset.stages;
@@ -784,6 +805,34 @@ export default function DigitalTwin() {
                   </button>
                 </div>
               </div>
+
+              {/* OCR-sourced formations & perforations (Brawner only) */}
+              {presetKey === "brawner" && (
+                <div className="px-3 py-2.5 rounded-lg border border-blue-400/30 bg-blue-400/[0.04]">
+                  <div className="text-[9px] tracking-[0.12em] uppercase text-blue-300/80 mb-1.5">
+                    OCR-sourced · 1962 paper log · Stage 2 → Twin
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 items-center text-[10px] font-mono">
+                    {[
+                      { l: "Arbuckle top",  v: "3,280 ft" },
+                      { l: "Lansing top",   v: "3,410 ft" },
+                      { l: "Perf zone",     v: "3,445 – 3,460 ft", hot: true },
+                      { l: "GR / SP / RES", v: "digitised" },
+                    ].map((c, i) => (
+                      <span key={i}
+                        className={cn(
+                          "px-2 py-1 rounded-md border",
+                          c.hot
+                            ? "border-emerald-400/50 bg-emerald-400/10 text-emerald-300"
+                            : "border-border/50 bg-card text-muted-foreground"
+                        )}>
+                        <span className="opacity-60 mr-1">{c.l}</span>
+                        <span className={c.hot ? "text-emerald-300" : "text-foreground"}>{c.v}</span>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Stage stepper */}
               <div className="grid grid-cols-5 gap-1.5">

@@ -132,6 +132,7 @@ const App = () => (
               <Route path="drone-module" element={<DroneModule />} />
               <Route path="field-twin" element={<FieldTwin />} />
               <Route path="digital-twin" element={<DigitalTwin />} />
+              <Route path="digital-twin/:wellSlug" element={<DigitalTwin />} />
               <Route path="bayesian-dca" element={<BayesianDCA />} />
               <Route path="aramco-pilot" element={<AramcoPilot />} />
 
