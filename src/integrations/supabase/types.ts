@@ -14,6 +14,89 @@ export type Database = {
   }
   public: {
     Tables: {
+      calibration_audit: {
+        Row: {
+          after_state: Json
+          before_state: Json
+          company_id: string | null
+          confidence_delta: number | null
+          created_at: string
+          id: string
+          input_summary: Json
+          mape: number | null
+          method: string
+          model_parameter_id: string | null
+          residual: number | null
+          restoration_id: string | null
+          scope_key: string | null
+          scope_type: string | null
+          well_id: string | null
+        }
+        Insert: {
+          after_state?: Json
+          before_state?: Json
+          company_id?: string | null
+          confidence_delta?: number | null
+          created_at?: string
+          id?: string
+          input_summary?: Json
+          mape?: number | null
+          method?: string
+          model_parameter_id?: string | null
+          residual?: number | null
+          restoration_id?: string | null
+          scope_key?: string | null
+          scope_type?: string | null
+          well_id?: string | null
+        }
+        Update: {
+          after_state?: Json
+          before_state?: Json
+          company_id?: string | null
+          confidence_delta?: number | null
+          created_at?: string
+          id?: string
+          input_summary?: Json
+          mape?: number | null
+          method?: string
+          model_parameter_id?: string | null
+          residual?: number | null
+          restoration_id?: string | null
+          scope_key?: string | null
+          scope_type?: string | null
+          well_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calibration_audit_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calibration_audit_model_parameter_id_fkey"
+            columns: ["model_parameter_id"]
+            isOneToOne: false
+            referencedRelation: "model_parameters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calibration_audit_restoration_id_fkey"
+            columns: ["restoration_id"]
+            isOneToOne: false
+            referencedRelation: "well_restorations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calibration_audit_well_id_fkey"
+            columns: ["well_id"]
+            isOneToOne: false
+            referencedRelation: "wells"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       companies: {
         Row: {
           created_at: string
@@ -186,6 +269,71 @@ export type Database = {
           well_type?: string | null
         }
         Relationships: []
+      }
+      model_parameters: {
+        Row: {
+          arps_b: number
+          arps_b_variance: number
+          arps_di: number
+          arps_di_variance: number
+          company_id: string | null
+          confidence: number
+          created_at: string
+          id: string
+          last_calibrated_at: string | null
+          model_version: string
+          sample_count: number
+          scope_key: string
+          scope_type: string
+          spt_multiplier: number
+          spt_multiplier_variance: number
+          updated_at: string
+        }
+        Insert: {
+          arps_b?: number
+          arps_b_variance?: number
+          arps_di?: number
+          arps_di_variance?: number
+          company_id?: string | null
+          confidence?: number
+          created_at?: string
+          id?: string
+          last_calibrated_at?: string | null
+          model_version?: string
+          sample_count?: number
+          scope_key: string
+          scope_type: string
+          spt_multiplier?: number
+          spt_multiplier_variance?: number
+          updated_at?: string
+        }
+        Update: {
+          arps_b?: number
+          arps_b_variance?: number
+          arps_di?: number
+          arps_di_variance?: number
+          company_id?: string | null
+          confidence?: number
+          created_at?: string
+          id?: string
+          last_calibrated_at?: string | null
+          model_version?: string
+          sample_count?: number
+          scope_key?: string
+          scope_type?: string
+          spt_multiplier?: number
+          spt_multiplier_variance?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "model_parameters_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       production_history: {
         Row: {
@@ -621,6 +769,93 @@ export type Database = {
           },
           {
             foreignKeyName: "well_perforations_well_id_fkey"
+            columns: ["well_id"]
+            isOneToOne: false
+            referencedRelation: "wells"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      well_restorations: {
+        Row: {
+          actual_cum: number | null
+          actual_qoil: number | null
+          arps_b_used: number | null
+          arps_di_used: number | null
+          company_id: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          oil_price: number | null
+          payload: Json
+          predicted_cum: number | null
+          predicted_qoil: number | null
+          processed: boolean
+          processed_at: string | null
+          restoration_date: string
+          source: string
+          spt_depth_ft: number | null
+          spt_multiplier_used: number | null
+          updated_at: string
+          well_external_ref: string | null
+          well_id: string | null
+        }
+        Insert: {
+          actual_cum?: number | null
+          actual_qoil?: number | null
+          arps_b_used?: number | null
+          arps_di_used?: number | null
+          company_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          oil_price?: number | null
+          payload?: Json
+          predicted_cum?: number | null
+          predicted_qoil?: number | null
+          processed?: boolean
+          processed_at?: string | null
+          restoration_date?: string
+          source?: string
+          spt_depth_ft?: number | null
+          spt_multiplier_used?: number | null
+          updated_at?: string
+          well_external_ref?: string | null
+          well_id?: string | null
+        }
+        Update: {
+          actual_cum?: number | null
+          actual_qoil?: number | null
+          arps_b_used?: number | null
+          arps_di_used?: number | null
+          company_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          oil_price?: number | null
+          payload?: Json
+          predicted_cum?: number | null
+          predicted_qoil?: number | null
+          processed?: boolean
+          processed_at?: string | null
+          restoration_date?: string
+          source?: string
+          spt_depth_ft?: number | null
+          spt_multiplier_used?: number | null
+          updated_at?: string
+          well_external_ref?: string | null
+          well_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "well_restorations_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "well_restorations_well_id_fkey"
             columns: ["well_id"]
             isOneToOne: false
             referencedRelation: "wells"
