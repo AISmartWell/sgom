@@ -6,6 +6,7 @@ import {
 } from "recharts";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { AutoCalibratedBadge } from "@/components/digital-twin/AutoCalibratedBadge";
 
 // Slug → preset key map for deep-link routes like /dashboard/digital-twin/brawner-10-15
 const SLUG_PRESET: Record<string, "brawner" | "ghawar"> = {
@@ -605,6 +606,7 @@ export default function DigitalTwin() {
                       <path d={sparkPath} fill="none" stroke="hsl(145 80% 50%)" strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
                     </svg>
                   </div>
+                  <AutoCalibratedBadge scopeType="well" scopeKey={tw.id} />
                 </div>
 
                 {[
