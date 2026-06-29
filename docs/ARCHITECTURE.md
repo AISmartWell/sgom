@@ -148,6 +148,89 @@ supabase.channel('telemetry').on('postgres_changes',
 
 ---
 
+## 5. Self-learning (Kalman + Bayesian update)
+
+### 5.1 Принцип
+Параметры модели (Arps `b`, Arps `Di`, SPT multiplier) больше не «зашиты в код». Они хранятся как **апостериорные распределения** в таблице `model_parameters` и обновляются при каждом новом наблюдении.
+
+Каждый параметр — нормальное распределение `N(μ, σ²)`. При получении новой пары `(predicted, actual)` запускается одномерный байесовский апдейт (математически эквивалентный одномерному Калман-фильтру при стационарной системе):
+
+```text
+posterior_μ  = (μ · r² + z · σ²) / (σ² + r²)
+posterior_σ² = (σ² · r²) / (σ² + r²)
+```
+
+где:
+- `μ, σ²` — prior из `model_parameters`
+- `z` — наблюдаемое значение параметра, оценённое из факта
+- `r²` — дисперсия наблюдения (растёт с MAPE — чем хуже сошлось, тем меньше доверие к точке)
+
+### 5.2 Оценка наблюдений `z`
+- **SPT multiplier:** `z_spt = spt_multiplier_used · (actual_qoil / predicted_qoil)`
+- **Arps b:** если есть накопленная добыча — `z_b = b_used · (1 + (actual_cum/predicted_cum − 1) · 0.6)`, иначе оценка через ratio дебитов. Клипуется в `[0.05, 1.5]`.
+- **Arps Di:** пока обновляется только μ (без переоценки), т.к. одного замера недостаточно для разделения вклада `b` и `Di`. План — совместная оценка по ≥3 точкам через Levenberg-Marquardt.
+
+### 5.3 Scope fallback
+Параметры ищутся в иерархии: `well → formation → global`. Это даёт холодный старт: до первой калибровки скважина наследует глобальный prior (`b=0.5`, `SPT=1.45`, conf=50%), после — переходит на собственное распределение.
+
+### 5.4 Confidence
+```text
+conf = 100 · (1 − mean(σ/μ для b и SPT))    clamped [5, 99.5]
+```
+
+Чем уже posterior, тем выше confidence. Бейдж `Auto-calibrated` (`src/components/digital-twin/AutoCalibratedBadge.tsx`) красится по порогам: ≥85 зелёный, ≥65 жёлтый, <65 красный.
+
+### 5.5 API
+```text
+POST /functions/v1/ingest-restoration
+Authorization: Bearer <user_jwt>
+
+{
+  "scope_key": "BRW-10",          // или well_id / well_external_ref
+  "scope_type": "well",            // well | formation | global
+  "predicted_qoil": 40,            // bbl/d (требуется)
+  "actual_qoil":    46,            // bbl/d (требуется)
+  "predicted_cum":  12000,         // bbl, опционально (улучшает оценку b)
+  "actual_cum":     13800,
+  "arps_b_used":    0.5,           // что использовала модель в прогнозе
+  "arps_di_used":   0.00018,
+  "spt_multiplier_used": 1.45,
+  "spt_depth_ft":   4,
+  "oil_price":      75,
+  "payload": { ... raw ... }       // произвольный JSON, сохраняется как есть
+}
+```
+
+Ответ содержит `before / after / residual / mape` и id записи в `calibration_audit`.
+
+### 5.6 Таблицы
+
+| Таблица | Назначение | Ключевые поля |
+|--------|------------|---------------|
+| `well_restorations` | Сырые входы: что предсказали, что получили | predicted/actual qoil+cum, использованные параметры, payload, processed |
+| `model_parameters` | Текущее апостериорное состояние per scope | μ и σ² для b/Di/SPT, confidence, sample_count, model_version |
+| `calibration_audit` | Журнал всех апдейтов | before_state, after_state, input_summary, residual, mape, confidence_delta |
+
+RLS по `company_id` через `user_companies`. Global prior (`company_id IS NULL`) виден всем аутентифицированным.
+
+### 5.7 Что НЕ делает self-learning (честно)
+- **Не «AI».** Это ML-калибровка по фиксированной формуле Bayesian 1D — не агент, не планировщик, не объясняющий блок.
+- **Не переобучает структуру модели.** Закон Арпса остаётся законом Арпса; меняются только его коэффициенты.
+- **Не делает joint-update b+Di.** Требует ≥3 точек и нелинейной регрессии (LM/PINN) — план Phase 3 на AWS.
+- **Не валидирует физичность входов.** Если прислать `actual_qoil=0`, posterior уползёт. Нужен outlier-фильтр (план: Mahalanobis distance + Tukey fence).
+
+### 5.8 Roadmap
+| Phase | Что | Где работает |
+|-------|-----|--------------|
+| **1 (сделано)** | 1-D Bayesian per parameter, scope fallback, audit log, UI badge | Supabase Edge |
+| 2 | Outlier-фильтр, joint LM-fit `(b, Di)` по ≥3 точкам, дрейф σ² во времени (forgetting factor) | Supabase Edge |
+| 3 | PINN-калибровка с физическими ограничениями (давление, PVT), reservoir-wide ensemble Kalman | AWS GPU (Modulus) |
+| 4 | RL-агент: action=изменение режима, reward=ΔNPV, обучение в shadow mode | AWS + human-in-the-loop UI |
+
+---
+
+
+
 ## 5. Где жить документации
 
 | Документ | Назначение | Аудитория |
