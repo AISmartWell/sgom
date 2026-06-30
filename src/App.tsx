@@ -136,6 +136,7 @@ const App = () => (
               <Route path="digital-twin/:wellSlug" element={<DigitalTwin />} />
               <Route path="bayesian-dca" element={<BayesianDCA />} />
               <Route path="aramco-pilot" element={<AramcoPilot />} />
+              <Route path="ingest-diagnostics" element={<IngestRestorationDiagnostics />} />
 
           </Route>
            <Route path="/nvidia-inception" element={<NvidiaInception />} />
