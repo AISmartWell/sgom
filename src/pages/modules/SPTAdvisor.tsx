@@ -174,6 +174,31 @@ export default function SPTAdvisor() {
               </div>
             </div>
 
+            <div className="flex items-start gap-2 p-2 rounded-md border border-primary/20 bg-primary/5">
+              <TooltipProvider delayDuration={150}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge variant="outline" className="shrink-0 cursor-help gap-1 border-primary/30 text-primary bg-primary/10 hover:bg-primary/20">
+                      <Brain className="w-3 h-3" /> AI-powered
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="max-w-xs space-y-1">
+                    <div className="font-semibold text-xs">Why this decision is AI-backed</div>
+                    <ul className="text-xs list-disc list-inside space-y-0.5 text-muted-foreground">
+                      <li>Autonomous multi-step reasoning (rank → inspect → forecast → enrich)</li>
+                      <li>MCDA scoring across water cut, GOR, and depth criteria</li>
+                      <li>Arps decline forecast with SPT uplift multiplier</li>
+                      <li>Out-of-distribution (OOD) statistical safety check</li>
+                      <li>Cascade metadata enrichment with confidence recalibration</li>
+                    </ul>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <span className="text-xs text-muted-foreground leading-snug">
+                The advisor ran {resp?.trace?.filter((t: any) => t.kind === "tool").length ?? 0} tool calls, cross-checked {a.alternatives?.length ?? 0} alternatives, and recalibrated confidence after enrichment.
+              </span>
+            </div>
+
             <div>
               <div className="text-xs uppercase text-muted-foreground mb-1">Reasoning</div>
               <p className="text-sm leading-relaxed">{a.reasoning}</p>
