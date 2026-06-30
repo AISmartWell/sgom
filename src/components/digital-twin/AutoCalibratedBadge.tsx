@@ -144,6 +144,46 @@ export function AutoCalibratedBadge({ scopeType = "well", scopeKey, compact = fa
             Send test restoration
           </Button>
         </div>
+
+        {lastResponse && (
+          <div className="mt-3 border border-border/40 rounded overflow-hidden">
+            <div className={cn(
+              "px-3 py-1.5 text-[10px] uppercase tracking-wider flex items-center justify-between gap-2",
+              lastResponse.ok ? "bg-emerald-500/10 text-emerald-300" : "bg-rose-500/10 text-rose-300"
+            )}>
+              <span>Last response · {lastResponse.ok ? "OK" : "ERROR"} · {lastResponse.durationMs}ms · {new Date(lastResponse.at).toLocaleTimeString()}</span>
+              {lastResponse.ok && (() => {
+                const b = lastResponse.body as { restoration_id?: string; mape?: number; before?: { confidence?: number }; after?: { confidence?: number } };
+                const dconf = (b.after?.confidence ?? 0) - (b.before?.confidence ?? 0);
+                return (
+                  <span className="font-mono normal-case tracking-normal">
+                    MAPE {((b.mape ?? 0) * 100).toFixed(2)}% · Δconf {dconf >= 0 ? "+" : ""}{dconf.toFixed(2)} · id {b.restoration_id?.slice(0, 8)}…
+                  </span>
+                );
+              })()}
+            </div>
+            <div className="grid grid-cols-2 gap-px bg-border/40">
+              <div className="bg-background p-2">
+                <div className="text-[9px] uppercase tracking-wider text-muted-foreground mb-1">Request body</div>
+                <pre className="text-[10px] font-mono whitespace-pre-wrap break-all max-h-48 overflow-auto">{JSON.stringify(lastResponse.requestBody, null, 2)}</pre>
+              </div>
+              <div className="bg-background p-2">
+                <div className="text-[9px] uppercase tracking-wider text-muted-foreground mb-1">Response JSON</div>
+                <pre className="text-[10px] font-mono whitespace-pre-wrap break-all max-h-48 overflow-auto">{JSON.stringify(lastResponse.body, null, 2)}</pre>
+              </div>
+            </div>
+            <div className="px-3 py-1.5 bg-card/40 flex items-center justify-end gap-2">
+              <button
+                onClick={() => navigator.clipboard.writeText(JSON.stringify(lastResponse.body, null, 2)).then(() => toast.success("Response copied"))}
+                className="text-[10px] underline text-muted-foreground hover:text-foreground"
+              >Copy response</button>
+              <button
+                onClick={() => setLastResponse(null)}
+                className="text-[10px] underline text-muted-foreground hover:text-foreground"
+              >Clear</button>
+            </div>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
