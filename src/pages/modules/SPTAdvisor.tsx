@@ -147,7 +147,7 @@ export default function SPTAdvisor() {
               </div>
             )}
             {(() => {
-              const enrichTrace = resp?.trace?.find((t: any) => t.name === "enrich_well_metadata" && t.result_full);
+              const enrichTrace = resp?.trace?.find((t: any) => t.kind === "tool" && t.name === "enrich_well_metadata" && t.result_full) as any;
               const attempts = enrichTrace?.result_full?.attempts as Record<string, string[]> | undefined;
               const e = a.enrichment;
               if (!e && !attempts) return null;
