@@ -19,25 +19,29 @@ export function AutoCalibratedBadge({ scopeType = "well", scopeKey, compact = fa
 
   async function sendTestRestoration() {
     setSending(true);
+    const t0 = performance.now();
+    const requestBody = {
+      well_external_ref: scopeType === "well" ? scopeKey : null,
+      formation_key: scopeType === "formation" ? scopeKey : null,
+      predicted_qoil: 120 + Math.round((Math.random() - 0.5) * 20),
+      actual_qoil: 0,
+      arps_b_used: Number(params?.arps_b ?? 0.5),
+      arps_di_used: Number(params?.arps_di ?? 0.00018),
+      spt_multiplier_used: Number(params?.spt_multiplier ?? 1.45),
+      spt_depth_ft: 4200,
+      oil_price: 75,
+      source: "ui_test_button",
+    };
+    requestBody.actual_qoil = requestBody.predicted_qoil + Math.round((Math.random() - 0.3) * 30);
     try {
-      const predicted = 120 + Math.round((Math.random() - 0.5) * 20);
-      const actual = predicted + Math.round((Math.random() - 0.3) * 30);
-      const { data, error } = await supabase.functions.invoke("ingest-restoration", {
-        body: {
-          well_external_ref: scopeType === "well" ? scopeKey : null,
-          formation_key: scopeType === "formation" ? scopeKey : null,
-          predicted_qoil: predicted,
-          actual_qoil: actual,
-          arps_b_used: Number(params?.arps_b ?? 0.5),
-          arps_di_used: Number(params?.arps_di ?? 0.00018),
-          spt_multiplier_used: Number(params?.spt_multiplier ?? 1.45),
-          spt_depth_ft: 4200,
-          oil_price: 75,
-          source: "ui_test_button",
-        },
-      });
-      if (error) throw error;
-      toast.success(`Calibrated · MAPE ${((data?.mape ?? 0) * 100).toFixed(1)}%`, {
+      const { data, error } = await supabase.functions.invoke("ingest-restoration", { body: requestBody });
+      const durationMs = Math.round(performance.now() - t0);
+      if (error) {
+        setLastResponse({ ok: false, durationMs, body: error, requestBody, at: new Date().toISOString() });
+        throw error;
+      }
+      setLastResponse({ ok: true, status: 200, durationMs, body: data, requestBody, at: new Date().toISOString() });
+      toast.success(`Calibrated · MAPE ${((data?.mape ?? 0) * 100).toFixed(1)}% · ${durationMs}ms`, {
         description: `b: ${data?.before?.arps_b?.toFixed(3)} → ${data?.after?.arps_b?.toFixed(3)} · spt: ${data?.before?.spt_multiplier?.toFixed(3)} → ${data?.after?.spt_multiplier?.toFixed(3)}`,
       });
       refresh();
