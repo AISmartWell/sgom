@@ -68,33 +68,66 @@ async function tool_enrich_well_metadata(args: { well_id: string; base_confidenc
   if (!w.formation) missingBefore.push("formation");
   if (!w.total_depth) missingBefore.push("total_depth");
 
+  // Trace of cascade attempts (surfaced in UI so user sees WHY a field stays empty)
+  const attempts: Record<string, string[]> = { formation: [], total_depth: [], perforations: [] };
+
   // 1) Formation lookup via formation_codes by county/state
-  if (!enriched.formation && (w.county || w.state)) {
+  let basinHint: string | null = null;
+  if (w.state || w.county) {
     let q = sb.from("formation_codes").select("formation,basin,description").limit(1);
     if (w.state) q = q.eq("state_code", w.state);
     if (w.county) q = q.ilike("county_name", `%${w.county}%`);
     const { data: fc } = await q;
-    if (fc?.[0]?.formation) {
-      enriched.formation = fc[0].formation;
-      sources.formation = `formation_codes(state=${w.state ?? "?"}, county=${w.county ?? "?"})`;
+    if (fc?.[0]) {
+      basinHint = fc[0].basin ?? null;
+      if (!enriched.formation && fc[0].formation) {
+        enriched.formation = fc[0].formation;
+        sources.formation = `formation_codes(state=${w.state ?? "?"}, county=${w.county ?? "?"})`;
+      } else if (!enriched.formation) {
+        attempts.formation.push(`formation_codes row found but formation=null (basin=${basinHint ?? "?"})`);
+      }
+    } else if (!enriched.formation) {
+      attempts.formation.push(`no formation_codes row for state=${w.state ?? "?"}/county=${w.county ?? "?"}`);
     }
   }
 
-  // 2) total_depth fallback: median of neighbour wells in same county/state
-  if (!enriched.total_depth && (w.county || w.state)) {
-    let nq = sb.from("wells").select("total_depth").neq("id", args.well_id).not("total_depth", "is", null).limit(50);
-    if (w.state) nq = nq.eq("state", w.state);
-    if (w.county) nq = nq.eq("county", w.county);
-    const { data: nb } = await nq;
-    const depths = (nb ?? []).map((r: any) => Number(r.total_depth)).filter((n) => Number.isFinite(n)).sort((a, b) => a - b);
-    if (depths.length) {
-      const med = depths[Math.floor(depths.length / 2)];
-      enriched.total_depth = med;
-      sources.total_depth = `median(${depths.length} neighbours in ${w.county ?? "?"}/${w.state ?? "?"})`;
+  // 2) total_depth cascade: county → state → max perforation depth → basin/formation heuristic
+  if (!enriched.total_depth) {
+    // a) county
+    if (w.county && w.state) {
+      const { data: nb } = await sb.from("wells").select("total_depth").neq("id", args.well_id).not("total_depth", "is", null).eq("state", w.state).eq("county", w.county).limit(50);
+      const d = (nb ?? []).map((r: any) => Number(r.total_depth)).filter(Number.isFinite).sort((a, b) => a - b);
+      if (d.length) { enriched.total_depth = d[Math.floor(d.length / 2)]; sources.total_depth = `median(${d.length} county neighbours ${w.county}/${w.state})`; }
+      else attempts.total_depth.push(`0 county neighbours with depth in ${w.county}/${w.state}`);
+    }
+    // b) state
+    if (!enriched.total_depth && w.state) {
+      const { data: nb } = await sb.from("wells").select("total_depth").neq("id", args.well_id).not("total_depth", "is", null).eq("state", w.state).limit(100);
+      const d = (nb ?? []).map((r: any) => Number(r.total_depth)).filter(Number.isFinite).sort((a, b) => a - b);
+      if (d.length) { enriched.total_depth = d[Math.floor(d.length / 2)]; sources.total_depth = `median(${d.length} state neighbours ${w.state})`; }
+      else attempts.total_depth.push(`0 state neighbours with depth in ${w.state}`);
+    }
+    // c) max perforation depth on this well
+    if (!enriched.total_depth) {
+      const { data: pf } = await sb.from("well_perforations").select("depth_to").eq("well_id", args.well_id);
+      const dd = (pf ?? []).map((r: any) => Number(r.depth_to)).filter(Number.isFinite);
+      if (dd.length) { enriched.total_depth = Math.max(...dd); sources.total_depth = `max(perforation depth_to)`; }
+      else attempts.total_depth.push(`no perforation rows to derive depth_to`);
+    }
+    // d) basin / formation typical-depth heuristic (Oklahoma-centric, expand as needed)
+    if (!enriched.total_depth) {
+      const TYPICAL: Record<string, number> = {
+        anadarko: 10000, arkoma: 6000, cherokee: 4000, "mississippi lime": 5000,
+        hugoton: 3000, woodford: 8500, springer: 9500, granite: 9000,
+      };
+      const key = (basinHint ?? enriched.formation ?? "").toString().toLowerCase();
+      const match = Object.keys(TYPICAL).find((k) => key.includes(k));
+      if (match) { enriched.total_depth = TYPICAL[match]; sources.total_depth = `typical-depth heuristic(${match})`; }
+      else attempts.total_depth.push(`no basin/formation match for heuristic (key="${key || "n/a"}")`);
     }
   }
 
-  // 3) Perforations
+  // 3) Perforations (planning-data; missing is common — soft penalty only)
   const { data: perfs } = await sb.from("well_perforations").select("depth_from,depth_to").eq("well_id", args.well_id);
   if (perfs?.length) {
     enriched.perforations_count = perfs.length;
@@ -102,19 +135,21 @@ async function tool_enrich_well_metadata(args: { well_id: string; base_confidenc
     const bot = Math.max(...perfs.map((p: any) => Number(p.depth_to)).filter(Number.isFinite));
     if (Number.isFinite(top) && Number.isFinite(bot)) enriched.perforated_interval_ft = Number((bot - top).toFixed(1));
     sources.perforations = "well_perforations";
+  } else {
+    attempts.perforations.push("no well_perforations rows — to be designed during SPT job planning");
   }
 
   // Confidence recalculation:
-  // critical fields = formation, total_depth, perforations; each missing after enrichment costs 0.10.
-  // Fields filled from fallback sources (not the well row) cost 0.04 each (lower-trust source).
+  //   formation / total_depth — hard fields (0.10 missing, 0.04 fallback)
+  //   perforations           — soft planning field (0.04 missing, 0 if present)
   const stillMissing: string[] = [];
   let penalty = 0;
-  if (!enriched.formation) stillMissing.push("formation");
+  if (!enriched.formation) { stillMissing.push("formation"); penalty += 0.10; }
   else if (sources.formation) penalty += 0.04;
-  if (!enriched.total_depth) stillMissing.push("total_depth");
+  if (!enriched.total_depth) { stillMissing.push("total_depth"); penalty += 0.10; }
   else if (sources.total_depth) penalty += 0.04;
-  if (!enriched.perforations_count) stillMissing.push("perforations");
-  penalty += stillMissing.length * 0.10;
+  if (!enriched.perforations_count) { stillMissing.push("perforations"); penalty += 0.04; }
+  // (penalty already tallied above)
   const adjusted = Math.max(0.2, Math.min(1, baseConf - penalty));
 
   return {
@@ -122,6 +157,7 @@ async function tool_enrich_well_metadata(args: { well_id: string; base_confidenc
     missing_before: missingBefore,
     enriched,
     sources,
+    attempts,
     still_missing: stillMissing,
     confidence: {
       base: baseConf,
@@ -431,7 +467,11 @@ Deno.serve(async (req) => {
         catch (e) { error = (e as Error).message; result = { error }; }
         const ms = Date.now() - t0;
 
-        trace.push({ step, kind: "tool", name, args, ms, error, result_preview: JSON.stringify(result).slice(0, 400) });
+        // Full result for enrichment is returned to UI (so we can show attempts/cascade trace);
+        // other tools keep the truncated preview to limit payload size.
+        const traceEntry: any = { step, kind: "tool", name, args, ms, error, result_preview: JSON.stringify(result).slice(0, 400) };
+        if (name === "enrich_well_metadata") traceEntry.result_full = result;
+        trace.push(traceEntry);
 
         messages.push({
           role: "tool",

@@ -9,7 +9,7 @@ import { Loader2, Brain, Wrench, CheckCircle2, AlertTriangle, Sparkles } from "l
 import { toast } from "sonner";
 
 type TraceItem =
-  | { step: number; kind: "tool"; name: string; args: any; ms: number; error: string | null; result_preview: string }
+  | { step: number; kind: "tool"; name: string; args: any; ms: number; error: string | null; result_preview: string; result_full?: any }
   | { step: number; kind: "final"; content: string };
 
 interface AdvisorResponse {
@@ -146,22 +146,40 @@ export default function SPTAdvisor() {
                 </div>
               </div>
             )}
-            {a.enrichment && (
-              <div className="p-3 rounded-md border border-border bg-muted/30 space-y-1">
-                <div className="text-xs uppercase text-muted-foreground">Enrichment</div>
-                {a.enrichment.filled?.length > 0 && (
-                  <div className="text-sm">Filled: <span className="font-mono">{a.enrichment.filled.join(", ")}</span></div>
-                )}
-                {a.enrichment.still_missing?.length > 0 && (
-                  <div className="text-sm text-amber-500">Still missing: <span className="font-mono">{a.enrichment.still_missing.join(", ")}</span></div>
-                )}
-                {a.enrichment.sources && Object.keys(a.enrichment.sources).length > 0 && (
-                  <div className="text-xs text-muted-foreground font-mono">
-                    {Object.entries(a.enrichment.sources).map(([k, v]) => <div key={k}>{k} ← {String(v)}</div>)}
-                  </div>
-                )}
-              </div>
-            )}
+            {(() => {
+              const enrichTrace = resp?.trace?.find((t: any) => t.kind === "tool" && t.name === "enrich_well_metadata" && t.result_full) as any;
+              const attempts = enrichTrace?.result_full?.attempts as Record<string, string[]> | undefined;
+              const e = a.enrichment;
+              if (!e && !attempts) return null;
+              return (
+                <div className="p-3 rounded-md border border-border bg-muted/30 space-y-1">
+                  <div className="text-xs uppercase text-muted-foreground">Enrichment</div>
+                  {e?.filled?.length > 0 && (
+                    <div className="text-sm">Filled: <span className="font-mono">{e.filled.join(", ")}</span></div>
+                  )}
+                  {e?.still_missing?.length > 0 && (
+                    <div className="text-sm text-amber-500">Still missing: <span className="font-mono">{e.still_missing.join(", ")}</span></div>
+                  )}
+                  {e?.sources && Object.keys(e.sources).length > 0 && (
+                    <div className="text-xs text-muted-foreground font-mono">
+                      {Object.entries(e.sources).map(([k, v]) => <div key={k}>{k} ← {String(v)}</div>)}
+                    </div>
+                  )}
+                  {attempts && Object.values(attempts).some((arr) => arr.length > 0) && (
+                    <div className="pt-2 mt-2 border-t border-border/60 space-y-0.5">
+                      <div className="text-[10px] uppercase text-muted-foreground">Cascade trace (why fields stayed empty)</div>
+                      {Object.entries(attempts).flatMap(([field, msgs]) =>
+                        msgs.map((m, i) => (
+                          <div key={`${field}-${i}`} className="text-xs font-mono text-muted-foreground">
+                            <span className="text-amber-500/80">{field}</span> · {m}
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
 
           </CardContent>
         </Card>
