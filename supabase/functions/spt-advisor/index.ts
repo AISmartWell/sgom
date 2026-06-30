@@ -48,6 +48,95 @@ async function tool_get_well_context(args: { well_id: string }) {
   };
 }
 
+// Enrich a well by filling missing formation / total_depth / perforations from
+// adjacent sources (formation_codes lookup, county/state neighbours, perforations table)
+// and recompute a confidence penalty proportional to how many critical fields stayed missing.
+async function tool_enrich_well_metadata(args: { well_id: string; base_confidence?: number }) {
+  const baseConf = typeof args.base_confidence === "number" ? args.base_confidence : 0.8;
+  const { data: wRow, error: wErr } = await sb.from("wells").select("*").eq("id", args.well_id).maybeSingle();
+  if (wErr || !wRow) throw new Error(wErr?.message ?? "well not found");
+  const w: any = wRow;
+
+  const enriched: Record<string, any> = {
+    formation: w.formation ?? null,
+    total_depth: w.total_depth ?? null,
+    perforations_count: 0,
+    perforated_interval_ft: null,
+  };
+  const sources: Record<string, string> = {};
+  const missingBefore: string[] = [];
+  if (!w.formation) missingBefore.push("formation");
+  if (!w.total_depth) missingBefore.push("total_depth");
+
+  // 1) Formation lookup via formation_codes by county/state
+  if (!enriched.formation && (w.county || w.state)) {
+    let q = sb.from("formation_codes").select("formation,basin,description").limit(1);
+    if (w.state) q = q.eq("state_code", w.state);
+    if (w.county) q = q.ilike("county_name", `%${w.county}%`);
+    const { data: fc } = await q;
+    if (fc?.[0]?.formation) {
+      enriched.formation = fc[0].formation;
+      sources.formation = `formation_codes(state=${w.state ?? "?"}, county=${w.county ?? "?"})`;
+    }
+  }
+
+  // 2) total_depth fallback: median of neighbour wells in same county/state
+  if (!enriched.total_depth && (w.county || w.state)) {
+    let nq = sb.from("wells").select("total_depth").neq("id", args.well_id).not("total_depth", "is", null).limit(50);
+    if (w.state) nq = nq.eq("state", w.state);
+    if (w.county) nq = nq.eq("county", w.county);
+    const { data: nb } = await nq;
+    const depths = (nb ?? []).map((r: any) => Number(r.total_depth)).filter((n) => Number.isFinite(n)).sort((a, b) => a - b);
+    if (depths.length) {
+      const med = depths[Math.floor(depths.length / 2)];
+      enriched.total_depth = med;
+      sources.total_depth = `median(${depths.length} neighbours in ${w.county ?? "?"}/${w.state ?? "?"})`;
+    }
+  }
+
+  // 3) Perforations
+  const { data: perfs } = await sb.from("well_perforations").select("depth_from,depth_to").eq("well_id", args.well_id);
+  if (perfs?.length) {
+    enriched.perforations_count = perfs.length;
+    const top = Math.min(...perfs.map((p: any) => Number(p.depth_from)).filter(Number.isFinite));
+    const bot = Math.max(...perfs.map((p: any) => Number(p.depth_to)).filter(Number.isFinite));
+    if (Number.isFinite(top) && Number.isFinite(bot)) enriched.perforated_interval_ft = Number((bot - top).toFixed(1));
+    sources.perforations = "well_perforations";
+  }
+
+  // Confidence recalculation:
+  // critical fields = formation, total_depth, perforations; each missing after enrichment costs 0.10.
+  // Fields filled from fallback sources (not the well row) cost 0.04 each (lower-trust source).
+  const stillMissing: string[] = [];
+  let penalty = 0;
+  if (!enriched.formation) stillMissing.push("formation");
+  else if (sources.formation) penalty += 0.04;
+  if (!enriched.total_depth) stillMissing.push("total_depth");
+  else if (sources.total_depth) penalty += 0.04;
+  if (!enriched.perforations_count) stillMissing.push("perforations");
+  penalty += stillMissing.length * 0.10;
+  const adjusted = Math.max(0.2, Math.min(1, baseConf - penalty));
+
+  return {
+    well_id: args.well_id,
+    missing_before: missingBefore,
+    enriched,
+    sources,
+    still_missing: stillMissing,
+    confidence: {
+      base: baseConf,
+      penalty: Number(penalty.toFixed(2)),
+      adjusted: Number(adjusted.toFixed(2)),
+      note: stillMissing.length
+        ? `Reduced by ${(penalty * 100).toFixed(0)}% — ${stillMissing.join(", ")} could not be recovered.`
+        : penalty > 0
+          ? `Reduced by ${(penalty * 100).toFixed(0)}% — some fields filled from neighbour/lookup, lower trust than direct well data.`
+          : "All critical fields available on the well row.",
+    },
+  };
+}
+
+
 // MCDA scoring: SPT prefers moderate water cut (20-60%), age, sandstone/carbonate, declining trend
 function scoreWell(w: any): { score: number; factors: Record<string, number>; reasons: string[] } {
   const wc = w.water_cut ?? 50;
@@ -216,6 +305,21 @@ const TOOLS = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "enrich_well_metadata",
+      description: "Fill missing formation / total_depth / perforations for a well using formation_codes lookup and neighbour wells in the same county/state. Returns the enriched values, the data sources used, and a recalculated confidence (penalty for fields still missing or filled from lower-trust fallbacks).",
+      parameters: {
+        type: "object",
+        properties: {
+          well_id: { type: "string" },
+          base_confidence: { type: "number", description: "Confidence before enrichment (0..1), default 0.8" },
+        },
+        required: ["well_id"],
+      },
+    },
+  },
 ];
 
 async function dispatchTool(name: string, args: any) {
@@ -225,6 +329,7 @@ async function dispatchTool(name: string, args: any) {
     case "get_well_context": return await tool_get_well_context(args);
     case "forecast_well": return await tool_forecast_well(args);
     case "ood_check": return await tool_ood_check(args);
+    case "enrich_well_metadata": return await tool_enrich_well_metadata(args);
     default: throw new Error(`Unknown tool: ${name}`);
   }
 }
@@ -234,22 +339,25 @@ const SYSTEM_PROMPT = `You are SPT Advisor — an autonomous reservoir engineeri
 Goals each turn:
 1. Use rank_wells_for_spt to shortlist candidates from the company's wells.
 2. Use get_well_context + forecast_well on the top 1–2 wells.
-3. Use ood_check to verify inputs are inside the training distribution. If OOD=true, lower confidence and flag it.
-4. Produce a final recommendation in this exact JSON inside <answer>...</answer> tags:
+3. If the inspected well has null formation, total_depth, or no perforations, call enrich_well_metadata to recover them from formation_codes / neighbour wells, and USE its "confidence.adjusted" value as the final confidence (do not invent your own).
+4. Use ood_check to verify inputs are inside the training distribution. If OOD=true, lower confidence further and flag it.
+5. Produce a final recommendation in this exact JSON inside <answer>...</answer> tags:
 {
   "recommended_well": { "id": "...", "name": "...", "score": 0-100, "confidence": 0-1 },
   "reasoning": "≤4 sentences citing concrete numbers (water cut %, depth ft, production BPD, formation)",
   "expected_uplift_bbl": number,
   "risks": ["..."],
   "alternatives": [ { "id":"...", "name":"...", "score":..., "why":"..." } ],
-  "ood_flag": boolean
+  "ood_flag": boolean,
+  "enrichment": { "filled": ["formation","total_depth"], "still_missing": ["..."], "sources": { "formation": "...", "total_depth": "..." } }
 }
 
 Rules:
 - Always cite evidence from tool results (no invented numbers).
+- If enrichment fills a field from a fallback source, mention it in reasoning (e.g. "formation inferred from county lookup").
 - If forecast P10 < baseline cumulative, mark as risky and propose an alternative.
 - Never recommend a well you didn't inspect via get_well_context.
-- Keep multi-step tool usage focused: typically 3–5 tool calls total.`;
+- Keep multi-step tool usage focused: typically 4–6 tool calls total.`;
 
 async function callLLM(messages: any[]) {
   const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {

@@ -146,6 +146,23 @@ export default function SPTAdvisor() {
                 </div>
               </div>
             )}
+            {a.enrichment && (
+              <div className="p-3 rounded-md border border-border bg-muted/30 space-y-1">
+                <div className="text-xs uppercase text-muted-foreground">Enrichment</div>
+                {a.enrichment.filled?.length > 0 && (
+                  <div className="text-sm">Filled: <span className="font-mono">{a.enrichment.filled.join(", ")}</span></div>
+                )}
+                {a.enrichment.still_missing?.length > 0 && (
+                  <div className="text-sm text-amber-500">Still missing: <span className="font-mono">{a.enrichment.still_missing.join(", ")}</span></div>
+                )}
+                {a.enrichment.sources && Object.keys(a.enrichment.sources).length > 0 && (
+                  <div className="text-xs text-muted-foreground font-mono">
+                    {Object.entries(a.enrichment.sources).map(([k, v]) => <div key={k}>{k} ← {String(v)}</div>)}
+                  </div>
+                )}
+              </div>
+            )}
+
           </CardContent>
         </Card>
       )}
