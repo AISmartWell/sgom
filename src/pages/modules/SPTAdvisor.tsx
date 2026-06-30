@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Loader2, Brain, Wrench, CheckCircle2, AlertTriangle, Sparkles } from "lucide-react";
+import { Loader2, Brain, Wrench, CheckCircle2, AlertTriangle, Sparkles, ClipboardCheck } from "lucide-react";
 import { toast } from "sonner";
 
 type TraceItem =
