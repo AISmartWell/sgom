@@ -2,16 +2,50 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Sparkles, History, Activity } from "lucide-react";
+import { Sparkles, History, Activity, Send, Loader2 } from "lucide-react";
 import { useModelParameters, useCalibrationAudit } from "@/hooks/useModelParameters";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 type Props = { scopeType?: "well" | "formation" | "global"; scopeKey: string; compact?: boolean };
 
 export function AutoCalibratedBadge({ scopeType = "well", scopeKey, compact = false }: Props) {
-  const { params } = useModelParameters(scopeType, scopeKey);
+  const { params, refresh } = useModelParameters(scopeType, scopeKey);
   const audit = useCalibrationAudit(scopeKey, 15);
   const [open, setOpen] = useState(false);
+  const [sending, setSending] = useState(false);
+
+  async function sendTestRestoration() {
+    setSending(true);
+    try {
+      const predicted = 120 + Math.round((Math.random() - 0.5) * 20);
+      const actual = predicted + Math.round((Math.random() - 0.3) * 30);
+      const { data, error } = await supabase.functions.invoke("ingest-restoration", {
+        body: {
+          well_external_ref: scopeType === "well" ? scopeKey : null,
+          formation_key: scopeType === "formation" ? scopeKey : null,
+          predicted_qoil: predicted,
+          actual_qoil: actual,
+          arps_b_used: Number(params?.arps_b ?? 0.5),
+          arps_di_used: Number(params?.arps_di ?? 0.00018),
+          spt_multiplier_used: Number(params?.spt_multiplier ?? 1.45),
+          spt_depth_ft: 4200,
+          oil_price: 75,
+          source: "ui_test_button",
+        },
+      });
+      if (error) throw error;
+      toast.success(`Calibrated · MAPE ${((data?.mape ?? 0) * 100).toFixed(1)}%`, {
+        description: `b: ${data?.before?.arps_b?.toFixed(3)} → ${data?.after?.arps_b?.toFixed(3)} · spt: ${data?.before?.spt_multiplier?.toFixed(3)} → ${data?.after?.spt_multiplier?.toFixed(3)}`,
+      });
+      refresh();
+    } catch (e: unknown) {
+      toast.error("Calibration failed", { description: e instanceof Error ? e.message : String(e) });
+    } finally {
+      setSending(false);
+    }
+  }
 
   const confidence = params?.confidence ?? 50;
   const samples = params?.sample_count ?? 0;
@@ -94,9 +128,15 @@ export function AutoCalibratedBadge({ scopeType = "well", scopeKey, compact = fa
           )}
         </div>
 
-        <div className="mt-3 text-[10px] text-muted-foreground">
-          <Badge variant="outline" className="mr-2">Bayesian 1-D update</Badge>
-          μ′ = (μ·r² + z·σ²)/(σ²+r²), σ′² = σ²·r²/(σ²+r²) · scope fallback: well → formation → global
+        <div className="mt-3 flex items-center justify-between gap-3">
+          <div className="text-[10px] text-muted-foreground flex-1">
+            <Badge variant="outline" className="mr-2">Bayesian 1-D update</Badge>
+            μ′ = (μ·r² + z·σ²)/(σ²+r²), σ′² = σ²·r²/(σ²+r²)
+          </div>
+          <Button size="sm" onClick={sendTestRestoration} disabled={sending} className="shrink-0">
+            {sending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+            Send test restoration
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
