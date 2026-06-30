@@ -19,13 +19,19 @@ const sb = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 async function tool_list_wells(args: { company_id?: string; limit?: number }) {
   const limit = Math.min(args.limit ?? 50, 200);
   let q = sb.from("wells")
-    .select("id,name,api_number,formation,depth,production_oil,water_cut,gas_oil_ratio,status,latitude,longitude,company_id")
+    .select("id,well_name,api_number,formation,total_depth,production_oil,production_gas,water_cut,status,latitude,longitude,company_id")
     .order("production_oil", { ascending: false, nullsFirst: false })
     .limit(limit);
   if (args.company_id) q = q.eq("company_id", args.company_id);
   const { data, error } = await q;
   if (error) throw error;
-  return { count: data?.length ?? 0, wells: data ?? [] };
+  // Normalize aliases used downstream (name, depth)
+  const wells = (data ?? []).map((w: any) => ({
+    ...w,
+    name: w.well_name,
+    depth: w.total_depth,
+  }));
+  return { count: wells.length, wells };
 }
 
 async function tool_get_well_context(args: { well_id: string }) {
