@@ -325,6 +325,12 @@ const menuItems = [
     href: "/dashboard/bayesian-dca",
     badge: "🧮",
   },
+  {
+    title: "SPT Advisor (AI Agent)",
+    icon: Bot,
+    href: "/dashboard/spt-advisor",
+    badge: "🤖",
+  },
 
 ];
 
