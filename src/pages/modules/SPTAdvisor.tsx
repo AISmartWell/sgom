@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Loader2, Brain, Wrench, CheckCircle2, AlertTriangle, Sparkles } from "lucide-react";
+import { Loader2, Brain, Wrench, CheckCircle2, AlertTriangle, Sparkles, ClipboardCheck } from "lucide-react";
 import { toast } from "sonner";
 
 type TraceItem =
@@ -28,9 +28,71 @@ export default function SPTAdvisor() {
   const [loading, setLoading] = useState(false);
   const [resp, setResp] = useState<AdvisorResponse | null>(null);
   const [ms, setMs] = useState<number | null>(null);
+  const [approving, setApproving] = useState(false);
+  const [approvedId, setApprovedId] = useState<string | null>(null);
+
+  const approve = async () => {
+    if (!resp?.answer?.recommended_well?.id) return;
+    setApproving(true);
+    try {
+      const a = resp.answer;
+      const forecast = (resp.trace.find((t: any) => t.kind === "tool" && t.name === "forecast_well") as any)?.result_full;
+      const enrich = (resp.trace.find((t: any) => t.kind === "tool" && t.name === "enrich_well_metadata") as any)?.result_full;
+      const adjusted = enrich?.confidence?.adjusted ?? a.recommended_well.confidence ?? null;
+
+      const { data: { user } } = await supabase.auth.getUser();
+      const { data: uc } = await supabase
+        .from("user_companies")
+        .select("company_id")
+        .eq("user_id", user?.id ?? "")
+        .limit(1)
+        .maybeSingle();
+      if (!uc?.company_id) throw new Error("No company assigned to user");
+
+      const spt_depth = enrich?.filled?.total_depth ?? null;
+      const p50 = forecast?.p50_qoil ?? forecast?.scenarios?.p50?.qoil ?? null;
+
+      const { data, error } = await supabase
+        .from("well_restorations")
+        .insert({
+          company_id: uc.company_id,
+          well_id: a.recommended_well.id,
+          source: "spt-advisor",
+          spt_depth_ft: spt_depth,
+          predicted_qoil: p50,
+          arps_b_used: forecast?.arps_b ?? 0.5,
+          arps_di_used: forecast?.arps_di ?? 0.00018,
+          spt_multiplier_used: forecast?.spt_multiplier ?? 1.45,
+          payload: {
+            status: "planned",
+            recommended_by: "spt-advisor/openai/gpt-5.2",
+            score: a.recommended_well.score,
+            confidence_raw: a.recommended_well.confidence,
+            confidence_adjusted: adjusted,
+            reasoning: a.reasoning,
+            expected_uplift_bbl: a.expected_uplift_bbl,
+            risks: a.risks,
+            alternatives: a.alternatives,
+            enrichment: a.enrichment,
+            ood_flag: a.ood_flag,
+            question,
+          },
+          created_by: user?.id ?? null,
+        })
+        .select()
+        .single();
+      if (error) throw error;
+      setApprovedId(data.id);
+      toast.success(`Work order created · ${data.id.slice(0, 8)}`);
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setApproving(false);
+    }
+  };
 
   const run = async () => {
-    setLoading(true); setResp(null); setMs(null);
+    setLoading(true); setResp(null); setMs(null); setApprovedId(null);
     const t0 = Date.now();
     try {
       const { data, error } = await supabase.functions.invoke("spt-advisor", {
@@ -181,6 +243,17 @@ export default function SPTAdvisor() {
               );
             })()}
 
+            <div className="pt-3 mt-2 border-t border-border flex items-center justify-between gap-3">
+              <div className="text-xs text-muted-foreground">
+                {approvedId
+                  ? <>Saved as planned work order <span className="font-mono">{approvedId.slice(0, 8)}</span> in <code>well_restorations</code>.</>
+                  : <>Approve to persist this recommendation as a <span className="font-mono">planned</span> record with the adjusted confidence.</>}
+              </div>
+              <Button onClick={approve} disabled={approving || !!approvedId} size="sm">
+                {approving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <ClipboardCheck className="w-4 h-4 mr-2" />}
+                {approvedId ? "Approved" : "Approve & create work order"}
+              </Button>
+            </div>
           </CardContent>
         </Card>
       )}
