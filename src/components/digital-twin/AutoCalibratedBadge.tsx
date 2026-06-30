@@ -128,9 +128,15 @@ export function AutoCalibratedBadge({ scopeType = "well", scopeKey, compact = fa
           )}
         </div>
 
-        <div className="mt-3 text-[10px] text-muted-foreground">
-          <Badge variant="outline" className="mr-2">Bayesian 1-D update</Badge>
-          μ′ = (μ·r² + z·σ²)/(σ²+r²), σ′² = σ²·r²/(σ²+r²) · scope fallback: well → formation → global
+        <div className="mt-3 flex items-center justify-between gap-3">
+          <div className="text-[10px] text-muted-foreground flex-1">
+            <Badge variant="outline" className="mr-2">Bayesian 1-D update</Badge>
+            μ′ = (μ·r² + z·σ²)/(σ²+r²), σ′² = σ²·r²/(σ²+r²)
+          </div>
+          <Button size="sm" onClick={sendTestRestoration} disabled={sending} className="shrink-0">
+            {sending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+            Send test restoration
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
