@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.analyze-seismic-cv]
 verify_jwt = false
+
+[functions.spt-advisor]
+verify_jwt = false
