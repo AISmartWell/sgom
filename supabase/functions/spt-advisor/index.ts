@@ -40,8 +40,9 @@ async function tool_get_well_context(args: { well_id: string }) {
     sb.from("production_history").select("date,oil,water,gas").eq("well_id", args.well_id).order("date", { ascending: false }).limit(36),
     sb.from("well_perforations").select("*").eq("well_id", args.well_id).limit(10),
   ]);
+  const well = w.data ? { ...w.data, name: (w.data as any).well_name, depth: (w.data as any).total_depth } : null;
   return {
-    well: w.data,
+    well,
     production_last_36: prod.data ?? [],
     perforations: perf.data ?? [],
   };
