@@ -15,28 +15,33 @@ export function AutoCalibratedBadge({ scopeType = "well", scopeKey, compact = fa
   const audit = useCalibrationAudit(scopeKey, 15);
   const [open, setOpen] = useState(false);
   const [sending, setSending] = useState(false);
+  const [lastResponse, setLastResponse] = useState<{ ok: boolean; status?: number; durationMs: number; body: unknown; requestBody: unknown; at: string } | null>(null);
 
   async function sendTestRestoration() {
     setSending(true);
+    const t0 = performance.now();
+    const requestBody = {
+      well_external_ref: scopeType === "well" ? scopeKey : null,
+      formation_key: scopeType === "formation" ? scopeKey : null,
+      predicted_qoil: 120 + Math.round((Math.random() - 0.5) * 20),
+      actual_qoil: 0,
+      arps_b_used: Number(params?.arps_b ?? 0.5),
+      arps_di_used: Number(params?.arps_di ?? 0.00018),
+      spt_multiplier_used: Number(params?.spt_multiplier ?? 1.45),
+      spt_depth_ft: 4200,
+      oil_price: 75,
+      source: "ui_test_button",
+    };
+    requestBody.actual_qoil = requestBody.predicted_qoil + Math.round((Math.random() - 0.3) * 30);
     try {
-      const predicted = 120 + Math.round((Math.random() - 0.5) * 20);
-      const actual = predicted + Math.round((Math.random() - 0.3) * 30);
-      const { data, error } = await supabase.functions.invoke("ingest-restoration", {
-        body: {
-          well_external_ref: scopeType === "well" ? scopeKey : null,
-          formation_key: scopeType === "formation" ? scopeKey : null,
-          predicted_qoil: predicted,
-          actual_qoil: actual,
-          arps_b_used: Number(params?.arps_b ?? 0.5),
-          arps_di_used: Number(params?.arps_di ?? 0.00018),
-          spt_multiplier_used: Number(params?.spt_multiplier ?? 1.45),
-          spt_depth_ft: 4200,
-          oil_price: 75,
-          source: "ui_test_button",
-        },
-      });
-      if (error) throw error;
-      toast.success(`Calibrated · MAPE ${((data?.mape ?? 0) * 100).toFixed(1)}%`, {
+      const { data, error } = await supabase.functions.invoke("ingest-restoration", { body: requestBody });
+      const durationMs = Math.round(performance.now() - t0);
+      if (error) {
+        setLastResponse({ ok: false, durationMs, body: error, requestBody, at: new Date().toISOString() });
+        throw error;
+      }
+      setLastResponse({ ok: true, status: 200, durationMs, body: data, requestBody, at: new Date().toISOString() });
+      toast.success(`Calibrated · MAPE ${((data?.mape ?? 0) * 100).toFixed(1)}% · ${durationMs}ms`, {
         description: `b: ${data?.before?.arps_b?.toFixed(3)} → ${data?.after?.arps_b?.toFixed(3)} · spt: ${data?.before?.spt_multiplier?.toFixed(3)} → ${data?.after?.spt_multiplier?.toFixed(3)}`,
       });
       refresh();
@@ -139,6 +144,46 @@ export function AutoCalibratedBadge({ scopeType = "well", scopeKey, compact = fa
             Send test restoration
           </Button>
         </div>
+
+        {lastResponse && (
+          <div className="mt-3 border border-border/40 rounded overflow-hidden">
+            <div className={cn(
+              "px-3 py-1.5 text-[10px] uppercase tracking-wider flex items-center justify-between gap-2",
+              lastResponse.ok ? "bg-emerald-500/10 text-emerald-300" : "bg-rose-500/10 text-rose-300"
+            )}>
+              <span>Last response · {lastResponse.ok ? "OK" : "ERROR"} · {lastResponse.durationMs}ms · {new Date(lastResponse.at).toLocaleTimeString()}</span>
+              {lastResponse.ok && (() => {
+                const b = lastResponse.body as { restoration_id?: string; mape?: number; before?: { confidence?: number }; after?: { confidence?: number } };
+                const dconf = (b.after?.confidence ?? 0) - (b.before?.confidence ?? 0);
+                return (
+                  <span className="font-mono normal-case tracking-normal">
+                    MAPE {((b.mape ?? 0) * 100).toFixed(2)}% · Δconf {dconf >= 0 ? "+" : ""}{dconf.toFixed(2)} · id {b.restoration_id?.slice(0, 8)}…
+                  </span>
+                );
+              })()}
+            </div>
+            <div className="grid grid-cols-2 gap-px bg-border/40">
+              <div className="bg-background p-2">
+                <div className="text-[9px] uppercase tracking-wider text-muted-foreground mb-1">Request body</div>
+                <pre className="text-[10px] font-mono whitespace-pre-wrap break-all max-h-48 overflow-auto">{JSON.stringify(lastResponse.requestBody, null, 2)}</pre>
+              </div>
+              <div className="bg-background p-2">
+                <div className="text-[9px] uppercase tracking-wider text-muted-foreground mb-1">Response JSON</div>
+                <pre className="text-[10px] font-mono whitespace-pre-wrap break-all max-h-48 overflow-auto">{JSON.stringify(lastResponse.body, null, 2)}</pre>
+              </div>
+            </div>
+            <div className="px-3 py-1.5 bg-card/40 flex items-center justify-end gap-2">
+              <button
+                onClick={() => navigator.clipboard.writeText(JSON.stringify(lastResponse.body, null, 2)).then(() => toast.success("Response copied"))}
+                className="text-[10px] underline text-muted-foreground hover:text-foreground"
+              >Copy response</button>
+              <button
+                onClick={() => setLastResponse(null)}
+                className="text-[10px] underline text-muted-foreground hover:text-foreground"
+              >Clear</button>
+            </div>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
