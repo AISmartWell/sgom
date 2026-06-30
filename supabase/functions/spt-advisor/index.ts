@@ -37,7 +37,7 @@ async function tool_list_wells(args: { company_id?: string; limit?: number }) {
 async function tool_get_well_context(args: { well_id: string }) {
   const [w, prod, perf] = await Promise.all([
     sb.from("wells").select("*").eq("id", args.well_id).maybeSingle(),
-    sb.from("production_history").select("date,oil,water,gas").eq("well_id", args.well_id).order("date", { ascending: false }).limit(36),
+    sb.from("production_history").select("production_month,oil_bbl,water_bbl,gas_mcf").eq("well_id", args.well_id).order("production_month", { ascending: false }).limit(36),
     sb.from("well_perforations").select("*").eq("well_id", args.well_id).limit(10),
   ]);
   const well = w.data ? { ...w.data, name: (w.data as any).well_name, depth: (w.data as any).total_depth } : null;
