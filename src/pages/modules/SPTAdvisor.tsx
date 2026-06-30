@@ -92,7 +92,7 @@ export default function SPTAdvisor() {
   };
 
   const run = async () => {
-    setLoading(true); setResp(null); setMs(null);
+    setLoading(true); setResp(null); setMs(null); setApprovedId(null);
     const t0 = Date.now();
     try {
       const { data, error } = await supabase.functions.invoke("spt-advisor", {
