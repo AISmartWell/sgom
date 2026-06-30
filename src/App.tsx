@@ -74,6 +74,7 @@ import AdminImport from "./pages/modules/AdminImport";
 import BayesianDCA from "./pages/modules/BayesianDCA";
 import AramcoPilot from "./pages/modules/AramcoPilot";
 import OCRWellLog from "./pages/OCRWellLog";
+import IngestRestorationDiagnostics from "./pages/modules/IngestRestorationDiagnostics";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
