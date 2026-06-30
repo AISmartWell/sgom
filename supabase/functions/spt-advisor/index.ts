@@ -157,6 +157,7 @@ async function tool_enrich_well_metadata(args: { well_id: string; base_confidenc
     missing_before: missingBefore,
     enriched,
     sources,
+    attempts,
     still_missing: stillMissing,
     confidence: {
       base: baseConf,
