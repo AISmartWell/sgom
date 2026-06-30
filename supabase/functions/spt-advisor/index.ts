@@ -149,8 +149,7 @@ async function tool_enrich_well_metadata(args: { well_id: string; base_confidenc
   if (!enriched.total_depth) { stillMissing.push("total_depth"); penalty += 0.10; }
   else if (sources.total_depth) penalty += 0.04;
   if (!enriched.perforations_count) { stillMissing.push("perforations"); penalty += 0.04; }
-  if (!enriched.perforations_count) stillMissing.push("perforations");
-  penalty += stillMissing.length * 0.10;
+  // (penalty already tallied above)
   const adjusted = Math.max(0.2, Math.min(1, baseConf - penalty));
 
   return {
