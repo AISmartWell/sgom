@@ -75,6 +75,7 @@ import BayesianDCA from "./pages/modules/BayesianDCA";
 import AramcoPilot from "./pages/modules/AramcoPilot";
 import OCRWellLog from "./pages/OCRWellLog";
 import IngestRestorationDiagnostics from "./pages/modules/IngestRestorationDiagnostics";
+import SPTAdvisor from "./pages/modules/SPTAdvisor";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -137,6 +138,7 @@ const App = () => (
               <Route path="bayesian-dca" element={<BayesianDCA />} />
               <Route path="aramco-pilot" element={<AramcoPilot />} />
               <Route path="ingest-diagnostics" element={<IngestRestorationDiagnostics />} />
+              <Route path="spt-advisor" element={<SPTAdvisor />} />
 
           </Route>
            <Route path="/nvidia-inception" element={<NvidiaInception />} />
