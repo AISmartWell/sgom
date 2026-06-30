@@ -2,8 +2,10 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Sparkles, History, Activity } from "lucide-react";
+import { Sparkles, History, Activity, Send, Loader2 } from "lucide-react";
 import { useModelParameters, useCalibrationAudit } from "@/hooks/useModelParameters";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 type Props = { scopeType?: "well" | "formation" | "global"; scopeKey: string; compact?: boolean };
