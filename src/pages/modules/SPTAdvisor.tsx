@@ -243,6 +243,17 @@ export default function SPTAdvisor() {
               );
             })()}
 
+            <div className="pt-3 mt-2 border-t border-border flex items-center justify-between gap-3">
+              <div className="text-xs text-muted-foreground">
+                {approvedId
+                  ? <>Saved as planned work order <span className="font-mono">{approvedId.slice(0, 8)}</span> in <code>well_restorations</code>.</>
+                  : <>Approve to persist this recommendation as a <span className="font-mono">planned</span> record with the adjusted confidence.</>}
+              </div>
+              <Button onClick={approve} disabled={approving || !!approvedId} size="sm">
+                {approving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <ClipboardCheck className="w-4 h-4 mr-2" />}
+                {approvedId ? "Approved" : "Approve & create work order"}
+              </Button>
+            </div>
           </CardContent>
         </Card>
       )}
