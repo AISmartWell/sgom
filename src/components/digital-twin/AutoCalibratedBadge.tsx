@@ -133,6 +133,7 @@ export function AutoCalibratedBadge({ scopeType = "well", scopeKey, compact = fa
             <Badge variant="outline" className="mr-2">Bayesian 1-D update</Badge>
             μ′ = (μ·r² + z·σ²)/(σ²+r²), σ′² = σ²·r²/(σ²+r²)
           </div>
+          <a href="/dashboard/ingest-diagnostics" target="_blank" rel="noreferrer" className="text-[10px] underline text-primary shrink-0">Open diagnostics ↗</a>
           <Button size="sm" onClick={sendTestRestoration} disabled={sending} className="shrink-0">
             {sending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
             Send test restoration
