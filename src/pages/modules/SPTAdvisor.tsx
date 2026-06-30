@@ -9,7 +9,7 @@ import { Loader2, Brain, Wrench, CheckCircle2, AlertTriangle, Sparkles } from "l
 import { toast } from "sonner";
 
 type TraceItem =
-  | { step: number; kind: "tool"; name: string; args: any; ms: number; error: string | null; result_preview: string }
+  | { step: number; kind: "tool"; name: string; args: any; ms: number; error: string | null; result_preview: string; result_full?: any }
   | { step: number; kind: "final"; content: string };
 
 interface AdvisorResponse {
