@@ -279,11 +279,14 @@ Deno.serve(async (req) => {
     const { question, company_id } = await req.json();
     const trace: any[] = [];
 
+    const scopeLine = company_id
+      ? `Scope: restrict to company_id=${company_id}.`
+      : `Scope: ALL companies — DO NOT pass a company_id argument to any tool.`;
     const messages: any[] = [
       { role: "system", content: SYSTEM_PROMPT },
       {
         role: "user",
-        content: `${question ?? "Pick the single best well for SPT treatment, explain why, and list 2 alternatives."}\n\nScope: company_id=${company_id ?? "ALL"}.`,
+        content: `${question ?? "Pick the single best well for SPT treatment, explain why, and list 2 alternatives."}\n\n${scopeLine}`,
       },
     ];
 
