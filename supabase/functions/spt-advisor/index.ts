@@ -467,7 +467,11 @@ Deno.serve(async (req) => {
         catch (e) { error = (e as Error).message; result = { error }; }
         const ms = Date.now() - t0;
 
-        trace.push({ step, kind: "tool", name, args, ms, error, result_preview: JSON.stringify(result).slice(0, 400) });
+        // Full result for enrichment is returned to UI (so we can show attempts/cascade trace);
+        // other tools keep the truncated preview to limit payload size.
+        const traceEntry: any = { step, kind: "tool", name, args, ms, error, result_preview: JSON.stringify(result).slice(0, 400) };
+        if (name === "enrich_well_metadata") traceEntry.result_full = result;
+        trace.push(traceEntry);
 
         messages.push({
           role: "tool",
