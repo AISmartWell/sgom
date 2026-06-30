@@ -15,6 +15,7 @@ export function AutoCalibratedBadge({ scopeType = "well", scopeKey, compact = fa
   const audit = useCalibrationAudit(scopeKey, 15);
   const [open, setOpen] = useState(false);
   const [sending, setSending] = useState(false);
+  const [lastResponse, setLastResponse] = useState<{ ok: boolean; status?: number; durationMs: number; body: unknown; requestBody: unknown; at: string } | null>(null);
 
   async function sendTestRestoration() {
     setSending(true);
