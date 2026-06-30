@@ -305,6 +305,21 @@ const TOOLS = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "enrich_well_metadata",
+      description: "Fill missing formation / total_depth / perforations for a well using formation_codes lookup and neighbour wells in the same county/state. Returns the enriched values, the data sources used, and a recalculated confidence (penalty for fields still missing or filled from lower-trust fallbacks).",
+      parameters: {
+        type: "object",
+        properties: {
+          well_id: { type: "string" },
+          base_confidence: { type: "number", description: "Confidence before enrichment (0..1), default 0.8" },
+        },
+        required: ["well_id"],
+      },
+    },
+  },
 ];
 
 async function dispatchTool(name: string, args: any) {
@@ -314,6 +329,7 @@ async function dispatchTool(name: string, args: any) {
     case "get_well_context": return await tool_get_well_context(args);
     case "forecast_well": return await tool_forecast_well(args);
     case "ood_check": return await tool_ood_check(args);
+    case "enrich_well_metadata": return await tool_enrich_well_metadata(args);
     default: throw new Error(`Unknown tool: ${name}`);
   }
 }
@@ -323,22 +339,25 @@ const SYSTEM_PROMPT = `You are SPT Advisor — an autonomous reservoir engineeri
 Goals each turn:
 1. Use rank_wells_for_spt to shortlist candidates from the company's wells.
 2. Use get_well_context + forecast_well on the top 1–2 wells.
-3. Use ood_check to verify inputs are inside the training distribution. If OOD=true, lower confidence and flag it.
-4. Produce a final recommendation in this exact JSON inside <answer>...</answer> tags:
+3. If the inspected well has null formation, total_depth, or no perforations, call enrich_well_metadata to recover them from formation_codes / neighbour wells, and USE its "confidence.adjusted" value as the final confidence (do not invent your own).
+4. Use ood_check to verify inputs are inside the training distribution. If OOD=true, lower confidence further and flag it.
+5. Produce a final recommendation in this exact JSON inside <answer>...</answer> tags:
 {
   "recommended_well": { "id": "...", "name": "...", "score": 0-100, "confidence": 0-1 },
   "reasoning": "≤4 sentences citing concrete numbers (water cut %, depth ft, production BPD, formation)",
   "expected_uplift_bbl": number,
   "risks": ["..."],
   "alternatives": [ { "id":"...", "name":"...", "score":..., "why":"..." } ],
-  "ood_flag": boolean
+  "ood_flag": boolean,
+  "enrichment": { "filled": ["formation","total_depth"], "still_missing": ["..."], "sources": { "formation": "...", "total_depth": "..." } }
 }
 
 Rules:
 - Always cite evidence from tool results (no invented numbers).
+- If enrichment fills a field from a fallback source, mention it in reasoning (e.g. "formation inferred from county lookup").
 - If forecast P10 < baseline cumulative, mark as risky and propose an alternative.
 - Never recommend a well you didn't inspect via get_well_context.
-- Keep multi-step tool usage focused: typically 3–5 tool calls total.`;
+- Keep multi-step tool usage focused: typically 4–6 tool calls total.`;
 
 async function callLLM(messages: any[]) {
   const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
