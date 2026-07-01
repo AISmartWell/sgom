@@ -331,6 +331,13 @@ const menuItems = [
     href: "/dashboard/spt-advisor",
     badge: "🤖",
   },
+  {
+    title: "Ingest Restoration Diagnostics",
+    icon: Activity,
+    href: "/dashboard/ingest-diagnostics",
+    badge: "🩺",
+  },
+
 
 ];
 
