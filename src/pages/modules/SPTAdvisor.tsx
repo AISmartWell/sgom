@@ -8,6 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Loader2, Brain, Wrench, CheckCircle2, AlertTriangle, Sparkles, ClipboardCheck } from "lucide-react";
 import { toast } from "sonner";
+import MCDAWeightsPanel from "@/components/spt-advisor/MCDAWeightsPanel";
 
 type TraceItem =
   | { step: number; kind: "tool"; name: string; args: any; ms: number; error: string | null; result_preview: string; result_full?: any }
@@ -145,6 +146,8 @@ export default function SPTAdvisor() {
           </div>
         </CardContent>
       </Card>
+
+      <MCDAWeightsPanel />
 
       {a && (
         <Card className="border-primary/40">
