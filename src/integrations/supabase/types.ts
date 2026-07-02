@@ -386,6 +386,99 @@ export type Database = {
           },
         ]
       }
+      registry_scan_suggestions: {
+        Row: {
+          api_number: string | null
+          company_id: string
+          county: string | null
+          created_at: string
+          distance_miles: number | null
+          formation: string | null
+          id: string
+          latitude: number | null
+          longitude: number | null
+          nearest_well_id: string | null
+          operator: string | null
+          raw_data: Json | null
+          reason: string | null
+          scan_run_id: string | null
+          score: number | null
+          source: string | null
+          state: string | null
+          status: string | null
+          suggestion_status: string
+          total_depth: number | null
+          updated_at: string
+          well_name: string | null
+          well_type: string | null
+        }
+        Insert: {
+          api_number?: string | null
+          company_id: string
+          county?: string | null
+          created_at?: string
+          distance_miles?: number | null
+          formation?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          nearest_well_id?: string | null
+          operator?: string | null
+          raw_data?: Json | null
+          reason?: string | null
+          scan_run_id?: string | null
+          score?: number | null
+          source?: string | null
+          state?: string | null
+          status?: string | null
+          suggestion_status?: string
+          total_depth?: number | null
+          updated_at?: string
+          well_name?: string | null
+          well_type?: string | null
+        }
+        Update: {
+          api_number?: string | null
+          company_id?: string
+          county?: string | null
+          created_at?: string
+          distance_miles?: number | null
+          formation?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          nearest_well_id?: string | null
+          operator?: string | null
+          raw_data?: Json | null
+          reason?: string | null
+          scan_run_id?: string | null
+          score?: number | null
+          source?: string | null
+          state?: string | null
+          status?: string | null
+          suggestion_status?: string
+          total_depth?: number | null
+          updated_at?: string
+          well_name?: string | null
+          well_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "registry_scan_suggestions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "registry_scan_suggestions_nearest_well_id_fkey"
+            columns: ["nearest_well_id"]
+            isOneToOne: false
+            referencedRelation: "wells"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       seismic_analyses: {
         Row: {
           analysis_mode: string
