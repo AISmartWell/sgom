@@ -332,6 +332,12 @@ const menuItems = [
     badge: "🤖",
   },
   {
+    title: "Autonomous Registry Scan",
+    icon: Radar,
+    href: "/dashboard/autonomous-scan",
+    badge: "🛰️",
+  },
+  {
     title: "Ingest Restoration Diagnostics",
     icon: Activity,
     href: "/dashboard/ingest-diagnostics",
