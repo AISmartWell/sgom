@@ -27,7 +27,7 @@ function haversine(lat1: number, lon1: number, lat2: number, lon2: number) {
   return 2 * R * Math.asin(Math.sqrt(a));
 }
 
-function bboxFromRadius(lat: number, lng: number miles: number = 10) {
+function bboxFromRadius(lat: number, lng: number, miles: number = 10) {
   const latDeg = miles / 69.0;
   const lngDeg = miles / (69.0 * Math.cos((lat * Math.PI) / 180));
   return { xmin: lng - lngDeg, ymin: lat - latDeg, xmax: lng + lngDeg, ymax: lat + latDeg };
