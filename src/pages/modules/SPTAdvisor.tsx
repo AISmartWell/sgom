@@ -147,6 +147,8 @@ export default function SPTAdvisor() {
         </CardContent>
       </Card>
 
+      <MCDAWeightsPanel />
+
       {a && (
         <Card className="border-primary/40">
           <CardHeader>
