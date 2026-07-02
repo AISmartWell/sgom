@@ -10,7 +10,7 @@ const corsHeaders = {
 // State API endpoints (mirrors fetch-nearby-wells)
 const STATE_APIS: Record<string, { url: string; source: string; label: string }> = {
   TX: { url: "https://gis.rrc.texas.gov/server/rest/services/rrc_public/RRC_Public_Viewer_Srvs/MapServer/1/query", source: "TX_RRC", label: "Texas RRC" },
-  OK: { url: "https://gis.occ.ok.gov/server/rest/services/Hosted/RBDMS_WELLS/FeatureServer/220/query", source: "OCC", label: "Oklahoma OCC" },
+  OK: { url: "https://gis.occ.ok.gov/server/rest/services/Hosted/RBDMS_WELLS/FeatureServer/2/query", source: "OCC", label: "Oklahoma OCC" },
   KS: { url: "https://services.kgs.ku.edu/arcgis8/rest/services/oilgas/oilgas_wells/MapServer/0/query", source: "KGS", label: "Kansas Geological Survey" },
   NM: { url: "https://gis.emnrd.nm.gov/arcgis/rest/services/OCD/Wells_Public/MapServer/0/query", source: "NM_OCD", label: "New Mexico OCD" },
   CO: { url: "https://cogcc.state.co.us/arcgis/rest/services/Wells/Wells_All/MapServer/0/query", source: "COGCC", label: "Colorado COGCC" },
