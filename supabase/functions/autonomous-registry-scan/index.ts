@@ -189,6 +189,16 @@ serve(async (req) => {
       }
 
       perCompany.push({ company_id: cid, seeds: seeds.length, suggestions: top.length });
+
+      await supabase.from("registry_scan_runs").insert({
+        scan_run_id,
+        company_id: cid,
+        status: "ok",
+        radius_miles,
+        seeds_count: seeds.length,
+        suggestions_count: top.length,
+        results: { top_sources: [...new Set(top.map((c) => c.source))] },
+      });
     }
 
     return new Response(
@@ -197,6 +207,17 @@ serve(async (req) => {
     );
   } catch (e) {
     console.error("autonomous-registry-scan error", e);
+    try {
+      const supabaseErr = createClient(
+        Deno.env.get("SUPABASE_URL")!,
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+      );
+      await supabaseErr.from("registry_scan_runs").insert({
+        scan_run_id: crypto.randomUUID(),
+        status: "error",
+        error_message: e instanceof Error ? e.message : String(e),
+      });
+    } catch (_) { /* ignore log failure */ }
     return new Response(
       JSON.stringify({ ok: false, error: e instanceof Error ? e.message : String(e) }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },

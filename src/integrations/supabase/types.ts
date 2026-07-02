@@ -386,6 +386,45 @@ export type Database = {
           },
         ]
       }
+      registry_scan_runs: {
+        Row: {
+          company_id: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          radius_miles: number | null
+          results: Json | null
+          scan_run_id: string
+          seeds_count: number
+          status: string
+          suggestions_count: number
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          radius_miles?: number | null
+          results?: Json | null
+          scan_run_id: string
+          seeds_count?: number
+          status?: string
+          suggestions_count?: number
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          radius_miles?: number | null
+          results?: Json | null
+          scan_run_id?: string
+          seeds_count?: number
+          status?: string
+          suggestions_count?: number
+        }
+        Relationships: []
+      }
       registry_scan_suggestions: {
         Row: {
           api_number: string | null
