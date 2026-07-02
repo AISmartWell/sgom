@@ -14,3 +14,7 @@ verify_jwt = false
 
 [functions.spt-advisor]
 verify_jwt = false
+
+[functions.autonomous-registry-scan]
+verify_jwt = false
+
