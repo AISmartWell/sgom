@@ -30,11 +30,32 @@ interface Suggestion {
   raw_data: any;
 }
 
+interface ScanRun {
+  id: string;
+  scan_run_id: string;
+  status: string;
+  radius_miles: number | null;
+  seeds_count: number;
+  suggestions_count: number;
+  error_message: string | null;
+  created_at: string;
+}
+
 export default function AutonomousScan() {
   const [loading, setLoading] = useState(false);
   const [scanning, setScanning] = useState(false);
   const [items, setItems] = useState<Suggestion[]>([]);
   const [lastRun, setLastRun] = useState<any>(null);
+  const [runs, setRuns] = useState<ScanRun[]>([]);
+
+  const loadRuns = async () => {
+    const { data } = await supabase
+      .from("registry_scan_runs")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(25);
+    setRuns((data as ScanRun[]) || []);
+  };
 
   const load = async () => {
     setLoading(true);
@@ -46,6 +67,7 @@ export default function AutonomousScan() {
       .limit(200);
     if (error) toast.error(error.message);
     else setItems((data as Suggestion[]) || []);
+    await loadRuns();
     setLoading(false);
   };
 
