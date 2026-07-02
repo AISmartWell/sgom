@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Loader2, Radar, Check, X, RefreshCw, MapPin, Sparkles } from "lucide-react";
+import { Loader2, Radar, Check, X, RefreshCw, MapPin, Sparkles, History, CheckCircle2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 
 interface Suggestion {
