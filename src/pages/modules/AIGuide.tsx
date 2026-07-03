@@ -456,18 +456,35 @@ const AIGuide = () => {
         <div ref={scrollRef} className="flex-1 overflow-auto">
           <div className="max-w-3xl mx-auto px-6 py-8 space-y-6">
             {messages.length === 0 && !pendingAssistant && (
-              <Card className="p-6 bg-card/40 border-border/50">
-                <p className="text-sm text-muted-foreground">
-                  Hi, I'm <span className="text-foreground font-medium">Maria</span> —
-                  your AI guide to the AI Smart Well platform. Ask me about:
-                </p>
-                <ul className="mt-3 text-sm text-muted-foreground space-y-1 list-disc list-inside">
-                  <li>Pipeline stages 1–9 and how each module works</li>
-                  <li>SPT technology, MCDA scoring, and EOR candidates</li>
-                  <li>Geology, well logs, decline curves, economics</li>
-                  <li>How to import wells, run scans, or read reports</li>
-                </ul>
-              </Card>
+              <div className="space-y-6">
+                <div>
+                  <p className="text-[11px] uppercase tracking-widest text-muted-foreground mb-3">
+                    Suggested questions
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {SUGGESTED_QUESTIONS.map((q) => (
+                      <button
+                        key={q}
+                        onClick={() => send(q)}
+                        disabled={streaming}
+                        className="text-sm px-4 py-2 rounded-full border border-border/60 bg-card/40 hover:bg-accent/40 hover:border-[hsl(140_70%_35%)] text-foreground/90 transition disabled:opacity-50"
+                      >
+                        {q}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <MessageBubble
+                  message={{
+                    id: "welcome",
+                    role: "assistant",
+                    content:
+                      "Hello! I'm Maria, your AI guide to SGOM — AI Smart Well's platform for automated well restoration assessment. What would you like to know about our technology?",
+                  }}
+                  onSpeak={(text) => speak("welcome", text)}
+                  isSpeaking={speakingId === "welcome"}
+                />
+              </div>
             )}
 
             {messages.map((m, i) => (
