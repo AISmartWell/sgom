@@ -20,10 +20,13 @@ import {
   MicOff,
   Volume2,
   Square,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useVoiceInput } from "@/hooks/useVoiceInput";
+import { useMariaVoice } from "@/hooks/useMariaVoice";
+import { MariaAvatar } from "@/components/ai-guide/MariaAvatar";
 
 const SUGGESTED_QUESTIONS = [
   "What is SGOM?",
