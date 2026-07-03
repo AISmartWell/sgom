@@ -77,7 +77,7 @@ serve(async (req) => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: modelOverride || COSMOS_REASON_MODEL,
+            model: resolveModel(mode, modelOverride),
             messages: [
               { role: 'system', content: 'Respond with exactly one word: pong' },
               { role: 'user', content: 'ping' },
@@ -98,7 +98,7 @@ serve(async (req) => {
         return new Response(
           JSON.stringify({
             result: { status: 'ok', response: content, latency_ms: Date.now() - startTime },
-            model: modelOverride || COSMOS_REASON_MODEL,
+            model: resolveModel(mode, modelOverride),
             mode: 'ping',
             live: true,
           }),
@@ -173,7 +173,7 @@ Given a target formation, generate a plausible synthetic well log profile summar
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: modelOverride || COSMOS_REASON_MODEL,
+        model: resolveModel(mode, modelOverride),
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt },
@@ -211,7 +211,7 @@ Given a target formation, generate a plausible synthetic well log profile summar
     return new Response(
       JSON.stringify({
         result: parsed,
-        model: modelOverride || COSMOS_REASON_MODEL,
+        model: resolveModel(mode, modelOverride),
         mode,
         live: true,
       }),
