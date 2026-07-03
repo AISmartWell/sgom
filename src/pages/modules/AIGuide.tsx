@@ -404,9 +404,11 @@ const AIGuide = () => {
         {/* Maria header */}
         <header className="flex items-center justify-between px-6 py-4 border-b border-border/50 bg-card/20 backdrop-blur">
           <div className="flex items-center gap-3">
-            <div className="h-11 w-11 rounded-full bg-[hsl(140_60%_20%)] border border-[hsl(140_70%_35%)] flex items-center justify-center">
-              <Bot className="h-6 w-6 text-[hsl(140_80%_60%)]" />
-            </div>
+            <MariaAvatar
+              size={44}
+              speaking={!!speakingId}
+              audio={mariaVoice.audio}
+            />
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-lg font-semibold text-foreground">Maria</h1>
@@ -591,9 +593,7 @@ const MessageBubble = ({ message, onFeedback, onSpeak, isSpeaking }: MessageBubb
   return (
     <div className={cn("flex gap-3", isUser ? "justify-end" : "justify-start")}>
       {!isUser && (
-        <div className="h-8 w-8 shrink-0 rounded-full bg-[hsl(140_60%_20%)] border border-[hsl(140_70%_35%)] flex items-center justify-center">
-          <Bot className="h-4 w-4 text-[hsl(140_80%_60%)]" />
-        </div>
+        <MariaAvatar size={32} ring={false} className="mt-1" />
       )}
       <div className={cn("max-w-[85%]", isUser && "text-right")}>
         {isUser ? (
