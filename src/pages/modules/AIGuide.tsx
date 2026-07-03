@@ -3,11 +3,10 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
+
 import {
   Bot,
   Plus,
@@ -17,9 +16,23 @@ import {
   ThumbsDown,
   Loader2,
   MessageSquare,
+  Mic,
+  MicOff,
+  Volume2,
+  Square,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { useVoiceInput } from "@/hooks/useVoiceInput";
+
+const SUGGESTED_QUESTIONS = [
+  "What is SGOM?",
+  "How does the MCDA scoring work?",
+  "What makes AI Smart Well different from competitors?",
+  "Which wells has SGOM been tested on?",
+  "What is the market opportunity?",
+  "How does the SPT technology work?",
+];
 
 type Role = "user" | "assistant" | "system";
 
@@ -49,8 +62,34 @@ const AIGuide = () => {
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [pendingAssistant, setPendingAssistant] = useState("");
+  const [speakingId, setSpeakingId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  const voice = useVoiceInput({
+    lang: "en-US",
+    onResult: (t) => setInput((prev) => (prev ? prev + " " : "") + t),
+    onError: (e) => toast.error(e),
+  });
+
+  const speak = useCallback((id: string, text: string) => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+      toast.error("Text-to-speech is not supported in this browser");
+      return;
+    }
+    window.speechSynthesis.cancel();
+    if (speakingId === id) {
+      setSpeakingId(null);
+      return;
+    }
+    const utter = new SpeechSynthesisUtterance(text.replace(/[#*_`>-]/g, ""));
+    utter.lang = "en-US";
+    utter.rate = 1.0;
+    utter.onend = () => setSpeakingId(null);
+    utter.onerror = () => setSpeakingId(null);
+    setSpeakingId(id);
+    window.speechSynthesis.speak(utter);
+  }, [speakingId]);
 
   // Load threads
   const loadThreads = useCallback(async () => {
@@ -154,8 +193,8 @@ const AIGuide = () => {
     setThreads((t) => t.map((x) => (x.id === id ? { ...x, title } : x)));
   };
 
-  const send = async () => {
-    const text = input.trim();
+  const send = async (override?: string) => {
+    const text = (override ?? input).trim();
     if (!text || streaming) return;
 
     let threadId = activeId;
@@ -417,31 +456,57 @@ const AIGuide = () => {
         <div ref={scrollRef} className="flex-1 overflow-auto">
           <div className="max-w-3xl mx-auto px-6 py-8 space-y-6">
             {messages.length === 0 && !pendingAssistant && (
-              <Card className="p-6 bg-card/40 border-border/50">
-                <p className="text-sm text-muted-foreground">
-                  Hi, I'm <span className="text-foreground font-medium">Maria</span> —
-                  your AI guide to the AI Smart Well platform. Ask me about:
-                </p>
-                <ul className="mt-3 text-sm text-muted-foreground space-y-1 list-disc list-inside">
-                  <li>Pipeline stages 1–9 and how each module works</li>
-                  <li>SPT technology, MCDA scoring, and EOR candidates</li>
-                  <li>Geology, well logs, decline curves, economics</li>
-                  <li>How to import wells, run scans, or read reports</li>
-                </ul>
-              </Card>
+              <div className="space-y-6">
+                <div>
+                  <p className="text-[11px] uppercase tracking-widest text-muted-foreground mb-3">
+                    Suggested questions
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {SUGGESTED_QUESTIONS.map((q) => (
+                      <button
+                        key={q}
+                        onClick={() => send(q)}
+                        disabled={streaming}
+                        className="text-sm px-4 py-2 rounded-full border border-border/60 bg-card/40 hover:bg-accent/40 hover:border-[hsl(140_70%_35%)] text-foreground/90 transition disabled:opacity-50"
+                      >
+                        {q}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <MessageBubble
+                  message={{
+                    id: "welcome",
+                    role: "assistant",
+                    content:
+                      "Hello! I'm Maria, your AI guide to SGOM — AI Smart Well's platform for automated well restoration assessment. What would you like to know about our technology?",
+                  }}
+                  onSpeak={(text) => speak("welcome", text)}
+                  isSpeaking={speakingId === "welcome"}
+                />
+              </div>
             )}
 
-            {messages.map((m, i) => (
-              <MessageBubble
-                key={m.id ?? `m-${i}`}
-                message={m}
-                onFeedback={
-                  m.id && m.role === "assistant"
-                    ? (r) => sendFeedback(m.id!, r)
-                    : undefined
-                }
-              />
-            ))}
+            {messages.map((m, i) => {
+              const key = m.id ?? `m-${i}`;
+              return (
+                <MessageBubble
+                  key={key}
+                  message={m}
+                  onFeedback={
+                    m.id && m.role === "assistant"
+                      ? (r) => sendFeedback(m.id!, r)
+                      : undefined
+                  }
+                  onSpeak={
+                    m.role === "assistant"
+                      ? (text) => speak(key, text)
+                      : undefined
+                  }
+                  isSpeaking={speakingId === key}
+                />
+              );
+            })}
 
             {pendingAssistant && (
               <MessageBubble
@@ -460,6 +525,26 @@ const AIGuide = () => {
         {/* Composer */}
         <div className="border-t border-border/50 bg-card/20 p-4">
           <div className="max-w-3xl mx-auto flex gap-2 items-end">
+            {voice.isSupported && (
+              <Button
+                type="button"
+                size="lg"
+                variant={voice.isListening ? "default" : "outline"}
+                onClick={voice.toggle}
+                disabled={streaming}
+                className={cn(
+                  voice.isListening &&
+                    "bg-[hsl(140_70%_40%)] hover:bg-[hsl(140_70%_45%)] text-black",
+                )}
+                aria-label={voice.isListening ? "Stop recording" : "Start voice input"}
+              >
+                {voice.isListening ? (
+                  <MicOff className="h-4 w-4" />
+                ) : (
+                  <Mic className="h-4 w-4" />
+                )}
+              </Button>
+            )}
             <Textarea
               ref={inputRef}
               value={input}
@@ -470,12 +555,16 @@ const AIGuide = () => {
                   send();
                 }
               }}
-              placeholder="Ask Maria about SGOM, SPT, wells, geology…"
+              placeholder="Ask Maria about SGOM…"
               rows={2}
               className="resize-none bg-background/60"
               disabled={streaming}
             />
-            <Button onClick={send} disabled={streaming || !input.trim()} size="lg">
+            <Button
+              onClick={() => send()}
+              disabled={streaming || !input.trim()}
+              size="lg"
+            >
               {streaming ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
@@ -483,11 +572,11 @@ const AIGuide = () => {
               )}
             </Button>
           </div>
-          {activeThread && (
-            <p className="max-w-3xl mx-auto text-[10px] text-muted-foreground mt-2">
-              Thread: {activeThread.title}
-            </p>
-          )}
+          <p className="max-w-3xl mx-auto text-[11px] text-muted-foreground mt-3 text-center">
+            AI Smart Well, Inc. · SGOM Platform · Powered by{" "}
+            <span className="text-[hsl(140_80%_60%)]">NVIDIA Nemotron</span>
+            {activeThread && <span className="opacity-60"> · {activeThread.title}</span>}
+          </p>
         </div>
       </div>
     </div>
@@ -497,9 +586,11 @@ const AIGuide = () => {
 interface MessageBubbleProps {
   message: ChatMessage;
   onFeedback?: (rating: 1 | -1) => void;
+  onSpeak?: (text: string) => void;
+  isSpeaking?: boolean;
 }
 
-const MessageBubble = ({ message, onFeedback }: MessageBubbleProps) => {
+const MessageBubble = ({ message, onFeedback, onSpeak, isSpeaking }: MessageBubbleProps) => {
   const isUser = message.role === "user";
   return (
     <div className={cn("flex gap-3", isUser ? "justify-end" : "justify-start")}>
@@ -515,46 +606,69 @@ const MessageBubble = ({ message, onFeedback }: MessageBubbleProps) => {
           </div>
         ) : (
           <div className="prose prose-sm prose-invert max-w-none text-foreground">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {message.content || "…"}
-            </ReactMarkdown>
-            {message.sources && message.sources.length > 0 && (
-              <div className="mt-3 pt-3 border-t border-border/40 not-prose">
-                <p className="text-[11px] uppercase tracking-wide text-muted-foreground mb-1">
-                  Sources
-                </p>
-                <ul className="text-xs space-y-0.5">
-                  {message.sources.map((s) => (
-                    <li key={s.slug} className="text-muted-foreground">
-                      • {s.title}{" "}
-                      <span className="opacity-60">(/{s.slug})</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            {onFeedback && (
-              <div className="mt-2 flex gap-1 not-prose">
+            <div className="rounded-lg px-4 py-3 bg-[hsl(140_40%_10%)]/60 border border-[hsl(140_50%_25%)]/40">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {message.content || "…"}
+              </ReactMarkdown>
+              {message.sources && message.sources.length > 0 && (
+                <div className="mt-3 pt-3 border-t border-border/40 not-prose">
+                  <p className="text-[11px] uppercase tracking-wide text-muted-foreground mb-1">
+                    Sources
+                  </p>
+                  <ul className="text-xs space-y-0.5">
+                    {message.sources.map((s) => (
+                      <li key={s.slug} className="text-muted-foreground">
+                        • {s.title}{" "}
+                        <span className="opacity-60">(/{s.slug})</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+            <div className="mt-2 flex gap-1 items-center not-prose">
+              {onSpeak && (
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="h-7 w-7 p-0"
-                  onClick={() => onFeedback(1)}
-                  aria-label="Helpful"
+                  className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground gap-1.5"
+                  onClick={() => onSpeak(message.content)}
+                  aria-label={isSpeaking ? "Stop speaking" : "Read aloud"}
                 >
-                  <ThumbsUp className="h-3.5 w-3.5" />
+                  {isSpeaking ? (
+                    <>
+                      <Square className="h-3 w-3 fill-current" /> Stop
+                    </>
+                  ) : (
+                    <>
+                      <Volume2 className="h-3.5 w-3.5" /> Read aloud
+                    </>
+                  )}
                 </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="h-7 w-7 p-0"
-                  onClick={() => onFeedback(-1)}
-                  aria-label="Not helpful"
-                >
-                  <ThumbsDown className="h-3.5 w-3.5" />
-                </Button>
-              </div>
-            )}
+              )}
+              {onFeedback && (
+                <>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 w-7 p-0"
+                    onClick={() => onFeedback(1)}
+                    aria-label="Helpful"
+                  >
+                    <ThumbsUp className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 w-7 p-0"
+                    onClick={() => onFeedback(-1)}
+                    aria-label="Not helpful"
+                  >
+                    <ThumbsDown className="h-3.5 w-3.5" />
+                  </Button>
+                </>
+              )}
+            </div>
           </div>
         )}
       </div>
