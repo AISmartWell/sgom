@@ -3,7 +3,6 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -17,9 +16,23 @@ import {
   ThumbsDown,
   Loader2,
   MessageSquare,
+  Mic,
+  MicOff,
+  Volume2,
+  Square,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { useVoiceInput } from "@/hooks/useVoiceInput";
+
+const SUGGESTED_QUESTIONS = [
+  "What is SGOM?",
+  "How does the MCDA scoring work?",
+  "What makes AI Smart Well different from competitors?",
+  "Which wells has SGOM been tested on?",
+  "What is the market opportunity?",
+  "How does the SPT technology work?",
+];
 
 type Role = "user" | "assistant" | "system";
 
