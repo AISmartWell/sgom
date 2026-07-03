@@ -343,6 +343,12 @@ const menuItems = [
     href: "/dashboard/ingest-diagnostics",
     badge: "🩺",
   },
+  {
+    title: "Maria — AI Guide",
+    icon: Bot,
+    href: "/dashboard/ai-guide",
+    badge: "💬",
+  },
 
 
 ];
