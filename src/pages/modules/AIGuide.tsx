@@ -85,6 +85,30 @@ const AIGuide = () => {
     const utter = new SpeechSynthesisUtterance(text.replace(/[#*_`>-]/g, ""));
     utter.lang = "en-US";
     utter.rate = 1.0;
+    utter.pitch = 1.15;
+
+    // Pick a female English voice (Maria). Voices load async in some browsers.
+    const pickFemaleVoice = () => {
+      const voices = window.speechSynthesis.getVoices();
+      const en = voices.filter((v) => v.lang?.toLowerCase().startsWith("en"));
+      const preferredNames = [
+        "Samantha", "Victoria", "Karen", "Moira", "Tessa", "Serena", "Allison", "Ava", "Susan",
+        "Google US English", "Microsoft Aria", "Microsoft Jenny", "Microsoft Zira", "Microsoft Michelle",
+        "Female",
+      ];
+      let chosen =
+        en.find((v) => preferredNames.some((n) => v.name.toLowerCase().includes(n.toLowerCase()))) ||
+        en.find((v) => /female|woman|maria|aria|jenny|zira|samantha/i.test(v.name)) ||
+        en[0];
+      if (chosen) utter.voice = chosen;
+    };
+    if (window.speechSynthesis.getVoices().length === 0) {
+      window.speechSynthesis.onvoiceschanged = () => {
+        pickFemaleVoice();
+      };
+    }
+    pickFemaleVoice();
+
     utter.onend = () => setSpeakingId(null);
     utter.onerror = () => setSpeakingId(null);
     setSpeakingId(id);
