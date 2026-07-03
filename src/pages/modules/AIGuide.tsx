@@ -669,7 +669,7 @@ const MessageBubble = ({ message, onFeedback, onSpeak, isSpeaking }: MessageBubb
                 </>
               )}
             </div>
-            )}
+          </div>
           </div>
         )}
       </div>
