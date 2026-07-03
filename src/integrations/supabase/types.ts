@@ -633,6 +633,178 @@ export type Database = {
           },
         ]
       }
+      sgom_chat_feedback: {
+        Row: {
+          category: string | null
+          created_at: string
+          id: string
+          message_id: string
+          rating: number
+          reason: string | null
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          message_id: string
+          rating: number
+          reason?: string | null
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          message_id?: string
+          rating?: number
+          reason?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sgom_chat_feedback_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "sgom_chat_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sgom_chat_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          latency_ms: number | null
+          model: string | null
+          role: string
+          sources: Json
+          thread_id: string
+          tokens_completion: number | null
+          tokens_prompt: number | null
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          latency_ms?: number | null
+          model?: string | null
+          role: string
+          sources?: Json
+          thread_id: string
+          tokens_completion?: number | null
+          tokens_prompt?: number | null
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          latency_ms?: number | null
+          model?: string | null
+          role?: string
+          sources?: Json
+          thread_id?: string
+          tokens_completion?: number | null
+          tokens_prompt?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sgom_chat_messages_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "sgom_chat_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sgom_chat_threads: {
+        Row: {
+          created_at: string
+          id: string
+          is_archived: boolean
+          last_message_at: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_archived?: boolean
+          last_message_at?: string
+          title?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_archived?: boolean
+          last_message_at?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      sgom_knowledge_articles: {
+        Row: {
+          category: string
+          content: string
+          created_at: string
+          id: string
+          is_published: boolean
+          language: string
+          search_vector: unknown
+          slug: string
+          source_url: string | null
+          stage: number | null
+          summary: string | null
+          tags: string[]
+          title: string
+          updated_at: string
+          version: string
+        }
+        Insert: {
+          category: string
+          content: string
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          language?: string
+          search_vector?: unknown
+          slug: string
+          source_url?: string | null
+          stage?: number | null
+          summary?: string | null
+          tags?: string[]
+          title: string
+          updated_at?: string
+          version?: string
+        }
+        Update: {
+          category?: string
+          content?: string
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          language?: string
+          search_vector?: unknown
+          slug?: string
+          source_url?: string | null
+          stage?: number | null
+          summary?: string | null
+          tags?: string[]
+          title?: string
+          updated_at?: string
+          version?: string
+        }
+        Relationships: []
+      }
       user_companies: {
         Row: {
           company_id: string
@@ -1089,6 +1261,21 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      search_sgom_knowledge: {
+        Args: { match_count?: number; q: string }
+        Returns: {
+          category: string
+          content: string
+          id: string
+          rank: number
+          slug: string
+          source_url: string
+          stage: number
+          summary: string
+          tags: string[]
+          title: string
+        }[]
       }
     }
     Enums: {
