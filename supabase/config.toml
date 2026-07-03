@@ -18,3 +18,6 @@ verify_jwt = false
 [functions.autonomous-registry-scan]
 verify_jwt = false
 
+[functions.sgom-guide-chat]
+verify_jwt = false
+
