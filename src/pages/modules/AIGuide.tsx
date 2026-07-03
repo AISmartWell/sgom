@@ -450,6 +450,32 @@ const AIGuide = () => {
           </div>
         </header>
 
+        {/* Floating Maria panel — visible while she is speaking */}
+        {speakingId && (
+          <div className="fixed bottom-28 right-6 z-50 flex items-center gap-3 rounded-2xl border border-[hsl(140_60%_30%)] bg-[hsl(140_25%_8%)]/95 backdrop-blur-xl px-4 py-3 shadow-2xl animate-in slide-in-from-right-4 fade-in">
+            <MariaAvatar size={72} speaking audio={mariaVoice.audio} />
+            <div className="flex flex-col gap-1 max-w-[220px]">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-foreground">Maria</span>
+                <span className="text-[10px] uppercase tracking-wider text-[hsl(140_90%_65%)]">
+                  Speaking
+                </span>
+              </div>
+              <p className="text-[11px] text-muted-foreground leading-tight">
+                Live voice · openai gpt-4o-mini-tts
+              </p>
+              <button
+                onClick={() => mariaVoice.stop()}
+                className="mt-1 inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground w-fit"
+              >
+                <X className="h-3 w-3" /> Stop
+              </button>
+            </div>
+          </div>
+        )}
+
+
+
         {/* Messages */}
         <div ref={scrollRef} className="flex-1 overflow-auto">
           <div className="max-w-3xl mx-auto px-6 py-8 space-y-6">
