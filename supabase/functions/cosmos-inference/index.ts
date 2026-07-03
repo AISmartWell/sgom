@@ -5,13 +5,28 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const NVIDIA_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
-// NOTE: nvidia/cosmos-reason1-7b is DEPRECATED on the hosted API catalog
-// (only available as downloadable NIM container). For hosted inference we use
-// Meta Llama 3.3 70B (best hosted reasoning model on the NVIDIA API Catalog).
-// The integration architecture is identical to a real Cosmos Reason endpoint —
-// only the model id changes once Cosmos Reason is redeployed on the catalog.
-const COSMOS_REASON_MODEL = 'meta/llama-3.3-70b-instruct';
+// Endpoint is configurable so we can swap between the NVIDIA hosted catalog,
+// a self-hosted NIM container, or any OpenAI-compatible gateway without code changes.
+const NVIDIA_URL = Deno.env.get('COSMOS_API_URL')
+  ?? 'https://integrate.api.nvidia.com/v1/chat/completions';
+
+// Model selection via ENV — no code changes needed to swap models.
+//   COSMOS_MODEL           → global default for every mode
+//   COSMOS_MODEL_REASON    → override for SPT scoring (reason)
+//   COSMOS_MODEL_PREDICT   → override for post-SPT forecasting
+//   COSMOS_MODEL_TRANSFER  → override for synthetic log generation
+//   COSMOS_MODEL_PING      → override for health-check
+// Falls back to Meta Llama 3.3 70B (best hosted reasoning model on the NVIDIA
+// API Catalog) since nvidia/cosmos-reason1-7b is deprecated on the hosted API.
+const DEFAULT_MODEL = Deno.env.get('COSMOS_MODEL') ?? 'meta/llama-3.3-70b-instruct';
+const MODEL_BY_MODE: Record<string, string> = {
+  reason:   Deno.env.get('COSMOS_MODEL_REASON')   ?? DEFAULT_MODEL,
+  predict:  Deno.env.get('COSMOS_MODEL_PREDICT')  ?? DEFAULT_MODEL,
+  transfer: Deno.env.get('COSMOS_MODEL_TRANSFER') ?? DEFAULT_MODEL,
+  ping:     Deno.env.get('COSMOS_MODEL_PING')     ?? DEFAULT_MODEL,
+};
+const resolveModel = (mode: string, override?: string) =>
+  override || MODEL_BY_MODE[mode] || DEFAULT_MODEL;
 
 interface WellPayload {
   name: string;
@@ -62,7 +77,7 @@ serve(async (req) => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: modelOverride || COSMOS_REASON_MODEL,
+            model: resolveModel(mode, modelOverride),
             messages: [
               { role: 'system', content: 'Respond with exactly one word: pong' },
               { role: 'user', content: 'ping' },
@@ -83,7 +98,7 @@ serve(async (req) => {
         return new Response(
           JSON.stringify({
             result: { status: 'ok', response: content, latency_ms: Date.now() - startTime },
-            model: modelOverride || COSMOS_REASON_MODEL,
+            model: resolveModel(mode, modelOverride),
             mode: 'ping',
             live: true,
           }),
@@ -158,7 +173,7 @@ Given a target formation, generate a plausible synthetic well log profile summar
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: modelOverride || COSMOS_REASON_MODEL,
+        model: resolveModel(mode, modelOverride),
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt },
@@ -196,7 +211,7 @@ Given a target formation, generate a plausible synthetic well log profile summar
     return new Response(
       JSON.stringify({
         result: parsed,
-        model: modelOverride || COSMOS_REASON_MODEL,
+        model: resolveModel(mode, modelOverride),
         mode,
         live: true,
       }),
