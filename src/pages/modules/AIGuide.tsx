@@ -193,8 +193,8 @@ const AIGuide = () => {
     setThreads((t) => t.map((x) => (x.id === id ? { ...x, title } : x)));
   };
 
-  const send = async () => {
-    const text = input.trim();
+  const send = async (override?: string) => {
+    const text = (override ?? input).trim();
     if (!text || streaming) return;
 
     let threadId = activeId;
