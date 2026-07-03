@@ -487,17 +487,26 @@ const AIGuide = () => {
               </div>
             )}
 
-            {messages.map((m, i) => (
-              <MessageBubble
-                key={m.id ?? `m-${i}`}
-                message={m}
-                onFeedback={
-                  m.id && m.role === "assistant"
-                    ? (r) => sendFeedback(m.id!, r)
-                    : undefined
-                }
-              />
-            ))}
+            {messages.map((m, i) => {
+              const key = m.id ?? `m-${i}`;
+              return (
+                <MessageBubble
+                  key={key}
+                  message={m}
+                  onFeedback={
+                    m.id && m.role === "assistant"
+                      ? (r) => sendFeedback(m.id!, r)
+                      : undefined
+                  }
+                  onSpeak={
+                    m.role === "assistant"
+                      ? (text) => speak(key, text)
+                      : undefined
+                  }
+                  isSpeaking={speakingId === key}
+                />
+              );
+            })}
 
             {pendingAssistant && (
               <MessageBubble
