@@ -142,6 +142,7 @@ const App = () => (
               <Route path="ingest-diagnostics" element={<IngestRestorationDiagnostics />} />
               <Route path="spt-advisor" element={<SPTAdvisor />} />
               <Route path="autonomous-scan" element={<AutonomousScan />} />
+              <Route path="ai-guide" element={<AIGuide />} />
 
 
           </Route>
