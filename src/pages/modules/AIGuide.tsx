@@ -65,7 +65,6 @@ const AIGuide = () => {
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [pendingAssistant, setPendingAssistant] = useState("");
-  const [speakingId, setSpeakingId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -75,48 +74,18 @@ const AIGuide = () => {
     onError: (e) => toast.error(e),
   });
 
-  const speak = useCallback((id: string, text: string) => {
-    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
-      toast.error("Text-to-speech is not supported in this browser");
-      return;
-    }
-    window.speechSynthesis.cancel();
-    if (speakingId === id) {
-      setSpeakingId(null);
-      return;
-    }
-    const utter = new SpeechSynthesisUtterance(text.replace(/[#*_`>-]/g, ""));
-    utter.lang = "en-US";
-    utter.rate = 1.0;
-    utter.pitch = 1.15;
+  const mariaVoice = useMariaVoice();
+  const { speakingId } = mariaVoice;
 
-    // Pick a female English voice (Maria). Voices load async in some browsers.
-    const pickFemaleVoice = () => {
-      const voices = window.speechSynthesis.getVoices();
-      const en = voices.filter((v) => v.lang?.toLowerCase().startsWith("en"));
-      const preferredNames = [
-        "Samantha", "Victoria", "Karen", "Moira", "Tessa", "Serena", "Allison", "Ava", "Susan",
-        "Google US English", "Microsoft Aria", "Microsoft Jenny", "Microsoft Zira", "Microsoft Michelle",
-        "Female",
-      ];
-      let chosen =
-        en.find((v) => preferredNames.some((n) => v.name.toLowerCase().includes(n.toLowerCase()))) ||
-        en.find((v) => /female|woman|maria|aria|jenny|zira|samantha/i.test(v.name)) ||
-        en[0];
-      if (chosen) utter.voice = chosen;
-    };
-    if (window.speechSynthesis.getVoices().length === 0) {
-      window.speechSynthesis.onvoiceschanged = () => {
-        pickFemaleVoice();
-      };
-    }
-    pickFemaleVoice();
+  const speak = useCallback(
+    (id: string, text: string) => {
+      mariaVoice.speak(id, text).catch(() => {
+        toast.error("Maria couldn't speak. Check TTS service.");
+      });
+    },
+    [mariaVoice],
+  );
 
-    utter.onend = () => setSpeakingId(null);
-    utter.onerror = () => setSpeakingId(null);
-    setSpeakingId(id);
-    window.speechSynthesis.speak(utter);
-  }, [speakingId]);
 
   // Load threads
   const loadThreads = useCallback(async () => {
