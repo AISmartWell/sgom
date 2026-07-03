@@ -62,8 +62,34 @@ const AIGuide = () => {
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [pendingAssistant, setPendingAssistant] = useState("");
+  const [speakingId, setSpeakingId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  const voice = useVoiceInput({
+    lang: "en-US",
+    onResult: (t) => setInput((prev) => (prev ? prev + " " : "") + t),
+    onError: (e) => toast.error(e),
+  });
+
+  const speak = useCallback((id: string, text: string) => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+      toast.error("Text-to-speech is not supported in this browser");
+      return;
+    }
+    window.speechSynthesis.cancel();
+    if (speakingId === id) {
+      setSpeakingId(null);
+      return;
+    }
+    const utter = new SpeechSynthesisUtterance(text.replace(/[#*_`>-]/g, ""));
+    utter.lang = "en-US";
+    utter.rate = 1.0;
+    utter.onend = () => setSpeakingId(null);
+    utter.onerror = () => setSpeakingId(null);
+    setSpeakingId(id);
+    window.speechSynthesis.speak(utter);
+  }, [speakingId]);
 
   // Load threads
   const loadThreads = useCallback(async () => {
