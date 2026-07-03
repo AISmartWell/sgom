@@ -77,6 +77,7 @@ import OCRWellLog from "./pages/OCRWellLog";
 import IngestRestorationDiagnostics from "./pages/modules/IngestRestorationDiagnostics";
 import SPTAdvisor from "./pages/modules/SPTAdvisor";
 import AutonomousScan from "./pages/modules/AutonomousScan";
+import AIGuide from "./pages/modules/AIGuide";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
