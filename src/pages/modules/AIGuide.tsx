@@ -8,7 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 
 import {
-  Bot,
+  
   Plus,
   Send,
   Trash2,
@@ -20,10 +20,13 @@ import {
   MicOff,
   Volume2,
   Square,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useVoiceInput } from "@/hooks/useVoiceInput";
+import { useMariaVoice } from "@/hooks/useMariaVoice";
+import { MariaAvatar } from "@/components/ai-guide/MariaAvatar";
 
 const SUGGESTED_QUESTIONS = [
   "What is SGOM?",
@@ -62,7 +65,6 @@ const AIGuide = () => {
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [pendingAssistant, setPendingAssistant] = useState("");
-  const [speakingId, setSpeakingId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -72,48 +74,18 @@ const AIGuide = () => {
     onError: (e) => toast.error(e),
   });
 
-  const speak = useCallback((id: string, text: string) => {
-    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
-      toast.error("Text-to-speech is not supported in this browser");
-      return;
-    }
-    window.speechSynthesis.cancel();
-    if (speakingId === id) {
-      setSpeakingId(null);
-      return;
-    }
-    const utter = new SpeechSynthesisUtterance(text.replace(/[#*_`>-]/g, ""));
-    utter.lang = "en-US";
-    utter.rate = 1.0;
-    utter.pitch = 1.15;
+  const mariaVoice = useMariaVoice();
+  const { speakingId } = mariaVoice;
 
-    // Pick a female English voice (Maria). Voices load async in some browsers.
-    const pickFemaleVoice = () => {
-      const voices = window.speechSynthesis.getVoices();
-      const en = voices.filter((v) => v.lang?.toLowerCase().startsWith("en"));
-      const preferredNames = [
-        "Samantha", "Victoria", "Karen", "Moira", "Tessa", "Serena", "Allison", "Ava", "Susan",
-        "Google US English", "Microsoft Aria", "Microsoft Jenny", "Microsoft Zira", "Microsoft Michelle",
-        "Female",
-      ];
-      let chosen =
-        en.find((v) => preferredNames.some((n) => v.name.toLowerCase().includes(n.toLowerCase()))) ||
-        en.find((v) => /female|woman|maria|aria|jenny|zira|samantha/i.test(v.name)) ||
-        en[0];
-      if (chosen) utter.voice = chosen;
-    };
-    if (window.speechSynthesis.getVoices().length === 0) {
-      window.speechSynthesis.onvoiceschanged = () => {
-        pickFemaleVoice();
-      };
-    }
-    pickFemaleVoice();
+  const speak = useCallback(
+    (id: string, text: string) => {
+      mariaVoice.speak(id, text).catch(() => {
+        toast.error("Maria couldn't speak. Check TTS service.");
+      });
+    },
+    [mariaVoice],
+  );
 
-    utter.onend = () => setSpeakingId(null);
-    utter.onerror = () => setSpeakingId(null);
-    setSpeakingId(id);
-    window.speechSynthesis.speak(utter);
-  }, [speakingId]);
 
   // Load threads
   const loadThreads = useCallback(async () => {
@@ -432,9 +404,11 @@ const AIGuide = () => {
         {/* Maria header */}
         <header className="flex items-center justify-between px-6 py-4 border-b border-border/50 bg-card/20 backdrop-blur">
           <div className="flex items-center gap-3">
-            <div className="h-11 w-11 rounded-full bg-[hsl(140_60%_20%)] border border-[hsl(140_70%_35%)] flex items-center justify-center">
-              <Bot className="h-6 w-6 text-[hsl(140_80%_60%)]" />
-            </div>
+            <MariaAvatar
+              size={44}
+              speaking={!!speakingId}
+              audio={mariaVoice.audio}
+            />
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-lg font-semibold text-foreground">Maria</h1>
@@ -475,6 +449,32 @@ const AIGuide = () => {
             </button>
           </div>
         </header>
+
+        {/* Floating Maria panel — visible while she is speaking */}
+        {speakingId && (
+          <div className="fixed bottom-28 right-6 z-50 flex items-center gap-3 rounded-2xl border border-[hsl(140_60%_30%)] bg-[hsl(140_25%_8%)]/95 backdrop-blur-xl px-4 py-3 shadow-2xl animate-in slide-in-from-right-4 fade-in">
+            <MariaAvatar size={72} speaking audio={mariaVoice.audio} />
+            <div className="flex flex-col gap-1 max-w-[220px]">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-foreground">Maria</span>
+                <span className="text-[10px] uppercase tracking-wider text-[hsl(140_90%_65%)]">
+                  Speaking
+                </span>
+              </div>
+              <p className="text-[11px] text-muted-foreground leading-tight">
+                Live voice · openai gpt-4o-mini-tts
+              </p>
+              <button
+                onClick={() => mariaVoice.stop()}
+                className="mt-1 inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground w-fit"
+              >
+                <X className="h-3 w-3" /> Stop
+              </button>
+            </div>
+          </div>
+        )}
+
+
 
         {/* Messages */}
         <div ref={scrollRef} className="flex-1 overflow-auto">
@@ -619,9 +619,7 @@ const MessageBubble = ({ message, onFeedback, onSpeak, isSpeaking }: MessageBubb
   return (
     <div className={cn("flex gap-3", isUser ? "justify-end" : "justify-start")}>
       {!isUser && (
-        <div className="h-8 w-8 shrink-0 rounded-full bg-[hsl(140_60%_20%)] border border-[hsl(140_70%_35%)] flex items-center justify-center">
-          <Bot className="h-4 w-4 text-[hsl(140_80%_60%)]" />
-        </div>
+        <MariaAvatar size={32} ring={false} className="mt-1" />
       )}
       <div className={cn("max-w-[85%]", isUser && "text-right")}>
         {isUser ? (
