@@ -516,6 +516,26 @@ const AIGuide = () => {
         {/* Composer */}
         <div className="border-t border-border/50 bg-card/20 p-4">
           <div className="max-w-3xl mx-auto flex gap-2 items-end">
+            {voice.isSupported && (
+              <Button
+                type="button"
+                size="lg"
+                variant={voice.isListening ? "default" : "outline"}
+                onClick={voice.toggle}
+                disabled={streaming}
+                className={cn(
+                  voice.isListening &&
+                    "bg-[hsl(140_70%_40%)] hover:bg-[hsl(140_70%_45%)] text-black",
+                )}
+                aria-label={voice.isListening ? "Stop recording" : "Start voice input"}
+              >
+                {voice.isListening ? (
+                  <MicOff className="h-4 w-4" />
+                ) : (
+                  <Mic className="h-4 w-4" />
+                )}
+              </Button>
+            )}
             <Textarea
               ref={inputRef}
               value={input}
@@ -526,12 +546,16 @@ const AIGuide = () => {
                   send();
                 }
               }}
-              placeholder="Ask Maria about SGOM, SPT, wells, geology…"
+              placeholder="Ask Maria about SGOM…"
               rows={2}
               className="resize-none bg-background/60"
               disabled={streaming}
             />
-            <Button onClick={send} disabled={streaming || !input.trim()} size="lg">
+            <Button
+              onClick={() => send()}
+              disabled={streaming || !input.trim()}
+              size="lg"
+            >
               {streaming ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
@@ -539,11 +563,11 @@ const AIGuide = () => {
               )}
             </Button>
           </div>
-          {activeThread && (
-            <p className="max-w-3xl mx-auto text-[10px] text-muted-foreground mt-2">
-              Thread: {activeThread.title}
-            </p>
-          )}
+          <p className="max-w-3xl mx-auto text-[11px] text-muted-foreground mt-3 text-center">
+            AI Smart Well, Inc. · SGOM Platform · Powered by{" "}
+            <span className="text-[hsl(140_80%_60%)]">NVIDIA Nemotron</span>
+            {activeThread && <span className="opacity-60"> · {activeThread.title}</span>}
+          </p>
         </div>
       </div>
     </div>
