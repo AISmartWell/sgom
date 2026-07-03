@@ -78,6 +78,7 @@ import IngestRestorationDiagnostics from "./pages/modules/IngestRestorationDiagn
 import SPTAdvisor from "./pages/modules/SPTAdvisor";
 import AutonomousScan from "./pages/modules/AutonomousScan";
 import AIGuide from "./pages/modules/AIGuide";
+import ModelsReference from "./pages/modules/ModelsReference";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -143,9 +144,9 @@ const App = () => (
               <Route path="spt-advisor" element={<SPTAdvisor />} />
               <Route path="autonomous-scan" element={<AutonomousScan />} />
               <Route path="ai-guide" element={<AIGuide />} />
+              <Route path="models-reference" element={<ModelsReference />} />
 
-
-          </Route>
+           </Route>
            <Route path="/nvidia-inception" element={<NvidiaInception />} />
            <Route path="/nvidia-showcase" element={<NvidiaShowcase />} />
            <Route path="/nvidia-cosmos" element={<NvidiaCosmos />} />

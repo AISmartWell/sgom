@@ -39,6 +39,7 @@ import {
   Globe,
   Sparkles,
   Plane,
+  Cpu,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -349,7 +350,12 @@ const menuItems = [
     href: "/dashboard/ai-guide",
     badge: "💬",
   },
-
+  {
+    title: "AI Model Catalog",
+    icon: Cpu,
+    href: "/dashboard/models-reference",
+    badge: "🤖",
+  },
 
 ];
 
