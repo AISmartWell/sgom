@@ -586,9 +586,11 @@ const AIGuide = () => {
 interface MessageBubbleProps {
   message: ChatMessage;
   onFeedback?: (rating: 1 | -1) => void;
+  onSpeak?: (text: string) => void;
+  isSpeaking?: boolean;
 }
 
-const MessageBubble = ({ message, onFeedback }: MessageBubbleProps) => {
+const MessageBubble = ({ message, onFeedback, onSpeak, isSpeaking }: MessageBubbleProps) => {
   const isUser = message.role === "user";
   return (
     <div className={cn("flex gap-3", isUser ? "justify-end" : "justify-start")}>
@@ -604,45 +606,69 @@ const MessageBubble = ({ message, onFeedback }: MessageBubbleProps) => {
           </div>
         ) : (
           <div className="prose prose-sm prose-invert max-w-none text-foreground">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {message.content || "…"}
-            </ReactMarkdown>
-            {message.sources && message.sources.length > 0 && (
-              <div className="mt-3 pt-3 border-t border-border/40 not-prose">
-                <p className="text-[11px] uppercase tracking-wide text-muted-foreground mb-1">
-                  Sources
-                </p>
-                <ul className="text-xs space-y-0.5">
-                  {message.sources.map((s) => (
-                    <li key={s.slug} className="text-muted-foreground">
-                      • {s.title}{" "}
-                      <span className="opacity-60">(/{s.slug})</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            {onFeedback && (
-              <div className="mt-2 flex gap-1 not-prose">
+            <div className="rounded-lg px-4 py-3 bg-[hsl(140_40%_10%)]/60 border border-[hsl(140_50%_25%)]/40">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {message.content || "…"}
+              </ReactMarkdown>
+              {message.sources && message.sources.length > 0 && (
+                <div className="mt-3 pt-3 border-t border-border/40 not-prose">
+                  <p className="text-[11px] uppercase tracking-wide text-muted-foreground mb-1">
+                    Sources
+                  </p>
+                  <ul className="text-xs space-y-0.5">
+                    {message.sources.map((s) => (
+                      <li key={s.slug} className="text-muted-foreground">
+                        • {s.title}{" "}
+                        <span className="opacity-60">(/{s.slug})</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+            <div className="mt-2 flex gap-1 items-center not-prose">
+              {onSpeak && (
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="h-7 w-7 p-0"
-                  onClick={() => onFeedback(1)}
-                  aria-label="Helpful"
+                  className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground gap-1.5"
+                  onClick={() => onSpeak(message.content)}
+                  aria-label={isSpeaking ? "Stop speaking" : "Read aloud"}
                 >
-                  <ThumbsUp className="h-3.5 w-3.5" />
+                  {isSpeaking ? (
+                    <>
+                      <Square className="h-3 w-3 fill-current" /> Stop
+                    </>
+                  ) : (
+                    <>
+                      <Volume2 className="h-3.5 w-3.5" /> Read aloud
+                    </>
+                  )}
                 </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="h-7 w-7 p-0"
-                  onClick={() => onFeedback(-1)}
-                  aria-label="Not helpful"
-                >
-                  <ThumbsDown className="h-3.5 w-3.5" />
-                </Button>
-              </div>
+              )}
+              {onFeedback && (
+                <>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 w-7 p-0"
+                    onClick={() => onFeedback(1)}
+                    aria-label="Helpful"
+                  >
+                    <ThumbsUp className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 w-7 p-0"
+                    onClick={() => onFeedback(-1)}
+                    aria-label="Not helpful"
+                  >
+                    <ThumbsDown className="h-3.5 w-3.5" />
+                  </Button>
+                </>
+              )}
+            </div>
             )}
           </div>
         )}
