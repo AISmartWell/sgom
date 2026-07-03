@@ -8,7 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 
 import {
-  Bot: _Bot,
+  
   Plus,
   Send,
   Trash2,
