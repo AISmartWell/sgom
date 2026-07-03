@@ -78,6 +78,7 @@ import IngestRestorationDiagnostics from "./pages/modules/IngestRestorationDiagn
 import SPTAdvisor from "./pages/modules/SPTAdvisor";
 import AutonomousScan from "./pages/modules/AutonomousScan";
 import AIGuide from "./pages/modules/AIGuide";
+import ModelsReference from "./pages/modules/ModelsReference";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
