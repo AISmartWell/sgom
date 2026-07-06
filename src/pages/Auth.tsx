@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,9 @@ import { Loader2, Droplets, BarChart3, Cpu } from "lucide-react";
 
 const Auth = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const rawNext = searchParams.get("next");
+  const nextPath = rawNext && rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : null;
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -34,7 +37,11 @@ const Auth = () => {
         }
       } else {
         toast.success("Welcome!");
-        navigate("/dashboard");
+        if (nextPath) {
+          window.location.href = nextPath;
+        } else {
+          navigate("/dashboard");
+        }
       }
     } catch (error) {
       toast.error("An error occurred during login");

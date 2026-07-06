@@ -1,0 +1,147 @@
+{
+  "version": 1,
+  "sdk_version": "0.20.0",
+  "path": "/functions/v1/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://rmfhcushsxkbgjnbawbs.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "ai-smart-well-mcp",
+      "version": "0.1.0",
+      "title": "AI Smart Well"
+    },
+    "tools": [
+      {
+        "name": "list_wells",
+        "title": "List wells",
+        "description": "List wells visible to the signed-in user (RLS-scoped by company). Supports optional state, formation, status filters and a limit.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "state": {
+              "type": "string",
+              "description": "Filter by US state code, e.g. 'KS'."
+            },
+            "formation": {
+              "type": "string",
+              "description": "Filter by formation name."
+            },
+            "status": {
+              "type": "string",
+              "description": "Filter by well status."
+            },
+            "limit": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 200,
+              "description": "Max rows (default 50)."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_well",
+        "title": "Get well",
+        "description": "Fetch a single well by API number or well UUID, including latest alerts and perforations.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "api_number": {
+              "type": "string",
+              "description": "10-digit API number."
+            },
+            "well_id": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Well UUID."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "search_knowledge",
+        "title": "Search AI Smart Well knowledge base",
+        "description": "Full-text search across the AI Smart Well knowledge base (9-stage pipeline, SPT, geology, petrophysics, economics).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Natural-language search query."
+            },
+            "limit": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 20,
+              "description": "Max results (default 8)."
+            }
+          },
+          "required": [
+            "query"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_alerts",
+        "title": "List well alerts",
+        "description": "Recent well alerts (production drops, water-cut exceedances, status changes) for the signed-in user's company.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "severity": {
+              "type": "string",
+              "enum": [
+                "info",
+                "warning",
+                "critical"
+              ]
+            },
+            "limit": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 100
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}

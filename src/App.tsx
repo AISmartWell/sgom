@@ -80,6 +80,7 @@ import AutonomousScan from "./pages/modules/AutonomousScan";
 import AIGuide from "./pages/modules/AIGuide";
 import ModelsReference from "./pages/modules/ModelsReference";
 import NotFound from "./pages/NotFound";
+import OAuthConsent from "./pages/OAuthConsent";
 
 const queryClient = new QueryClient();
 
@@ -92,6 +93,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/dashboard" element={<DashboardLayout />}>
