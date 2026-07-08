@@ -382,35 +382,52 @@ export default function DocumentVault() {
         </CardContent>
       </Card>
 
-      <Card className="border-primary/20 bg-primary/[0.02]">
-        <CardHeader className="pb-2">
+      <Card className="border-primary/20">
+        <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
-            <FolderArchive className="w-4 h-4 text-primary" /> Sample Document Gallery
+            <ImageIcon className="h-4 w-4" />
+            Sample Document Gallery
           </CardTitle>
           <p className="text-xs text-muted-foreground">
-            Click a pre-loaded legacy document to add it to your Vault instantly — no OCR, stored as scanned.
+            Select a pre-loaded legacy document to load it into your Vault instantly — no OCR, stored as scanned.
           </p>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {SAMPLE_DOCS.map((s) => (
               <button
                 key={s.file}
                 onClick={() => loadSample(s)}
                 disabled={uploading}
-                className="text-left rounded-lg border border-border bg-card/60 hover:border-primary/50 hover:bg-card transition-colors p-3 disabled:opacity-50 disabled:cursor-not-allowed group"
+                className="group relative rounded-lg overflow-hidden border border-border hover:border-primary/50 transition-all cursor-pointer text-left disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <div className="flex items-start gap-2 mb-2">
-                  <FileText className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium line-clamp-2 group-hover:text-primary transition-colors">
-                      {s.title}
-                    </div>
-                    <div className="text-[10px] text-muted-foreground mt-0.5">{s.era}</div>
+                <img
+                  src={s.thumb}
+                  alt={s.title}
+                  loading="lazy"
+                  width={1024}
+                  height={640}
+                  className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-background/40 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-3 space-y-1">
+                  <p className="text-sm font-semibold line-clamp-1">{s.title}</p>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <span>{s.badge}</span>
+                    <span>•</span>
+                    <span>{s.basin}</span>
+                  </div>
+                  <div className="flex gap-1 flex-wrap">
+                    <Badge variant="outline" className="text-[10px] h-5">{s.basin}</Badge>
+                    <Badge variant="outline" className="text-[10px] h-5">{s.features}</Badge>
                   </div>
                 </div>
-                <p className="text-xs text-muted-foreground line-clamp-2 mb-2">{s.description}</p>
-                <Badge variant="outline" className="text-[10px]">{s.badge}</Badge>
+                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Badge className="bg-primary/90 text-primary-foreground gap-1 text-[10px]">
+                    <Scan className="h-3 w-3" />
+                    Load to Vault
+                  </Badge>
+                </div>
               </button>
             ))}
           </div>
