@@ -370,6 +370,41 @@ export default function DocumentVault() {
         </CardContent>
       </Card>
 
+      <Card className="border-primary/20 bg-primary/[0.02]">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base flex items-center gap-2">
+            <FolderArchive className="w-4 h-4 text-primary" /> Sample Document Gallery
+          </CardTitle>
+          <p className="text-xs text-muted-foreground">
+            Click a pre-loaded legacy document to add it to your Vault instantly — no OCR, stored as scanned.
+          </p>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+            {SAMPLE_DOCS.map((s) => (
+              <button
+                key={s.file}
+                onClick={() => loadSample(s)}
+                disabled={uploading}
+                className="text-left rounded-lg border border-border bg-card/60 hover:border-primary/50 hover:bg-card transition-colors p-3 disabled:opacity-50 disabled:cursor-not-allowed group"
+              >
+                <div className="flex items-start gap-2 mb-2">
+                  <FileText className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium line-clamp-2 group-hover:text-primary transition-colors">
+                      {s.title}
+                    </div>
+                    <div className="text-[10px] text-muted-foreground mt-0.5">{s.era}</div>
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground line-clamp-2 mb-2">{s.description}</p>
+                <Badge variant="outline" className="text-[10px]">{s.badge}</Badge>
+              </button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
       {loading ? (
         <div className="text-muted-foreground">Loading...</div>
       ) : filtered.length === 0 ? (
