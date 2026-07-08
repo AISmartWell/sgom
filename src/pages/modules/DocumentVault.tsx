@@ -183,18 +183,56 @@ export default function DocumentVault() {
   const isPdf = (m?: string | null) => (m || "").includes("pdf");
   const isImage = (m?: string | null) => (m || "").startsWith("image/");
 
-  async function loadSample() {
+  const SAMPLE_DOCS = [
+    {
+      file: "sample-completion-report-1978.pdf",
+      title: "1978 Brawner 10-15 Completion Report",
+      description: "Legacy completion report retyped from original field ticket. Scanned as-is, no OCR.",
+      doc_type: "completion_report",
+      tags: ["sample", "legacy", "mississippian", "1978"],
+      badge: "Completion Report",
+      era: "1978 · Kansas",
+    },
+    {
+      file: "sample-well-log-1982.pdf",
+      title: "1982 Brawner 10-15 Gamma Ray / Resistivity Log",
+      description: "Paper well log strip-chart with GR, SP, Resistivity and Caliper curves over 4,200–4,900 ft.",
+      doc_type: "well_log",
+      tags: ["sample", "well log", "gamma ray", "resistivity", "1982"],
+      badge: "Well Log (scan)",
+      era: "1982 · Kansas",
+    },
+    {
+      file: "sample-core-report-1979.pdf",
+      title: "1979 Brawner 10-15 Core Analysis Report",
+      description: "Core Labs report — porosity, permeability, Sw/So across the Mississippian Chat pay.",
+      doc_type: "core_report",
+      tags: ["sample", "core", "porosity", "permeability", "1979"],
+      badge: "Core / Lab Report",
+      era: "1979 · Tulsa OK",
+    },
+    {
+      file: "sample-production-report-1985.pdf",
+      title: "Jan 1985 Brawner 10-15 Monthly Production",
+      description: "Monthly production ticket — daily oil, gas, water, hours and remarks.",
+      doc_type: "production_report",
+      tags: ["sample", "production", "monthly", "1985"],
+      badge: "Production Report",
+      era: "1985 · Haskell Field",
+    },
+  ];
+
+  async function loadSample(sample: typeof SAMPLE_DOCS[number]) {
     if (!companyId || !userId) {
       toast.error("No company context");
       return;
     }
     setUploading(true);
     try {
-      const res = await fetch("/samples/sample-completion-report-1978.pdf");
+      const res = await fetch(`/samples/${sample.file}`);
       if (!res.ok) throw new Error("Sample file not found");
       const blob = await res.blob();
-      const fileName = "sample-completion-report-1978.pdf";
-      const path = `${companyId}/${Date.now()}_${fileName}`;
+      const path = `${companyId}/${Date.now()}_${sample.file}`;
       const { error: upErr } = await supabase.storage.from(BUCKET).upload(path, blob, {
         upsert: false,
         contentType: "application/pdf",
@@ -203,19 +241,19 @@ export default function DocumentVault() {
       const { error: insErr } = await supabase.from("well_documents").insert({
         company_id: companyId,
         well_id: null,
-        title: "1978 Brawner 10-15 Completion Report (Sample)",
-        description: "Legacy completion report retyped from original field ticket. Example of a scanned document stored as-is without OCR.",
-        doc_type: "completion_report",
-        tags: ["sample", "legacy", "mississippian", "1978"],
+        title: `${sample.title} (Sample)`,
+        description: sample.description,
+        doc_type: sample.doc_type,
+        tags: sample.tags,
         storage_path: path,
-        file_name: fileName,
+        file_name: sample.file,
         mime_type: "application/pdf",
         file_size: blob.size,
-        notes: "This is a demo document loaded from the built-in sample. Delete it any time.",
+        notes: "Demo document loaded from the built-in Sample Document Gallery. Delete any time.",
         uploaded_by: userId,
       });
       if (insErr) throw insErr;
-      toast.success("Sample document added");
+      toast.success(`Added: ${sample.title}`);
       load();
     } catch (e: any) {
       toast.error(e.message || "Failed to load sample");
@@ -242,9 +280,6 @@ export default function DocumentVault() {
         </div>
         <Dialog open={uploadOpen} onOpenChange={setUploadOpen}>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={loadSample} disabled={uploading} className="gap-2">
-              <FileText className="w-4 h-4" /> Load sample
-            </Button>
             <DialogTrigger asChild>
               <Button className="gap-2"><Upload className="w-4 h-4" /> Upload document</Button>
             </DialogTrigger>
@@ -332,6 +367,41 @@ export default function DocumentVault() {
               ))}
             </SelectContent>
           </Select>
+        </CardContent>
+      </Card>
+
+      <Card className="border-primary/20 bg-primary/[0.02]">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base flex items-center gap-2">
+            <FolderArchive className="w-4 h-4 text-primary" /> Sample Document Gallery
+          </CardTitle>
+          <p className="text-xs text-muted-foreground">
+            Click a pre-loaded legacy document to add it to your Vault instantly — no OCR, stored as scanned.
+          </p>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+            {SAMPLE_DOCS.map((s) => (
+              <button
+                key={s.file}
+                onClick={() => loadSample(s)}
+                disabled={uploading}
+                className="text-left rounded-lg border border-border bg-card/60 hover:border-primary/50 hover:bg-card transition-colors p-3 disabled:opacity-50 disabled:cursor-not-allowed group"
+              >
+                <div className="flex items-start gap-2 mb-2">
+                  <FileText className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium line-clamp-2 group-hover:text-primary transition-colors">
+                      {s.title}
+                    </div>
+                    <div className="text-[10px] text-muted-foreground mt-0.5">{s.era}</div>
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground line-clamp-2 mb-2">{s.description}</p>
+                <Badge variant="outline" className="text-[10px]">{s.badge}</Badge>
+              </button>
+            ))}
+          </div>
         </CardContent>
       </Card>
 
