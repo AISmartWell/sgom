@@ -9,7 +9,11 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { FileText, Upload, Search, Trash2, Download, Eye, FolderArchive, Tag } from "lucide-react";
+import { FileText, Upload, Search, Trash2, Download, Eye, FolderArchive, Tag, Image as ImageIcon, Scan } from "lucide-react";
+import sampleThumbCompletion from "@/assets/sample-doc-completion-1978.jpg";
+import sampleThumbWellLog from "@/assets/sample-doc-welllog-1982.jpg";
+import sampleThumbCore from "@/assets/sample-doc-core-1979.jpg";
+import sampleThumbProduction from "@/assets/sample-doc-production-1985.jpg";
 
 type WellDoc = {
   id: string;
