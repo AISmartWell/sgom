@@ -183,6 +183,47 @@ export default function DocumentVault() {
   const isPdf = (m?: string | null) => (m || "").includes("pdf");
   const isImage = (m?: string | null) => (m || "").startsWith("image/");
 
+  async function loadSample() {
+    if (!companyId || !userId) {
+      toast.error("No company context");
+      return;
+    }
+    setUploading(true);
+    try {
+      const res = await fetch("/samples/sample-completion-report-1978.pdf");
+      if (!res.ok) throw new Error("Sample file not found");
+      const blob = await res.blob();
+      const fileName = "sample-completion-report-1978.pdf";
+      const path = `${companyId}/${Date.now()}_${fileName}`;
+      const { error: upErr } = await supabase.storage.from(BUCKET).upload(path, blob, {
+        upsert: false,
+        contentType: "application/pdf",
+      });
+      if (upErr) throw upErr;
+      const { error: insErr } = await supabase.from("well_documents").insert({
+        company_id: companyId,
+        well_id: null,
+        title: "1978 Brawner 10-15 Completion Report (Sample)",
+        description: "Legacy completion report retyped from original field ticket. Example of a scanned document stored as-is without OCR.",
+        doc_type: "completion_report",
+        tags: ["sample", "legacy", "mississippian", "1978"],
+        storage_path: path,
+        file_name: fileName,
+        mime_type: "application/pdf",
+        file_size: blob.size,
+        notes: "This is a demo document loaded from the built-in sample. Delete it any time.",
+        uploaded_by: userId,
+      });
+      if (insErr) throw insErr;
+      toast.success("Sample document added");
+      load();
+    } catch (e: any) {
+      toast.error(e.message || "Failed to load sample");
+    } finally {
+      setUploading(false);
+    }
+  }
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-start justify-between gap-4">
@@ -200,9 +241,14 @@ export default function DocumentVault() {
           </p>
         </div>
         <Dialog open={uploadOpen} onOpenChange={setUploadOpen}>
-          <DialogTrigger asChild>
-            <Button className="gap-2"><Upload className="w-4 h-4" /> Upload document</Button>
-          </DialogTrigger>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={loadSample} disabled={uploading} className="gap-2">
+              <FileText className="w-4 h-4" /> Load sample
+            </Button>
+            <DialogTrigger asChild>
+              <Button className="gap-2"><Upload className="w-4 h-4" /> Upload document</Button>
+            </DialogTrigger>
+          </div>
           <DialogContent className="max-w-lg">
             <DialogHeader><DialogTitle>Upload document</DialogTitle></DialogHeader>
             <div className="space-y-3">
