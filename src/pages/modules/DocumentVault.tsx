@@ -189,40 +189,50 @@ export default function DocumentVault() {
 
   const SAMPLE_DOCS = [
     {
+  const SAMPLE_DOCS = [
+    {
       file: "sample-completion-report-1978.pdf",
+      thumb: sampleThumbCompletion,
       title: "1978 Brawner 10-15 Completion Report",
       description: "Legacy completion report retyped from original field ticket. Scanned as-is, no OCR.",
       doc_type: "completion_report",
       tags: ["sample", "legacy", "mississippian", "1978"],
       badge: "Completion Report",
-      era: "1978 · Kansas",
+      basin: "Kansas · 1978",
+      features: "Perforations, Depth",
     },
     {
       file: "sample-well-log-1982.pdf",
+      thumb: sampleThumbWellLog,
       title: "1982 Brawner 10-15 Gamma Ray / Resistivity Log",
       description: "Paper well log strip-chart with GR, SP, Resistivity and Caliper curves over 4,200–4,900 ft.",
       doc_type: "well_log",
       tags: ["sample", "well log", "gamma ray", "resistivity", "1982"],
       badge: "Well Log (scan)",
-      era: "1982 · Kansas",
+      basin: "Kansas · 1982",
+      features: "GR, SP, Resistivity",
     },
     {
       file: "sample-core-report-1979.pdf",
+      thumb: sampleThumbCore,
       title: "1979 Brawner 10-15 Core Analysis Report",
       description: "Core Labs report — porosity, permeability, Sw/So across the Mississippian Chat pay.",
       doc_type: "core_report",
       tags: ["sample", "core", "porosity", "permeability", "1979"],
       badge: "Core / Lab Report",
-      era: "1979 · Tulsa OK",
+      basin: "Tulsa OK · 1979",
+      features: "Porosity, Permeability",
     },
     {
       file: "sample-production-report-1985.pdf",
+      thumb: sampleThumbProduction,
       title: "Jan 1985 Brawner 10-15 Monthly Production",
       description: "Monthly production ticket — daily oil, gas, water, hours and remarks.",
       doc_type: "production_report",
       tags: ["sample", "production", "monthly", "1985"],
       badge: "Production Report",
-      era: "1985 · Haskell Field",
+      basin: "Haskell Field · 1985",
+      features: "BOPD, Water Cut",
     },
   ];
 
