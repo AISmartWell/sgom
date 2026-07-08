@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { FileText, Upload, Search, Trash2, Download, Eye, FolderArchive, Tag, Image as ImageIcon, Scan } from "lucide-react";
+import { FileText, Upload, UploadCloud, Search, Trash2, Download, Eye, FolderArchive, Tag, Image as ImageIcon, Scan } from "lucide-react";
 import sampleThumbCompletion from "@/assets/sample-doc-completion-1978.jpg";
 import sampleThumbWellLog from "@/assets/sample-doc-welllog-1982.jpg";
 import sampleThumbCore from "@/assets/sample-doc-core-1979.jpg";
