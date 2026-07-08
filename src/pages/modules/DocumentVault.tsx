@@ -183,18 +183,56 @@ export default function DocumentVault() {
   const isPdf = (m?: string | null) => (m || "").includes("pdf");
   const isImage = (m?: string | null) => (m || "").startsWith("image/");
 
-  async function loadSample() {
+  const SAMPLE_DOCS = [
+    {
+      file: "sample-completion-report-1978.pdf",
+      title: "1978 Brawner 10-15 Completion Report",
+      description: "Legacy completion report retyped from original field ticket. Scanned as-is, no OCR.",
+      doc_type: "completion_report",
+      tags: ["sample", "legacy", "mississippian", "1978"],
+      badge: "Completion Report",
+      era: "1978 · Kansas",
+    },
+    {
+      file: "sample-well-log-1982.pdf",
+      title: "1982 Brawner 10-15 Gamma Ray / Resistivity Log",
+      description: "Paper well log strip-chart with GR, SP, Resistivity and Caliper curves over 4,200–4,900 ft.",
+      doc_type: "well_log",
+      tags: ["sample", "well log", "gamma ray", "resistivity", "1982"],
+      badge: "Well Log (scan)",
+      era: "1982 · Kansas",
+    },
+    {
+      file: "sample-core-report-1979.pdf",
+      title: "1979 Brawner 10-15 Core Analysis Report",
+      description: "Core Labs report — porosity, permeability, Sw/So across the Mississippian Chat pay.",
+      doc_type: "core_report",
+      tags: ["sample", "core", "porosity", "permeability", "1979"],
+      badge: "Core / Lab Report",
+      era: "1979 · Tulsa OK",
+    },
+    {
+      file: "sample-production-report-1985.pdf",
+      title: "Jan 1985 Brawner 10-15 Monthly Production",
+      description: "Monthly production ticket — daily oil, gas, water, hours and remarks.",
+      doc_type: "production_report",
+      tags: ["sample", "production", "monthly", "1985"],
+      badge: "Production Report",
+      era: "1985 · Haskell Field",
+    },
+  ];
+
+  async function loadSample(sample: typeof SAMPLE_DOCS[number]) {
     if (!companyId || !userId) {
       toast.error("No company context");
       return;
     }
     setUploading(true);
     try {
-      const res = await fetch("/samples/sample-completion-report-1978.pdf");
+      const res = await fetch(`/samples/${sample.file}`);
       if (!res.ok) throw new Error("Sample file not found");
       const blob = await res.blob();
-      const fileName = "sample-completion-report-1978.pdf";
-      const path = `${companyId}/${Date.now()}_${fileName}`;
+      const path = `${companyId}/${Date.now()}_${sample.file}`;
       const { error: upErr } = await supabase.storage.from(BUCKET).upload(path, blob, {
         upsert: false,
         contentType: "application/pdf",
@@ -203,19 +241,19 @@ export default function DocumentVault() {
       const { error: insErr } = await supabase.from("well_documents").insert({
         company_id: companyId,
         well_id: null,
-        title: "1978 Brawner 10-15 Completion Report (Sample)",
-        description: "Legacy completion report retyped from original field ticket. Example of a scanned document stored as-is without OCR.",
-        doc_type: "completion_report",
-        tags: ["sample", "legacy", "mississippian", "1978"],
+        title: `${sample.title} (Sample)`,
+        description: sample.description,
+        doc_type: sample.doc_type,
+        tags: sample.tags,
         storage_path: path,
-        file_name: fileName,
+        file_name: sample.file,
         mime_type: "application/pdf",
         file_size: blob.size,
-        notes: "This is a demo document loaded from the built-in sample. Delete it any time.",
+        notes: "Demo document loaded from the built-in Sample Document Gallery. Delete any time.",
         uploaded_by: userId,
       });
       if (insErr) throw insErr;
-      toast.success("Sample document added");
+      toast.success(`Added: ${sample.title}`);
       load();
     } catch (e: any) {
       toast.error(e.message || "Failed to load sample");
