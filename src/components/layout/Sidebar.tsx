@@ -104,6 +104,12 @@ const menuItems = [
     badge: "Stage 2",
   },
   {
+    title: "Document Vault",
+    icon: FolderSearch,
+    href: "/dashboard/document-vault",
+    badge: "Vault",
+  },
+  {
     title: "Cumulative Analysis",
     icon: TrendingDown,
     href: "/dashboard/cumulative-analysis",

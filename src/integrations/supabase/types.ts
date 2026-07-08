@@ -957,6 +957,68 @@ export type Database = {
           },
         ]
       }
+      well_documents: {
+        Row: {
+          company_id: string
+          created_at: string
+          description: string | null
+          doc_type: string
+          file_name: string
+          file_size: number | null
+          id: string
+          mime_type: string | null
+          notes: string | null
+          storage_path: string
+          tags: string[]
+          title: string
+          updated_at: string
+          uploaded_by: string
+          well_id: string | null
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          description?: string | null
+          doc_type?: string
+          file_name: string
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          notes?: string | null
+          storage_path: string
+          tags?: string[]
+          title: string
+          updated_at?: string
+          uploaded_by: string
+          well_id?: string | null
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          description?: string | null
+          doc_type?: string
+          file_name?: string
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          notes?: string | null
+          storage_path?: string
+          tags?: string[]
+          title?: string
+          updated_at?: string
+          uploaded_by?: string
+          well_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "well_documents_well_id_fkey"
+            columns: ["well_id"]
+            isOneToOne: false
+            referencedRelation: "wells"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       well_logs: {
         Row: {
           company_id: string
