@@ -280,9 +280,6 @@ export default function DocumentVault() {
         </div>
         <Dialog open={uploadOpen} onOpenChange={setUploadOpen}>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={loadSample} disabled={uploading} className="gap-2">
-              <FileText className="w-4 h-4" /> Load sample
-            </Button>
             <DialogTrigger asChild>
               <Button className="gap-2"><Upload className="w-4 h-4" /> Upload document</Button>
             </DialogTrigger>
