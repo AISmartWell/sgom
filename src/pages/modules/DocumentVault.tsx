@@ -189,8 +189,6 @@ export default function DocumentVault() {
 
   const SAMPLE_DOCS = [
     {
-  const SAMPLE_DOCS = [
-    {
       file: "sample-completion-report-1978.pdf",
       thumb: sampleThumbCompletion,
       title: "1978 Brawner 10-15 Completion Report",
