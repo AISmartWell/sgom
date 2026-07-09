@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { FileText, Upload, Search, Trash2, Download, Eye, FolderArchive, Tag, Image as ImageIcon, Scan } from "lucide-react";
+import { FileText, Upload, UploadCloud, Search, Trash2, Download, Eye, FolderArchive, Tag, Image as ImageIcon, Scan } from "lucide-react";
 import sampleThumbCompletion from "@/assets/sample-doc-completion-1978.jpg";
 import sampleThumbWellLog from "@/assets/sample-doc-welllog-1982.jpg";
 import sampleThumbCore from "@/assets/sample-doc-core-1979.jpg";
@@ -67,6 +67,8 @@ export default function DocumentVault() {
   const [wellId, setWellId] = useState<string>("none");
   const [notes, setNotes] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     (async () => {
@@ -301,7 +303,43 @@ export default function DocumentVault() {
             <div className="space-y-3">
               <div>
                 <Label>File *</Label>
-                <Input type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setDragOver(true);
+                  }}
+                  onDragEnter={(e) => {
+                    e.preventDefault();
+                    setDragOver(true);
+                  }}
+                  onDragLeave={() => setDragOver(false)}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setDragOver(false);
+                    const dropped = e.dataTransfer.files?.[0];
+                    if (dropped) setFile(dropped);
+                  }}
+                  className={`mt-1 flex flex-col items-center justify-center rounded-lg border-2 border-dashed px-6 py-10 cursor-pointer transition-colors ${
+                    dragOver
+                      ? "border-primary bg-primary/10"
+                      : "border-muted-foreground/30 bg-muted/30 hover:border-primary/50 hover:bg-muted/50"
+                  }`}
+                >
+                  <UploadCloud className="w-10 h-10 text-muted-foreground mb-3" />
+                  <p className="text-sm font-medium text-foreground">
+                    {file ? file.name : "Drag & drop your scan or document here"}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Supports .pdf, .jpg, .png, .tiff
+                  </p>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    className="hidden"
+                    onChange={(e) => setFile(e.target.files?.[0] || null)}
+                  />
+                </div>
                 {file && (
                   <p className="text-xs text-muted-foreground mt-1">
                     {file.name} · {(file.size / 1024).toFixed(0)} KB
