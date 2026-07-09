@@ -67,6 +67,8 @@ export default function DocumentVault() {
   const [wellId, setWellId] = useState<string>("none");
   const [notes, setNotes] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     (async () => {
