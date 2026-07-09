@@ -303,7 +303,43 @@ export default function DocumentVault() {
             <div className="space-y-3">
               <div>
                 <Label>File *</Label>
-                <Input type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setDragOver(true);
+                  }}
+                  onDragEnter={(e) => {
+                    e.preventDefault();
+                    setDragOver(true);
+                  }}
+                  onDragLeave={() => setDragOver(false)}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setDragOver(false);
+                    const dropped = e.dataTransfer.files?.[0];
+                    if (dropped) setFile(dropped);
+                  }}
+                  className={`mt-1 flex flex-col items-center justify-center rounded-lg border-2 border-dashed px-6 py-10 cursor-pointer transition-colors ${
+                    dragOver
+                      ? "border-primary bg-primary/10"
+                      : "border-muted-foreground/30 bg-muted/30 hover:border-primary/50 hover:bg-muted/50"
+                  }`}
+                >
+                  <UploadCloud className="w-10 h-10 text-muted-foreground mb-3" />
+                  <p className="text-sm font-medium text-foreground">
+                    {file ? file.name : "Drag & drop your scan or document here"}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Supports .pdf, .jpg, .png, .tiff
+                  </p>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    className="hidden"
+                    onChange={(e) => setFile(e.target.files?.[0] || null)}
+                  />
+                </div>
                 {file && (
                   <p className="text-xs text-muted-foreground mt-1">
                     {file.name} · {(file.size / 1024).toFixed(0)} KB
