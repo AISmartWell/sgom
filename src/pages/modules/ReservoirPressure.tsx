@@ -77,8 +77,10 @@ export default function ReservoirPressure() {
   const [logs, setLogs] = useState<PoreLogPoint[]>([]);
   const [eatonN, setEatonN] = useState(1.2);       // Gulf Coast default
   const [grShaleCutoff, setGrShaleCutoff] = useState(75);
-  const [calibPp, setCalibPp] = useState<string>("");     // measured Pp (psi)
-  const [calibDepth, setCalibDepth] = useState<string>(""); // measured at depth (ft)
+  const [calibPoints, setCalibPoints] = useState<CalibPoint[]>([
+    { id: crypto.randomUUID(), depth: "", pp: "", source: "manual" },
+  ]);
+  const [autoApplyN, setAutoApplyN] = useState(true);
 
   useEffect(() => {
     (async () => {
