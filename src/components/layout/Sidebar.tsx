@@ -40,6 +40,7 @@ import {
   Sparkles,
   Plane,
   Cpu,
+  Gauge,
 } from "lucide-react";
 import { useState } from "react";
 
