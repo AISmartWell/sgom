@@ -24,6 +24,140 @@ function bayesUpdate(mu: number, sigma2: number, z: number, r2: number) {
 
 function clamp(v: number, lo: number, hi: number) { return Math.max(lo, Math.min(hi, v)); }
 
+// ── Pressure-measurement branch ─────────────────────────────────────────────
+// Body (mode="pressure_measurement"): {
+//   well_id, formation_key?, scope_key?,
+//   depth_ft, pressure_psi, temperature_f?, measurement_date?,
+//   method?: "rft" | "dst" | "measured",  // default: "measured"
+//   observation_variance?: number,        // psi/ft²  (defaults ~1e-4)
+//   source?: string, payload?: object
+// }
+async function handlePressureMeasurement(
+  supabase: any, body: any, company_id: string | null, user_id: string | null,
+): Promise<Response> {
+  const {
+    well_id = null, formation_key = null, scope_key: scopeKeyIn = null,
+    depth_ft, pressure_psi, temperature_f = null,
+    measurement_date = new Date().toISOString(),
+    method = "measured",
+    observation_variance,
+    source = "rft_ingest", payload = {},
+  } = body ?? {};
+
+  if (!well_id || !depth_ft || !pressure_psi) {
+    return new Response(JSON.stringify({ error: "missing required fields: well_id, depth_ft, pressure_psi" }),
+      { status: 400, headers: { ...cors, "Content-Type": "application/json" } });
+  }
+  if (depth_ft <= 0 || pressure_psi <= 0) {
+    return new Response(JSON.stringify({ error: "depth_ft and pressure_psi must be positive" }),
+      { status: 400, headers: { ...cors, "Content-Type": "application/json" } });
+  }
+
+  // Resolve company from wells if not supplied
+  if (!company_id) {
+    const { data: w } = await supabase.from("wells").select("company_id").eq("id", well_id).maybeSingle();
+    company_id = w?.company_id ?? null;
+  }
+  if (!company_id) {
+    return new Response(JSON.stringify({ error: "unable to resolve company_id" }),
+      { status: 400, headers: { ...cors, "Content-Type": "application/json" } });
+  }
+
+  const z_grad = pressure_psi / depth_ft;           // observed gradient, psi/ft
+  const r2 = Math.max(1e-5, observation_variance ?? 1e-4);
+
+  // Determine scope
+  const scope_type = "well";
+  const scope_key = scopeKeyIn ?? well_id;
+
+  // Load current params for this scope (fallback to global, then defaults)
+  let { data: params } = await supabase.from("model_parameters")
+    .select("*").eq("scope_type", scope_type).eq("scope_key", scope_key)
+    .eq("company_id", company_id).maybeSingle();
+  if (!params) {
+    const { data: gl } = await supabase.from("model_parameters")
+      .select("*").eq("scope_type", "global").eq("scope_key", "default").is("company_id", null).maybeSingle();
+    params = gl ?? {
+      arps_b: 0.5, arps_b_variance: 0.04,
+      arps_di: 0.00018, arps_di_variance: 1e-7,
+      spt_multiplier: 1.45, spt_multiplier_variance: 0.05,
+      pressure_gradient_psi_ft: 0.465, pressure_gradient_variance: 0.01,
+      confidence: 50, sample_count: 0, model_version: "v1.0",
+    };
+  }
+
+  const mu = Number(params.pressure_gradient_psi_ft ?? 0.465);
+  const sigma2 = Number(params.pressure_gradient_variance ?? 0.01);
+  const upd = bayesUpdate(mu, sigma2, z_grad, r2);
+  const clampedMu = clamp(upd.mu, 0.30, 1.00);
+
+  // Insert measured point into well_pressures
+  const { data: wp, error: wpErr } = await supabase.from("well_pressures").insert({
+    well_id, company_id,
+    p_current_psi: pressure_psi,
+    datum_depth_ft: depth_ft,
+    gradient_psi_ft: z_grad,
+    method,
+    temperature_f, measurement_date,
+    confidence: 0.95,
+    notes: `RFT/DST ingest via ingest-restoration (source=${source})`,
+  }).select().single();
+  if (wpErr) throw wpErr;
+
+  const before = {
+    pressure_gradient_psi_ft: mu, pressure_gradient_variance: sigma2,
+    confidence: params.confidence, sample_count: params.sample_count,
+  };
+  const sample_count = (Number(params.sample_count) || 0) + 1;
+  const stdRel = Math.sqrt(upd.sigma2) / Math.max(clampedMu, 0.01);
+  const newConfidence = clamp(100 * (1 - stdRel), 5, 99.5);
+
+  const upsertRow = {
+    company_id, scope_type, scope_key,
+    arps_b: params.arps_b, arps_b_variance: params.arps_b_variance,
+    arps_di: params.arps_di, arps_di_variance: params.arps_di_variance,
+    spt_multiplier: params.spt_multiplier, spt_multiplier_variance: params.spt_multiplier_variance,
+    pressure_gradient_psi_ft: clampedMu,
+    pressure_gradient_variance: upd.sigma2,
+    confidence: newConfidence, sample_count,
+    model_version: params.model_version ?? "v1.0",
+    last_calibrated_at: new Date().toISOString(),
+  };
+  const { data: savedParam, error: upErr } = await supabase
+    .from("model_parameters")
+    .upsert(upsertRow, { onConflict: "company_id,scope_type,scope_key" })
+    .select().single();
+  if (upErr) throw upErr;
+
+  const after = {
+    pressure_gradient_psi_ft: clampedMu, pressure_gradient_variance: upd.sigma2,
+    confidence: newConfidence, sample_count,
+  };
+  await supabase.from("calibration_audit").insert({
+    company_id, model_parameter_id: savedParam.id, restoration_id: null,
+    well_id, scope_type, scope_key, method: "ekf_pressure_1d",
+    before_state: before, after_state: after,
+    input_summary: {
+      depth_ft, pressure_psi, temperature_f, measurement_date, method, z_grad, r2, source, payload,
+      well_pressure_id: wp.id,
+    },
+    residual: z_grad - mu,
+    mape: Math.abs(z_grad - mu) / Math.max(mu, 1e-6),
+    confidence_delta: newConfidence - Number(before.confidence ?? 50),
+  });
+
+  return new Response(JSON.stringify({
+    ok: true,
+    well_pressure_id: wp.id,
+    scope: { scope_type, scope_key },
+    observation: { z_grad, r2 },
+    before, after,
+    message: "Pressure gradient auto-calibrated via 1-D EKF/Bayes",
+  }), { headers: { ...cors, "Content-Type": "application/json" } });
+}
+
+
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: cors });
   if (req.method !== "POST") {
