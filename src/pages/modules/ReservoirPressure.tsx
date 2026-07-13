@@ -88,9 +88,55 @@ export default function ReservoirPressure() {
         .order("production_month", { ascending: true });
       setProd((data ?? []) as ProdRow[]);
     })();
+    (async () => {
+      const { data } = await (supabase as any)
+        .from("well_logs")
+        .select("measured_depth, gamma_ray, resistivity, density")
+        .eq("well_id", wellId)
+        .order("measured_depth", { ascending: true });
+      const rows = (data ?? []).map((r: any) => ({
+        depth: r.measured_depth,
+        gr: r.gamma_ray,
+        res: r.resistivity,
+        rhob: r.density,
+      })) as PoreLogPoint[];
+      setLogs(rows);
+    })();
   }, [wellId]);
 
   const well = useMemo(() => wells.find(w => w.id === wellId), [wells, wellId]);
+
+  // Eaton pore pressure profile
+  const eaton = useMemo(() => {
+    if (logs.length < 10) return null;
+    const { profile, nct } = estimatePorePressure(logs, {
+      grShaleCutoff,
+      hydrostaticGrad: gradient,
+      eatonExponent: eatonN,
+    });
+    // Downsample for chart (~250 points)
+    const step = Math.max(1, Math.floor(profile.length / 250));
+    const chart = profile.filter((_, i) => i % step === 0);
+    const validPp = profile.filter(p => p.pp_psi !== null);
+    const meanPpg = validPp.length
+      ? validPp.reduce((s, p) => s + (p.ppg ?? 0), 0) / validPp.length
+      : null;
+    const maxPp = validPp.reduce((m, p) => (p.pp_psi ?? 0) > (m?.pp_psi ?? 0) ? p : m, validPp[0] ?? null);
+    return { profile, chart, nct, meanPpg, maxPp };
+  }, [logs, gradient, eatonN, grShaleCutoff]);
+
+  const suggestedN = useMemo(() => {
+    if (!eaton) return null;
+    const d = parseFloat(calibDepth);
+    const p = parseFloat(calibPp);
+    if (!isFinite(d) || !isFinite(p) || d <= 0) return null;
+    // Find nearest profile point
+    const pt = eaton.profile.reduce((best, x) =>
+      Math.abs(x.depth - d) < Math.abs(best.depth - d) ? x : best, eaton.profile[0]);
+    if (!pt || pt.rnct === null || pt.robs === null) return null;
+    return calibrateEatonExponent(pt.depth, p, pt.sv_psi, pt.pn_psi, pt.robs, pt.rnct);
+  }, [eaton, calibDepth, calibPp]);
+
 
   const analysis = useMemo(() => {
     if (!well) return null;
