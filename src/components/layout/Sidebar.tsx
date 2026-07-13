@@ -116,6 +116,12 @@ const menuItems = [
     badge: "Stage 3",
   },
   {
+    title: "Reservoir Pressure",
+    icon: Gauge,
+    href: "/dashboard/reservoir-pressure",
+    badge: "Stage 4.5",
+  },
+  {
     title: "SPT Projection",
     icon: TrendingUp,
     href: "/dashboard/spt-projection",
