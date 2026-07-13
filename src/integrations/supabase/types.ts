@@ -1142,6 +1142,72 @@ export type Database = {
           },
         ]
       }
+      well_pressures: {
+        Row: {
+          company_id: string
+          confidence: number | null
+          created_at: string
+          datum_depth_ft: number | null
+          depletion_pct: number | null
+          estimation_date: string
+          gradient_psi_ft: number | null
+          id: string
+          method: string
+          notes: string | null
+          p_current_psi: number | null
+          p_initial_psi: number | null
+          updated_at: string
+          well_id: string
+        }
+        Insert: {
+          company_id: string
+          confidence?: number | null
+          created_at?: string
+          datum_depth_ft?: number | null
+          depletion_pct?: number | null
+          estimation_date?: string
+          gradient_psi_ft?: number | null
+          id?: string
+          method?: string
+          notes?: string | null
+          p_current_psi?: number | null
+          p_initial_psi?: number | null
+          updated_at?: string
+          well_id: string
+        }
+        Update: {
+          company_id?: string
+          confidence?: number | null
+          created_at?: string
+          datum_depth_ft?: number | null
+          depletion_pct?: number | null
+          estimation_date?: string
+          gradient_psi_ft?: number | null
+          id?: string
+          method?: string
+          notes?: string | null
+          p_current_psi?: number | null
+          p_initial_psi?: number | null
+          updated_at?: string
+          well_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "well_pressures_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "well_pressures_well_id_fkey"
+            columns: ["well_id"]
+            isOneToOne: false
+            referencedRelation: "wells"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       well_restorations: {
         Row: {
           actual_cum: number | null
