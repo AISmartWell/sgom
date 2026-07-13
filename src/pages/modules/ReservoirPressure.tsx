@@ -143,17 +143,83 @@ export default function ReservoirPressure() {
     return { profile, chart, nct, meanPpg, maxPp };
   }, [logs, gradient, eatonN, grShaleCutoff]);
 
-  const suggestedN = useMemo(() => {
-    if (!eaton) return null;
-    const d = parseFloat(calibDepth);
-    const p = parseFloat(calibPp);
-    if (!isFinite(d) || !isFinite(p) || d <= 0) return null;
-    // Find nearest profile point
-    const pt = eaton.profile.reduce((best, x) =>
-      Math.abs(x.depth - d) < Math.abs(best.depth - d) ? x : best, eaton.profile[0]);
-    if (!pt || pt.rnct === null || pt.robs === null) return null;
-    return calibrateEatonExponent(pt.depth, p, pt.sv_psi, pt.pn_psi, pt.robs, pt.rnct);
-  }, [eaton, calibDepth, calibPp]);
+  // Per-point suggested n + aggregate (median) across all valid calibration points
+  const calibResults = useMemo(() => {
+    if (!eaton) return [] as Array<CalibPoint & { nSuggested: number | null; nearestDepth: number | null }>;
+    return calibPoints.map(cp => {
+      const d = parseFloat(cp.depth);
+      const p = parseFloat(cp.pp);
+      if (!isFinite(d) || !isFinite(p) || d <= 0) {
+        return { ...cp, nSuggested: null, nearestDepth: null };
+      }
+      const pt = eaton.profile.reduce((best, x) =>
+        Math.abs(x.depth - d) < Math.abs(best.depth - d) ? x : best, eaton.profile[0]);
+      if (!pt || pt.rnct === null || pt.robs === null) {
+        return { ...cp, nSuggested: null, nearestDepth: pt?.depth ?? null };
+      }
+      const n = calibrateEatonExponent(pt.depth, p, pt.sv_psi, pt.pn_psi, pt.robs, pt.rnct);
+      return { ...cp, nSuggested: isFinite(n) ? n : null, nearestDepth: pt.depth };
+    });
+  }, [eaton, calibPoints]);
+
+  const suggestedN = useMemo(
+    () => median(calibResults.map(r => r.nSuggested ?? NaN)),
+    [calibResults],
+  );
+
+  // Auto-apply the aggregated n whenever calibration inputs produce a valid value
+  useEffect(() => {
+    if (!autoApplyN || suggestedN === null || !isFinite(suggestedN)) return;
+    const clamped = Math.max(0.6, Math.min(2.0, suggestedN));
+    setEatonN(prev => (Math.abs(prev - clamped) < 0.005 ? prev : clamped));
+  }, [suggestedN, autoApplyN]);
+
+  const addCalibPoint = () =>
+    setCalibPoints(pts => [...pts, { id: crypto.randomUUID(), depth: "", pp: "", source: "manual" }]);
+  const removeCalibPoint = (id: string) =>
+    setCalibPoints(pts => pts.filter(p => p.id !== id));
+  const updateCalibPoint = (id: string, patch: Partial<CalibPoint>) =>
+    setCalibPoints(pts => pts.map(p => (p.id === id ? { ...p, ...patch } : p)));
+
+  // Load previously measured RFT/DST points saved for this well from well_pressures
+  const loadMeasuredFromDb = async () => {
+    if (!wellId) return;
+    const { data, error } = await (supabase as any)
+      .from("well_pressures")
+      .select("datum_depth_ft, p_current_psi, method, notes")
+      .eq("well_id", wellId)
+      .in("method", ["measured", "rft", "dst"])
+      .order("datum_depth_ft", { ascending: true });
+    if (error) { toast.error(`Load failed: ${error.message}`); return; }
+    const rows = (data ?? []) as Array<{ datum_depth_ft: number | null; p_current_psi: number | null; method: string; notes: string | null }>;
+    if (!rows.length) { toast.info("No stored RFT/DST points for this well"); return; }
+    const imported: CalibPoint[] = rows
+      .filter(r => r.datum_depth_ft && r.p_current_psi)
+      .map(r => ({
+        id: crypto.randomUUID(),
+        depth: String(r.datum_depth_ft),
+        pp: String(r.p_current_psi),
+        source: (r.method === "rft" ? "rft" : r.method === "dst" ? "dst" : "db"),
+        note: r.notes ?? undefined,
+      }));
+    if (!imported.length) { toast.info("Stored rows have no depth/pressure"); return; }
+    setCalibPoints(pts => {
+      // dedupe by (depth ± 2 ft, pp ± 5 psi)
+      const merged = [...pts];
+      for (const ip of imported) {
+        const d = parseFloat(ip.depth), p = parseFloat(ip.pp);
+        const dup = merged.some(m => {
+          const md = parseFloat(m.depth), mp = parseFloat(m.pp);
+          return isFinite(md) && isFinite(mp) && Math.abs(md - d) < 2 && Math.abs(mp - p) < 5;
+        });
+        if (!dup) merged.push(ip);
+      }
+      // drop trailing empty rows if we now have data
+      return merged.filter(m => m.depth || m.pp).length ? merged.filter(m => m.depth || m.pp) : merged;
+    });
+    toast.success(`Loaded ${imported.length} point${imported.length > 1 ? "s" : ""} from database`);
+  };
+
 
 
   const analysis = useMemo(() => {
