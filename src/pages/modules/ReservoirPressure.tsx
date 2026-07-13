@@ -57,6 +57,13 @@ export default function ReservoirPressure() {
   const [rfMax, setRfMax] = useState(0.15);
   const [saving, setSaving] = useState(false);
 
+  // ── Eaton (pore pressure from resistivity) ────────────────────────────────
+  const [logs, setLogs] = useState<PoreLogPoint[]>([]);
+  const [eatonN, setEatonN] = useState(1.2);       // Gulf Coast default
+  const [grShaleCutoff, setGrShaleCutoff] = useState(75);
+  const [calibPp, setCalibPp] = useState<string>("");     // measured Pp (psi)
+  const [calibDepth, setCalibDepth] = useState<string>(""); // measured at depth (ft)
+
   useEffect(() => {
     (async () => {
       const { data } = await supabase
