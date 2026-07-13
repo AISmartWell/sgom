@@ -11,8 +11,9 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   ReferenceLine, Legend,
 } from "recharts";
-import { Gauge, Save, Droplets, TrendingDown, Activity } from "lucide-react";
+import { Gauge, Save, Droplets, TrendingDown, Activity, Layers, Sigma } from "lucide-react";
 import { calcIOIP, lookupFormation } from "@/lib/formation-db";
+import { estimatePorePressure, calibrateEatonExponent, type PoreLogPoint } from "@/lib/pore-pressure";
 
 type Well = {
   id: string;
