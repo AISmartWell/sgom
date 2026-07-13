@@ -494,36 +494,97 @@ export default function ReservoirPressure() {
 
                   {/* Calibration panel */}
                   <div className="border border-border/60 rounded-md p-4 space-y-3 bg-muted/20">
-                    <div className="flex items-center gap-2 text-sm font-semibold">
-                      <Sigma className="h-4 w-4 text-accent" />
-                      Calibrate n from measured Pp (RFT / DST / production test)
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 text-sm font-semibold">
+                        <Sigma className="h-4 w-4 text-accent" />
+                        Calibrate n from measured Pp (RFT / DST / production test)
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button size="sm" variant="outline" onClick={loadMeasuredFromDb}>
+                          <Download className="h-3.5 w-3.5 mr-1" /> Load from DB
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={addCalibPoint}>
+                          <Plus className="h-3.5 w-3.5 mr-1" /> Add point
+                        </Button>
+                      </div>
                     </div>
-                    <div className="grid md:grid-cols-3 gap-3">
-                      <div>
-                        <Label className="text-xs">Depth (ft)</Label>
-                        <Input value={calibDepth} onChange={e => setCalibDepth(e.target.value)} placeholder="e.g. 4820" />
-                      </div>
-                      <div>
-                        <Label className="text-xs">Measured Pp (psi)</Label>
-                        <Input value={calibPp} onChange={e => setCalibPp(e.target.value)} placeholder="e.g. 2340" />
-                      </div>
-                      <div className="flex flex-col justify-end">
-                        <div className="text-xs text-muted-foreground">Suggested n</div>
-                        <div className="text-2xl font-mono">
-                          {suggestedN !== null && isFinite(suggestedN) ? suggestedN.toFixed(2) : "—"}
-                        </div>
-                        {suggestedN !== null && isFinite(suggestedN) && (
-                          <Button size="sm" variant="outline" className="mt-1"
-                            onClick={() => setEatonN(Math.max(0.6, Math.min(2.0, suggestedN)))}>
-                            Apply
+
+                    {/* Header */}
+                    <div className="hidden md:grid grid-cols-[1fr_1fr_120px_110px_36px] gap-2 text-[10px] uppercase tracking-wide text-muted-foreground px-1">
+                      <span>Depth (ft)</span>
+                      <span>Measured Pp (psi)</span>
+                      <span>Source</span>
+                      <span className="text-right">Suggested n</span>
+                      <span />
+                    </div>
+
+                    {/* Rows */}
+                    <div className="space-y-2">
+                      {calibResults.map((row) => (
+                        <div key={row.id} className="grid grid-cols-2 md:grid-cols-[1fr_1fr_120px_110px_36px] gap-2 items-center">
+                          <Input value={row.depth}
+                            onChange={e => updateCalibPoint(row.id, { depth: e.target.value })}
+                            placeholder="e.g. 4820" />
+                          <Input value={row.pp}
+                            onChange={e => updateCalibPoint(row.id, { pp: e.target.value })}
+                            placeholder="e.g. 2340" />
+                          <select
+                            className="bg-background border border-border rounded-md px-2 py-2 text-xs h-9"
+                            value={row.source ?? "manual"}
+                            onChange={e => updateCalibPoint(row.id, { source: e.target.value as CalibPoint["source"] })}
+                          >
+                            <option value="manual">Manual</option>
+                            <option value="rft">RFT</option>
+                            <option value="dst">DST</option>
+                            <option value="db">DB</option>
+                          </select>
+                          <div className="text-right font-mono text-sm">
+                            {row.nSuggested !== null && isFinite(row.nSuggested)
+                              ? row.nSuggested.toFixed(2)
+                              : <span className="text-muted-foreground">—</span>}
+                          </div>
+                          <Button size="icon" variant="ghost" onClick={() => removeCalibPoint(row.id)}
+                            disabled={calibPoints.length <= 1}>
+                            <Trash2 className="h-4 w-4 text-muted-foreground" />
                           </Button>
-                        )}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Aggregate + auto-apply */}
+                    <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-border/40">
+                      <div className="flex items-center gap-4">
+                        <div>
+                          <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Aggregated n (median)</div>
+                          <div className="text-2xl font-mono">
+                            {suggestedN !== null && isFinite(suggestedN) ? suggestedN.toFixed(2) : "—"}
+                          </div>
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          Active n: <span className="font-mono text-foreground">{eatonN.toFixed(2)}</span>
+                          {" · "}Points used: <span className="font-mono text-foreground">
+                            {calibResults.filter(r => r.nSuggested !== null).length}/{calibResults.length}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2">
+                          <Switch checked={autoApplyN} onCheckedChange={setAutoApplyN} id="auto-n" />
+                          <Label htmlFor="auto-n" className="text-xs">Auto-apply</Label>
+                        </div>
+                        <Button size="sm" variant="outline"
+                          disabled={suggestedN === null || !isFinite(suggestedN)}
+                          onClick={() => suggestedN !== null && setEatonN(Math.max(0.6, Math.min(2.0, suggestedN)))}>
+                          Apply now
+                        </Button>
                       </div>
                     </div>
+
                     <p className="text-[10px] text-muted-foreground">
-                      Without a single real RFT/DST point the default n = 1.2 is a Gulf Coast assumption (Eaton 1975). Miscalibration can shift Pp by hundreds of psi. Treat Eaton output as a <b>soft prior</b> with wide variance in the Kalman/Bayesian layer, never as a hard constraint in ELAN SLSQP inversion.
+                      Aggregation is a <b>median</b> — robust to a single bad RFT reading. Individual n is clamped to [0.6, 2.0] when applied. Treat Eaton output as a <b>soft prior</b> for the Digital Twin Kalman/Bayesian layer, never as a hard constraint in ELAN SLSQP inversion.
                     </p>
                   </div>
+
                 </>
               )}
             </CardContent>
