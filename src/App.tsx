@@ -150,6 +150,7 @@ const App = () => (
               <Route path="ai-guide" element={<AIGuide />} />
               <Route path="models-reference" element={<ModelsReference />} />
               <Route path="document-vault" element={<DocumentVault />} />
+              <Route path="reservoir-pressure" element={<ReservoirPressure />} />
 
            </Route>
            <Route path="/nvidia-inception" element={<NvidiaInception />} />
