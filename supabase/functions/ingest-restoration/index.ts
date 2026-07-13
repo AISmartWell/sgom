@@ -56,6 +56,11 @@ Deno.serve(async (req) => {
     }
     if (!company_id && body.company_id) company_id = body.company_id;
 
+    // ── Branch: pressure_measurement (RFT / DST ingestion + EKF on gradient) ──
+    if (body?.mode === "pressure_measurement") {
+      return await handlePressureMeasurement(supabase, body, company_id, user_id);
+    }
+
     const {
       well_id = null, well_external_ref = null, formation_key = null,
       scope_key: scopeKeyIn = null,
@@ -71,6 +76,7 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: "missing required fields: predicted_qoil, actual_qoil, arps_b_used, spt_multiplier_used" }),
         { status: 400, headers: { ...cors, "Content-Type": "application/json" } });
     }
+
 
     // 1) Insert raw restoration
     const { data: rest, error: restErr } = await supabase.from("well_restorations").insert({
