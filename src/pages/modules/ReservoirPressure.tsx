@@ -11,9 +11,25 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   ReferenceLine, Legend,
 } from "recharts";
-import { Gauge, Save, Droplets, TrendingDown, Activity, Layers, Sigma } from "lucide-react";
+import { Gauge, Save, Droplets, TrendingDown, Activity, Layers, Sigma, Plus, Trash2, Download } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { calcIOIP, lookupFormation } from "@/lib/formation-db";
 import { estimatePorePressure, calibrateEatonExponent, type PoreLogPoint } from "@/lib/pore-pressure";
+
+type CalibPoint = {
+  id: string;
+  depth: string;      // ft (string for input control)
+  pp: string;         // psi
+  source?: "manual" | "rft" | "dst" | "db";
+  note?: string;
+};
+
+function median(xs: number[]): number | null {
+  const a = xs.filter(x => isFinite(x)).slice().sort((a, b) => a - b);
+  if (!a.length) return null;
+  const m = Math.floor(a.length / 2);
+  return a.length % 2 ? a[m] : (a[m - 1] + a[m]) / 2;
+}
 
 type Well = {
   id: string;
@@ -61,8 +77,10 @@ export default function ReservoirPressure() {
   const [logs, setLogs] = useState<PoreLogPoint[]>([]);
   const [eatonN, setEatonN] = useState(1.2);       // Gulf Coast default
   const [grShaleCutoff, setGrShaleCutoff] = useState(75);
-  const [calibPp, setCalibPp] = useState<string>("");     // measured Pp (psi)
-  const [calibDepth, setCalibDepth] = useState<string>(""); // measured at depth (ft)
+  const [calibPoints, setCalibPoints] = useState<CalibPoint[]>([
+    { id: crypto.randomUUID(), depth: "", pp: "", source: "manual" },
+  ]);
+  const [autoApplyN, setAutoApplyN] = useState(true);
 
   useEffect(() => {
     (async () => {
@@ -125,17 +143,83 @@ export default function ReservoirPressure() {
     return { profile, chart, nct, meanPpg, maxPp };
   }, [logs, gradient, eatonN, grShaleCutoff]);
 
-  const suggestedN = useMemo(() => {
-    if (!eaton) return null;
-    const d = parseFloat(calibDepth);
-    const p = parseFloat(calibPp);
-    if (!isFinite(d) || !isFinite(p) || d <= 0) return null;
-    // Find nearest profile point
-    const pt = eaton.profile.reduce((best, x) =>
-      Math.abs(x.depth - d) < Math.abs(best.depth - d) ? x : best, eaton.profile[0]);
-    if (!pt || pt.rnct === null || pt.robs === null) return null;
-    return calibrateEatonExponent(pt.depth, p, pt.sv_psi, pt.pn_psi, pt.robs, pt.rnct);
-  }, [eaton, calibDepth, calibPp]);
+  // Per-point suggested n + aggregate (median) across all valid calibration points
+  const calibResults = useMemo(() => {
+    if (!eaton) return [] as Array<CalibPoint & { nSuggested: number | null; nearestDepth: number | null }>;
+    return calibPoints.map(cp => {
+      const d = parseFloat(cp.depth);
+      const p = parseFloat(cp.pp);
+      if (!isFinite(d) || !isFinite(p) || d <= 0) {
+        return { ...cp, nSuggested: null, nearestDepth: null };
+      }
+      const pt = eaton.profile.reduce((best, x) =>
+        Math.abs(x.depth - d) < Math.abs(best.depth - d) ? x : best, eaton.profile[0]);
+      if (!pt || pt.rnct === null || pt.robs === null) {
+        return { ...cp, nSuggested: null, nearestDepth: pt?.depth ?? null };
+      }
+      const n = calibrateEatonExponent(pt.depth, p, pt.sv_psi, pt.pn_psi, pt.robs, pt.rnct);
+      return { ...cp, nSuggested: isFinite(n) ? n : null, nearestDepth: pt.depth };
+    });
+  }, [eaton, calibPoints]);
+
+  const suggestedN = useMemo(
+    () => median(calibResults.map(r => r.nSuggested ?? NaN)),
+    [calibResults],
+  );
+
+  // Auto-apply the aggregated n whenever calibration inputs produce a valid value
+  useEffect(() => {
+    if (!autoApplyN || suggestedN === null || !isFinite(suggestedN)) return;
+    const clamped = Math.max(0.6, Math.min(2.0, suggestedN));
+    setEatonN(prev => (Math.abs(prev - clamped) < 0.005 ? prev : clamped));
+  }, [suggestedN, autoApplyN]);
+
+  const addCalibPoint = () =>
+    setCalibPoints(pts => [...pts, { id: crypto.randomUUID(), depth: "", pp: "", source: "manual" }]);
+  const removeCalibPoint = (id: string) =>
+    setCalibPoints(pts => pts.filter(p => p.id !== id));
+  const updateCalibPoint = (id: string, patch: Partial<CalibPoint>) =>
+    setCalibPoints(pts => pts.map(p => (p.id === id ? { ...p, ...patch } : p)));
+
+  // Load previously measured RFT/DST points saved for this well from well_pressures
+  const loadMeasuredFromDb = async () => {
+    if (!wellId) return;
+    const { data, error } = await (supabase as any)
+      .from("well_pressures")
+      .select("datum_depth_ft, p_current_psi, method, notes")
+      .eq("well_id", wellId)
+      .in("method", ["measured", "rft", "dst"])
+      .order("datum_depth_ft", { ascending: true });
+    if (error) { toast.error(`Load failed: ${error.message}`); return; }
+    const rows = (data ?? []) as Array<{ datum_depth_ft: number | null; p_current_psi: number | null; method: string; notes: string | null }>;
+    if (!rows.length) { toast.info("No stored RFT/DST points for this well"); return; }
+    const imported: CalibPoint[] = rows
+      .filter(r => r.datum_depth_ft && r.p_current_psi)
+      .map(r => ({
+        id: crypto.randomUUID(),
+        depth: String(r.datum_depth_ft),
+        pp: String(r.p_current_psi),
+        source: (r.method === "rft" ? "rft" : r.method === "dst" ? "dst" : "db"),
+        note: r.notes ?? undefined,
+      }));
+    if (!imported.length) { toast.info("Stored rows have no depth/pressure"); return; }
+    setCalibPoints(pts => {
+      // dedupe by (depth ± 2 ft, pp ± 5 psi)
+      const merged = [...pts];
+      for (const ip of imported) {
+        const d = parseFloat(ip.depth), p = parseFloat(ip.pp);
+        const dup = merged.some(m => {
+          const md = parseFloat(m.depth), mp = parseFloat(m.pp);
+          return isFinite(md) && isFinite(mp) && Math.abs(md - d) < 2 && Math.abs(mp - p) < 5;
+        });
+        if (!dup) merged.push(ip);
+      }
+      // drop trailing empty rows if we now have data
+      return merged.filter(m => m.depth || m.pp).length ? merged.filter(m => m.depth || m.pp) : merged;
+    });
+    toast.success(`Loaded ${imported.length} point${imported.length > 1 ? "s" : ""} from database`);
+  };
+
 
 
   const analysis = useMemo(() => {
@@ -410,36 +494,97 @@ export default function ReservoirPressure() {
 
                   {/* Calibration panel */}
                   <div className="border border-border/60 rounded-md p-4 space-y-3 bg-muted/20">
-                    <div className="flex items-center gap-2 text-sm font-semibold">
-                      <Sigma className="h-4 w-4 text-accent" />
-                      Calibrate n from measured Pp (RFT / DST / production test)
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 text-sm font-semibold">
+                        <Sigma className="h-4 w-4 text-accent" />
+                        Calibrate n from measured Pp (RFT / DST / production test)
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button size="sm" variant="outline" onClick={loadMeasuredFromDb}>
+                          <Download className="h-3.5 w-3.5 mr-1" /> Load from DB
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={addCalibPoint}>
+                          <Plus className="h-3.5 w-3.5 mr-1" /> Add point
+                        </Button>
+                      </div>
                     </div>
-                    <div className="grid md:grid-cols-3 gap-3">
-                      <div>
-                        <Label className="text-xs">Depth (ft)</Label>
-                        <Input value={calibDepth} onChange={e => setCalibDepth(e.target.value)} placeholder="e.g. 4820" />
-                      </div>
-                      <div>
-                        <Label className="text-xs">Measured Pp (psi)</Label>
-                        <Input value={calibPp} onChange={e => setCalibPp(e.target.value)} placeholder="e.g. 2340" />
-                      </div>
-                      <div className="flex flex-col justify-end">
-                        <div className="text-xs text-muted-foreground">Suggested n</div>
-                        <div className="text-2xl font-mono">
-                          {suggestedN !== null && isFinite(suggestedN) ? suggestedN.toFixed(2) : "—"}
-                        </div>
-                        {suggestedN !== null && isFinite(suggestedN) && (
-                          <Button size="sm" variant="outline" className="mt-1"
-                            onClick={() => setEatonN(Math.max(0.6, Math.min(2.0, suggestedN)))}>
-                            Apply
+
+                    {/* Header */}
+                    <div className="hidden md:grid grid-cols-[1fr_1fr_120px_110px_36px] gap-2 text-[10px] uppercase tracking-wide text-muted-foreground px-1">
+                      <span>Depth (ft)</span>
+                      <span>Measured Pp (psi)</span>
+                      <span>Source</span>
+                      <span className="text-right">Suggested n</span>
+                      <span />
+                    </div>
+
+                    {/* Rows */}
+                    <div className="space-y-2">
+                      {calibResults.map((row) => (
+                        <div key={row.id} className="grid grid-cols-2 md:grid-cols-[1fr_1fr_120px_110px_36px] gap-2 items-center">
+                          <Input value={row.depth}
+                            onChange={e => updateCalibPoint(row.id, { depth: e.target.value })}
+                            placeholder="e.g. 4820" />
+                          <Input value={row.pp}
+                            onChange={e => updateCalibPoint(row.id, { pp: e.target.value })}
+                            placeholder="e.g. 2340" />
+                          <select
+                            className="bg-background border border-border rounded-md px-2 py-2 text-xs h-9"
+                            value={row.source ?? "manual"}
+                            onChange={e => updateCalibPoint(row.id, { source: e.target.value as CalibPoint["source"] })}
+                          >
+                            <option value="manual">Manual</option>
+                            <option value="rft">RFT</option>
+                            <option value="dst">DST</option>
+                            <option value="db">DB</option>
+                          </select>
+                          <div className="text-right font-mono text-sm">
+                            {row.nSuggested !== null && isFinite(row.nSuggested)
+                              ? row.nSuggested.toFixed(2)
+                              : <span className="text-muted-foreground">—</span>}
+                          </div>
+                          <Button size="icon" variant="ghost" onClick={() => removeCalibPoint(row.id)}
+                            disabled={calibPoints.length <= 1}>
+                            <Trash2 className="h-4 w-4 text-muted-foreground" />
                           </Button>
-                        )}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Aggregate + auto-apply */}
+                    <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-border/40">
+                      <div className="flex items-center gap-4">
+                        <div>
+                          <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Aggregated n (median)</div>
+                          <div className="text-2xl font-mono">
+                            {suggestedN !== null && isFinite(suggestedN) ? suggestedN.toFixed(2) : "—"}
+                          </div>
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          Active n: <span className="font-mono text-foreground">{eatonN.toFixed(2)}</span>
+                          {" · "}Points used: <span className="font-mono text-foreground">
+                            {calibResults.filter(r => r.nSuggested !== null).length}/{calibResults.length}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2">
+                          <Switch checked={autoApplyN} onCheckedChange={setAutoApplyN} id="auto-n" />
+                          <Label htmlFor="auto-n" className="text-xs">Auto-apply</Label>
+                        </div>
+                        <Button size="sm" variant="outline"
+                          disabled={suggestedN === null || !isFinite(suggestedN)}
+                          onClick={() => suggestedN !== null && setEatonN(Math.max(0.6, Math.min(2.0, suggestedN)))}>
+                          Apply now
+                        </Button>
                       </div>
                     </div>
+
                     <p className="text-[10px] text-muted-foreground">
-                      Without a single real RFT/DST point the default n = 1.2 is a Gulf Coast assumption (Eaton 1975). Miscalibration can shift Pp by hundreds of psi. Treat Eaton output as a <b>soft prior</b> with wide variance in the Kalman/Bayesian layer, never as a hard constraint in ELAN SLSQP inversion.
+                      Aggregation is a <b>median</b> — robust to a single bad RFT reading. Individual n is clamped to [0.6, 2.0] when applied. Treat Eaton output as a <b>soft prior</b> for the Digital Twin Kalman/Bayesian layer, never as a hard constraint in ELAN SLSQP inversion.
                     </p>
                   </div>
+
                 </>
               )}
             </CardContent>
