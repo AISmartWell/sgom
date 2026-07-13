@@ -141,7 +141,28 @@ export default function ReservoirPressure() {
       })) as PoreLogPoint[];
       setLogs(rows);
     })();
+    loadPressuresFromDb();
   }, [wellId]);
+
+  const loadPressuresFromDb = async () => {
+    if (!wellId) return;
+    const { data } = await (supabase as any)
+      .from("well_pressures")
+      .select("id, datum_depth_ft, p_current_psi, temperature_f, measurement_date, method")
+      .eq("well_id", wellId)
+      .in("method", ["measured", "rft", "dst"])
+      .order("measurement_date", { ascending: true });
+    setDbPressures((data ?? [])
+      .filter((r: any) => r.datum_depth_ft && r.p_current_psi)
+      .map((r: any) => ({
+        id: r.id,
+        depth: Number(r.datum_depth_ft),
+        p: Number(r.p_current_psi),
+        T: r.temperature_f !== null ? Number(r.temperature_f) : null,
+        date: r.measurement_date,
+        method: r.method,
+      })));
+  };
 
   const well = useMemo(() => wells.find(w => w.id === wellId), [wells, wellId]);
 
