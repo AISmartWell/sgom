@@ -11,9 +11,25 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   ReferenceLine, Legend,
 } from "recharts";
-import { Gauge, Save, Droplets, TrendingDown, Activity, Layers, Sigma } from "lucide-react";
+import { Gauge, Save, Droplets, TrendingDown, Activity, Layers, Sigma, Plus, Trash2, Download } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { calcIOIP, lookupFormation } from "@/lib/formation-db";
 import { estimatePorePressure, calibrateEatonExponent, type PoreLogPoint } from "@/lib/pore-pressure";
+
+type CalibPoint = {
+  id: string;
+  depth: string;      // ft (string for input control)
+  pp: string;         // psi
+  source?: "manual" | "rft" | "dst" | "db";
+  note?: string;
+};
+
+function median(xs: number[]): number | null {
+  const a = xs.filter(x => isFinite(x)).slice().sort((a, b) => a - b);
+  if (!a.length) return null;
+  const m = Math.floor(a.length / 2);
+  return a.length % 2 ? a[m] : (a[m - 1] + a[m]) / 2;
+}
 
 type Well = {
   id: string;
