@@ -262,6 +262,97 @@ export default function ReservoirPressure() {
     toast.success(`Loaded ${imported.length} point${imported.length > 1 ? "s" : ""} from database`);
   };
 
+  // ── PVT snapshot at current well conditions ────────────────────────────
+  const pvt = useMemo(() => {
+    const wellDepth = well?.total_depth ?? 5000;
+    const pApprox = wellDepth * gradient;
+    return pvtSnapshot({
+      P: pApprox, tempF: pvtTempF, api: pvtApi, gammaG: pvtGammaG,
+      correlation: pvtCorr,
+    });
+  }, [well, gradient, pvtTempF, pvtApi, pvtGammaG, pvtCorr]);
+
+  // ── Honest MB: Havlena-Odeh straight-line from measured (P, Np) history ─
+  const mb = useMemo(() => {
+    // Attach cumulative oil to each measured pressure point by date
+    if (dbPressures.length < 3) return null;
+    // Build cumulative-oil function by date
+    let cum = 0;
+    const cumByDate: Array<{ date: string; cum: number }> = [];
+    for (const r of prod) {
+      cum += r.oil_bbl ?? 0;
+      cumByDate.push({ date: r.production_month, cum });
+    }
+    if (!cumByDate.length) return null;
+    const lookupCum = (dateIso: string | null): number => {
+      if (!dateIso) return 0;
+      const t = new Date(dateIso).getTime();
+      let last = 0;
+      for (const p of cumByDate) {
+        if (new Date(p.date).getTime() <= t) last = p.cum;
+        else break;
+      }
+      return last;
+    };
+
+    const points: OilMBPoint[] = dbPressures
+      .filter(dp => dp.date !== null)
+      .map(dp => {
+        const snap = pvtSnapshot({
+          P: dp.p, tempF: dp.T ?? pvtTempF, api: pvtApi, gammaG: pvtGammaG,
+          correlation: pvtCorr,
+        });
+        return {
+          P: dp.p, Np: lookupCum(dp.date), Bo: snap.Bo, Rs: snap.Rs, Bg: 0,
+        };
+      })
+      .filter(p => isFinite(p.Np));
+    if (points.length < 3) return null;
+    return havlenaOdehOil(points);
+  }, [dbPressures, prod, pvtApi, pvtGammaG, pvtTempF, pvtCorr]);
+
+  const submitRft = async () => {
+    if (!wellId) return;
+    const depth = parseFloat(rftDepth);
+    const p = parseFloat(rftP);
+    if (!isFinite(depth) || !isFinite(p) || depth <= 0 || p <= 0) {
+      toast.error("Enter valid depth (ft) and pressure (psi)"); return;
+    }
+    setRftSubmitting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("ingest-restoration", {
+        body: {
+          mode: "pressure_measurement",
+          well_id: wellId,
+          depth_ft: depth,
+          pressure_psi: p,
+          temperature_f: rftT ? parseFloat(rftT) : null,
+          measurement_date: rftDate ? new Date(rftDate).toISOString() : new Date().toISOString(),
+          method: rftMethod,
+          source: "reservoir_pressure_ui",
+        },
+      });
+      if (error) throw error;
+      setRftResult(data);
+      toast.success("RFT/DST point ingested — EKF updated");
+      // Refresh DB pressures and prefill calibration table
+      await loadPressuresFromDb();
+      setCalibPoints(pts => {
+        const exists = pts.some(x => Math.abs(parseFloat(x.depth) - depth) < 2 && Math.abs(parseFloat(x.pp) - p) < 5);
+        return exists ? pts : [...pts.filter(x => x.depth || x.pp),
+          { id: crypto.randomUUID(), depth: String(depth), pp: String(p), source: rftMethod as any }];
+      });
+      // Clear form (keep date & method sticky)
+      setRftDepth(""); setRftP(""); setRftT("");
+    } catch (e: any) {
+      toast.error(`Ingest failed: ${e?.message ?? e}`);
+    } finally {
+      setRftSubmitting(false);
+    }
+  };
+
+
+
 
 
   const analysis = useMemo(() => {
