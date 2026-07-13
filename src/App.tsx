@@ -80,6 +80,7 @@ import AutonomousScan from "./pages/modules/AutonomousScan";
 import AIGuide from "./pages/modules/AIGuide";
 import ModelsReference from "./pages/modules/ModelsReference";
 import DocumentVault from "./pages/modules/DocumentVault";
+import ReservoirPressure from "./pages/modules/ReservoirPressure";
 import NotFound from "./pages/NotFound";
 import OAuthConsent from "./pages/OAuthConsent";
 
