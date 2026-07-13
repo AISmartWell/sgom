@@ -11,10 +11,13 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   ReferenceLine, Legend,
 } from "recharts";
-import { Gauge, Save, Droplets, TrendingDown, Activity, Layers, Sigma, Plus, Trash2, Download } from "lucide-react";
+import { Gauge, Save, Droplets, TrendingDown, Activity, Layers, Sigma, Plus, Trash2, Download, Beaker, Send, ScatterChart as ScatterIcon } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { calcIOIP, lookupFormation } from "@/lib/formation-db";
 import { estimatePorePressure, calibrateEatonExponent, type PoreLogPoint } from "@/lib/pore-pressure";
+import { pvtSnapshot } from "@/lib/pvt";
+import { havlenaOdehOil, type OilMBPoint } from "@/lib/material-balance";
+import { ScatterChart, Scatter, ZAxis } from "recharts";
 
 type CalibPoint = {
   id: string;
@@ -82,6 +85,24 @@ export default function ReservoirPressure() {
   ]);
   const [autoApplyN, setAutoApplyN] = useState(true);
 
+  // ── PVT inputs (Standing / Vasquez-Beggs / Beggs-Robinson) ────────────────
+  const [pvtApi, setPvtApi] = useState(35);        // °API
+  const [pvtGammaG, setPvtGammaG] = useState(0.75); // gas gravity (air = 1)
+  const [pvtTempF, setPvtTempF] = useState(180);   // reservoir temperature
+  const [pvtCorr, setPvtCorr] = useState<"vasquez_beggs" | "standing">("vasquez_beggs");
+
+  // ── RFT ingestion form ────────────────────────────────────────────────────
+  const [rftDepth, setRftDepth] = useState("");
+  const [rftP, setRftP] = useState("");
+  const [rftT, setRftT] = useState("");
+  const [rftDate, setRftDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [rftMethod, setRftMethod] = useState<"rft" | "dst" | "measured">("rft");
+  const [rftSubmitting, setRftSubmitting] = useState(false);
+  const [rftResult, setRftResult] = useState<any | null>(null);
+
+  // Existing DB pressure points for this well (drives MB)
+  const [dbPressures, setDbPressures] = useState<Array<{ id: string; depth: number; p: number; T: number | null; date: string | null; method: string }>>([]);
+
   useEffect(() => {
     (async () => {
       const { data } = await supabase
@@ -120,7 +141,28 @@ export default function ReservoirPressure() {
       })) as PoreLogPoint[];
       setLogs(rows);
     })();
+    loadPressuresFromDb();
   }, [wellId]);
+
+  const loadPressuresFromDb = async () => {
+    if (!wellId) return;
+    const { data } = await (supabase as any)
+      .from("well_pressures")
+      .select("id, datum_depth_ft, p_current_psi, temperature_f, measurement_date, method")
+      .eq("well_id", wellId)
+      .in("method", ["measured", "rft", "dst"])
+      .order("measurement_date", { ascending: true });
+    setDbPressures((data ?? [])
+      .filter((r: any) => r.datum_depth_ft && r.p_current_psi)
+      .map((r: any) => ({
+        id: r.id,
+        depth: Number(r.datum_depth_ft),
+        p: Number(r.p_current_psi),
+        T: r.temperature_f !== null ? Number(r.temperature_f) : null,
+        date: r.measurement_date,
+        method: r.method,
+      })));
+  };
 
   const well = useMemo(() => wells.find(w => w.id === wellId), [wells, wellId]);
 
@@ -219,6 +261,97 @@ export default function ReservoirPressure() {
     });
     toast.success(`Loaded ${imported.length} point${imported.length > 1 ? "s" : ""} from database`);
   };
+
+  // ── PVT snapshot at current well conditions ────────────────────────────
+  const pvt = useMemo(() => {
+    const wellDepth = well?.total_depth ?? 5000;
+    const pApprox = wellDepth * gradient;
+    return pvtSnapshot({
+      P: pApprox, tempF: pvtTempF, api: pvtApi, gammaG: pvtGammaG,
+      correlation: pvtCorr,
+    });
+  }, [well, gradient, pvtTempF, pvtApi, pvtGammaG, pvtCorr]);
+
+  // ── Honest MB: Havlena-Odeh straight-line from measured (P, Np) history ─
+  const mb = useMemo(() => {
+    // Attach cumulative oil to each measured pressure point by date
+    if (dbPressures.length < 3) return null;
+    // Build cumulative-oil function by date
+    let cum = 0;
+    const cumByDate: Array<{ date: string; cum: number }> = [];
+    for (const r of prod) {
+      cum += r.oil_bbl ?? 0;
+      cumByDate.push({ date: r.production_month, cum });
+    }
+    if (!cumByDate.length) return null;
+    const lookupCum = (dateIso: string | null): number => {
+      if (!dateIso) return 0;
+      const t = new Date(dateIso).getTime();
+      let last = 0;
+      for (const p of cumByDate) {
+        if (new Date(p.date).getTime() <= t) last = p.cum;
+        else break;
+      }
+      return last;
+    };
+
+    const points: OilMBPoint[] = dbPressures
+      .filter(dp => dp.date !== null)
+      .map(dp => {
+        const snap = pvtSnapshot({
+          P: dp.p, tempF: dp.T ?? pvtTempF, api: pvtApi, gammaG: pvtGammaG,
+          correlation: pvtCorr,
+        });
+        return {
+          P: dp.p, Np: lookupCum(dp.date), Bo: snap.Bo, Rs: snap.Rs, Bg: 0,
+        };
+      })
+      .filter(p => isFinite(p.Np));
+    if (points.length < 3) return null;
+    return havlenaOdehOil(points);
+  }, [dbPressures, prod, pvtApi, pvtGammaG, pvtTempF, pvtCorr]);
+
+  const submitRft = async () => {
+    if (!wellId) return;
+    const depth = parseFloat(rftDepth);
+    const p = parseFloat(rftP);
+    if (!isFinite(depth) || !isFinite(p) || depth <= 0 || p <= 0) {
+      toast.error("Enter valid depth (ft) and pressure (psi)"); return;
+    }
+    setRftSubmitting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("ingest-restoration", {
+        body: {
+          mode: "pressure_measurement",
+          well_id: wellId,
+          depth_ft: depth,
+          pressure_psi: p,
+          temperature_f: rftT ? parseFloat(rftT) : null,
+          measurement_date: rftDate ? new Date(rftDate).toISOString() : new Date().toISOString(),
+          method: rftMethod,
+          source: "reservoir_pressure_ui",
+        },
+      });
+      if (error) throw error;
+      setRftResult(data);
+      toast.success("RFT/DST point ingested — EKF updated");
+      // Refresh DB pressures and prefill calibration table
+      await loadPressuresFromDb();
+      setCalibPoints(pts => {
+        const exists = pts.some(x => Math.abs(parseFloat(x.depth) - depth) < 2 && Math.abs(parseFloat(x.pp) - p) < 5);
+        return exists ? pts : [...pts.filter(x => x.depth || x.pp),
+          { id: crypto.randomUUID(), depth: String(depth), pp: String(p), source: rftMethod as any }];
+      });
+      // Clear form (keep date & method sticky)
+      setRftDepth(""); setRftP(""); setRftT("");
+    } catch (e: any) {
+      toast.error(`Ingest failed: ${e?.message ?? e}`);
+    } finally {
+      setRftSubmitting(false);
+    }
+  };
+
+
 
 
 
@@ -406,6 +539,207 @@ export default function ReservoirPressure() {
                 <p>Fracture pressure proxy (lithostatic ≈ 1.0 psi/ft) for this well: <b className="text-foreground">{analysis.pLitho.toLocaleString()} psi</b>.</p>
                 <p>Saved estimates feed the SPT Advisor: low current pressure (&lt; 40% of Pi) routes candidates toward pressure-maintenance EOR (gas lift, waterflood) instead of SPT.</p>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* ── PVT snapshot ───────────────────────────────────────────── */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Beaker className="h-5 w-5 text-accent" />
+                PVT — Standing / Vasquez-Beggs / Beggs-Robinson
+              </CardTitle>
+              <p className="text-xs text-muted-foreground mt-1">
+                Black-oil correlations feed the Material Balance solver, Digital Twin, and PVT-based gradient
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid md:grid-cols-4 gap-3">
+                <div>
+                  <Label className="text-xs">API gravity</Label>
+                  <Input type="number" step="0.5" value={pvtApi}
+                    onChange={e => setPvtApi(parseFloat(e.target.value) || 0)} />
+                </div>
+                <div>
+                  <Label className="text-xs">Gas gravity γg (air = 1)</Label>
+                  <Input type="number" step="0.01" value={pvtGammaG}
+                    onChange={e => setPvtGammaG(parseFloat(e.target.value) || 0)} />
+                </div>
+                <div>
+                  <Label className="text-xs">Reservoir T (°F)</Label>
+                  <Input type="number" step="1" value={pvtTempF}
+                    onChange={e => setPvtTempF(parseFloat(e.target.value) || 0)} />
+                </div>
+                <div>
+                  <Label className="text-xs">Correlation</Label>
+                  <select className="w-full bg-background border border-border rounded-md px-2 py-2 text-sm h-9"
+                    value={pvtCorr} onChange={e => setPvtCorr(e.target.value as any)}>
+                    <option value="vasquez_beggs">Vasquez-Beggs (1980)</option>
+                    <option value="standing">Standing (1947)</option>
+                  </select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-6 gap-3 text-sm">
+                <PvtCell label="Pb" v={`${pvt.Pb.toFixed(0)} psia`} />
+                <PvtCell label="Rs" v={`${pvt.Rs.toFixed(0)} scf/STB`} />
+                <PvtCell label="Bo" v={`${pvt.Bo.toFixed(3)} bbl/STB`} />
+                <PvtCell label="μo" v={`${pvt.muO.toFixed(3)} cp`} />
+                <PvtCell label="ρo" v={`${pvt.rhoO.toFixed(1)} lb/ft³`} />
+                <PvtCell label="Gradient" v={`${pvt.gradient.toFixed(3)} psi/ft`} accent />
+              </div>
+              <p className="text-[10px] text-muted-foreground">
+                μo — Beggs-Robinson (dead) + Vasquez-Beggs (undersaturated). ρo and gradient use McCain material-balance form
+                ρo = (62.4·γo + 0.0136·Rs·γg) / Bo. Use "Apply gradient" to overwrite the slider above.
+              </p>
+              <Button size="sm" variant="outline" onClick={() => setGradient(+pvt.gradient.toFixed(3))}>
+                Apply PVT gradient to pressure estimate
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* ── Material Balance (Havlena-Odeh) ─────────────────────────── */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <ScatterIcon className="h-5 w-5 text-accent" />
+                Material Balance — Havlena-Odeh straight line
+              </CardTitle>
+              <p className="text-xs text-muted-foreground mt-1">
+                F = N · Eo → slope gives OOIP independently of volumetrics. Requires ≥3 measured (P, date) points.
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {!mb ? (
+                <div className="text-sm text-muted-foreground py-6 text-center border border-dashed border-border rounded-md">
+                  Need ≥3 measured pressure points with dates. Ingest RFT/DST below, then reload.
+                  {" "}<span className="font-mono">({dbPressures.filter(d => d.date).length} available)</span>
+                </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                    <PvtCell label="N (OOIP)" v={`${(mb.N).toLocaleString(undefined, { maximumFractionDigits: 0 })} STB`} accent />
+                    <PvtCell label="R² fit" v={`${(mb.r2 * 100).toFixed(1)}%`} />
+                    <PvtCell label="Points" v={`${mb.points.length}`} />
+                    <PvtCell label="Boi / Rsi" v={`${mb.Boi.toFixed(3)} / ${mb.Rsi.toFixed(0)}`} />
+                  </div>
+                  <div style={{ width: "100%", height: 260, minHeight: 260 }}>
+                    <ResponsiveContainer>
+                      <ScatterChart margin={{ top: 10, right: 20, left: 0, bottom: 10 }}>
+                        <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="3 3" />
+                        <XAxis type="number" dataKey="Eo" name="Eo"
+                          stroke="hsl(var(--muted-foreground))" tick={{ fontSize: 11 }}
+                          label={{ value: "Eo (bbl/STB)", position: "insideBottom", offset: -2, fill: "hsl(var(--muted-foreground))", fontSize: 11 }} />
+                        <YAxis type="number" dataKey="F" name="F"
+                          stroke="hsl(var(--muted-foreground))" tick={{ fontSize: 11 }}
+                          label={{ value: "F (rbbl)", angle: -90, position: "insideLeft", fill: "hsl(var(--muted-foreground))", fontSize: 11 }} />
+                        <ZAxis range={[60, 60]} />
+                        <Tooltip cursor={{ strokeDasharray: "3 3" }}
+                          contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }} />
+                        <Scatter data={mb.points} fill="hsl(var(--primary))" />
+                      </ScatterChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground">
+                    Slope = N (OOIP). Deviation from a straight line at high depletion → gas cap, aquifer influx, or PVT drift.
+                    Compare N with the volumetric IOIP <span className="font-mono">{analysis.ioip.toLocaleString()} bbl</span>: large
+                    disagreement means one of the inputs (φ, Swi, Bo, area) is off.
+                  </p>
+                </>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* ── RFT / DST ingestion ─────────────────────────────────────── */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Send className="h-5 w-5 text-accent" />
+                RFT / DST ingestion → EKF update
+              </CardTitle>
+              <p className="text-xs text-muted-foreground mt-1">
+                One measured (depth, P, T, date) point. Server inserts into pressure history and runs 1-D EKF on the reservoir gradient in model_parameters.
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="grid md:grid-cols-5 gap-3">
+                <div>
+                  <Label className="text-xs">Depth (ft)</Label>
+                  <Input value={rftDepth} onChange={e => setRftDepth(e.target.value)} placeholder="e.g. 4820" />
+                </div>
+                <div>
+                  <Label className="text-xs">Pressure (psi)</Label>
+                  <Input value={rftP} onChange={e => setRftP(e.target.value)} placeholder="e.g. 2340" />
+                </div>
+                <div>
+                  <Label className="text-xs">Temperature (°F)</Label>
+                  <Input value={rftT} onChange={e => setRftT(e.target.value)} placeholder="optional" />
+                </div>
+                <div>
+                  <Label className="text-xs">Date</Label>
+                  <Input type="date" value={rftDate} onChange={e => setRftDate(e.target.value)} />
+                </div>
+                <div>
+                  <Label className="text-xs">Method</Label>
+                  <select className="w-full bg-background border border-border rounded-md px-2 py-2 text-sm h-9"
+                    value={rftMethod} onChange={e => setRftMethod(e.target.value as any)}>
+                    <option value="rft">RFT</option>
+                    <option value="dst">DST</option>
+                    <option value="measured">Measured (other)</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <div className="text-xs text-muted-foreground">
+                  Stored points for this well: <span className="font-mono text-foreground">{dbPressures.length}</span>
+                  {" · "}Observed gradient this point:{" "}
+                  <span className="font-mono text-foreground">
+                    {rftDepth && rftP && parseFloat(rftDepth) > 0
+                      ? (parseFloat(rftP) / parseFloat(rftDepth)).toFixed(3) + " psi/ft"
+                      : "—"}
+                  </span>
+                </div>
+                <Button onClick={submitRft} disabled={rftSubmitting || !rftDepth || !rftP}>
+                  <Send className="h-4 w-4 mr-2" />
+                  {rftSubmitting ? "Ingesting…" : "Ingest & EKF update"}
+                </Button>
+              </div>
+              {rftResult && rftResult.after && (
+                <div className="text-xs bg-muted/30 border border-border/50 rounded-md p-3 space-y-1">
+                  <div className="font-semibold text-foreground">EKF update applied</div>
+                  <Row k="Observed gradient" v={`${rftResult.observation.z_grad.toFixed(3)} psi/ft`} />
+                  <Row k="Gradient before" v={`${Number(rftResult.before.pressure_gradient_psi_ft).toFixed(3)} psi/ft`} />
+                  <Row k="Gradient after" v={`${Number(rftResult.after.pressure_gradient_psi_ft).toFixed(3)} psi/ft`} />
+                  <Row k="Confidence" v={`${Number(rftResult.after.confidence).toFixed(1)}% (n=${rftResult.after.sample_count})`} />
+                </div>
+              )}
+              {dbPressures.length > 0 && (
+                <div className="border border-border/40 rounded-md overflow-hidden">
+                  <table className="w-full text-xs">
+                    <thead className="bg-muted/40">
+                      <tr>
+                        <th className="text-left px-3 py-2">Date</th>
+                        <th className="text-left px-3 py-2">Method</th>
+                        <th className="text-right px-3 py-2">Depth (ft)</th>
+                        <th className="text-right px-3 py-2">P (psi)</th>
+                        <th className="text-right px-3 py-2">T (°F)</th>
+                        <th className="text-right px-3 py-2">Grad (psi/ft)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {dbPressures.slice(-8).map(dp => (
+                        <tr key={dp.id} className="border-t border-border/40">
+                          <td className="px-3 py-1.5">{dp.date ? new Date(dp.date).toLocaleDateString() : "—"}</td>
+                          <td className="px-3 py-1.5"><Badge variant="outline" className="text-[10px]">{dp.method}</Badge></td>
+                          <td className="px-3 py-1.5 text-right font-mono">{dp.depth.toFixed(0)}</td>
+                          <td className="px-3 py-1.5 text-right font-mono">{dp.p.toFixed(0)}</td>
+                          <td className="px-3 py-1.5 text-right font-mono">{dp.T !== null ? dp.T.toFixed(0) : "—"}</td>
+                          <td className="px-3 py-1.5 text-right font-mono">{(dp.p / Math.max(dp.depth, 1)).toFixed(3)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -612,6 +946,15 @@ function Row({ k, v }: { k: string; v: string }) {
     <div className="flex justify-between border-b border-border/40 py-1">
       <span className="text-muted-foreground">{k}</span>
       <span className="font-mono">{v}</span>
+    </div>
+  );
+}
+
+function PvtCell({ label, v, accent }: { label: string; v: string; accent?: boolean }) {
+  return (
+    <div className="border border-border/40 rounded-md px-3 py-2 bg-muted/20">
+      <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className={`font-mono ${accent ? "text-primary font-semibold" : ""}`}>{v}</div>
     </div>
   );
 }

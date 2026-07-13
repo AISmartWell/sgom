@@ -282,6 +282,8 @@ export type Database = {
           id: string
           last_calibrated_at: string | null
           model_version: string
+          pressure_gradient_psi_ft: number
+          pressure_gradient_variance: number
           sample_count: number
           scope_key: string
           scope_type: string
@@ -300,6 +302,8 @@ export type Database = {
           id?: string
           last_calibrated_at?: string | null
           model_version?: string
+          pressure_gradient_psi_ft?: number
+          pressure_gradient_variance?: number
           sample_count?: number
           scope_key: string
           scope_type: string
@@ -318,6 +322,8 @@ export type Database = {
           id?: string
           last_calibrated_at?: string | null
           model_version?: string
+          pressure_gradient_psi_ft?: number
+          pressure_gradient_variance?: number
           sample_count?: number
           scope_key?: string
           scope_type?: string
@@ -1152,10 +1158,12 @@ export type Database = {
           estimation_date: string
           gradient_psi_ft: number | null
           id: string
+          measurement_date: string | null
           method: string
           notes: string | null
           p_current_psi: number | null
           p_initial_psi: number | null
+          temperature_f: number | null
           updated_at: string
           well_id: string
         }
@@ -1168,10 +1176,12 @@ export type Database = {
           estimation_date?: string
           gradient_psi_ft?: number | null
           id?: string
+          measurement_date?: string | null
           method?: string
           notes?: string | null
           p_current_psi?: number | null
           p_initial_psi?: number | null
+          temperature_f?: number | null
           updated_at?: string
           well_id: string
         }
@@ -1184,10 +1194,12 @@ export type Database = {
           estimation_date?: string
           gradient_psi_ft?: number | null
           id?: string
+          measurement_date?: string | null
           method?: string
           notes?: string | null
           p_current_psi?: number | null
           p_initial_psi?: number | null
+          temperature_f?: number | null
           updated_at?: string
           well_id?: string
         }
