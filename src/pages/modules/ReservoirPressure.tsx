@@ -324,7 +324,128 @@ export default function ReservoirPressure() {
               </div>
             </CardContent>
           </Card>
+
+          {/* ── Eaton pore pressure ────────────────────────────────────── */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Layers className="h-5 w-5 text-accent" />
+                Pore Pressure — Eaton method (resistivity)
+              </CardTitle>
+              <p className="text-xs text-muted-foreground mt-1">
+                Pp = Sv − (Sv − Pn) · (R<sub>obs</sub> / R<sub>nct</sub>)<sup>n</sup> · Soft prior for Digital Twin — not a hard SLSQP constraint
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {logs.length < 10 ? (
+                <div className="text-sm text-muted-foreground py-6 text-center border border-dashed border-border rounded-md">
+                  No well logs (GR + resistivity + density) for this well. Load a LAS via Geophysical Expertise to enable Eaton.
+                </div>
+              ) : !eaton ? (
+                <div className="text-sm text-muted-foreground">Computing…</div>
+              ) : (
+                <>
+                  {/* Controls */}
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <div>
+                      <Label className="text-xs">Eaton exponent n: {eatonN.toFixed(2)}</Label>
+                      <Slider value={[eatonN]} min={0.6} max={2.0} step={0.05}
+                        onValueChange={v => setEatonN(v[0])} />
+                      <p className="text-[10px] text-muted-foreground mt-1">
+                        Gulf Coast 1.2 · Anadarko/Woodford ≈ 1.0–1.4 · calibrate to local RFT
+                      </p>
+                    </div>
+                    <div>
+                      <Label className="text-xs">GR shale cutoff: {grShaleCutoff} API</Label>
+                      <Slider value={[grShaleCutoff]} min={60} max={100} step={1}
+                        onValueChange={v => setGrShaleCutoff(v[0])} />
+                      <p className="text-[10px] text-muted-foreground mt-1">
+                        NCT fitted on shale points only (GR ≥ cutoff)
+                      </p>
+                    </div>
+                    <div className="space-y-2 text-xs">
+                      <div className="flex justify-between"><span className="text-muted-foreground">NCT R² (shale fit)</span><span className="font-mono">{(eaton.nct.r2 * 100).toFixed(1)}%</span></div>
+                      <div className="flex justify-between"><span className="text-muted-foreground">Shale points used</span><span className="font-mono">{eaton.nct.shalePoints}</span></div>
+                      <div className="flex justify-between"><span className="text-muted-foreground">Mean PPG</span><span className="font-mono">{eaton.meanPpg !== null ? eaton.meanPpg.toFixed(3) + " psi/ft" : "—"}</span></div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Regime</span>
+                        <Badge variant="outline" className={
+                          (eaton.meanPpg ?? 0) > 0.60 ? "border-red-500/50 text-red-400" :
+                          (eaton.meanPpg ?? 0) > 0.48 ? "border-amber-500/50 text-amber-400" :
+                          "border-emerald-500/50 text-emerald-400"
+                        }>
+                          {(eaton.meanPpg ?? 0) > 0.60 ? "Overpressured" : (eaton.meanPpg ?? 0) > 0.48 ? "Mildly high" : "Normal"}
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Chart: Pp / Pn / Sv vs depth */}
+                  <div style={{ width: "100%", height: 420, minHeight: 420 }}>
+                    <ResponsiveContainer>
+                      <LineChart data={eaton.chart} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+                        <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="3 3" />
+                        <XAxis type="number" dataKey="depth" domain={["dataMin", "dataMax"]}
+                          stroke="hsl(var(--muted-foreground))" tick={{ fontSize: 11 }}
+                          label={{ value: "Depth (ft)", position: "insideBottom", offset: -2, fill: "hsl(var(--muted-foreground))", fontSize: 12 }} />
+                        <YAxis stroke="hsl(var(--muted-foreground))" tick={{ fontSize: 11 }}
+                          label={{ value: "Pressure (psi)", angle: -90, position: "insideLeft", fill: "hsl(var(--muted-foreground))", fontSize: 12 }} />
+                        <Tooltip
+                          contentStyle={{
+                            background: "hsl(var(--card))",
+                            border: "1px solid hsl(var(--border))",
+                            borderRadius: 8,
+                            color: "hsl(var(--foreground))",
+                          }}
+                          formatter={(v: any, name) => [typeof v === "number" ? v.toFixed(0) + " psi" : v, name]}
+                          labelFormatter={(d) => `Depth ${Number(d).toFixed(0)} ft`}
+                        />
+                        <Legend />
+                        <Line type="monotone" dataKey="sv_psi" stroke="#6b7280" strokeWidth={1.5} dot={false} name="Sv (overburden)" />
+                        <Line type="monotone" dataKey="pn_psi" stroke="#3b82f6" strokeWidth={1.5} strokeDasharray="4 4" dot={false} name="Pn (hydrostatic)" />
+                        <Line type="monotone" dataKey="pp_psi" stroke="#ef4444" strokeWidth={2.5} dot={false} name="Pp (Eaton)" connectNulls />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  {/* Calibration panel */}
+                  <div className="border border-border/60 rounded-md p-4 space-y-3 bg-muted/20">
+                    <div className="flex items-center gap-2 text-sm font-semibold">
+                      <Sigma className="h-4 w-4 text-accent" />
+                      Calibrate n from measured Pp (RFT / DST / production test)
+                    </div>
+                    <div className="grid md:grid-cols-3 gap-3">
+                      <div>
+                        <Label className="text-xs">Depth (ft)</Label>
+                        <Input value={calibDepth} onChange={e => setCalibDepth(e.target.value)} placeholder="e.g. 4820" />
+                      </div>
+                      <div>
+                        <Label className="text-xs">Measured Pp (psi)</Label>
+                        <Input value={calibPp} onChange={e => setCalibPp(e.target.value)} placeholder="e.g. 2340" />
+                      </div>
+                      <div className="flex flex-col justify-end">
+                        <div className="text-xs text-muted-foreground">Suggested n</div>
+                        <div className="text-2xl font-mono">
+                          {suggestedN !== null && isFinite(suggestedN) ? suggestedN.toFixed(2) : "—"}
+                        </div>
+                        {suggestedN !== null && isFinite(suggestedN) && (
+                          <Button size="sm" variant="outline" className="mt-1"
+                            onClick={() => setEatonN(Math.max(0.6, Math.min(2.0, suggestedN)))}>
+                            Apply
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">
+                      Without a single real RFT/DST point the default n = 1.2 is a Gulf Coast assumption (Eaton 1975). Miscalibration can shift Pp by hundreds of psi. Treat Eaton output as a <b>soft prior</b> with wide variance in the Kalman/Bayesian layer, never as a hard constraint in ELAN SLSQP inversion.
+                    </p>
+                  </div>
+                </>
+              )}
+            </CardContent>
+          </Card>
         </>
+
       )}
     </div>
   );
