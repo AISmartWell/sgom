@@ -80,6 +80,7 @@ import AutonomousScan from "./pages/modules/AutonomousScan";
 import AIGuide from "./pages/modules/AIGuide";
 import ModelsReference from "./pages/modules/ModelsReference";
 import DocumentVault from "./pages/modules/DocumentVault";
+import ReservoirPressure from "./pages/modules/ReservoirPressure";
 import NotFound from "./pages/NotFound";
 import OAuthConsent from "./pages/OAuthConsent";
 
@@ -149,6 +150,7 @@ const App = () => (
               <Route path="ai-guide" element={<AIGuide />} />
               <Route path="models-reference" element={<ModelsReference />} />
               <Route path="document-vault" element={<DocumentVault />} />
+              <Route path="reservoir-pressure" element={<ReservoirPressure />} />
 
            </Route>
            <Route path="/nvidia-inception" element={<NvidiaInception />} />

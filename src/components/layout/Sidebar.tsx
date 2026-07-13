@@ -40,6 +40,7 @@ import {
   Sparkles,
   Plane,
   Cpu,
+  Gauge,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -114,6 +115,12 @@ const menuItems = [
     icon: TrendingDown,
     href: "/dashboard/cumulative-analysis",
     badge: "Stage 3",
+  },
+  {
+    title: "Reservoir Pressure",
+    icon: Gauge,
+    href: "/dashboard/reservoir-pressure",
+    badge: "Stage 4.5",
   },
   {
     title: "SPT Projection",
