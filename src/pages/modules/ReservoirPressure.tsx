@@ -949,3 +949,12 @@ function Row({ k, v }: { k: string; v: string }) {
     </div>
   );
 }
+
+function PvtCell({ label, v, accent }: { label: string; v: string; accent?: boolean }) {
+  return (
+    <div className="border border-border/40 rounded-md px-3 py-2 bg-muted/20">
+      <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className={`font-mono ${accent ? "text-primary font-semibold" : ""}`}>{v}</div>
+    </div>
+  );
+}
