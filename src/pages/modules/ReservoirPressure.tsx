@@ -11,10 +11,13 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   ReferenceLine, Legend,
 } from "recharts";
-import { Gauge, Save, Droplets, TrendingDown, Activity, Layers, Sigma, Plus, Trash2, Download } from "lucide-react";
+import { Gauge, Save, Droplets, TrendingDown, Activity, Layers, Sigma, Plus, Trash2, Download, Beaker, Send, ScatterChart as ScatterIcon } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { calcIOIP, lookupFormation } from "@/lib/formation-db";
 import { estimatePorePressure, calibrateEatonExponent, type PoreLogPoint } from "@/lib/pore-pressure";
+import { pvtSnapshot } from "@/lib/pvt";
+import { havlenaOdehOil, type OilMBPoint } from "@/lib/material-balance";
+import { ScatterChart, Scatter, ZAxis } from "recharts";
 
 type CalibPoint = {
   id: string;
