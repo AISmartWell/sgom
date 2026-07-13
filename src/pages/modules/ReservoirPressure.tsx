@@ -85,6 +85,24 @@ export default function ReservoirPressure() {
   ]);
   const [autoApplyN, setAutoApplyN] = useState(true);
 
+  // ── PVT inputs (Standing / Vasquez-Beggs / Beggs-Robinson) ────────────────
+  const [pvtApi, setPvtApi] = useState(35);        // °API
+  const [pvtGammaG, setPvtGammaG] = useState(0.75); // gas gravity (air = 1)
+  const [pvtTempF, setPvtTempF] = useState(180);   // reservoir temperature
+  const [pvtCorr, setPvtCorr] = useState<"vasquez_beggs" | "standing">("vasquez_beggs");
+
+  // ── RFT ingestion form ────────────────────────────────────────────────────
+  const [rftDepth, setRftDepth] = useState("");
+  const [rftP, setRftP] = useState("");
+  const [rftT, setRftT] = useState("");
+  const [rftDate, setRftDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [rftMethod, setRftMethod] = useState<"rft" | "dst" | "measured">("rft");
+  const [rftSubmitting, setRftSubmitting] = useState(false);
+  const [rftResult, setRftResult] = useState<any | null>(null);
+
+  // Existing DB pressure points for this well (drives MB)
+  const [dbPressures, setDbPressures] = useState<Array<{ id: string; depth: number; p: number; T: number | null; date: string | null; method: string }>>([]);
+
   useEffect(() => {
     (async () => {
       const { data } = await supabase
