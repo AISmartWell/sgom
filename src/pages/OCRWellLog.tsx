@@ -287,6 +287,16 @@ const OCRWellLog = () => {
         </Card>
       </div>
 
+      {result && (
+        <div className="mt-6">
+          <OCRQualityCheck
+            result={result as any}
+            previewSrc={preview}
+            onChange={(next) => setResult(next as any)}
+          />
+        </div>
+      )}
+
       {result && (result.log_readings?.length || result.perforations?.length) ? (
         <div className="mt-6">
           <OCRCurvePreview
