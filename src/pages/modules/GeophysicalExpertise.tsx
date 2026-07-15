@@ -2883,11 +2883,84 @@ const GeophysicalExpertise = () => {
             Step-by-step well log interpretation algorithm
           </p>
         </div>
-        <Badge variant="outline" className="text-primary border-primary">
-          <Calculator className="mr-1 h-3 w-3" />
-          8-Step Algorithm
-        </Badge>
+        <div className="flex items-center gap-2">
+          <Button
+            variant={showDiagnostics ? "default" : "outline"}
+            size="sm"
+            onClick={() => setShowDiagnostics((v) => !v)}
+            className="gap-1.5"
+          >
+            <Info className="h-3.5 w-3.5" />
+            {showDiagnostics ? "Скрыть диагностику" : "Показать диагностику"}
+          </Button>
+          <Badge variant="outline" className="text-primary border-primary">
+            <Calculator className="mr-1 h-3 w-3" />
+            8-Step Algorithm
+          </Badge>
+        </div>
       </div>
+
+      {/* Diagnostics Panel */}
+      {showDiagnostics && (
+        <Card className="mb-4 border-amber-500/40 bg-amber-500/5">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 text-amber-500" />
+              Диагностика загрузки — Geophysical Expertise
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-xs font-mono space-y-3">
+            <div>
+              <div className="font-sans font-semibold text-sm mb-1">URL параметры</div>
+              <div>wellId (URL): <span className="text-primary">{urlWellId || "— не задан —"}</span></div>
+              <div>selectedWell.id: <span className="text-primary">{selectedWell?.id || "— не выбрана —"}</span></div>
+              <div>selectedWell.name: {selectedWell?.well_name || "—"}</div>
+            </div>
+
+            {urlWellId && (
+              <div>
+                <div className="font-sans font-semibold text-sm mb-1">Поиск скважины (wells)</div>
+                <div>HTTP status: <span className={wellLookupDiag.httpStatus && wellLookupDiag.httpStatus >= 400 ? "text-destructive" : "text-emerald-500"}>{wellLookupDiag.httpStatus ?? "—"}</span></div>
+                <div>found: {String(wellLookupDiag.found ?? "—")}</div>
+                {wellLookupDiag.errorCode && <div>error.code: <span className="text-destructive">{wellLookupDiag.errorCode}</span></div>}
+                {wellLookupDiag.errorMessage && <div>error.message: <span className="text-destructive">{wellLookupDiag.errorMessage}</span></div>}
+                {wellLookupDiag.errorDetails && <div>error.details: {wellLookupDiag.errorDetails}</div>}
+                {wellLookupDiag.errorHint && <div>error.hint: {wellLookupDiag.errorHint}</div>}
+                {wellLookupDiag.finishedAt && <div className="opacity-60">at: {wellLookupDiag.finishedAt}</div>}
+              </div>
+            )}
+
+            <div>
+              <div className="font-sans font-semibold text-sm mb-1">Загрузка well_logs</div>
+              <div>isLoading: {String(logsLoading)}</div>
+              <div>HTTP status: <span className={logsDiag.httpStatus && logsDiag.httpStatus >= 400 ? "text-destructive" : "text-emerald-500"}>{logsDiag.httpStatus ?? "—"}</span></div>
+              <div>rowCount: {logsDiag.rowCount ?? 0}</div>
+              <div>duration: {logsDiag.durationMs != null ? `${logsDiag.durationMs} ms` : "—"}</div>
+              {logsDiag.errorCode && <div>error.code: <span className="text-destructive">{logsDiag.errorCode}</span></div>}
+              {logsDiag.errorMessage && <div>error.message: <span className="text-destructive">{logsDiag.errorMessage}</span></div>}
+              {logsDiag.errorDetails && <div>error.details: {logsDiag.errorDetails}</div>}
+              {logsDiag.errorHint && <div>error.hint: {logsDiag.errorHint}</div>}
+              {logsDiag.exception && <div>exception: <span className="text-destructive">{logsDiag.exception}</span></div>}
+              {logsDiag.finishedAt && <div className="opacity-60">at: {logsDiag.finishedAt}</div>}
+            </div>
+
+            <div className="pt-2 border-t border-border/50">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  const payload = { urlWellId, selectedWellId: selectedWell?.id, wellLookupDiag, logsDiag };
+                  navigator.clipboard.writeText(JSON.stringify(payload, null, 2));
+                  toast.success("Диагностика скопирована в буфер обмена");
+                }}
+              >
+                Скопировать JSON
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
 
       {/* Well Selector */}
       <WellSearchSelector
