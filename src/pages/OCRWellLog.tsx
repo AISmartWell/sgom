@@ -284,9 +284,108 @@ const OCRWellLog = () => {
           )}
         </Card>
       </div>
+
+      {result && (
+        <Card className="mt-6 p-6 space-y-4 border-primary/40">
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <h2 className="font-semibold text-lg flex items-center gap-2">
+                <Database className="h-4 w-4 text-primary" />
+                Full pipeline · Create well → Save logs → Run Stage 8 (Geophysical)
+              </h2>
+              <p className="text-xs text-muted-foreground mt-1 max-w-2xl">
+                Creates a new well record from the OCR metadata, persists digitised curve points
+                into <code className="text-primary">well_logs</code>, then invokes the geophysical
+                petrophysics engine (Vsh · φ · Sw · Timur k · pay flags).
+              </p>
+            </div>
+            <Button
+              onClick={runFullPipeline}
+              disabled={pipelineLoading}
+              className="bg-primary hover:bg-primary/90"
+            >
+              {pipelineLoading ? (
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Running…</>
+              ) : (
+                <><Brain className="mr-2 h-4 w-4" /> Save + Attach + Analyze</>
+              )}
+            </Button>
+          </div>
+
+          {pipelineOut && (
+            <div className="space-y-4 pt-2 border-t border-border/50">
+              <div className="grid sm:grid-cols-3 gap-3">
+                <div className="p-3 rounded-lg bg-muted/30">
+                  <div className="text-[10px] uppercase text-muted-foreground">New Well</div>
+                  <div className="font-medium truncate">{pipelineOut.well?.well_name}</div>
+                  <div className="text-[10px] font-mono text-primary truncate">
+                    {pipelineOut.well?.id}
+                  </div>
+                </div>
+                <div className="p-3 rounded-lg bg-muted/30">
+                  <div className="text-[10px] uppercase text-muted-foreground">Log points</div>
+                  <div className="font-medium">{pipelineOut.logsInserted}</div>
+                </div>
+                <div className="p-3 rounded-lg bg-muted/30">
+                  <div className="text-[10px] uppercase text-muted-foreground">Perforations</div>
+                  <div className="font-medium">{pipelineOut.perfsInserted}</div>
+                </div>
+              </div>
+
+              {pipelineOut.stageAnalysis ? (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/40">
+                      Stage 8 · {pipelineOut.stageAnalysis.dataSource}
+                    </Badge>
+                    <span className="text-xs text-muted-foreground">
+                      {pipelineOut.stageAnalysis.title}
+                    </span>
+                  </div>
+
+                  {pipelineOut.stageAnalysis.metrics?.length > 0 && (
+                    <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-2">
+                      {pipelineOut.stageAnalysis.metrics.map((m: any, i: number) => (
+                        <div key={i} className="p-2 rounded bg-muted/20 text-xs">
+                          <div className="text-muted-foreground">{m.label ?? m.name}</div>
+                          <div className="font-mono text-primary">
+                            {m.value} {m.unit ?? ""}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
+                    <div className="text-[10px] uppercase text-primary mb-1">
+                      Petrophysicist verdict
+                    </div>
+                    <div className="text-sm leading-relaxed whitespace-pre-wrap">
+                      {pipelineOut.stageAnalysis.verdict}
+                    </div>
+                  </div>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigate(`/modules/geophysical-expertise?wellId=${pipelineOut.well?.id}`)}
+                  >
+                    Open in Geophysical Expertise <ArrowRight className="ml-2 h-3 w-3" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="text-sm text-amber-400">
+                  Stage 8 unavailable: {pipelineOut.stageError || "no analysis returned"}
+                </div>
+              )}
+            </div>
+          )}
+        </Card>
+      )}
     </div>
   );
 };
+
 
 const Field = ({ label, value }: { label: string; value?: string | number | null }) => (
   <div>
