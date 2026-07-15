@@ -465,9 +465,16 @@ export const OCRQualityCheck = ({ result, previewSrc, onChange }: Props) => {
                   <Badge
                     key={k}
                     variant="outline"
-                    className={canon ? "border-primary/50 text-primary" : "border-amber-500/50 text-amber-400"}
+                    className={
+                      issues.curveProblems.has(k)
+                        ? "border-red-500/70 text-red-400 bg-red-500/10"
+                        : canon
+                        ? "border-primary/50 text-primary"
+                        : "border-amber-500/50 text-amber-400"
+                    }
+                    title={issues.curveProblems.has(k) ? "Duplicate canonical mapping" : undefined}
                   >
-                    {canon ? `${canon.label} (${k})` : `⚠ ${k}`}
+                    {issues.curveProblems.has(k) ? `✗ ${k}` : canon ? `${canon.label} (${k})` : `⚠ ${k}`}
                     <button
                       className="ml-2 opacity-60 hover:opacity-100"
                       onClick={() => dropCurve(k)}
