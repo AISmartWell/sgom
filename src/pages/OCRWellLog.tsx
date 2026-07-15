@@ -390,7 +390,7 @@ const OCRWellLog = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => navigate(`/modules/geophysical-expertise?wellId=${pipelineOut.well?.id}`)}
+                    onClick={() => navigate(`/dashboard/geophysical?wellId=${pipelineOut.well?.id}`)}
                   >
                     Open in Geophysical Expertise <ArrowRight className="ml-2 h-3 w-3" />
                   </Button>
