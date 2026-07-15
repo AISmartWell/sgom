@@ -322,8 +322,43 @@ export const OCRQualityCheck = ({ result, previewSrc, onChange }: Props) => {
           )}
           <Badge variant="secondary">{readings.length} samples</Badge>
           <Badge variant="secondary">{detectedKeys.length} curves</Badge>
+          {errorCount > 0 && (
+            <Badge variant="outline" className="border-red-500/50 text-red-400">
+              <AlertTriangle className="h-3 w-3 mr-1" /> {errorCount} error{errorCount > 1 ? "s" : ""}
+            </Badge>
+          )}
+          {warnCount > 0 && (
+            <Badge variant="outline" className="border-amber-500/50 text-amber-400">
+              <AlertTriangle className="h-3 w-3 mr-1" /> {warnCount} warning{warnCount > 1 ? "s" : ""}
+            </Badge>
+          )}
+          {errorCount === 0 && warnCount === 0 && (
+            <Badge variant="outline" className="border-emerald-500/50 text-emerald-400">
+              <CheckCircle2 className="h-3 w-3 mr-1" /> QC clean
+            </Badge>
+          )}
         </div>
       </div>
+
+      {issues.errors.length > 0 && (
+        <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 space-y-1">
+          <div className="text-xs uppercase text-amber-400 flex items-center gap-2 font-semibold">
+            <AlertTriangle className="h-3 w-3" /> Quality checks
+          </div>
+          <ul className="text-xs space-y-0.5">
+            {issues.errors.map((e, i) => (
+              <li
+                key={i}
+                className={e.level === "error" ? "text-red-400" : "text-amber-400/90"}
+              >
+                <span className="font-mono mr-1">{e.level === "error" ? "✗" : "!"}</span>
+                {e.msg}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
 
       <div className="grid lg:grid-cols-[280px_1fr] gap-5">
         {/* Preview with depth bands */}
