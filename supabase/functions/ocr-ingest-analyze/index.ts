@@ -132,10 +132,10 @@ Deno.serve(async (req) => {
         .map((p) => ({
           well_id: wellRow.id,
           company_id: companyId,
-          top_depth: p.top_ft,
-          bottom_depth: p.bottom_ft,
-          perforation_date: p.date ?? null,
-          source: "ocr",
+          depth_from: p.top_ft,
+          depth_to: p.bottom_ft,
+          date_perforated: p.date ?? null,
+          notes: "Imported from OCR",
         }));
       if (perfRows.length) {
         const { error: perfErr } = await sb.from("well_perforations").insert(perfRows);
