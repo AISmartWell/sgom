@@ -74,7 +74,151 @@ export const OCRQualityCheck = ({ result, previewSrc, onChange }: Props) => {
     return { min: Math.min(...ds), max: Math.max(...ds) };
   }, [readings]);
 
+  const issues = useMemo(() => {
+    type Issue = { level: "error" | "warn"; msg: string };
+    const errors: Issue[] = [];
+    const perfProblems = new Map<number, string[]>();
+    const topProblems = new Map<number, string[]>();
+    const curveProblems = new Set<string>();
+    const readingProblems = new Set<number>(); // reading indices
+
+    const push = (arr: Issue[], level: "error" | "warn", msg: string) => arr.push({ level, msg });
+    const addPerf = (i: number, m: string) => {
+      const cur = perfProblems.get(i) || [];
+      cur.push(m);
+      perfProblems.set(i, cur);
+    };
+    const addTop = (i: number, m: string) => {
+      const cur = topProblems.get(i) || [];
+      cur.push(m);
+      topProblems.set(i, cur);
+    };
+
+    const dRangeTop = result.depth_range_ft?.top;
+    const dRangeBot = result.depth_range_ft?.bottom;
+    const hasRange = typeof dRangeTop === "number" && typeof dRangeBot === "number";
+
+    // Readings — duplicate depths and non-monotonic ordering
+    if (readings.length) {
+      const seen = new Map<number, number>();
+      let nonMono = 0;
+      for (let i = 0; i < readings.length; i++) {
+        const d = readings[i].depth_ft;
+        if (!Number.isFinite(d)) {
+          readingProblems.add(i);
+          continue;
+        }
+        if (seen.has(d)) {
+          readingProblems.add(i);
+          readingProblems.add(seen.get(d)!);
+        } else {
+          seen.set(d, i);
+        }
+        if (i > 0 && Number.isFinite(readings[i - 1].depth_ft) && d < readings[i - 1].depth_ft) {
+          nonMono++;
+        }
+      }
+      if (readingProblems.size)
+        push(errors, "error", `${readingProblems.size} reading(s) with duplicate or invalid depth_ft`);
+      if (nonMono > 0)
+        push(errors, "warn", `${nonMono} reading(s) break monotonic depth order — sort recommended`);
+    }
+
+    // Depth range vs readings
+    if (hasRange && readings.length) {
+      if (depthMinMax.min < (dRangeTop as number) - 0.5)
+        push(errors, "warn", `Readings extend above declared top (${depthMinMax.min.toFixed(0)} < ${dRangeTop} ft)`);
+      if (depthMinMax.max > (dRangeBot as number) + 0.5)
+        push(errors, "warn", `Readings extend below declared bottom (${depthMinMax.max.toFixed(0)} > ${dRangeBot} ft)`);
+    }
+
+    // Duplicate curve keys — same canonical target
+    const canonCount = new Map<string, string[]>();
+    detectedKeys.forEach((k) => {
+      const canon = CANONICAL_CURVES.find((c) => c.key === k)?.key;
+      if (canon) {
+        const arr = canonCount.get(canon) || [];
+        arr.push(k);
+        canonCount.set(canon, arr);
+      }
+    });
+    canonCount.forEach((keys, canon) => {
+      if (keys.length > 1) {
+        keys.forEach((k) => curveProblems.add(k));
+        push(errors, "error", `Duplicate curves mapped to ${canon}: ${keys.join(", ")}`);
+      }
+    });
+    // Non-canonical keys
+    const nonCanon = detectedKeys.filter((k) => !CANONICAL_CURVES.some((c) => c.key === k));
+    if (nonCanon.length)
+      push(errors, "warn", `${nonCanon.length} non-canonical curve key(s): ${nonCanon.join(", ")} — rename or drop`);
+
+    // Perforations
+    perfs.forEach((p, i) => {
+      if (!Number.isFinite(p.top_ft) || !Number.isFinite(p.bottom_ft)) {
+        addPerf(i, "Invalid depth");
+        return;
+      }
+      if (p.top_ft >= p.bottom_ft) addPerf(i, "top ≥ bottom");
+      if (hasRange) {
+        if (p.top_ft < (dRangeTop as number) - 0.5 || p.bottom_ft > (dRangeBot as number) + 0.5)
+          addPerf(i, "outside declared depth range");
+      } else if (readings.length) {
+        if (p.top_ft < depthMinMax.min - 0.5 || p.bottom_ft > depthMinMax.max + 0.5)
+          addPerf(i, "outside readings window");
+      }
+      // Overlap with earlier perfs
+      for (let j = 0; j < i; j++) {
+        const q = perfs[j];
+        if (p.top_ft < q.bottom_ft && p.bottom_ft > q.top_ft) {
+          addPerf(i, `overlaps perf #${j + 1}`);
+          addPerf(j, `overlaps perf #${i + 1}`);
+        }
+      }
+    });
+    if (perfProblems.size) push(errors, "error", `${perfProblems.size} perforation(s) with issues`);
+
+    // Formation tops
+    const topNames = new Map<string, number>();
+    const topDepths = new Map<number, number>();
+    tops.forEach((t, i) => {
+      if (!t.name?.trim()) addTop(i, "empty name");
+      if (!Number.isFinite(t.depth_ft)) {
+        addTop(i, "invalid depth");
+        return;
+      }
+      if (hasRange && (t.depth_ft < (dRangeTop as number) - 0.5 || t.depth_ft > (dRangeBot as number) + 0.5))
+        addTop(i, "outside depth range");
+      const nk = t.name?.trim().toLowerCase();
+      if (nk) {
+        if (topNames.has(nk)) {
+          addTop(i, "duplicate name");
+          addTop(topNames.get(nk)!, "duplicate name");
+        } else topNames.set(nk, i);
+      }
+      if (topDepths.has(t.depth_ft)) {
+        addTop(i, "duplicate depth");
+        addTop(topDepths.get(t.depth_ft)!, "duplicate depth");
+      } else topDepths.set(t.depth_ft, i);
+    });
+    // Non-monotonic tops
+    const sortedByDepth = tops.map((t, i) => ({ ...t, i })).sort((a, b) => a.depth_ft - b.depth_ft);
+    for (let k = 0; k < sortedByDepth.length; k++) {
+      if (sortedByDepth[k].i !== k) {
+        push(errors, "warn", "Formation tops not sorted by depth");
+        break;
+      }
+    }
+    if (topProblems.size) push(errors, "error", `${topProblems.size} formation top(s) with issues`);
+
+    return { errors, perfProblems, topProblems, curveProblems, readingProblems };
+  }, [readings, perfs, tops, detectedKeys, result.depth_range_ft, depthMinMax]);
+
+  const errorCount = issues.errors.filter((e) => e.level === "error").length;
+  const warnCount = issues.errors.filter((e) => e.level === "warn").length;
+
   const patch = (p: Partial<OcrEditableResult>) => onChange({ ...result, ...p });
+
 
   const applyDepthShift = () => {
     if (!depthShift) return;
