@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import demoPaperLog from "@/assets/demo-paper-well-log.jpg";
 import { OCRCurvePreview } from "@/components/ocr/OCRCurvePreview";
+import { OCRQualityCheck } from "@/components/ocr/OCRQualityCheck";
 
 type OcrResult = {
   well_name?: string | null;
@@ -285,6 +286,16 @@ const OCRWellLog = () => {
           )}
         </Card>
       </div>
+
+      {result && (
+        <div className="mt-6">
+          <OCRQualityCheck
+            result={result as any}
+            previewSrc={preview}
+            onChange={(next) => setResult(next as any)}
+          />
+        </div>
+      )}
 
       {result && (result.log_readings?.length || result.perforations?.length) ? (
         <div className="mt-6">
