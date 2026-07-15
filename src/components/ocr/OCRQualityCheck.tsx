@@ -585,24 +585,35 @@ export const OCRQualityCheck = ({ result, previewSrc, onChange }: Props) => {
               <div className="text-xs italic text-muted-foreground">No tops detected</div>
             )}
             <div className="space-y-1">
-              {tops.map((t, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <Input
-                    value={t.name}
-                    onChange={(e) => updateTop(i, "name", e.target.value)}
-                    className="h-8 flex-1"
-                  />
-                  <Input
-                    type="number"
-                    value={t.depth_ft}
-                    onChange={(e) => updateTop(i, "depth_ft", e.target.value)}
-                    className="h-8 w-28 font-mono"
-                  />
-                  <Button size="icon" variant="ghost" onClick={() => removeTop(i)}>
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
-                </div>
-              ))}
+              {tops.map((t, i) => {
+                const probs = issues.topProblems.get(i);
+                return (
+                  <div
+                    key={i}
+                    className={
+                      "flex items-center gap-2 rounded-md p-1 " +
+                      (probs ? "bg-red-500/10 border border-red-500/40" : "")
+                    }
+                    title={probs?.join("; ")}
+                  >
+                    <Input
+                      value={t.name}
+                      onChange={(e) => updateTop(i, "name", e.target.value)}
+                      className="h-8 flex-1"
+                    />
+                    <Input
+                      type="number"
+                      value={t.depth_ft}
+                      onChange={(e) => updateTop(i, "depth_ft", e.target.value)}
+                      className="h-8 w-28 font-mono"
+                    />
+                    {probs && <AlertTriangle className="h-4 w-4 text-red-400 shrink-0" />}
+                    <Button size="icon" variant="ghost" onClick={() => removeTop(i)}>
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
