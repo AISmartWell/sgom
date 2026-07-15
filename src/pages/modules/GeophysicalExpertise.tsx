@@ -2796,8 +2796,45 @@ const GeophysicalExpertise = () => {
     await fetchWells();
   };
 
+  // Load well by URL ?wellId= (with diagnostics)
+  useEffect(() => {
+    if (!urlWellId) return;
+    if (selectedWell?.id === urlWellId) return;
+    let cancelled = false;
+    (async () => {
+      const res: any = await supabase
+        .from("wells")
+        .select("id, well_name, api_number, formation, total_depth")
+        .eq("id", urlWellId)
+        .maybeSingle();
+      const { data, error, status } = res;
+      if (cancelled) return;
+      setWellLookupDiag({
+        wellId: urlWellId,
+        httpStatus: status ?? null,
+        errorCode: error?.code ?? null,
+        errorMessage: error?.message ?? null,
+        errorDetails: error?.details ?? null,
+        errorHint: error?.hint ?? null,
+        found: !!data,
+        finishedAt: new Date().toISOString(),
+      });
+      if (data) {
+        setSelectedWell(data);
+        setWells((prev) => (prev.some((w) => w.id === data.id) ? prev : [data, ...prev]));
+      } else if (error) {
+        toast.error(`Не удалось загрузить скважину: ${error.message}`);
+        setShowDiagnostics(true);
+      } else {
+        toast.error("Скважина не найдена");
+        setShowDiagnostics(true);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [urlWellId, selectedWell?.id]);
+
   // Load well log data for calculation steps
-  const { data: rawLogs } = useWellLogs(selectedWell?.id);
+  const { data: rawLogs, isLoading: logsLoading, diagnostics: logsDiag } = useWellLogs(selectedWell?.id);
 
   const petroData = useMemo<PetroPoint[]>(() => {
     if (!rawLogs) return [];
