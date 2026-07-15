@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import demoPaperLog from "@/assets/demo-paper-well-log.jpg";
+import { OCRCurvePreview } from "@/components/ocr/OCRCurvePreview";
 
 type OcrResult = {
   well_name?: string | null;
