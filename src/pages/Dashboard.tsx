@@ -19,6 +19,8 @@ import {
   Brain,
   Microscope,
   Waves,
+  FileText,
+  Gauge,
 } from "lucide-react";
 
 const Dashboard = () => {
@@ -217,6 +219,30 @@ const Dashboard = () => {
       stats: [
         { label: "Effect", value: "5-10x" },
         { label: "Duration", value: "10-15yr" },
+      ],
+    },
+    {
+      title: "OCR Well Log",
+      description: "Digitize paper well logs → create well → run Stage 8 pipeline",
+      icon: FileText,
+      href: "/dashboard/ocr",
+      status: "ready" as const,
+      emoji: "📄",
+      stats: [
+        { label: "Engine", value: "Gemini Vision" },
+        { label: "Pipeline", value: "OCR→DB→S8" },
+      ],
+    },
+    {
+      title: "Reservoir Pressure",
+      description: "Eaton pore pressure, PVT correlations & material balance",
+      icon: Gauge,
+      href: "/dashboard/reservoir-pressure",
+      status: "ready" as const,
+      emoji: "🧭",
+      stats: [
+        { label: "Stage", value: "4.5" },
+        { label: "Methods", value: "Eaton+MB+EKF" },
       ],
     },
   ];
