@@ -2976,6 +2976,136 @@ const GeophysicalExpertise = () => {
         onAddWell={() => setAddWellOpen(true)}
       />
 
+      {/* Stage 1 — Wells lookup status */}
+      {urlWellId && wellLookupDiag.finishedAt && !wellLookupDiag.found && (
+        <Card className="mb-4 border-destructive/50 bg-destructive/5">
+          <CardContent className="p-4 flex items-start gap-3">
+            <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+            <div className="flex-1 min-w-0">
+              <div className="font-semibold text-sm text-destructive">
+                Скважина не найдена
+              </div>
+              <div className="text-xs text-muted-foreground mt-1">
+                ID <span className="font-mono">{urlWellId}</span> отсутствует в базе
+                {wellLookupDiag.errorMessage ? ` · ${wellLookupDiag.errorMessage}` : " или недоступен по правам доступа"}.
+                {wellLookupDiag.httpStatus ? ` HTTP ${wellLookupDiag.httpStatus}.` : ""}
+              </div>
+              <div className="flex flex-wrap gap-2 mt-3">
+                <Button size="sm" variant="outline" onClick={() => navigate("/dashboard/geophysical")}>
+                  Очистить URL
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => setWellPickerOpen(true)}>
+                  <Search className="h-3.5 w-3.5 mr-1.5" />
+                  Выбрать другую скважину
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => setAddWellOpen(true)}>
+                  <Plus className="h-3.5 w-3.5 mr-1.5" />
+                  Добавить скважину
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => setShowDiagnostics(true)}>
+                  <Info className="h-3.5 w-3.5 mr-1.5" />
+                  Детали
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Stage 2 — Well logs load status */}
+      {selectedWell && !logsLoading && logsDiag.finishedAt && (
+        (logsDiag.errorMessage || logsDiag.exception) ? (
+          <Card className="mb-4 border-destructive/50 bg-destructive/5">
+            <CardContent className="p-4 flex items-start gap-3">
+              <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <div className="font-semibold text-sm text-destructive">
+                  Не загрузились логи (well_logs)
+                </div>
+                <div className="text-xs text-muted-foreground mt-1 break-words">
+                  {logsDiag.errorMessage || logsDiag.exception}
+                  {logsDiag.httpStatus ? ` · HTTP ${logsDiag.httpStatus}` : ""}
+                  {logsDiag.errorCode ? ` · code ${logsDiag.errorCode}` : ""}
+                </div>
+                <div className="flex flex-wrap gap-2 mt-3">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      const w = selectedWell;
+                      setSelectedWell(null);
+                      setTimeout(() => setSelectedWell(w), 50);
+                    }}
+                  >
+                    <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
+                    Повторить попытку
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => setLasUploadOpen(true)}>
+                    <Upload className="h-3.5 w-3.5 mr-1.5" />
+                    Загрузить LAS
+                  </Button>
+                  <Button size="sm" variant="ghost" onClick={() => setShowDiagnostics(true)}>
+                    <Info className="h-3.5 w-3.5 mr-1.5" />
+                    Детали
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (logsDiag.rowCount ?? 0) === 0 ? (
+          <Card className="mb-4 border-amber-500/50 bg-amber-500/5">
+            <CardContent className="p-4 flex items-start gap-3">
+              <Info className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <div className="font-semibold text-sm text-amber-500">
+                  Логи для этой скважины ещё не загружены
+                </div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  В таблице <span className="font-mono">well_logs</span> нет ни одной записи для
+                  {" "}<span className="font-medium">{selectedWell.well_name || selectedWell.id}</span>.
+                  Загрузите LAS-файл или запустите OCR-распознавание бумажной диаграммы.
+                </div>
+                <div className="flex flex-wrap gap-2 mt-3">
+                  <Button size="sm" variant="outline" onClick={() => setLasUploadOpen(true)}>
+                    <Upload className="h-3.5 w-3.5 mr-1.5" />
+                    Загрузить LAS
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => navigate("/ocr-well-log")}>
+                    <FileImage className="h-3.5 w-3.5 mr-1.5" />
+                    OCR paper log
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      const w = selectedWell;
+                      setSelectedWell(null);
+                      setTimeout(() => setSelectedWell(w), 50);
+                    }}
+                  >
+                    <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
+                    Обновить
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="mb-4 border-emerald-500/40 bg-emerald-500/5">
+            <CardContent className="p-3 flex items-center gap-3">
+              <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+              <div className="text-xs">
+                <span className="font-semibold text-emerald-500">Логи загружены</span>
+                <span className="text-muted-foreground ml-2">
+                  {logsDiag.rowCount} точек · HTTP {logsDiag.httpStatus ?? "200"} · {logsDiag.durationMs} ms
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        )
+      )}
+
+
       {/* LAS Upload Panel */}
       {selectedWell && lasUploadOpen && (
         <div className="mb-4">
