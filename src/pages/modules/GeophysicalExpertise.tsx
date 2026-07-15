@@ -2708,6 +2708,8 @@ const WellSearchSelector = ({
 /* ── Main Page ── */
 const GeophysicalExpertise = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const urlWellId = searchParams.get("wellId") || undefined;
   const [wells, setWells] = useState<WellOption[]>([]);
   const [selectedWell, setSelectedWell] = useState<WellOption | null>(null);
   const [activeStep, setActiveStep] = useState("lithology");
@@ -2719,6 +2721,17 @@ const GeophysicalExpertise = () => {
   const [searchResults, setSearchResults] = useState<WellOption[]>([]);
   const [searching, setSearching] = useState(false);
   const [batchMode, setBatchMode] = useState(false);
+  const [showDiagnostics, setShowDiagnostics] = useState(false);
+  const [wellLookupDiag, setWellLookupDiag] = useState<{
+    wellId?: string;
+    httpStatus?: number | null;
+    errorCode?: string | null;
+    errorMessage?: string | null;
+    errorDetails?: string | null;
+    errorHint?: string | null;
+    found?: boolean;
+    finishedAt?: string;
+  }>({});
 
   useEffect(() => {
     const loadCompany = async () => {
