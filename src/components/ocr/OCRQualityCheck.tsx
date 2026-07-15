@@ -530,32 +530,46 @@ export const OCRQualityCheck = ({ result, previewSrc, onChange }: Props) => {
               <div className="text-xs italic text-muted-foreground">No perforations detected</div>
             )}
             <div className="space-y-1">
-              {perfs.map((p, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <Input
-                    type="number"
-                    value={p.top_ft}
-                    onChange={(e) => updatePerf(i, "top_ft", e.target.value)}
-                    className="h-8 w-24 font-mono"
-                  />
-                  <span className="text-muted-foreground">–</span>
-                  <Input
-                    type="number"
-                    value={p.bottom_ft}
-                    onChange={(e) => updatePerf(i, "bottom_ft", e.target.value)}
-                    className="h-8 w-24 font-mono"
-                  />
-                  <Input
-                    placeholder="date (optional)"
-                    value={p.date ?? ""}
-                    onChange={(e) => updatePerf(i, "date", e.target.value)}
-                    className="h-8 flex-1"
-                  />
-                  <Button size="icon" variant="ghost" onClick={() => removePerf(i)}>
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
-                </div>
-              ))}
+              {perfs.map((p, i) => {
+                const probs = issues.perfProblems.get(i);
+                return (
+                  <div
+                    key={i}
+                    className={
+                      "flex items-center gap-2 rounded-md p-1 " +
+                      (probs ? "bg-red-500/10 border border-red-500/40" : "")
+                    }
+                    title={probs?.join("; ")}
+                  >
+                    <Input
+                      type="number"
+                      value={p.top_ft}
+                      onChange={(e) => updatePerf(i, "top_ft", e.target.value)}
+                      className="h-8 w-24 font-mono"
+                    />
+                    <span className="text-muted-foreground">–</span>
+                    <Input
+                      type="number"
+                      value={p.bottom_ft}
+                      onChange={(e) => updatePerf(i, "bottom_ft", e.target.value)}
+                      className="h-8 w-24 font-mono"
+                    />
+                    <Input
+                      placeholder="date (optional)"
+                      value={p.date ?? ""}
+                      onChange={(e) => updatePerf(i, "date", e.target.value)}
+                      className="h-8 flex-1"
+                    />
+                    {probs && (
+                      <AlertTriangle className="h-4 w-4 text-red-400 shrink-0" />
+                    )}
+                    <Button size="icon" variant="ghost" onClick={() => removePerf(i)}>
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
+                );
+              })}
+
             </div>
           </div>
 
