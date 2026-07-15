@@ -19,6 +19,8 @@ import {
   Brain,
   Microscope,
   Waves,
+  FileText,
+  Gauge,
 } from "lucide-react";
 
 const Dashboard = () => {
