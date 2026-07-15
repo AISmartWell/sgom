@@ -32,6 +32,29 @@ const OCRWellLog = () => {
   const [fileName, setFileName] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<OcrResult | null>(null);
+  const [pipelineLoading, setPipelineLoading] = useState(false);
+  const [pipelineOut, setPipelineOut] = useState<any | null>(null);
+
+  const runFullPipeline = useCallback(async () => {
+    if (!result) return;
+    setPipelineLoading(true);
+    setPipelineOut(null);
+    try {
+      const { data, error } = await supabase.functions.invoke("ocr-ingest-analyze", {
+        body: { ocrResult: result, sourceLabel: "ocr_paper_log" },
+      });
+      if (error) throw error;
+      if (!data?.ok) throw new Error(data?.error || "Pipeline failed");
+      setPipelineOut(data);
+      toast.success(
+        `Well created · ${data.logsInserted} log points · Stage 8 ${data.stageAnalysis ? "complete" : "skipped"}`
+      );
+    } catch (e: any) {
+      toast.error(e?.message || "Pipeline failed");
+    } finally {
+      setPipelineLoading(false);
+    }
+  }, [result]);
 
   const onFile = useCallback((file: File) => {
     if (!file.type.startsWith("image/")) {
