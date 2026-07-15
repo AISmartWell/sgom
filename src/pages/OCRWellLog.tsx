@@ -286,6 +286,16 @@ const OCRWellLog = () => {
         </Card>
       </div>
 
+      {result && (result.log_readings?.length || result.perforations?.length) ? (
+        <div className="mt-6">
+          <OCRCurvePreview
+            readings={(result.log_readings || []) as any}
+            perforations={(result.perforations || []) as any}
+            formationTops={result.formation_tops || []}
+          />
+        </div>
+      ) : null}
+
       {result && (
         <Card className="mt-6 p-6 space-y-4 border-primary/40">
           <div className="flex items-start justify-between gap-4 flex-wrap">
