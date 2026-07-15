@@ -2983,28 +2983,28 @@ const GeophysicalExpertise = () => {
             <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
             <div className="flex-1 min-w-0">
               <div className="font-semibold text-sm text-destructive">
-                Скважина не найдена
+                Well not found
               </div>
               <div className="text-xs text-muted-foreground mt-1">
-                ID <span className="font-mono">{urlWellId}</span> отсутствует в базе
-                {wellLookupDiag.errorMessage ? ` · ${wellLookupDiag.errorMessage}` : " или недоступен по правам доступа"}.
+                ID <span className="font-mono">{urlWellId}</span> is missing from the database
+                {wellLookupDiag.errorMessage ? ` · ${wellLookupDiag.errorMessage}` : " or inaccessible due to permissions"}.
                 {wellLookupDiag.httpStatus ? ` HTTP ${wellLookupDiag.httpStatus}.` : ""}
               </div>
               <div className="flex flex-wrap gap-2 mt-3">
                 <Button size="sm" variant="outline" onClick={() => navigate("/dashboard/geophysical")}>
-                  Очистить URL
+                  Clear URL
                 </Button>
                 <Button size="sm" variant="outline" onClick={() => setWellPickerOpen(true)}>
                   <Search className="h-3.5 w-3.5 mr-1.5" />
-                  Выбрать другую скважину
+                  Select another well
                 </Button>
                 <Button size="sm" variant="outline" onClick={() => setAddWellOpen(true)}>
                   <Plus className="h-3.5 w-3.5 mr-1.5" />
-                  Добавить скважину
+                  Add well
                 </Button>
                 <Button size="sm" variant="ghost" onClick={() => setShowDiagnostics(true)}>
                   <Info className="h-3.5 w-3.5 mr-1.5" />
-                  Детали
+                  Details
                 </Button>
               </div>
             </div>
@@ -3020,7 +3020,7 @@ const GeophysicalExpertise = () => {
               <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
                 <div className="font-semibold text-sm text-destructive">
-                  Не загрузились логи (well_logs)
+                  Well logs failed to load (well_logs)
                 </div>
                 <div className="text-xs text-muted-foreground mt-1 break-words">
                   {logsDiag.errorMessage || logsDiag.exception}
@@ -3038,15 +3038,15 @@ const GeophysicalExpertise = () => {
                     }}
                   >
                     <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
-                    Повторить попытку
+                    Retry
                   </Button>
                   <Button size="sm" variant="outline" onClick={() => setLasUploadOpen(true)}>
                     <Upload className="h-3.5 w-3.5 mr-1.5" />
-                    Загрузить LAS
+                    Upload LAS
                   </Button>
                   <Button size="sm" variant="ghost" onClick={() => setShowDiagnostics(true)}>
                     <Info className="h-3.5 w-3.5 mr-1.5" />
-                    Детали
+                    Details
                   </Button>
                 </div>
               </div>
@@ -3058,17 +3058,17 @@ const GeophysicalExpertise = () => {
               <Info className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
                 <div className="font-semibold text-sm text-amber-500">
-                  Логи для этой скважины ещё не загружены
+                  Logs for this well have not been uploaded yet
                 </div>
                 <div className="text-xs text-muted-foreground mt-1">
-                  В таблице <span className="font-mono">well_logs</span> нет ни одной записи для
+                  The <span className="font-mono">well_logs</span> table has no records for
                   {" "}<span className="font-medium">{selectedWell.well_name || selectedWell.id}</span>.
-                  Загрузите LAS-файл или запустите OCR-распознавание бумажной диаграммы.
+                  Upload an LAS file or run OCR on a paper log.
                 </div>
                 <div className="flex flex-wrap gap-2 mt-3">
                   <Button size="sm" variant="outline" onClick={() => setLasUploadOpen(true)}>
                     <Upload className="h-3.5 w-3.5 mr-1.5" />
-                    Загрузить LAS
+                    Upload LAS
                   </Button>
                   <Button size="sm" variant="outline" onClick={() => navigate("/ocr-well-log")}>
                     <FileImage className="h-3.5 w-3.5 mr-1.5" />
@@ -3084,7 +3084,7 @@ const GeophysicalExpertise = () => {
                     }}
                   >
                     <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
-                    Обновить
+                    Refresh
                   </Button>
                 </div>
               </div>
@@ -3095,9 +3095,9 @@ const GeophysicalExpertise = () => {
             <CardContent className="p-3 flex items-center gap-3">
               <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
               <div className="text-xs">
-                <span className="font-semibold text-emerald-500">Логи загружены</span>
+                <span className="font-semibold text-emerald-500">Logs loaded</span>
                 <span className="text-muted-foreground ml-2">
-                  {logsDiag.rowCount} точек · HTTP {logsDiag.httpStatus ?? "200"} · {logsDiag.durationMs} ms
+                  {logsDiag.rowCount} points · HTTP {logsDiag.httpStatus ?? "200"} · {logsDiag.durationMs} ms
                 </span>
               </div>
             </CardContent>
