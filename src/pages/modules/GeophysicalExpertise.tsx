@@ -13,7 +13,7 @@ import { ArrowLeft, Activity, Eye, Zap, FileText, Layers, Droplets, BarChart3, T
 import { AddWellDialog } from "@/components/shared/AddWellDialog";
 import { LASUploadPanel } from "@/components/geophysical/LASUploadPanel";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import EnhancedWellLog from "@/components/well-log/EnhancedWellLog";
 import BatchLithologyAnalysis from "@/components/geophysical/BatchLithologyAnalysis";
 import { WellLogAnalysisDemo } from "@/components/geophysical/WellLogAnalysisDemo";
