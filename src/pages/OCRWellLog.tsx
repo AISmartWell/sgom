@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Upload, ScanText, Loader2, FileImage, CheckCircle2, Sparkles, Activity, ArrowRight } from "lucide-react";
+import { ArrowLeft, Upload, ScanText, Loader2, FileImage, CheckCircle2, Sparkles, Activity, ArrowRight, Database, Brain } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
