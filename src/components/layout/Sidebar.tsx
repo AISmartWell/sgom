@@ -369,6 +369,12 @@ const menuItems = [
     href: "/dashboard/models-reference",
     badge: "🤖",
   },
+  {
+    title: "OCR Well Log",
+    icon: FileText,
+    href: "/dashboard/ocr",
+    badge: "📄",
+  },
 
 ];
 
