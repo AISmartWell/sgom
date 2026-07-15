@@ -2823,10 +2823,10 @@ const GeophysicalExpertise = () => {
         setSelectedWell(data);
         setWells((prev) => (prev.some((w) => w.id === data.id) ? prev : [data, ...prev]));
       } else if (error) {
-        toast.error(`Не удалось загрузить скважину: ${error.message}`);
+        toast.error(`Failed to load well: ${error.message}`);
         setShowDiagnostics(true);
       } else {
-        toast.error("Скважина не найдена");
+        toast.error("Well not found");
         setShowDiagnostics(true);
       }
     })();
@@ -2891,7 +2891,7 @@ const GeophysicalExpertise = () => {
             className="gap-1.5"
           >
             <Info className="h-3.5 w-3.5" />
-            {showDiagnostics ? "Скрыть диагностику" : "Показать диагностику"}
+            {showDiagnostics ? "Hide diagnostics" : "Show diagnostics"}
           </Button>
           <Badge variant="outline" className="text-primary border-primary">
             <Calculator className="mr-1 h-3 w-3" />
@@ -2906,20 +2906,20 @@ const GeophysicalExpertise = () => {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-2">
               <AlertTriangle className="h-4 w-4 text-amber-500" />
-              Диагностика загрузки — Geophysical Expertise
+              Load diagnostics — Geophysical Expertise
             </CardTitle>
           </CardHeader>
           <CardContent className="text-xs font-mono space-y-3">
             <div>
-              <div className="font-sans font-semibold text-sm mb-1">URL параметры</div>
-              <div>wellId (URL): <span className="text-primary">{urlWellId || "— не задан —"}</span></div>
-              <div>selectedWell.id: <span className="text-primary">{selectedWell?.id || "— не выбрана —"}</span></div>
+              <div className="font-sans font-semibold text-sm mb-1">URL parameters</div>
+              <div>wellId (URL): <span className="text-primary">{urlWellId || "— not set —"}</span></div>
+              <div>selectedWell.id: <span className="text-primary">{selectedWell?.id || "— not selected —"}</span></div>
               <div>selectedWell.name: {selectedWell?.well_name || "—"}</div>
             </div>
 
             {urlWellId && (
               <div>
-                <div className="font-sans font-semibold text-sm mb-1">Поиск скважины (wells)</div>
+                <div className="font-sans font-semibold text-sm mb-1">Well lookup (wells)</div>
                 <div>HTTP status: <span className={wellLookupDiag.httpStatus && wellLookupDiag.httpStatus >= 400 ? "text-destructive" : "text-emerald-500"}>{wellLookupDiag.httpStatus ?? "—"}</span></div>
                 <div>found: {String(wellLookupDiag.found ?? "—")}</div>
                 {wellLookupDiag.errorCode && <div>error.code: <span className="text-destructive">{wellLookupDiag.errorCode}</span></div>}
@@ -2931,7 +2931,7 @@ const GeophysicalExpertise = () => {
             )}
 
             <div>
-              <div className="font-sans font-semibold text-sm mb-1">Загрузка well_logs</div>
+              <div className="font-sans font-semibold text-sm mb-1">Loading well_logs</div>
               <div>isLoading: {String(logsLoading)}</div>
               <div>HTTP status: <span className={logsDiag.httpStatus && logsDiag.httpStatus >= 400 ? "text-destructive" : "text-emerald-500"}>{logsDiag.httpStatus ?? "—"}</span></div>
               <div>rowCount: {logsDiag.rowCount ?? 0}</div>
@@ -2951,10 +2951,10 @@ const GeophysicalExpertise = () => {
                 onClick={() => {
                   const payload = { urlWellId, selectedWellId: selectedWell?.id, wellLookupDiag, logsDiag };
                   navigator.clipboard.writeText(JSON.stringify(payload, null, 2));
-                  toast.success("Диагностика скопирована в буфер обмена");
+                  toast.success("Diagnostics copied to clipboard");
                 }}
               >
-                Скопировать JSON
+                Copy JSON
               </Button>
             </div>
           </CardContent>
