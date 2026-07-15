@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import demoPaperLog from "@/assets/demo-paper-well-log.jpg";
+import { OCRCurvePreview } from "@/components/ocr/OCRCurvePreview";
 
 type OcrResult = {
   well_name?: string | null;
@@ -284,6 +285,16 @@ const OCRWellLog = () => {
           )}
         </Card>
       </div>
+
+      {result && (result.log_readings?.length || result.perforations?.length) ? (
+        <div className="mt-6">
+          <OCRCurvePreview
+            readings={(result.log_readings || []) as any}
+            perforations={(result.perforations || []) as any}
+            formationTops={result.formation_tops || []}
+          />
+        </div>
+      ) : null}
 
       {result && (
         <Card className="mt-6 p-6 space-y-4 border-primary/40">
