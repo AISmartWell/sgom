@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ShieldCheck, Wand2, Plus, Trash2, MoveVertical, RotateCcw } from "lucide-react";
+import { ShieldCheck, Wand2, Plus, Trash2, MoveVertical, RotateCcw, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 
 type Reading = Record<string, number | null | undefined> & { depth_ft: number };
