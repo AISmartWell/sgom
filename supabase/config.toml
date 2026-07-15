@@ -24,3 +24,6 @@ verify_jwt = false
 [functions.maria-tts]
 verify_jwt = false
 
+
+[functions.ocr-ingest-analyze]
+verify_jwt = false
