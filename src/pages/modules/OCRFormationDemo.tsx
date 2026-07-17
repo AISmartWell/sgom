@@ -35,6 +35,87 @@ const CANDIDATES = [
   { name: "Woodford Shale", basin: "Anadarko, OK/KS", match: 0.11, why: "Would require hot GR + very low porosity; no GR curve on this log." },
 ];
 
+// Waterfall of confidence contributions for the winning candidate (Cherokee Sandstone).
+// Each step is a signed delta in percentage points applied on top of a 50% prior.
+type Evidence = {
+  source: string;
+  ocrField: string;
+  signal: string;
+  delta: number; // percentage points
+  registryHit?: string; // matching formation_codes row / attribute
+  icon: "map" | "ruler" | "curve" | "tops" | "sp" | "warn";
+};
+
+const EVIDENCE: Evidence[] = [
+  {
+    source: "Regional key",
+    ocrField: "API 15-007 · Barber, KS",
+    signal: "Kansas KID lookup returned 3 formations for county 007",
+    delta: +18,
+    registryHit: "formation_codes: state=KS, county=Barber → {Cherokee Ss, Mississippian Ls, Arbuckle}",
+    icon: "map",
+  },
+  {
+    source: "Depth window",
+    ocrField: "3200 – 3800 ft",
+    signal: "Only Cherokee Ss (top 3400 ± 200) and Mississippian Ls (top 3750 ± 150) overlap",
+    delta: +12,
+    registryHit: "formation_codes.top_depth_ft ∈ [scan.top, scan.bottom]",
+    icon: "ruler",
+  },
+  {
+    source: "Formation tops",
+    ocrField: "TOP SAND 3505 · BASE SAND 3670",
+    signal: "Handwritten SAND top at 3505 ft matches Cherokee top (Δ = 105 ft, within tolerance)",
+    delta: +14,
+    registryHit: "formation_codes.lithology = 'sandstone' · top_depth_ft = 3400",
+    icon: "tops",
+  },
+  {
+    source: "Curve set",
+    ocrField: "SP, RILD, RLL3, CILD",
+    signal: "SP+deep/shallow resistivity is the classical Cherokee log suite (1970s KS)",
+    delta: +8,
+    registryHit: "formation_codes.expected_curves ⊇ {SP, RILD}",
+    icon: "curve",
+  },
+  {
+    source: "SP signature",
+    ocrField: "SP baseline ≈ +15 mV, deflection ~70 mV in SAND interval",
+    signal: "Clean-sand SP depression 60–90 mV — consistent with Cherokee, inconsistent with carbonate",
+    delta: +10,
+    registryHit: "formation_codes.sp_deflection_mv = [50, 100]",
+    icon: "sp",
+  },
+  {
+    source: "Resistivity range",
+    ocrField: "0.2 – 20 ohm·m (log scale)",
+    signal: "No >50 ohm·m spikes ⇒ Mississippian Limestone signature absent",
+    delta: -8,
+    registryHit: "penalty vs. Mississippian Ls (expected Rt > 50 ohm·m in tight carbonate)",
+    icon: "curve",
+  },
+  {
+    source: "Missing GR",
+    ocrField: "no GR track detected",
+    signal: "Vsh derived from SP only ⇒ shale-content confidence capped",
+    delta: -18,
+    registryHit: "confidence penalty · Woodford Shale cannot be validated (needs hot GR)",
+    icon: "warn",
+  },
+];
+
+// Per-candidate scoring matrix — how each OCR signal moved every candidate.
+const SCORE_MATRIX: { field: string; cherokee: number; missLs: number; woodford: number }[] = [
+  { field: "Regional key (Barber, KS)", cherokee: +18, missLs: +18, woodford: +4 },
+  { field: "Depth 3200–3800 ft", cherokee: +12, missLs: +8, woodford: -6 },
+  { field: "SAND top @ 3505 ft", cherokee: +14, missLs: -4, woodford: -8 },
+  { field: "Curve suite SP+RILD", cherokee: +8, missLs: +2, woodford: -4 },
+  { field: "SP deflection ~70 mV", cherokee: +10, missLs: -6, woodford: -2 },
+  { field: "Rt max ≈ 20 ohm·m", cherokee: 0, missLs: -8, woodford: 0 },
+  { field: "No GR curve", cherokee: -18, missLs: -18, woodford: -25 },
+];
+
 function Bar({ v }: { v: number }) {
   return (
     <div className="h-1.5 w-24 rounded-full bg-white/10 overflow-hidden">
