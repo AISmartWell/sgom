@@ -319,47 +319,50 @@ const OCRWellLog = () => {
         </div>
       )}
 
-      {result && (
-        <Card className="mt-6 p-4 space-y-3">
-          <div className="flex items-center justify-between gap-3 flex-wrap">
-            <div className="flex items-center gap-2 text-sm font-medium">
-              <GitCompare className="w-4 h-4 text-[#1A9FFF]" />
-              Compare two scans
-              <span className="text-xs text-muted-foreground font-normal">
-                — capture the current OCR result as A or B, then re-scan / edit to see the diff
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button size="sm" variant="outline" onClick={() => captureSnapshot("A")}>
-                <Camera className="w-3.5 h-3.5 mr-1.5" /> Save as A
-              </Button>
-              <Button size="sm" variant="outline" onClick={() => captureSnapshot("B")}>
-                <Camera className="w-3.5 h-3.5 mr-1.5" /> Save as B
-              </Button>
-            </div>
+      <Card className="mt-6 p-4 space-y-3 border-[#1A9FFF]/30">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-2 text-sm font-medium">
+            <GitCompare className="w-4 h-4 text-[#1A9FFF]" />
+            Compare two scans
+            <span className="text-xs text-muted-foreground font-normal">
+              — run OCR, capture as A, then re-scan / edit and capture as B to see the diff
+            </span>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-            <div className="rounded-md border border-white/10 p-2 flex items-center justify-between">
-              <span>
-                <Badge className="mr-2 text-[10px]">A</Badge>
-                {snapA ? snapA.label : <span className="text-muted-foreground">not captured</span>}
-              </span>
-              {snapA && (
-                <Button size="sm" variant="ghost" onClick={() => setSnapA(null)}>Clear</Button>
-              )}
-            </div>
-            <div className="rounded-md border border-white/10 p-2 flex items-center justify-between">
-              <span>
-                <Badge className="mr-2 text-[10px]">B</Badge>
-                {snapB ? snapB.label : <span className="text-muted-foreground">not captured</span>}
-              </span>
-              {snapB && (
-                <Button size="sm" variant="ghost" onClick={() => setSnapB(null)}>Clear</Button>
-              )}
-            </div>
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="outline" disabled={!result} onClick={() => captureSnapshot("A")}>
+              <Camera className="w-3.5 h-3.5 mr-1.5" /> Save as A
+            </Button>
+            <Button size="sm" variant="outline" disabled={!result} onClick={() => captureSnapshot("B")}>
+              <Camera className="w-3.5 h-3.5 mr-1.5" /> Save as B
+            </Button>
           </div>
-        </Card>
-      )}
+        </div>
+        {!result && (
+          <div className="text-xs text-amber-400/80">
+            Buttons unlock after a successful OCR run above.
+          </div>
+        )}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+          <div className="rounded-md border border-white/10 p-2 flex items-center justify-between">
+            <span>
+              <Badge className="mr-2 text-[10px]">A</Badge>
+              {snapA ? snapA.label : <span className="text-muted-foreground">not captured</span>}
+            </span>
+            {snapA && (
+              <Button size="sm" variant="ghost" onClick={() => setSnapA(null)}>Clear</Button>
+            )}
+          </div>
+          <div className="rounded-md border border-white/10 p-2 flex items-center justify-between">
+            <span>
+              <Badge className="mr-2 text-[10px]">B</Badge>
+              {snapB ? snapB.label : <span className="text-muted-foreground">not captured</span>}
+            </span>
+            {snapB && (
+              <Button size="sm" variant="ghost" onClick={() => setSnapB(null)}>Clear</Button>
+            )}
+          </div>
+        </div>
+      </Card>
 
       {snapA && snapB && (
         <div className="mt-6">
