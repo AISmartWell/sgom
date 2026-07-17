@@ -122,6 +122,7 @@ const App = () => (
              <Route path="field-scanning" element={<FieldScanning />} />
              <Route path="data-classification" element={<DataClassification />} />
              <Route path="ocr" element={<OCRWellLog />} />
+             <Route path="ocr-formation-demo" element={<OCRFormationDemo />} />
              <Route path="cumulative-analysis" element={<CumulativeAnalysis />} />
              <Route path="multi-tenant" element={<MultiTenantDemo />} />
              <Route path="saas-business-model" element={<SaaSBusinessModel />} />
