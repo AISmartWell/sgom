@@ -49,6 +49,10 @@ const DataImport = () => {
         </p>
       </div>
 
+      <FormationAssistCard />
+
+
+
       <Tabs defaultValue="csv" className="space-y-4">
         <TabsList className="grid w-full max-w-lg grid-cols-3">
           <TabsTrigger value="csv" className="flex items-center gap-2">
