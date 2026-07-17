@@ -289,6 +289,130 @@ export default function OCRFormationDemo() {
 
                 <Separator className="bg-white/10" />
 
+                {/* Evidence trail: waterfall of OCR-driven contributions to the winning candidate's confidence */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-xs text-muted-foreground">
+                      Evidence trail — how each OCR signal moved <span className="text-foreground">Cherokee Sandstone</span> confidence
+                    </div>
+                    <Badge variant="outline" className="text-[10px] font-mono">
+                      50% prior {EVIDENCE.reduce((s, e) => s + e.delta, 0) >= 0 ? "+" : ""}
+                      {EVIDENCE.reduce((s, e) => s + e.delta, 0)} pp = {50 + EVIDENCE.reduce((s, e) => s + e.delta, 0)}%
+                    </Badge>
+                  </div>
+                  <div className="space-y-1.5">
+                    {(() => {
+                      let running = 50;
+                      return EVIDENCE.map((e) => {
+                        const start = running;
+                        running += e.delta;
+                        const pos = e.delta >= 0;
+                        const Icon =
+                          e.icon === "map" ? MapPin :
+                          e.icon === "ruler" ? Ruler :
+                          e.icon === "tops" ? Layers :
+                          e.icon === "sp" ? Activity :
+                          e.icon === "warn" ? AlertTriangle :
+                          ScanLine;
+                        // Position bar on a 0–100 axis
+                        const from = Math.min(start, running);
+                        const width = Math.abs(e.delta);
+                        return (
+                          <div key={e.source + e.ocrField} className="grid grid-cols-[170px_1fr_60px] gap-3 items-center rounded-md border border-white/10 p-2.5">
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-1.5 text-xs font-medium">
+                                <Icon className={`w-3.5 h-3.5 ${pos ? "text-[#1A9FFF]" : "text-amber-300"}`} />
+                                {e.source}
+                              </div>
+                              <div className="text-[10px] text-muted-foreground font-mono truncate">{e.ocrField}</div>
+                            </div>
+                            <div>
+                              <div className="relative h-4 rounded bg-white/5 overflow-hidden">
+                                {/* baseline 50% marker */}
+                                <div className="absolute top-0 bottom-0 w-px bg-white/20" style={{ left: "50%" }} />
+                                <div
+                                  className="absolute top-0 bottom-0"
+                                  style={{
+                                    left: `${from}%`,
+                                    width: `${width}%`,
+                                    background: pos ? "rgba(34,197,94,0.55)" : "rgba(245,158,11,0.55)",
+                                    borderLeft: pos ? "2px solid #22c55e" : "2px solid #f59e0b",
+                                    borderRight: pos ? "2px solid #22c55e" : "2px solid #f59e0b",
+                                  }}
+                                />
+                              </div>
+                              <div className="text-[10px] text-muted-foreground mt-1">
+                                {e.signal}
+                                {e.registryHit && (
+                                  <> · <span className="text-[#1A9FFF]/80 font-mono">{e.registryHit}</span></>
+                                )}
+                              </div>
+                            </div>
+                            <div className={`text-right font-mono text-xs flex items-center justify-end gap-1 ${pos ? "text-green-400" : "text-amber-300"}`}>
+                              {pos ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                              {pos ? "+" : ""}{e.delta} pp
+                            </div>
+                          </div>
+                        );
+                      });
+                    })()}
+                  </div>
+                </div>
+
+                <Separator className="bg-white/10" />
+
+                {/* Per-candidate score matrix: same OCR signals scored against all 3 formations */}
+                <div>
+                  <div className="text-xs text-muted-foreground mb-2">
+                    Same OCR signals scored against every candidate (Δ points per signal)
+                  </div>
+                  <div className="overflow-x-auto rounded-md border border-white/10">
+                    <table className="w-full text-xs">
+                      <thead className="bg-white/5">
+                        <tr className="text-left">
+                          <th className="px-3 py-2 font-medium">OCR signal</th>
+                          <th className="px-3 py-2 font-medium text-right">Cherokee Ss</th>
+                          <th className="px-3 py-2 font-medium text-right">Mississippian Ls</th>
+                          <th className="px-3 py-2 font-medium text-right">Woodford Sh</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {SCORE_MATRIX.map((row) => (
+                          <tr key={row.field} className="border-t border-white/5">
+                            <td className="px-3 py-1.5 text-muted-foreground">{row.field}</td>
+                            {[row.cherokee, row.missLs, row.woodford].map((v, i) => (
+                              <td
+                                key={i}
+                                className={`px-3 py-1.5 text-right font-mono ${
+                                  v > 0 ? "text-green-400" : v < 0 ? "text-amber-300" : "text-muted-foreground"
+                                }`}
+                              >
+                                {v > 0 ? "+" : ""}{v}
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                        <tr className="border-t border-white/10 bg-white/5">
+                          <td className="px-3 py-2 font-medium">Total Δ (from 50% prior)</td>
+                          {(() => {
+                            const totals = SCORE_MATRIX.reduce(
+                              (a, r) => ({ c: a.c + r.cherokee, m: a.m + r.missLs, w: a.w + r.woodford }),
+                              { c: 0, m: 0, w: 0 }
+                            );
+                            return [totals.c, totals.m, totals.w].map((v, i) => (
+                              <td key={i} className="px-3 py-2 text-right font-mono font-semibold">
+                                {50 + v}%
+                              </td>
+                            ));
+                          })()}
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <Separator className="bg-white/10" />
+
                 <div>
                   <div className="text-xs text-muted-foreground mb-2">Candidate formations after scoring</div>
                   <div className="space-y-2">
