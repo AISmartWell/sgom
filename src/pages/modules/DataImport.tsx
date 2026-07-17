@@ -7,6 +7,7 @@ import { CSVUpload } from "@/components/data-import/CSVUpload";
 import { ManualWellEntry } from "@/components/data-import/ManualWellEntry";
 import { APIIntegrationPanel } from "@/components/data-import/APIIntegrationPanel";
 import { ImportedWellsTable } from "@/components/data-import/ImportedWellsTable";
+import { FormationAssistCard } from "@/components/data-import/FormationAssistCard";
 
 const DataImport = () => {
   const [companyId, setCompanyId] = useState<string | null>(null);
