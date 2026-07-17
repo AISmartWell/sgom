@@ -375,6 +375,12 @@ const menuItems = [
     href: "/dashboard/ocr",
     badge: "📄",
   },
+  {
+    title: "OCR × Formation Demo",
+    icon: FileText,
+    href: "/dashboard/ocr-formation-demo",
+    badge: "🎯",
+  },
 
 ];
 

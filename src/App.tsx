@@ -74,6 +74,7 @@ import AdminImport from "./pages/modules/AdminImport";
 import BayesianDCA from "./pages/modules/BayesianDCA";
 import AramcoPilot from "./pages/modules/AramcoPilot";
 import OCRWellLog from "./pages/OCRWellLog";
+import OCRFormationDemo from "./pages/modules/OCRFormationDemo";
 import IngestRestorationDiagnostics from "./pages/modules/IngestRestorationDiagnostics";
 import SPTAdvisor from "./pages/modules/SPTAdvisor";
 import AutonomousScan from "./pages/modules/AutonomousScan";
@@ -121,6 +122,7 @@ const App = () => (
              <Route path="field-scanning" element={<FieldScanning />} />
              <Route path="data-classification" element={<DataClassification />} />
              <Route path="ocr" element={<OCRWellLog />} />
+             <Route path="ocr-formation-demo" element={<OCRFormationDemo />} />
              <Route path="cumulative-analysis" element={<CumulativeAnalysis />} />
              <Route path="multi-tenant" element={<MultiTenantDemo />} />
              <Route path="saas-business-model" element={<SaaSBusinessModel />} />
