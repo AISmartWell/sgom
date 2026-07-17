@@ -10,6 +10,8 @@ import demoPaperLog from "@/assets/demo-paper-well-log.jpg";
 import { OCRCurvePreview } from "@/components/ocr/OCRCurvePreview";
 import { OCRQualityCheck } from "@/components/ocr/OCRQualityCheck";
 import { FormationAttribution } from "@/components/ocr/FormationAttribution";
+import { FormationComparison } from "@/components/ocr/FormationComparison";
+import { GitCompare, Camera } from "lucide-react";
 
 type OcrResult = {
   well_name?: string | null;
@@ -37,6 +39,19 @@ const OCRWellLog = () => {
   const [result, setResult] = useState<OcrResult | null>(null);
   const [pipelineLoading, setPipelineLoading] = useState(false);
   const [pipelineOut, setPipelineOut] = useState<any | null>(null);
+  const [snapA, setSnapA] = useState<{ result: OcrResult; label: string } | null>(null);
+  const [snapB, setSnapB] = useState<{ result: OcrResult; label: string } | null>(null);
+
+  const captureSnapshot = useCallback(
+    (side: "A" | "B") => {
+      if (!result) return;
+      const snap = { result: JSON.parse(JSON.stringify(result)) as OcrResult, label: fileName || `Scan ${side}` };
+      if (side === "A") setSnapA(snap);
+      else setSnapB(snap);
+      toast.success(`Snapshot ${side} captured`);
+    },
+    [result, fileName],
+  );
 
   const runFullPipeline = useCallback(async () => {
     if (!result) return;
@@ -303,6 +318,61 @@ const OCRWellLog = () => {
           <FormationAttribution result={result as any} />
         </div>
       )}
+
+      {result && (
+        <Card className="mt-6 p-4 space-y-3">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <GitCompare className="w-4 h-4 text-[#1A9FFF]" />
+              Compare two scans
+              <span className="text-xs text-muted-foreground font-normal">
+                — capture the current OCR result as A or B, then re-scan / edit to see the diff
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button size="sm" variant="outline" onClick={() => captureSnapshot("A")}>
+                <Camera className="w-3.5 h-3.5 mr-1.5" /> Save as A
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => captureSnapshot("B")}>
+                <Camera className="w-3.5 h-3.5 mr-1.5" /> Save as B
+              </Button>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+            <div className="rounded-md border border-white/10 p-2 flex items-center justify-between">
+              <span>
+                <Badge className="mr-2 text-[10px]">A</Badge>
+                {snapA ? snapA.label : <span className="text-muted-foreground">not captured</span>}
+              </span>
+              {snapA && (
+                <Button size="sm" variant="ghost" onClick={() => setSnapA(null)}>Clear</Button>
+              )}
+            </div>
+            <div className="rounded-md border border-white/10 p-2 flex items-center justify-between">
+              <span>
+                <Badge className="mr-2 text-[10px]">B</Badge>
+                {snapB ? snapB.label : <span className="text-muted-foreground">not captured</span>}
+              </span>
+              {snapB && (
+                <Button size="sm" variant="ghost" onClick={() => setSnapB(null)}>Clear</Button>
+              )}
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {snapA && snapB && (
+        <div className="mt-6">
+          <FormationComparison
+            a={snapA.result as any}
+            b={snapB.result as any}
+            labelA={snapA.label}
+            labelB={snapB.label}
+            onClear={() => { setSnapA(null); setSnapB(null); }}
+          />
+        </div>
+      )}
+
 
       {result && (result.log_readings?.length || result.perforations?.length) ? (
         <div className="mt-6">
