@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ScanLine, Upload, ArrowRight, CheckCircle2, AlertTriangle, MapPin, Layers } from "lucide-react";
+import { ScanLine, Upload, ArrowRight, CheckCircle2, AlertTriangle, MapPin, Layers, TrendingUp, TrendingDown, Ruler, Activity } from "lucide-react";
 import demoLogUrl from "@/assets/demo-paper-log.jpg";
 
 type Field = {
@@ -33,6 +33,87 @@ const CANDIDATES = [
   { name: "Cherokee Sandstone", basin: "Cherokee Basin, KS", match: 0.86, why: "Barber county at 3.2–3.8 kft matches Cherokee stack; SP depression 60–90 mV in clean sand track." },
   { name: "Mississippian Limestone", basin: "Anadarko Shelf, KS", match: 0.42, why: "Depth OK but no carbonate resistivity signature (RILD spikes >50 ohm·m absent)." },
   { name: "Woodford Shale", basin: "Anadarko, OK/KS", match: 0.11, why: "Would require hot GR + very low porosity; no GR curve on this log." },
+];
+
+// Waterfall of confidence contributions for the winning candidate (Cherokee Sandstone).
+// Each step is a signed delta in percentage points applied on top of a 50% prior.
+type Evidence = {
+  source: string;
+  ocrField: string;
+  signal: string;
+  delta: number; // percentage points
+  registryHit?: string; // matching formation_codes row / attribute
+  icon: "map" | "ruler" | "curve" | "tops" | "sp" | "warn";
+};
+
+const EVIDENCE: Evidence[] = [
+  {
+    source: "Regional key",
+    ocrField: "API 15-007 · Barber, KS",
+    signal: "Kansas KID lookup returned 3 formations for county 007",
+    delta: +18,
+    registryHit: "formation_codes: state=KS, county=Barber → {Cherokee Ss, Mississippian Ls, Arbuckle}",
+    icon: "map",
+  },
+  {
+    source: "Depth window",
+    ocrField: "3200 – 3800 ft",
+    signal: "Only Cherokee Ss (top 3400 ± 200) and Mississippian Ls (top 3750 ± 150) overlap",
+    delta: +12,
+    registryHit: "formation_codes.top_depth_ft ∈ [scan.top, scan.bottom]",
+    icon: "ruler",
+  },
+  {
+    source: "Formation tops",
+    ocrField: "TOP SAND 3505 · BASE SAND 3670",
+    signal: "Handwritten SAND top at 3505 ft matches Cherokee top (Δ = 105 ft, within tolerance)",
+    delta: +14,
+    registryHit: "formation_codes.lithology = 'sandstone' · top_depth_ft = 3400",
+    icon: "tops",
+  },
+  {
+    source: "Curve set",
+    ocrField: "SP, RILD, RLL3, CILD",
+    signal: "SP+deep/shallow resistivity is the classical Cherokee log suite (1970s KS)",
+    delta: +8,
+    registryHit: "formation_codes.expected_curves ⊇ {SP, RILD}",
+    icon: "curve",
+  },
+  {
+    source: "SP signature",
+    ocrField: "SP baseline ≈ +15 mV, deflection ~70 mV in SAND interval",
+    signal: "Clean-sand SP depression 60–90 mV — consistent with Cherokee, inconsistent with carbonate",
+    delta: +10,
+    registryHit: "formation_codes.sp_deflection_mv = [50, 100]",
+    icon: "sp",
+  },
+  {
+    source: "Resistivity range",
+    ocrField: "0.2 – 20 ohm·m (log scale)",
+    signal: "No >50 ohm·m spikes ⇒ Mississippian Limestone signature absent",
+    delta: -8,
+    registryHit: "penalty vs. Mississippian Ls (expected Rt > 50 ohm·m in tight carbonate)",
+    icon: "curve",
+  },
+  {
+    source: "Missing GR",
+    ocrField: "no GR track detected",
+    signal: "Vsh derived from SP only ⇒ shale-content confidence capped",
+    delta: -18,
+    registryHit: "confidence penalty · Woodford Shale cannot be validated (needs hot GR)",
+    icon: "warn",
+  },
+];
+
+// Per-candidate scoring matrix — how each OCR signal moved every candidate.
+const SCORE_MATRIX: { field: string; cherokee: number; missLs: number; woodford: number }[] = [
+  { field: "Regional key (Barber, KS)", cherokee: +18, missLs: +18, woodford: +4 },
+  { field: "Depth 3200–3800 ft", cherokee: +12, missLs: +8, woodford: -6 },
+  { field: "SAND top @ 3505 ft", cherokee: +14, missLs: -4, woodford: -8 },
+  { field: "Curve suite SP+RILD", cherokee: +8, missLs: +2, woodford: -4 },
+  { field: "SP deflection ~70 mV", cherokee: +10, missLs: -6, woodford: -2 },
+  { field: "Rt max ≈ 20 ohm·m", cherokee: 0, missLs: -8, woodford: 0 },
+  { field: "No GR curve", cherokee: -18, missLs: -18, woodford: -25 },
 ];
 
 function Bar({ v }: { v: number }) {
@@ -203,6 +284,130 @@ export default function OCRFormationDemo() {
                       <span className="font-medium">3. Curve signature</span>
                     </div>
                     SP depression pattern + resistivity magnitude are scored against expected Vsh/Rt for each candidate.
+                  </div>
+                </div>
+
+                <Separator className="bg-white/10" />
+
+                {/* Evidence trail: waterfall of OCR-driven contributions to the winning candidate's confidence */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-xs text-muted-foreground">
+                      Evidence trail — how each OCR signal moved <span className="text-foreground">Cherokee Sandstone</span> confidence
+                    </div>
+                    <Badge variant="outline" className="text-[10px] font-mono">
+                      50% prior {EVIDENCE.reduce((s, e) => s + e.delta, 0) >= 0 ? "+" : ""}
+                      {EVIDENCE.reduce((s, e) => s + e.delta, 0)} pp = {50 + EVIDENCE.reduce((s, e) => s + e.delta, 0)}%
+                    </Badge>
+                  </div>
+                  <div className="space-y-1.5">
+                    {(() => {
+                      let running = 50;
+                      return EVIDENCE.map((e) => {
+                        const start = running;
+                        running += e.delta;
+                        const pos = e.delta >= 0;
+                        const Icon =
+                          e.icon === "map" ? MapPin :
+                          e.icon === "ruler" ? Ruler :
+                          e.icon === "tops" ? Layers :
+                          e.icon === "sp" ? Activity :
+                          e.icon === "warn" ? AlertTriangle :
+                          ScanLine;
+                        // Position bar on a 0–100 axis
+                        const from = Math.min(start, running);
+                        const width = Math.abs(e.delta);
+                        return (
+                          <div key={e.source + e.ocrField} className="grid grid-cols-[170px_1fr_60px] gap-3 items-center rounded-md border border-white/10 p-2.5">
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-1.5 text-xs font-medium">
+                                <Icon className={`w-3.5 h-3.5 ${pos ? "text-[#1A9FFF]" : "text-amber-300"}`} />
+                                {e.source}
+                              </div>
+                              <div className="text-[10px] text-muted-foreground font-mono truncate">{e.ocrField}</div>
+                            </div>
+                            <div>
+                              <div className="relative h-4 rounded bg-white/5 overflow-hidden">
+                                {/* baseline 50% marker */}
+                                <div className="absolute top-0 bottom-0 w-px bg-white/20" style={{ left: "50%" }} />
+                                <div
+                                  className="absolute top-0 bottom-0"
+                                  style={{
+                                    left: `${from}%`,
+                                    width: `${width}%`,
+                                    background: pos ? "rgba(34,197,94,0.55)" : "rgba(245,158,11,0.55)",
+                                    borderLeft: pos ? "2px solid #22c55e" : "2px solid #f59e0b",
+                                    borderRight: pos ? "2px solid #22c55e" : "2px solid #f59e0b",
+                                  }}
+                                />
+                              </div>
+                              <div className="text-[10px] text-muted-foreground mt-1">
+                                {e.signal}
+                                {e.registryHit && (
+                                  <> · <span className="text-[#1A9FFF]/80 font-mono">{e.registryHit}</span></>
+                                )}
+                              </div>
+                            </div>
+                            <div className={`text-right font-mono text-xs flex items-center justify-end gap-1 ${pos ? "text-green-400" : "text-amber-300"}`}>
+                              {pos ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                              {pos ? "+" : ""}{e.delta} pp
+                            </div>
+                          </div>
+                        );
+                      });
+                    })()}
+                  </div>
+                </div>
+
+                <Separator className="bg-white/10" />
+
+                {/* Per-candidate score matrix: same OCR signals scored against all 3 formations */}
+                <div>
+                  <div className="text-xs text-muted-foreground mb-2">
+                    Same OCR signals scored against every candidate (Δ points per signal)
+                  </div>
+                  <div className="overflow-x-auto rounded-md border border-white/10">
+                    <table className="w-full text-xs">
+                      <thead className="bg-white/5">
+                        <tr className="text-left">
+                          <th className="px-3 py-2 font-medium">OCR signal</th>
+                          <th className="px-3 py-2 font-medium text-right">Cherokee Ss</th>
+                          <th className="px-3 py-2 font-medium text-right">Mississippian Ls</th>
+                          <th className="px-3 py-2 font-medium text-right">Woodford Sh</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {SCORE_MATRIX.map((row) => (
+                          <tr key={row.field} className="border-t border-white/5">
+                            <td className="px-3 py-1.5 text-muted-foreground">{row.field}</td>
+                            {[row.cherokee, row.missLs, row.woodford].map((v, i) => (
+                              <td
+                                key={i}
+                                className={`px-3 py-1.5 text-right font-mono ${
+                                  v > 0 ? "text-green-400" : v < 0 ? "text-amber-300" : "text-muted-foreground"
+                                }`}
+                              >
+                                {v > 0 ? "+" : ""}{v}
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                        <tr className="border-t border-white/10 bg-white/5">
+                          <td className="px-3 py-2 font-medium">Total Δ (from 50% prior)</td>
+                          {(() => {
+                            const totals = SCORE_MATRIX.reduce(
+                              (a, r) => ({ c: a.c + r.cherokee, m: a.m + r.missLs, w: a.w + r.woodford }),
+                              { c: 0, m: 0, w: 0 }
+                            );
+                            return [totals.c, totals.m, totals.w].map((v, i) => (
+                              <td key={i} className="px-3 py-2 text-right font-mono font-semibold">
+                                {50 + v}%
+                              </td>
+                            ));
+                          })()}
+                        </tr>
+                      </tbody>
+                    </table>
                   </div>
                 </div>
 
