@@ -298,6 +298,12 @@ const OCRWellLog = () => {
         </div>
       )}
 
+      {result && (
+        <div className="mt-6">
+          <FormationAttribution result={result as any} />
+        </div>
+      )}
+
       {result && (result.log_readings?.length || result.perforations?.length) ? (
         <div className="mt-6">
           <OCRCurvePreview
