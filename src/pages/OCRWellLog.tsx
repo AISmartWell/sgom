@@ -10,6 +10,8 @@ import demoPaperLog from "@/assets/demo-paper-well-log.jpg";
 import { OCRCurvePreview } from "@/components/ocr/OCRCurvePreview";
 import { OCRQualityCheck } from "@/components/ocr/OCRQualityCheck";
 import { FormationAttribution } from "@/components/ocr/FormationAttribution";
+import { FormationComparison } from "@/components/ocr/FormationComparison";
+import { GitCompare, Camera } from "lucide-react";
 
 type OcrResult = {
   well_name?: string | null;
