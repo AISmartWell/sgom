@@ -39,6 +39,19 @@ const OCRWellLog = () => {
   const [result, setResult] = useState<OcrResult | null>(null);
   const [pipelineLoading, setPipelineLoading] = useState(false);
   const [pipelineOut, setPipelineOut] = useState<any | null>(null);
+  const [snapA, setSnapA] = useState<{ result: OcrResult; label: string } | null>(null);
+  const [snapB, setSnapB] = useState<{ result: OcrResult; label: string } | null>(null);
+
+  const captureSnapshot = useCallback(
+    (side: "A" | "B") => {
+      if (!result) return;
+      const snap = { result: JSON.parse(JSON.stringify(result)) as OcrResult, label: fileName || `Scan ${side}` };
+      if (side === "A") setSnapA(snap);
+      else setSnapB(snap);
+      toast.success(`Snapshot ${side} captured`);
+    },
+    [result, fileName],
+  );
 
   const runFullPipeline = useCallback(async () => {
     if (!result) return;
