@@ -74,6 +74,7 @@ import AdminImport from "./pages/modules/AdminImport";
 import BayesianDCA from "./pages/modules/BayesianDCA";
 import AramcoPilot from "./pages/modules/AramcoPilot";
 import OCRWellLog from "./pages/OCRWellLog";
+import OCRFormationDemo from "./pages/modules/OCRFormationDemo";
 import IngestRestorationDiagnostics from "./pages/modules/IngestRestorationDiagnostics";
 import SPTAdvisor from "./pages/modules/SPTAdvisor";
 import AutonomousScan from "./pages/modules/AutonomousScan";
