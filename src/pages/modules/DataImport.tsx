@@ -7,6 +7,7 @@ import { CSVUpload } from "@/components/data-import/CSVUpload";
 import { ManualWellEntry } from "@/components/data-import/ManualWellEntry";
 import { APIIntegrationPanel } from "@/components/data-import/APIIntegrationPanel";
 import { ImportedWellsTable } from "@/components/data-import/ImportedWellsTable";
+import { FormationAssistCard } from "@/components/data-import/FormationAssistCard";
 
 const DataImport = () => {
   const [companyId, setCompanyId] = useState<string | null>(null);
@@ -47,6 +48,10 @@ const DataImport = () => {
           Import well data from CSV files, manual entry, or connect to commercial data providers.
         </p>
       </div>
+
+      <FormationAssistCard />
+
+
 
       <Tabs defaultValue="csv" className="space-y-4">
         <TabsList className="grid w-full max-w-lg grid-cols-3">
