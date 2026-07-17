@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import demoPaperLog from "@/assets/demo-paper-well-log.jpg";
 import { OCRCurvePreview } from "@/components/ocr/OCRCurvePreview";
 import { OCRQualityCheck } from "@/components/ocr/OCRQualityCheck";
+import { FormationAttribution } from "@/components/ocr/FormationAttribution";
 
 type OcrResult = {
   well_name?: string | null;
@@ -294,6 +295,12 @@ const OCRWellLog = () => {
             previewSrc={preview}
             onChange={(next) => setResult(next as any)}
           />
+        </div>
+      )}
+
+      {result && (
+        <div className="mt-6">
+          <FormationAttribution result={result as any} />
         </div>
       )}
 
