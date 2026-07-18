@@ -17,6 +17,19 @@ const US_STATES = ["OK", "TX", "NM", "CO", "ND", "WY", "KS", "LA", "PA", "WV", "
 const WELL_TYPES = ["OIL", "GAS", "OIL AND GAS", "INJECTION", "DISPOSAL", "DRY HOLE"];
 const STATUSES = ["ACTIVE", "INACTIVE", "PLUGGED", "DRILLING", "COMPLETED", "PERMITTED"];
 
+const createUuid = () => {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return crypto.randomUUID();
+  }
+
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  bytes[6] = (bytes[6] & 0x0f) | 0x40;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, "0"));
+  return `${hex.slice(0, 4).join("")}-${hex.slice(4, 6).join("")}-${hex.slice(6, 8).join("")}-${hex.slice(8, 10).join("")}-${hex.slice(10, 16).join("")}`;
+};
+
 export const ManualWellEntry = ({ companyId, onImportComplete }: ManualWellEntryProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [form, setForm] = useState({
@@ -59,21 +72,19 @@ export const ManualWellEntry = ({ companyId, onImportComplete }: ManualWellEntry
     if (membershipError) throw membershipError;
     if (membership?.company_id) return membership.company_id;
 
-    const { data: company, error: companyError } = await supabase
+    const newCompanyId = createUuid();
+    const { error: companyError } = await supabase
       .from("companies")
-      .insert({ name: "AI Smart Well" })
-      .select("id")
-      .maybeSingle();
+      .insert({ id: newCompanyId, name: "AI Smart Well" });
 
     if (companyError) throw companyError;
-    if (!company?.id) throw new Error("Company context could not be created.");
 
     const { error: linkError } = await supabase
       .from("user_companies")
-      .insert({ user_id: user.id, company_id: company.id });
+      .insert({ user_id: user.id, company_id: newCompanyId });
 
     if (linkError) throw linkError;
-    return company.id;
+    return newCompanyId;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
