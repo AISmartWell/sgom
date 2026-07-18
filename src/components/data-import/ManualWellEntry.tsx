@@ -10,7 +10,7 @@ import { PenLine, Loader2, CheckCircle2 } from "lucide-react";
 
 interface ManualWellEntryProps {
   companyId: string | null;
-  onImportComplete: () => void;
+  onImportComplete: (companyId?: string) => void;
 }
 
 const US_STATES = ["OK", "TX", "NM", "CO", "ND", "WY", "KS", "LA", "PA", "WV", "OH"];
@@ -140,10 +140,11 @@ export const ManualWellEntry = ({ companyId, onImportComplete }: ManualWellEntry
         total_depth: "", production_oil: "", production_gas: "", water_cut: "",
         spud_date: "", completion_date: "",
       });
-      onImportComplete();
+      onImportComplete(activeCompanyId);
     } catch (err) {
       console.error("Insert error:", err);
-      toast.error(err instanceof Error ? err.message : "Failed to save well");
+      const message = err instanceof Error ? err.message : "Failed to save well";
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }
