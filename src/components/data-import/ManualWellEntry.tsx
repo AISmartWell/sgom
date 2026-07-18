@@ -42,12 +42,42 @@ export const ManualWellEntry = ({ companyId, onImportComplete }: ManualWellEntry
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
+  const resolveCompanyId = async () => {
+    if (companyId) return companyId;
+
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError) throw userError;
+    if (!user) throw new Error("Please sign in before saving a well.");
+
+    const { data: membership, error: membershipError } = await supabase
+      .from("user_companies")
+      .select("company_id")
+      .eq("user_id", user.id)
+      .limit(1)
+      .maybeSingle();
+
+    if (membershipError) throw membershipError;
+    if (membership?.company_id) return membership.company_id;
+
+    const { data: company, error: companyError } = await supabase
+      .from("companies")
+      .insert({ name: "AI Smart Well" })
+      .select("id")
+      .maybeSingle();
+
+    if (companyError) throw companyError;
+    if (!company?.id) throw new Error("Company context could not be created.");
+
+    const { error: linkError } = await supabase
+      .from("user_companies")
+      .insert({ user_id: user.id, company_id: company.id });
+
+    if (linkError) throw linkError;
+    return company.id;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!companyId) {
-      toast.error("No company found. Please log in first.");
-      return;
-    }
     if (!form.api_number || !form.well_name) {
       toast.error("API Number and Well Name are required");
       return;
@@ -64,6 +94,7 @@ export const ManualWellEntry = ({ companyId, onImportComplete }: ManualWellEntry
 
     setIsSubmitting(true);
     try {
+      const activeCompanyId = await resolveCompanyId();
       const wellData = {
         api_number: form.api_number.trim(),
         well_name: form.well_name.trim(),
@@ -81,11 +112,25 @@ export const ManualWellEntry = ({ companyId, onImportComplete }: ManualWellEntry
         water_cut: form.water_cut ? parseFloat(form.water_cut) : null,
         spud_date: form.spud_date || null,
         completion_date: form.completion_date || null,
-        company_id: companyId,
+        company_id: activeCompanyId,
         source: "MANUAL",
       };
 
-      const { error } = await supabase.from("wells").upsert(wellData, { onConflict: "api_number" });
+      const { data: existing, error: lookupError } = await supabase
+        .from("wells")
+        .select("id")
+        .eq("company_id", activeCompanyId)
+        .eq("api_number", wellData.api_number)
+        .limit(1)
+        .maybeSingle();
+
+      if (lookupError) throw lookupError;
+
+      const saveQuery = existing?.id
+        ? supabase.from("wells").update(wellData).eq("id", existing.id)
+        : supabase.from("wells").insert(wellData);
+
+      const { error } = await saveQuery;
       if (error) throw error;
 
       toast.success(`Well "${form.well_name}" saved successfully`);
