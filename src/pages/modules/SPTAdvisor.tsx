@@ -149,7 +149,31 @@ export default function SPTAdvisor() {
       </p>
 
       <Card>
-        <CardHeader><CardTitle className="text-base">Ask the advisor</CardTitle></CardHeader>
+        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <CardTitle className="text-base">Ask the advisor</CardTitle>
+          <Dialog open={addOpen} onOpenChange={setAddOpen}>
+            <DialogTrigger asChild>
+              <Button className="shrink-0">
+                <PlusCircle className="w-4 h-4 mr-2" /> Add well
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Add well to SPT Advisor</DialogTitle>
+                <DialogDescription>
+                  Wells saved here are immediately available to the advisor. Fill production oil, water cut, and formation for the best scoring confidence.
+                </DialogDescription>
+              </DialogHeader>
+              <ManualWellEntry
+                companyId={companyId || null}
+                onImportComplete={() => {
+                  setAddOpen(false);
+                  toast.success("Well added — run the advisor to include it in ranking.");
+                }}
+              />
+            </DialogContent>
+          </Dialog>
+        </CardHeader>
         <CardContent className="space-y-3">
           <Textarea value={question} onChange={(e) => setQuestion(e.target.value)} rows={3} />
           <div className="flex gap-2">
@@ -163,28 +187,6 @@ export default function SPTAdvisor() {
               {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Brain className="w-4 h-4 mr-2" />}
               Run advisor
             </Button>
-            <Dialog open={addOpen} onOpenChange={setAddOpen}>
-              <DialogTrigger asChild>
-                <Button variant="outline">
-                  <PlusCircle className="w-4 h-4 mr-2" /> Add well
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>Add well to SPT Advisor</DialogTitle>
-                  <DialogDescription>
-                    Wells saved here are immediately available to the advisor. Fill production oil, water cut, and formation for the best scoring confidence.
-                  </DialogDescription>
-                </DialogHeader>
-                <ManualWellEntry
-                  companyId={companyId || null}
-                  onImportComplete={() => {
-                    setAddOpen(false);
-                    toast.success("Well added — run the advisor to include it in ranking.");
-                  }}
-                />
-              </DialogContent>
-            </Dialog>
           </div>
         </CardContent>
       </Card>
