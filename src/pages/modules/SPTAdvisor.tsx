@@ -41,6 +41,17 @@ export default function SPTAdvisor() {
   const [ms, setMs] = useState<number | null>(null);
   const [approving, setApproving] = useState(false);
   const [approvedId, setApprovedId] = useState<string | null>(null);
+  const [addOpen, setAddOpen] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return;
+      supabase.from("user_companies").select("company_id").eq("user_id", user.id).limit(1).maybeSingle()
+        .then(({ data }) => {
+          if (data?.company_id) setCompanyId(data.company_id);
+        });
+    });
+  }, []);
 
   const approve = async () => {
     if (!resp?.answer?.recommended_well?.id) return;
