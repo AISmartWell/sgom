@@ -18,12 +18,14 @@ const WELL_TYPES = ["OIL", "GAS", "OIL AND GAS", "INJECTION", "DISPOSAL", "DRY H
 const STATUSES = ["ACTIVE", "INACTIVE", "PLUGGED", "DRILLING", "COMPLETED", "PERMITTED"];
 
 const createUuid = () => {
-  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    return crypto.randomUUID();
+  const webCrypto = globalThis.crypto;
+
+  if (webCrypto?.randomUUID) {
+    return webCrypto.randomUUID();
   }
 
   const bytes = new Uint8Array(16);
-  crypto.getRandomValues(bytes);
+  webCrypto.getRandomValues(bytes);
   bytes[6] = (bytes[6] & 0x0f) | 0x40;
   bytes[8] = (bytes[8] & 0x3f) | 0x80;
   const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, "0"));
