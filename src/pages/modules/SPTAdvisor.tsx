@@ -134,12 +134,17 @@ export default function SPTAdvisor() {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
-      <div className="flex items-center gap-3">
-        <Badge variant="outline" className="text-[10px]">Stage AI · Agent</Badge>
-        <h1 className="text-3xl font-bold flex items-center gap-2">
-          <Sparkles className="w-7 h-7 text-primary" /> SPT Advisor
-        </h1>
-        <Badge className="bg-primary/20 text-primary border-primary/30">openai/gpt-5.2 · tool-calling</Badge>
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-wrap items-center gap-3">
+          <Badge variant="outline" className="text-[10px]">Stage AI · Agent</Badge>
+          <h1 className="text-3xl font-bold flex items-center gap-2">
+            <Sparkles className="w-7 h-7 text-primary" /> SPT Advisor
+          </h1>
+          <Badge className="bg-primary/20 text-primary border-primary/30">openai/gpt-5.2 · tool-calling</Badge>
+        </div>
+        <Button size="lg" className="w-full lg:w-auto" onClick={() => setAddOpen(true)}>
+          <PlusCircle className="w-4 h-4 mr-2" /> Add well
+        </Button>
       </div>
 
       <p className="text-sm text-muted-foreground max-w-3xl">
@@ -157,13 +162,26 @@ export default function SPTAdvisor() {
           </DialogHeader>
           <ManualWellEntry
             companyId={companyId || null}
-            onImportComplete={() => {
+            onImportComplete={(savedCompanyId) => {
+              if (savedCompanyId) setCompanyId(savedCompanyId);
               setAddOpen(false);
               toast.success("Well added — run the advisor to include it in ranking.");
             }}
           />
         </DialogContent>
       </Dialog>
+
+      <Card className="border-primary/40 bg-primary/5">
+        <CardContent className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="font-semibold text-foreground">Add wells directly to SPT Advisor</div>
+            <div className="text-sm text-muted-foreground">Manual wells are saved to the shared wells database and become available for advisor ranking.</div>
+          </div>
+          <Button className="w-full sm:w-auto" onClick={() => setAddOpen(true)}>
+            <PlusCircle className="w-4 h-4 mr-2" /> Add well
+          </Button>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
