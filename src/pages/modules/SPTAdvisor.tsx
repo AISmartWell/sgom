@@ -12,7 +12,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Loader2, Brain, Wrench, CheckCircle2, AlertTriangle, Sparkles, ClipboardCheck, PlusCircle } from "lucide-react";
 import { toast } from "sonner";
@@ -148,35 +147,34 @@ export default function SPTAdvisor() {
         and returns an explained recommendation with alternatives. All calls are real (no mocks).
       </p>
 
+      <Dialog open={addOpen} onOpenChange={setAddOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Add well to SPT Advisor</DialogTitle>
+            <DialogDescription>
+              Wells saved here are immediately available to the advisor. Fill production oil, water cut, and formation for the best scoring confidence.
+            </DialogDescription>
+          </DialogHeader>
+          <ManualWellEntry
+            companyId={companyId || null}
+            onImportComplete={() => {
+              setAddOpen(false);
+              toast.success("Well added — run the advisor to include it in ranking.");
+            }}
+          />
+        </DialogContent>
+      </Dialog>
+
       <Card>
         <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <CardTitle className="text-base">Ask the advisor</CardTitle>
-          <Dialog open={addOpen} onOpenChange={setAddOpen}>
-            <DialogTrigger asChild>
-              <Button className="shrink-0">
-                <PlusCircle className="w-4 h-4 mr-2" /> Add well
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Add well to SPT Advisor</DialogTitle>
-                <DialogDescription>
-                  Wells saved here are immediately available to the advisor. Fill production oil, water cut, and formation for the best scoring confidence.
-                </DialogDescription>
-              </DialogHeader>
-              <ManualWellEntry
-                companyId={companyId || null}
-                onImportComplete={() => {
-                  setAddOpen(false);
-                  toast.success("Well added — run the advisor to include it in ranking.");
-                }}
-              />
-            </DialogContent>
-          </Dialog>
+          <Button className="shrink-0" onClick={() => setAddOpen(true)}>
+            <PlusCircle className="w-4 h-4 mr-2" /> Add well
+          </Button>
         </CardHeader>
         <CardContent className="space-y-3">
           <Textarea value={question} onChange={(e) => setQuestion(e.target.value)} rows={3} />
-          <div className="flex gap-2">
+          <div className="flex flex-col gap-2 sm:flex-row">
             <input
               placeholder="company_id (optional — leave empty = all wells)"
               value={companyId}
@@ -186,6 +184,9 @@ export default function SPTAdvisor() {
             <Button onClick={run} disabled={loading}>
               {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Brain className="w-4 h-4 mr-2" />}
               Run advisor
+            </Button>
+            <Button variant="outline" onClick={() => setAddOpen(true)}>
+              <PlusCircle className="w-4 h-4 mr-2" /> Add well
             </Button>
           </div>
         </CardContent>
