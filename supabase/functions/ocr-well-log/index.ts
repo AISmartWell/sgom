@@ -29,10 +29,8 @@ const SCHEMA_HINT = `{
   "logged_curves": string[],             // e.g. ["GR","SP","RES","NPHI","RHOB"]
   "formation_tops": [ { "name": string, "depth_ft": number } ],
   "perforations": [ { "top_ft": number, "bottom_ft": number, "date": string | null } ],
-  "log_readings": [                       // optional digitised samples
-    { "depth_ft": number, "gr_api": number | null, "sp_mv": number | null,
-      "res_ohmm": number | null, "nphi_pu": number | null, "rhob_gcc": number | null }
-  ],
+  "log_readings": [],                     // leave empty — digitisation is done in a later step
+
   "raw_text": string,                    // concatenated readable text
   "confidence": number,                  // 0..1 overall
   "notes": string                        // illegibility, damage, scan quality
