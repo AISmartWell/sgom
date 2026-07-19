@@ -105,7 +105,7 @@ function asStringArray(value: unknown): string[] {
     .slice(0, 80);
 }
 
-function normalizeResult(parsed: Record<string, unknown>, model: string, fallbackUsed: boolean) {
+function normalizeResult(parsed: Record<string, unknown>, model: string, fallbackUsed: boolean, keepReadings = false) {
   const result: Record<string, unknown> = { ...parsed };
   const textTokens = asStringArray(result.visible_text_tokens);
   const tracks = Array.isArray(result.curve_tracks) ? result.curve_tracks as Array<Record<string, unknown>> : [];
@@ -120,9 +120,13 @@ function normalizeResult(parsed: Record<string, unknown>, model: string, fallbac
   result.visible_text_tokens = textTokens;
   result.logged_curves = loggedCurves;
   result.curve_tracks = tracks;
-  result.log_readings = [];
+  if (!keepReadings) {
+    result.log_readings = [];
+  } else if (!Array.isArray(result.log_readings)) {
+    result.log_readings = [];
+  }
   result.raw_text = joinedText;
-  result._meta = { model, fallback_used: fallbackUsed };
+  result._meta = { model, fallback_used: fallbackUsed, digitized: keepReadings };
   return result;
 }
 
