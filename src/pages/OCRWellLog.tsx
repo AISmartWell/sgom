@@ -106,17 +106,22 @@ const OCRWellLog = () => {
     reader.readAsDataURL(blob);
   }, []);
 
-  const recognize = useCallback(async () => {
+  const recognize = useCallback(async (quality: "auto" | "digitize" = "auto") => {
     if (!preview) return;
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke("ocr-well-log", {
-        body: { image: preview },
+        body: { image: preview, quality },
       });
       if (error) throw error;
       if (!data?.ok) throw new Error(data?.error || "Recognition failed");
       setResult(data.result);
-      toast.success(data.fallbackUsed ? "Deep OCR pass completed" : "Scan recognised");
+      if (quality === "digitize") {
+        const n = Array.isArray(data.result?.log_readings) ? data.result.log_readings.length : 0;
+        toast.success(`Digitized ${n} curve samples (Pro vision)`);
+      } else {
+        toast.success(data.fallbackUsed ? "Deep OCR pass completed" : "Scan recognised");
+      }
     } catch (e: any) {
       toast.error(e?.message || "OCR failed");
     } finally {
