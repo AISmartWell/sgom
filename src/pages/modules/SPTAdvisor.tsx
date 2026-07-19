@@ -184,6 +184,9 @@ export default function SPTAdvisor() {
         </CardContent>
       </Card>
 
+      <OCRQuickIngest companyId={companyId} onWellCreated={() => { /* well added */ }} />
+
+
       <Card>
         <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <CardTitle className="text-base">Ask the advisor</CardTitle>
