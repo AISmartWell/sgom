@@ -156,10 +156,12 @@ function extractionScore(result: Record<string, unknown>) {
   return strings + depthScore + arrayScore + rawScore;
 }
 
-async function callGateway(apiKey: string, model: string, dataUrl: string, deepPass: boolean) {
-  const userInstruction = deepPass
-    ? "Run a high-detail OCR pass. Return every visible text token and visual curve-track detail, even when true well/API metadata is absent. Return JSON per schema."
-    : "Recognise this scanned well log. Prioritise visible text tokens, header/footer labels and curve-track labels. Return JSON per schema.";
+async function callGateway(apiKey: string, model: string, dataUrl: string, mode: "fast" | "deep" | "digitize") {
+  const userInstruction = mode === "digitize"
+    ? "DIGITIZE mode. Return every visible text token, header/footer labels, curve-track labels AND sample the visible curves along depth (20-40 evenly spaced rows) into log_readings with numeric values per curve (leave a cell null if unreadable). Return JSON per schema."
+    : mode === "deep"
+      ? "Run a high-detail OCR pass. Return every visible text token and visual curve-track detail, even when true well/API metadata is absent. Leave log_readings empty. Return JSON per schema."
+      : "Recognise this scanned well log. Prioritise visible text tokens, header/footer labels and curve-track labels. Leave log_readings empty. Return JSON per schema.";
 
   let lastBody = "";
   let lastStatus = 502;
