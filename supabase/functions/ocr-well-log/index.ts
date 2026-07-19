@@ -21,35 +21,39 @@ Your priorities, in order:
    keep it null; do NOT use a wireline service company as the operator unless the scan says Operator.
 3) Detect visual curve tracks and likely curve families even when exact curve labels are partly unreadable.
 4) Extract formation tops, perforations, casing/tubing/depth intervals when legible.
-5) Do NOT digitise full curve samples in this endpoint; leave log_readings empty.
+5) When DIGITIZE mode is requested, sample the visible curves along depth (~20-40 rows evenly across
+   the depth range) and fill log_readings with numeric values in per-track units (API for GR/SP,
+   ohm-m for RES, v/v for NPHI, g/cc for RHOB). Leave a cell null if the curve is off-scale or unreadable.
+   Otherwise leave log_readings empty.
 
 Use feet (ft) as the unit unless the log explicitly shows meters. NEVER invent numeric values.
 Return STRICTLY a JSON object — no prose, no markdown fences.`;
 
 const SCHEMA_HINT = `{
-  "document_title": string | null,        // visible title/pass/report name, e.g. "MAIN PASS"
+  "document_title": string | null,
   "well_name": string | null,
-  "api_number": string | null,           // 10-digit US API if visible
+  "api_number": string | null,
   "operator": string | null,
-  "service_company": string | null,      // wireline/logging company if visible
+  "service_company": string | null,
   "field": string | null,
   "county": string | null,
   "state": string | null,
-  "log_date": string | null,             // ISO date if visible
+  "log_date": string | null,
   "depth_range_ft": { "top": number | null, "bottom": number | null },
-  "logged_curves": string[],             // e.g. ["GR","SP","RES","NPHI","RHOB"]
+  "logged_curves": string[],
   "curve_tracks": [
     { "track": string, "interpreted_curve": string | null, "visible_label": string | null, "description": string, "confidence": number }
   ],
   "visible_depth_markers_ft": number[],
   "formation_tops": [ { "name": string, "depth_ft": number } ],
   "perforations": [ { "top_ft": number, "bottom_ft": number, "date": string | null } ],
-  "log_readings": [],                     // leave empty — digitisation is done in a later step
-
-  "visible_text_tokens": string[],        // every readable text token / phrase from the scan
-  "raw_text": string,                    // concatenated readable text
-  "confidence": number,                  // 0..1 overall
-  "notes": string                        // illegibility, damage, scan quality
+  "log_readings": [
+    { "depth_ft": number, "gamma_ray": number | null, "sp": number | null, "resistivity": number | null, "neutron_porosity": number | null, "density": number | null }
+  ],
+  "visible_text_tokens": string[],
+  "raw_text": string,
+  "confidence": number,
+  "notes": string
 }`;
 
 function wait(ms: number) {
