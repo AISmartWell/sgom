@@ -223,12 +223,30 @@ Deno.serve(async (req) => {
       return jsonResponse({ error: "LOVABLE_API_KEY missing" }, 500);
     }
 
+    if (quality === "digitize") {
+      const deep = normalizeResult(
+        await callGateway(apiKey, DEEP_MODEL, dataUrl, "digitize"),
+        DEEP_MODEL,
+        false,
+        true,
+      );
+      return jsonResponse({
+        ok: true,
+        result: deep,
+        model: DEEP_MODEL,
+        fallbackUsed: false,
+        digitized: true,
+        extractionScore: extractionScore(deep),
+      });
+    }
+
     const firstModel = quality === "deep" ? DEEP_MODEL : FAST_MODEL;
-    const first = normalizeResult(await callGateway(apiKey, firstModel, dataUrl, quality === "deep"), firstModel, false);
+    const firstMode: "fast" | "deep" | "digitize" = quality === "deep" ? "deep" : "fast";
+    const first = normalizeResult(await callGateway(apiKey, firstModel, dataUrl, firstMode), firstModel, false);
     const firstScore = extractionScore(first);
 
     if (quality !== "fast" && firstModel === FAST_MODEL && firstScore < 6) {
-      const deep = normalizeResult(await callGateway(apiKey, DEEP_MODEL, dataUrl, true), DEEP_MODEL, true);
+      const deep = normalizeResult(await callGateway(apiKey, DEEP_MODEL, dataUrl, "deep"), DEEP_MODEL, true);
       return jsonResponse({
         ok: true,
         result: deep,
