@@ -190,13 +190,24 @@ const OCRWellLog = () => {
             </div>
           )}
 
-          <Button onClick={recognize} disabled={!preview || loading} className="w-full">
-            {loading ? (
-              <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Recognising…</>
-            ) : (
-              <><ScanText className="mr-2 h-4 w-4" /> Run OCR (Auto detail)</>
-            )}
-          </Button>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <Button onClick={() => recognize("auto")} disabled={!preview || loading} className="w-full">
+              {loading ? (
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Recognising…</>
+              ) : (
+                <><ScanText className="mr-2 h-4 w-4" /> Run OCR (Auto detail)</>
+              )}
+            </Button>
+            <Button
+              onClick={() => recognize("digitize")}
+              disabled={!preview || loading}
+              variant="outline"
+              className="w-full"
+              title="Slow (~60-180s) — uses Gemini 2.5 Pro to sample curve values along depth into log_readings"
+            >
+              <ScanText className="mr-2 h-4 w-4" /> Digitize curves (slow · Pro)
+            </Button>
+          </div>
         </Card>
 
         <Card className="p-6 space-y-4">
