@@ -17,6 +17,7 @@ import { Loader2, Brain, Wrench, CheckCircle2, AlertTriangle, Sparkles, Clipboar
 import { toast } from "sonner";
 import MCDAWeightsPanel from "@/components/spt-advisor/MCDAWeightsPanel";
 import { ManualWellEntry } from "@/components/data-import/ManualWellEntry";
+import OCRQuickIngest from "@/components/spt-advisor/OCRQuickIngest";
 
 type TraceItem =
   | { step: number; kind: "tool"; name: string; args: any; ms: number; error: string | null; result_preview: string; result_full?: any }
