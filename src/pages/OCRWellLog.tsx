@@ -14,21 +14,27 @@ import { FormationComparison } from "@/components/ocr/FormationComparison";
 import { GitCompare, Camera } from "lucide-react";
 
 type OcrResult = {
+  document_title?: string | null;
   well_name?: string | null;
   api_number?: string | null;
   operator?: string | null;
+  service_company?: string | null;
   field?: string | null;
   county?: string | null;
   state?: string | null;
   log_date?: string | null;
   depth_range_ft?: { top?: number | null; bottom?: number | null };
   logged_curves?: string[];
+  curve_tracks?: { track: string; interpreted_curve?: string | null; visible_label?: string | null; description?: string; confidence?: number }[];
+  visible_depth_markers_ft?: number[];
   formation_tops?: { name: string; depth_ft: number }[];
   perforations?: { top_ft: number; bottom_ft: number; date?: string | null }[];
   log_readings?: Record<string, number | null>[];
+  visible_text_tokens?: string[];
   raw_text?: string;
   confidence?: number;
   notes?: string;
+  _meta?: { model?: string; fallback_used?: boolean };
 };
 
 const OCRWellLog = () => {
@@ -110,7 +116,7 @@ const OCRWellLog = () => {
       if (error) throw error;
       if (!data?.ok) throw new Error(data?.error || "Recognition failed");
       setResult(data.result);
-      toast.success("Scan recognised");
+      toast.success(data.fallbackUsed ? "Deep OCR pass completed" : "Scan recognised");
     } catch (e: any) {
       toast.error(e?.message || "OCR failed");
     } finally {
@@ -183,7 +189,7 @@ const OCRWellLog = () => {
             {loading ? (
               <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Recognising…</>
             ) : (
-              <><ScanText className="mr-2 h-4 w-4" /> Run OCR (Gemini Vision)</>
+              <><ScanText className="mr-2 h-4 w-4" /> Run OCR (Auto detail)</>
             )}
           </Button>
         </Card>
@@ -219,9 +225,11 @@ const OCRWellLog = () => {
           {result && (
             <div className="space-y-4 text-sm">
               <div className="grid grid-cols-2 gap-3">
+                <Field label="Document" value={result.document_title} />
                 <Field label="Well" value={result.well_name} />
                 <Field label="API #" value={result.api_number} />
                 <Field label="Operator" value={result.operator} />
+                <Field label="Service company" value={result.service_company} />
                 <Field label="Field" value={result.field} />
                 <Field label="County" value={result.county} />
                 <Field label="State" value={result.state} />
@@ -278,6 +286,43 @@ const OCRWellLog = () => {
                   </table>
                 </div>
               ) : null}
+
+              {result.curve_tracks?.length ? (
+                <div>
+                  <div className="text-xs text-muted-foreground mb-1">Curve tracks</div>
+                  <div className="space-y-1">
+                    {result.curve_tracks.slice(0, 6).map((track, i) => (
+                      <div key={i} className="rounded border border-border/50 p-2 text-xs">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-mono text-primary">{track.track || `Track ${i + 1}`}</span>
+                          <span>{track.interpreted_curve || track.visible_label || "unlabeled"}</span>
+                        </div>
+                        {track.description && <div className="text-muted-foreground mt-1">{track.description}</div>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+
+              {result.visible_text_tokens?.length ? (
+                <div>
+                  <div className="text-xs text-muted-foreground mb-1">Visible text tokens</div>
+                  <div className="flex flex-wrap gap-1">
+                    {result.visible_text_tokens.slice(0, 24).map((token, i) => (
+                      <Badge key={`${token}-${i}`} variant="outline" className="text-[10px]">
+                        {token}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+
+              {result._meta?.model && (
+                <div className="text-xs text-muted-foreground">
+                  OCR model: <span className="font-mono text-primary">{result._meta.model}</span>
+                  {result._meta.fallback_used ? " · deep fallback used" : ""}
+                </div>
+              )}
 
               {typeof result.confidence === "number" && (
                 <div className="text-xs">

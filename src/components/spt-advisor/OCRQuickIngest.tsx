@@ -68,10 +68,10 @@ export default function OCRQuickIngest({ companyId, onWellCreated }: Props) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
           <ScanText className="w-5 h-5 text-primary" /> OCR — Paper Well Log Recognition
-          <Badge className="bg-primary/20 text-primary border-primary/30">Gemini 2.5 Pro Vision</Badge>
+          <Badge className="bg-primary/20 text-primary border-primary/30">Auto detail OCR</Badge>
         </CardTitle>
         <CardDescription>
-          Upload a scanned paper log — the advisor will extract header, tops, perforations, and log readings,
+          Upload a scanned paper log — the advisor will extract visible text, header, tops and perforations,
           then create the well so it can be ranked immediately.
         </CardDescription>
       </CardHeader>
@@ -103,13 +103,16 @@ export default function OCRQuickIngest({ companyId, onWellCreated }: Props) {
             <img src={preview} alt="scan" className="max-h-40 rounded-md border border-border" />
             {ocr && (
               <div className="flex-1 text-xs space-y-1">
+                <div><span className="text-muted-foreground">Document:</span> <span className="font-mono">{ocr.document_title ?? "—"}</span></div>
                 <div><span className="text-muted-foreground">Well:</span> <span className="font-mono">{ocr.well_name ?? "—"}</span></div>
                 <div><span className="text-muted-foreground">API:</span> <span className="font-mono">{ocr.api_number ?? "—"}</span></div>
                 <div><span className="text-muted-foreground">Operator:</span> <span className="font-mono">{ocr.operator ?? "—"}</span></div>
+                <div><span className="text-muted-foreground">Service:</span> <span className="font-mono">{ocr.service_company ?? "—"}</span></div>
                 <div><span className="text-muted-foreground">County / State:</span> <span className="font-mono">{ocr.county ?? "—"} / {ocr.state ?? "—"}</span></div>
                 <div><span className="text-muted-foreground">Depth:</span> <span className="font-mono">{ocr.depth_range_ft?.top ?? "?"}–{ocr.depth_range_ft?.bottom ?? "?"} ft</span></div>
                 <div><span className="text-muted-foreground">Tops:</span> <span className="font-mono">{ocr.formation_tops?.map((t: any) => t.name).join(", ") || "—"}</span></div>
                 <div><span className="text-muted-foreground">Curves:</span> <span className="font-mono">{ocr.logged_curves?.join(", ") || "—"}</span></div>
+                <div><span className="text-muted-foreground">Text tokens:</span> <span className="font-mono">{ocr.visible_text_tokens?.slice(0, 8).join(", ") || "—"}</span></div>
                 <div><span className="text-muted-foreground">Confidence:</span> <span className="font-mono">{ocr.confidence != null ? Math.round(ocr.confidence * 100) + "%" : "—"}</span></div>
               </div>
             )}
