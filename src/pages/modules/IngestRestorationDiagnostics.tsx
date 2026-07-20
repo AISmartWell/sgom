@@ -300,6 +300,65 @@ export default function IngestRestorationDiagnostics() {
         )}
       </Card>
 
+      {/* Algorithmic formation attribution */}
+      <Card className="p-4">
+        <div className="flex items-center justify-between mb-3 gap-3 flex-wrap">
+          <div>
+            <div className="text-sm font-semibold flex items-center gap-2">
+              <Layers className="h-4 w-4 text-primary" />
+              Algorithmic formation attribution
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Runs <code>formation-attribution/v1</code> across every <code>well_restorations</code> row: pulls
+              state / county / depth / curves from the linked well or payload, scores them against{" "}
+              <code>formation_codes</code>, and writes <code>payload.formation</code> +{" "}
+              <code>payload.formation_attribution</code> (winner, score, evidence trail). Replaces the previous
+              manual Maxxwell/registry lookup.
+            </p>
+          </div>
+          <Button onClick={autoAttributeFormations} disabled={attributing}>
+            {attributing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Wand2 className="h-4 w-4 mr-2" />}
+            Auto-attribute formations
+          </Button>
+        </div>
+        {attributionLog.length > 0 && (
+          <div className="border border-white/10 rounded overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Ref</TableHead>
+                  <TableHead>State</TableHead>
+                  <TableHead>County</TableHead>
+                  <TableHead>Formation</TableHead>
+                  <TableHead>Score</TableHead>
+                  <TableHead>Note</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {attributionLog.map((l, i) => (
+                  <TableRow key={i}>
+                    <TableCell className="font-mono text-xs">{l.ref}</TableCell>
+                    <TableCell className="font-mono text-xs">{l.state ?? "—"}</TableCell>
+                    <TableCell className="font-mono text-xs">{l.county ?? "—"}</TableCell>
+                    <TableCell className="text-xs">
+                      {l.formation ? (
+                        <Badge className="bg-primary/15 text-primary border-primary/40">{l.formation}</Badge>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="font-mono text-xs">
+                      {l.score != null ? `${l.score.toFixed(0)}%` : "—"}
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground">{l.note ?? "ok"}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+      </Card>
+
       <Tabs defaultValue="restorations">
         <TabsList>
           <TabsTrigger value="restorations">Restorations ({restorations.length})</TabsTrigger>
@@ -315,6 +374,7 @@ export default function IngestRestorationDiagnostics() {
                 <TableRow>
                   <TableHead>Time</TableHead>
                   <TableHead>Well</TableHead>
+                  <TableHead>Formation (algo)</TableHead>
                   <TableHead>Predicted</TableHead>
                   <TableHead>Actual</TableHead>
                   <TableHead>b · spt</TableHead>
@@ -323,23 +383,41 @@ export default function IngestRestorationDiagnostics() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {restorations.map((r) => (
-                  <TableRow key={r.id}>
-                    <TableCell className="font-mono text-xs">{new Date(r.created_at).toLocaleString()}</TableCell>
-                    <TableCell className="font-mono text-xs">{r.well_external_ref ?? r.well_id ?? "—"}</TableCell>
-                    <TableCell>{r.predicted_qoil}</TableCell>
-                    <TableCell>{r.actual_qoil}</TableCell>
-                    <TableCell className="font-mono text-xs">{Number(r.arps_b_used).toFixed(3)} · {Number(r.spt_multiplier_used).toFixed(3)}</TableCell>
-                    <TableCell><Badge variant="outline">{r.source}</Badge></TableCell>
-                    <TableCell>
-                      {r.processed
-                        ? <Badge className="bg-emerald-500/15 text-emerald-300 border-emerald-500/40">processed</Badge>
-                        : <Badge className="bg-rose-500/15 text-rose-300 border-rose-500/40">pending/failed</Badge>}
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {restorations.map((r) => {
+                  const attr = (r.payload as any)?.formation_attribution;
+                  const fm = (r.payload as any)?.formation;
+                  return (
+                    <TableRow key={r.id}>
+                      <TableCell className="font-mono text-xs">{new Date(r.created_at).toLocaleString()}</TableCell>
+                      <TableCell className="font-mono text-xs">{r.well_external_ref ?? r.well_id ?? "—"}</TableCell>
+                      <TableCell className="text-xs">
+                        {fm ? (
+                          <div className="flex flex-col">
+                            <Badge className="bg-primary/15 text-primary border-primary/40 w-fit">{fm}</Badge>
+                            {attr?.score != null && (
+                              <span className="text-[10px] text-muted-foreground font-mono mt-0.5">
+                                {attr.method ?? "algo"} · {Number(attr.score).toFixed(0)}%
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell>{r.predicted_qoil}</TableCell>
+                      <TableCell>{r.actual_qoil}</TableCell>
+                      <TableCell className="font-mono text-xs">{Number(r.arps_b_used).toFixed(3)} · {Number(r.spt_multiplier_used).toFixed(3)}</TableCell>
+                      <TableCell><Badge variant="outline">{r.source}</Badge></TableCell>
+                      <TableCell>
+                        {r.processed
+                          ? <Badge className="bg-emerald-500/15 text-emerald-300 border-emerald-500/40">processed</Badge>
+                          : <Badge className="bg-rose-500/15 text-rose-300 border-rose-500/40">pending/failed</Badge>}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
                 {restorations.length === 0 && (
-                  <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-6">No restorations yet</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground py-6">No restorations yet</TableCell></TableRow>
                 )}
               </TableBody>
             </Table>
