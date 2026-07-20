@@ -3070,7 +3070,11 @@ const GeophysicalExpertise = () => {
                     <Upload className="h-3.5 w-3.5 mr-1.5" />
                     Upload LAS
                   </Button>
-                  <Button size="sm" variant="outline" onClick={() => navigate("/ocr-well-log")}>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => navigate(`/dashboard/ocr?targetWellId=${encodeURIComponent(selectedWell.id)}`)}
+                  >
                     <FileImage className="h-3.5 w-3.5 mr-1.5" />
                     OCR paper log
                   </Button>

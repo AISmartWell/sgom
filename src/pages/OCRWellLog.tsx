@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Upload, ScanText, Loader2, FileImage, CheckCircle2, Sparkles, Activity, ArrowRight, Database, Brain } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import demoPaperLog from "@/assets/demo-paper-well-log.jpg";
@@ -39,6 +39,8 @@ type OcrResult = {
 
 const OCRWellLog = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const targetWellId = searchParams.get("targetWellId") || undefined;
   const [preview, setPreview] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string>("");
   const [loading, setLoading] = useState(false);
@@ -47,6 +49,8 @@ const OCRWellLog = () => {
   const [pipelineOut, setPipelineOut] = useState<any | null>(null);
   const [snapA, setSnapA] = useState<{ result: OcrResult; label: string } | null>(null);
   const [snapB, setSnapB] = useState<{ result: OcrResult; label: string } | null>(null);
+  const digitizedLogCount = result?.log_readings?.length ?? 0;
+  const canRunStage8Pipeline = digitizedLogCount > 0;
 
   const captureSnapshot = useCallback(
     (side: "A" | "B") => {
@@ -65,20 +69,20 @@ const OCRWellLog = () => {
     setPipelineOut(null);
     try {
       const { data, error } = await supabase.functions.invoke("ocr-ingest-analyze", {
-        body: { ocrResult: result, sourceLabel: "ocr_paper_log" },
+        body: { ocrResult: result, targetWellId, sourceLabel: "ocr_paper_log" },
       });
       if (error) throw error;
       if (!data?.ok) throw new Error(data?.error || "Pipeline failed");
       setPipelineOut(data);
       toast.success(
-        `Well created · ${data.logsInserted} log points · Stage 8 ${data.stageAnalysis ? "complete" : "skipped"}`
+        `${targetWellId ? "Well updated" : "Well created"} · ${data.logsInserted} log points · Stage 8 ${data.stageAnalysis ? "complete" : "skipped"}`
       );
     } catch (e: any) {
       toast.error(e?.message || "Pipeline failed");
     } finally {
       setPipelineLoading(false);
     }
-  }, [result]);
+  }, [result, targetWellId]);
 
   const onFile = useCallback((file: File) => {
     if (!file.type.startsWith("image/")) {
@@ -457,14 +461,25 @@ const OCRWellLog = () => {
                 Full pipeline · Create well → Save logs → Run Stage 8 (Geophysical)
               </h2>
               <p className="text-xs text-muted-foreground mt-1 max-w-2xl">
-                Creates a new well record from the OCR metadata, persists digitised curve points
+                {targetWellId ? "Attaches to the selected well from Geophysical Expertise, " : "Creates a new well record from the OCR metadata, "}
+                persists digitised curve points
                 into <code className="text-primary">well_logs</code>, then invokes the geophysical
                 petrophysics engine (Vsh · φ · Sw · Timur k · pay flags).
               </p>
+              {targetWellId && (
+                <div className="text-[10px] font-mono text-primary mt-2">
+                  Target well: {targetWellId}
+                </div>
+              )}
+              {!canRunStage8Pipeline && (
+                <div className="mt-3 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs text-amber-400">
+                  Run <span className="font-medium">Digitize curves (slow · Pro)</span> first. Fast OCR extracts text only and cannot populate Stage 8 well_logs.
+                </div>
+              )}
             </div>
             <Button
               onClick={runFullPipeline}
-              disabled={pipelineLoading}
+              disabled={pipelineLoading || !canRunStage8Pipeline}
               className="bg-primary hover:bg-primary/90"
             >
               {pipelineLoading ? (
