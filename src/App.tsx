@@ -182,6 +182,8 @@ const App = () => (
                <Route path="/innovation" element={<Innovation />} />
                <Route path="/alberta-petrel" element={<AlbertaPetrel />} />
                <Route path="/admin/import" element={<AdminImport />} />
+           <Route path="/ocr-well-log" element={<OCRWellLog />} />
+           <Route path="/dashboard/ocr-well-log" element={<Navigate to="/dashboard/ocr" replace />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
           <Route path="*" element={<NotFound />} />
