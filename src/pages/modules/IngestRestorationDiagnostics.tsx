@@ -7,8 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, RefreshCw, Send, AlertTriangle, CheckCircle2, Activity, Database, History } from "lucide-react";
+import { Loader2, RefreshCw, Send, AlertTriangle, CheckCircle2, Activity, Database, History, Wand2, Layers } from "lucide-react";
 import { toast } from "sonner";
+import { buildAttributionModel, normState, type OcrLite } from "@/lib/formation-attribution";
+import type { FormationCode } from "@/hooks/useFormationCodes";
 
 type Restoration = {
   id: string; created_at: string; well_external_ref: string | null; well_id: string | null;
