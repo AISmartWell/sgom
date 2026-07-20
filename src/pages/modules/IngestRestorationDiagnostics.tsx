@@ -104,7 +104,136 @@ export default function IngestRestorationDiagnostics() {
     }
   }
 
-  const failedRestorations = restorations.filter((r) => !r.processed);
+  const [attributing, setAttributing] = useState(false);
+  const [attributionLog, setAttributionLog] = useState<
+    { ref: string; state?: string; county?: string; formation?: string; score?: number; note?: string }[]
+  >([]);
+
+  async function autoAttributeFormations() {
+    setAttributing(true);
+    setAttributionLog([]);
+    const log: typeof attributionLog = [];
+    try {
+      const { data: rows, error } = await supabase
+        .from("well_restorations")
+        .select("id, well_id, well_external_ref, payload")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      if (!rows?.length) {
+        toast.info("No restoration rows to attribute");
+        return;
+      }
+
+      // Preload wells referenced by well_id
+      const wellIds = Array.from(new Set(rows.map((r) => r.well_id).filter(Boolean))) as string[];
+      const wellsById = new Map<string, { state?: string; county?: string; total_depth?: number; formation?: string; well_name?: string }>();
+      if (wellIds.length) {
+        const { data: ws } = await supabase
+          .from("wells")
+          .select("id, state, county, total_depth, formation, well_name")
+          .in("id", wellIds);
+        (ws ?? []).forEach((w: any) => wellsById.set(w.id, w));
+      }
+
+      // Cache registry per state
+      const registryCache = new Map<string, FormationCode[]>();
+      async function getRegistry(stateCode: string): Promise<FormationCode[]> {
+        if (registryCache.has(stateCode)) return registryCache.get(stateCode)!;
+        const { data } = await supabase
+          .from("formation_codes")
+          .select("*")
+          .eq("state_code", stateCode);
+        const list = (data ?? []) as FormationCode[];
+        registryCache.set(stateCode, list);
+        return list;
+      }
+
+      let updated = 0;
+      for (const r of rows) {
+        const payload = (r.payload ?? {}) as Record<string, any>;
+        const well = r.well_id ? wellsById.get(r.well_id) : undefined;
+        const stateRaw = payload.state ?? well?.state;
+        const countyRaw = payload.county ?? well?.county;
+        const depthTop = payload.depth_top_ft ?? payload.spt_depth_ft ?? null;
+        const depthBot = payload.depth_bottom_ft ?? well?.total_depth ?? null;
+        const curves: string[] = payload.logged_curves ?? [];
+        const tops = payload.formation_tops ?? [];
+
+        const stateCode = normState(stateRaw);
+        const ref = r.well_external_ref ?? well?.well_name ?? r.id.slice(0, 8);
+        if (!stateCode) {
+          log.push({ ref, note: "no state → skipped" });
+          continue;
+        }
+        const registry = await getRegistry(stateCode);
+        if (!registry.length) {
+          log.push({ ref, state: stateCode, note: "no registry rows for state" });
+          continue;
+        }
+        const ocr: OcrLite = {
+          state: stateCode,
+          county: countyRaw,
+          depth_range_ft: { top: depthTop, bottom: depthBot },
+          logged_curves: curves,
+          formation_tops: tops,
+        };
+        const model = buildAttributionModel(ocr, registry);
+        if (!model) {
+          log.push({ ref, state: stateCode, county: countyRaw, note: "no candidates" });
+          continue;
+        }
+        const winner = model.candidates[model.winner];
+        const newPayload = {
+          ...payload,
+          formation: winner.formation,
+          formation_attribution: {
+            method: "algorithmic",
+            algo: "formation-attribution/v1",
+            state: stateCode,
+            county: countyRaw ?? null,
+            score: model.scores[model.winner],
+            candidates: model.candidates.map((c, i) => ({
+              formation: c.formation,
+              basin: c.basin,
+              score: model.scores[i],
+              selected: i === model.winner,
+            })),
+            evidence: model.evidence.map((e) => ({
+              source: e.source,
+              signal: e.signal,
+              ocr_field: e.ocrField,
+              delta: e.perCandidate?.[model.winner] ?? e.delta,
+            })),
+            computed_at: new Date().toISOString(),
+          },
+        };
+        const { error: upErr } = await supabase
+          .from("well_restorations")
+          .update({ payload: newPayload })
+          .eq("id", r.id);
+        if (upErr) {
+          log.push({ ref, note: `update failed: ${upErr.message}` });
+          continue;
+        }
+        updated++;
+        log.push({
+          ref,
+          state: stateCode,
+          county: countyRaw,
+          formation: winner.formation ?? undefined,
+          score: model.scores[model.winner],
+        });
+      }
+      setAttributionLog(log);
+      toast.success(`Auto-attribution complete: ${updated}/${rows.length} rows updated`);
+      refresh();
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      toast.error("Auto-attribution failed: " + msg);
+    } finally {
+      setAttributing(false);
+    }
+  }
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
