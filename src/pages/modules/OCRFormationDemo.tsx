@@ -155,8 +155,8 @@ export default function OCRFormationDemo() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" asChild>
-            <Link to="/dashboard/ocr">
-              <Upload className="w-4 h-4 mr-2" /> Try with your own scan
+            <Link to="/dashboard/ocr-paper-log">
+              <Upload className="w-4 h-4 mr-2" /> OCR Paper Well Log Recognition
             </Link>
           </Button>
           <Button onClick={() => setRevealed(true)} disabled={revealed}>
@@ -449,8 +449,8 @@ export default function OCRFormationDemo() {
 
                 <div className="flex flex-wrap gap-2 pt-1">
                   <Button size="sm" asChild>
-                    <Link to="/dashboard/ocr">
-                      Run pipeline on real scan <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+                    <Link to="/dashboard/ocr-paper-log">
+                      OCR Paper Well Log Recognition <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
                     </Link>
                   </Button>
                   <Button size="sm" variant="outline" asChild>
