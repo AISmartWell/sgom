@@ -7,8 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, RefreshCw, Send, AlertTriangle, CheckCircle2, Activity, Database, History } from "lucide-react";
+import { Loader2, RefreshCw, Send, AlertTriangle, CheckCircle2, Activity, Database, History, Wand2, Layers } from "lucide-react";
 import { toast } from "sonner";
+import { buildAttributionModel, normState, type OcrLite } from "@/lib/formation-attribution";
+import type { FormationCode } from "@/hooks/useFormationCodes";
 
 type Restoration = {
   id: string; created_at: string; well_external_ref: string | null; well_id: string | null;
@@ -102,6 +104,137 @@ export default function IngestRestorationDiagnostics() {
     }
   }
 
+  const [attributing, setAttributing] = useState(false);
+  const [attributionLog, setAttributionLog] = useState<
+    { ref: string; state?: string; county?: string; formation?: string; score?: number; note?: string }[]
+  >([]);
+
+  async function autoAttributeFormations() {
+    setAttributing(true);
+    setAttributionLog([]);
+    const log: typeof attributionLog = [];
+    try {
+      const { data: rows, error } = await supabase
+        .from("well_restorations")
+        .select("id, well_id, well_external_ref, payload")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      if (!rows?.length) {
+        toast.info("No restoration rows to attribute");
+        return;
+      }
+
+      // Preload wells referenced by well_id
+      const wellIds = Array.from(new Set(rows.map((r) => r.well_id).filter(Boolean))) as string[];
+      const wellsById = new Map<string, { state?: string; county?: string; total_depth?: number; formation?: string; well_name?: string }>();
+      if (wellIds.length) {
+        const { data: ws } = await supabase
+          .from("wells")
+          .select("id, state, county, total_depth, formation, well_name")
+          .in("id", wellIds);
+        (ws ?? []).forEach((w: any) => wellsById.set(w.id, w));
+      }
+
+      // Cache registry per state
+      const registryCache = new Map<string, FormationCode[]>();
+      async function getRegistry(stateCode: string): Promise<FormationCode[]> {
+        if (registryCache.has(stateCode)) return registryCache.get(stateCode)!;
+        const { data } = await supabase
+          .from("formation_codes")
+          .select("*")
+          .eq("state_code", stateCode);
+        const list = (data ?? []) as FormationCode[];
+        registryCache.set(stateCode, list);
+        return list;
+      }
+
+      let updated = 0;
+      for (const r of rows) {
+        const payload = (r.payload ?? {}) as Record<string, any>;
+        const well = r.well_id ? wellsById.get(r.well_id) : undefined;
+        const stateRaw = payload.state ?? well?.state;
+        const countyRaw = payload.county ?? well?.county;
+        const depthTop = payload.depth_top_ft ?? payload.spt_depth_ft ?? null;
+        const depthBot = payload.depth_bottom_ft ?? well?.total_depth ?? null;
+        const curves: string[] = payload.logged_curves ?? [];
+        const tops = payload.formation_tops ?? [];
+
+        const stateCode = normState(stateRaw);
+        const ref = r.well_external_ref ?? well?.well_name ?? r.id.slice(0, 8);
+        if (!stateCode) {
+          log.push({ ref, note: "no state → skipped" });
+          continue;
+        }
+        const registry = await getRegistry(stateCode);
+        if (!registry.length) {
+          log.push({ ref, state: stateCode, note: "no registry rows for state" });
+          continue;
+        }
+        const ocr: OcrLite = {
+          state: stateCode,
+          county: countyRaw,
+          depth_range_ft: { top: depthTop, bottom: depthBot },
+          logged_curves: curves,
+          formation_tops: tops,
+        };
+        const model = buildAttributionModel(ocr, registry);
+        if (!model) {
+          log.push({ ref, state: stateCode, county: countyRaw, note: "no candidates" });
+          continue;
+        }
+        const winner = model.candidates[model.winner];
+        const newPayload = {
+          ...payload,
+          formation: winner.formation,
+          formation_attribution: {
+            method: "algorithmic",
+            algo: "formation-attribution/v1",
+            state: stateCode,
+            county: countyRaw ?? null,
+            score: model.scores[model.winner],
+            candidates: model.candidates.map((c, i) => ({
+              formation: c.formation,
+              basin: c.basin,
+              score: model.scores[i],
+              selected: i === model.winner,
+            })),
+            evidence: model.evidence.map((e) => ({
+              source: e.source,
+              signal: e.signal,
+              ocr_field: e.ocrField,
+              delta: e.perCandidate?.[model.winner] ?? e.delta,
+            })),
+            computed_at: new Date().toISOString(),
+          },
+        };
+        const { error: upErr } = await supabase
+          .from("well_restorations")
+          .update({ payload: newPayload })
+          .eq("id", r.id);
+        if (upErr) {
+          log.push({ ref, note: `update failed: ${upErr.message}` });
+          continue;
+        }
+        updated++;
+        log.push({
+          ref,
+          state: stateCode,
+          county: countyRaw,
+          formation: winner.formation ?? undefined,
+          score: model.scores[model.winner],
+        });
+      }
+      setAttributionLog(log);
+      toast.success(`Auto-attribution complete: ${updated}/${rows.length} rows updated`);
+      refresh();
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      toast.error("Auto-attribution failed: " + msg);
+    } finally {
+      setAttributing(false);
+    }
+  }
+
   const failedRestorations = restorations.filter((r) => !r.processed);
 
   return (
@@ -167,6 +300,65 @@ export default function IngestRestorationDiagnostics() {
         )}
       </Card>
 
+      {/* Algorithmic formation attribution */}
+      <Card className="p-4">
+        <div className="flex items-center justify-between mb-3 gap-3 flex-wrap">
+          <div>
+            <div className="text-sm font-semibold flex items-center gap-2">
+              <Layers className="h-4 w-4 text-primary" />
+              Algorithmic formation attribution
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Runs <code>formation-attribution/v1</code> across every <code>well_restorations</code> row: pulls
+              state / county / depth / curves from the linked well or payload, scores them against{" "}
+              <code>formation_codes</code>, and writes <code>payload.formation</code> +{" "}
+              <code>payload.formation_attribution</code> (winner, score, evidence trail). Replaces the previous
+              manual Maxxwell/registry lookup.
+            </p>
+          </div>
+          <Button onClick={autoAttributeFormations} disabled={attributing}>
+            {attributing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Wand2 className="h-4 w-4 mr-2" />}
+            Auto-attribute formations
+          </Button>
+        </div>
+        {attributionLog.length > 0 && (
+          <div className="border border-white/10 rounded overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Ref</TableHead>
+                  <TableHead>State</TableHead>
+                  <TableHead>County</TableHead>
+                  <TableHead>Formation</TableHead>
+                  <TableHead>Score</TableHead>
+                  <TableHead>Note</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {attributionLog.map((l, i) => (
+                  <TableRow key={i}>
+                    <TableCell className="font-mono text-xs">{l.ref}</TableCell>
+                    <TableCell className="font-mono text-xs">{l.state ?? "—"}</TableCell>
+                    <TableCell className="font-mono text-xs">{l.county ?? "—"}</TableCell>
+                    <TableCell className="text-xs">
+                      {l.formation ? (
+                        <Badge className="bg-primary/15 text-primary border-primary/40">{l.formation}</Badge>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="font-mono text-xs">
+                      {l.score != null ? `${l.score.toFixed(0)}%` : "—"}
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground">{l.note ?? "ok"}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+      </Card>
+
       <Tabs defaultValue="restorations">
         <TabsList>
           <TabsTrigger value="restorations">Restorations ({restorations.length})</TabsTrigger>
@@ -182,6 +374,7 @@ export default function IngestRestorationDiagnostics() {
                 <TableRow>
                   <TableHead>Time</TableHead>
                   <TableHead>Well</TableHead>
+                  <TableHead>Formation (algo)</TableHead>
                   <TableHead>Predicted</TableHead>
                   <TableHead>Actual</TableHead>
                   <TableHead>b · spt</TableHead>
@@ -190,23 +383,41 @@ export default function IngestRestorationDiagnostics() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {restorations.map((r) => (
-                  <TableRow key={r.id}>
-                    <TableCell className="font-mono text-xs">{new Date(r.created_at).toLocaleString()}</TableCell>
-                    <TableCell className="font-mono text-xs">{r.well_external_ref ?? r.well_id ?? "—"}</TableCell>
-                    <TableCell>{r.predicted_qoil}</TableCell>
-                    <TableCell>{r.actual_qoil}</TableCell>
-                    <TableCell className="font-mono text-xs">{Number(r.arps_b_used).toFixed(3)} · {Number(r.spt_multiplier_used).toFixed(3)}</TableCell>
-                    <TableCell><Badge variant="outline">{r.source}</Badge></TableCell>
-                    <TableCell>
-                      {r.processed
-                        ? <Badge className="bg-emerald-500/15 text-emerald-300 border-emerald-500/40">processed</Badge>
-                        : <Badge className="bg-rose-500/15 text-rose-300 border-rose-500/40">pending/failed</Badge>}
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {restorations.map((r) => {
+                  const attr = (r.payload as any)?.formation_attribution;
+                  const fm = (r.payload as any)?.formation;
+                  return (
+                    <TableRow key={r.id}>
+                      <TableCell className="font-mono text-xs">{new Date(r.created_at).toLocaleString()}</TableCell>
+                      <TableCell className="font-mono text-xs">{r.well_external_ref ?? r.well_id ?? "—"}</TableCell>
+                      <TableCell className="text-xs">
+                        {fm ? (
+                          <div className="flex flex-col">
+                            <Badge className="bg-primary/15 text-primary border-primary/40 w-fit">{fm}</Badge>
+                            {attr?.score != null && (
+                              <span className="text-[10px] text-muted-foreground font-mono mt-0.5">
+                                {attr.method ?? "algo"} · {Number(attr.score).toFixed(0)}%
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell>{r.predicted_qoil}</TableCell>
+                      <TableCell>{r.actual_qoil}</TableCell>
+                      <TableCell className="font-mono text-xs">{Number(r.arps_b_used).toFixed(3)} · {Number(r.spt_multiplier_used).toFixed(3)}</TableCell>
+                      <TableCell><Badge variant="outline">{r.source}</Badge></TableCell>
+                      <TableCell>
+                        {r.processed
+                          ? <Badge className="bg-emerald-500/15 text-emerald-300 border-emerald-500/40">processed</Badge>
+                          : <Badge className="bg-rose-500/15 text-rose-300 border-rose-500/40">pending/failed</Badge>}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
                 {restorations.length === 0 && (
-                  <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-6">No restorations yet</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground py-6">No restorations yet</TableCell></TableRow>
                 )}
               </TableBody>
             </Table>
