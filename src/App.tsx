@@ -87,6 +87,11 @@ import OAuthConsent from "./pages/OAuthConsent";
 
 const queryClient = new QueryClient();
 
+const OCRWellLogRedirect = () => {
+  const search = window.location.search || "";
+  return <Navigate to={`/dashboard/ocr${search}`} replace />;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -122,6 +127,9 @@ const App = () => (
              <Route path="field-scanning" element={<FieldScanning />} />
              <Route path="data-classification" element={<DataClassification />} />
              <Route path="ocr" element={<OCRWellLog />} />
+             <Route path="ocr-well-log" element={<OCRWellLog />} />
+             <Route path="ocr-paper-log" element={<OCRWellLog />} />
+             <Route path="paper-well-log" element={<OCRWellLog />} />
              <Route path="ocr-formation-demo" element={<OCRFormationDemo />} />
              <Route path="cumulative-analysis" element={<CumulativeAnalysis />} />
              <Route path="multi-tenant" element={<MultiTenantDemo />} />
@@ -182,8 +190,13 @@ const App = () => (
                <Route path="/innovation" element={<Innovation />} />
                <Route path="/alberta-petrel" element={<AlbertaPetrel />} />
                <Route path="/admin/import" element={<AdminImport />} />
-           <Route path="/ocr-well-log" element={<OCRWellLog />} />
-           <Route path="/dashboard/ocr-well-log" element={<Navigate to="/dashboard/ocr" replace />} />
+           <Route path="/ocr" element={<OCRWellLogRedirect />} />
+           <Route path="/ocr-well-log" element={<OCRWellLogRedirect />} />
+           <Route path="/ocr-paper-log" element={<OCRWellLogRedirect />} />
+           <Route path="/paper-well-log" element={<OCRWellLogRedirect />} />
+            <Route path="/dashboard/ocr-well-log" element={<OCRWellLog />} />
+            <Route path="/dashboard/ocr-paper-log" element={<OCRWellLog />} />
+            <Route path="/dashboard/paper-well-log" element={<OCRWellLog />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
           <Route path="*" element={<NotFound />} />
