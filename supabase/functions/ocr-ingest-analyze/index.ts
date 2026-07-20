@@ -41,7 +41,8 @@ Deno.serve(async (req) => {
   try {
     const body = await req.json();
     const ocr = (body.ocrResult ?? body.result) as OcrResult | undefined;
-    const companyId: string = body.companyId || DEFAULT_COMPANY;
+    let companyId: string = body.companyId || DEFAULT_COMPANY;
+    const targetWellId: string | null = body.targetWellId || body.wellId || null;
     const sourceLabel: string = body.sourceLabel || "ocr_paper_log";
 
     if (!ocr) {
@@ -88,12 +89,54 @@ Deno.serve(async (req) => {
       },
     };
 
-    const { data: wellRow, error: wellErr } = await sb
-      .from("wells")
-      .insert(wellInsert)
-      .select("*")
-      .single();
-    if (wellErr) throw wellErr;
+    let wellRow: any;
+    if (targetWellId) {
+      const { data: existingWell, error: existingErr } = await sb
+        .from("wells")
+        .select("*")
+        .eq("id", targetWellId)
+        .single();
+      if (existingErr) throw existingErr;
+      wellRow = existingWell;
+      companyId = existingWell.company_id || companyId;
+
+      const rawData = typeof existingWell.raw_data === "object" && existingWell.raw_data !== null
+        ? existingWell.raw_data
+        : {};
+      const wellPatch = {
+        api_number: existingWell.api_number ?? apiNumber,
+        operator: existingWell.operator ?? ocr.operator ?? null,
+        county: existingWell.county ?? ocr.county ?? null,
+        state: existingWell.state ?? (ocr.state || "OK").slice(0, 4),
+        formation: existingWell.formation ?? ocr.formation_tops?.[0]?.name ?? null,
+        total_depth: existingWell.total_depth ?? totalDepth,
+        raw_data: {
+          ...rawData,
+          ocr_confidence: ocr.confidence ?? null,
+          formation_tops: ocr.formation_tops ?? [],
+          perforations: ocr.perforations ?? [],
+          log_date: ocr.log_date ?? null,
+          field: ocr.field ?? null,
+          notes: ocr.notes ?? null,
+        },
+      };
+      const { data: updatedWell, error: updateErr } = await sb
+        .from("wells")
+        .update(wellPatch)
+        .eq("id", targetWellId)
+        .select("*")
+        .single();
+      if (updateErr) throw updateErr;
+      wellRow = updatedWell;
+    } else {
+      const { data: newWell, error: wellErr } = await sb
+        .from("wells")
+        .insert(wellInsert)
+        .select("*")
+        .single();
+      if (wellErr) throw wellErr;
+      wellRow = newWell;
+    }
 
     // ── 2. Insert well_logs from OCR readings ──────
     const readings = Array.isArray(ocr.log_readings) ? ocr.log_readings : [];
@@ -119,6 +162,14 @@ Deno.serve(async (req) => {
 
     let logsInserted = 0;
     if (logRows.length > 0) {
+      if (targetWellId) {
+        const { error: deleteErr } = await sb
+          .from("well_logs")
+          .delete()
+          .eq("well_id", wellRow.id)
+          .eq("source", sourceLabel);
+        if (deleteErr) throw deleteErr;
+      }
       const { error: logErr } = await sb.from("well_logs").insert(logRows);
       if (logErr) throw logErr;
       logsInserted = logRows.length;
