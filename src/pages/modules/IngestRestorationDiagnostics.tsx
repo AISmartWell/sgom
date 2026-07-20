@@ -232,7 +232,9 @@ export default function IngestRestorationDiagnostics() {
       toast.error("Auto-attribution failed: " + msg);
     } finally {
       setAttributing(false);
-    }
+  }
+
+  const failedRestorations = restorations.filter((r) => !r.processed);
   }
 
   return (
