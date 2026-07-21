@@ -150,9 +150,19 @@ const OCRWellLog = () => {
             readable curve values into structured JSON.
           </p>
         </div>
-        <Badge variant="outline" className="text-primary border-primary">
-          <FileImage className="mr-1 h-3 w-3" /> Stage 2 · Data Ingest
-        </Badge>
+        <div className="flex flex-col items-end gap-2">
+          <Badge variant="outline" className="text-primary border-primary">
+            <FileImage className="mr-1 h-3 w-3" /> Stage 2 · Data Ingest
+          </Badge>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate(pipelineOut?.well?.id ? `/dashboard/geophysical?wellId=${pipelineOut.well.id}` : "/dashboard/geophysical")}
+            className="border-primary/50 text-primary hover:bg-primary/10"
+          >
+            <Activity className="mr-2 h-3 w-3" /> Open Geophysical Expertise <ArrowRight className="ml-2 h-3 w-3" />
+          </Button>
+        </div>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">
