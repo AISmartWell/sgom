@@ -455,8 +455,8 @@ const OCRWellLog = () => {
             inspect the formation registry, or browse Stage 8 petrophysics.
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button size="sm" onClick={() => openInExpertise()} disabled={ingesting}>
-              {ingesting ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <ArrowRight className="w-3.5 h-3.5 mr-1.5" />}
+            <Button size="sm" onClick={openInExpertise} disabled={pipelineLoading}>
+              {pipelineLoading ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <ArrowRight className="w-3.5 h-3.5 mr-1.5" />}
               Open OCR data in Geophysical Expertise
             </Button>
             <Button size="sm" variant="outline" asChild>
