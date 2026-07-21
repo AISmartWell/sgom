@@ -11,6 +11,7 @@ import { OCRCurvePreview } from "@/components/ocr/OCRCurvePreview";
 import { OCRQualityCheck } from "@/components/ocr/OCRQualityCheck";
 import { FormationAttribution } from "@/components/ocr/FormationAttribution";
 import { FormationComparison } from "@/components/ocr/FormationComparison";
+import { OCRRecognizedFields } from "@/components/ocr/OCRRecognizedFields";
 import { GitCompare, Camera } from "lucide-react";
 
 type OcrResult = {
