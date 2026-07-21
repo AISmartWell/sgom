@@ -255,14 +255,18 @@ const OCRWellLog = () => {
             </Button>
           </div>
 
-          <div className="pt-2 border-t border-border/50">
+          <div className="pt-2 border-t border-border/50 space-y-1">
             <Button
-              variant="outline"
-              className="w-full border-primary/50 text-primary hover:bg-primary/10"
-              onClick={() => navigate(pipelineOut?.well?.id ? `/dashboard/geophysical?wellId=${pipelineOut.well.id}` : "/dashboard/geophysical")}
+              className="w-full"
+              onClick={openInExpertise}
+              disabled={pipelineLoading || (!result && !pipelineOut?.well?.id && !targetWellId)}
             >
-              <Activity className="mr-2 h-4 w-4" /> Open Geophysical Expertise <ArrowRight className="ml-2 h-4 w-4" />
+              {pipelineLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Activity className="mr-2 h-4 w-4" />}
+              Open OCR data in Geophysical Expertise <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
+            <p className="text-[11px] text-muted-foreground">
+              Ingests the extracted well + curves + perforations into the database, then opens Expertise pre-loaded with this well.
+            </p>
           </div>
         </Card>
 
