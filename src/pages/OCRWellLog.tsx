@@ -220,6 +220,16 @@ const OCRWellLog = () => {
               <ScanText className="mr-2 h-4 w-4" /> Digitize curves (slow · Pro)
             </Button>
           </div>
+
+          <div className="pt-2 border-t border-border/50">
+            <Button
+              variant="outline"
+              className="w-full border-primary/50 text-primary hover:bg-primary/10"
+              onClick={() => navigate(pipelineOut?.well?.id ? `/dashboard/geophysical?wellId=${pipelineOut.well.id}` : "/dashboard/geophysical")}
+            >
+              <Activity className="mr-2 h-4 w-4" /> Open Geophysical Expertise <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
         </Card>
 
         <Card className="p-6 space-y-4">
