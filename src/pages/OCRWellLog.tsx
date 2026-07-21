@@ -188,9 +188,11 @@ const OCRWellLog = () => {
           </Badge>
           <Button
             size="sm"
-            onClick={() => navigate(pipelineOut?.well?.id ? `/dashboard/geophysical?wellId=${pipelineOut.well.id}` : "/dashboard/geophysical")}
+            onClick={openInExpertise}
+            disabled={pipelineLoading || (!result && !pipelineOut?.well?.id && !targetWellId)}
           >
-            <Activity className="mr-2 h-3 w-3" /> Open Geophysical Expertise <ArrowRight className="ml-2 h-3 w-3" />
+            {pipelineLoading ? <Loader2 className="mr-2 h-3 w-3 animate-spin" /> : <Activity className="mr-2 h-3 w-3" />}
+            Open in Geophysical Expertise <ArrowRight className="ml-2 h-3 w-3" />
           </Button>
         </div>
       </div>
