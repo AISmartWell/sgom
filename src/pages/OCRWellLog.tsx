@@ -155,10 +155,8 @@ const OCRWellLog = () => {
             <FileImage className="mr-1 h-3 w-3" /> Stage 2 · Data Ingest
           </Badge>
           <Button
-            variant="outline"
             size="sm"
             onClick={() => navigate(pipelineOut?.well?.id ? `/dashboard/geophysical?wellId=${pipelineOut.well.id}` : "/dashboard/geophysical")}
-            className="border-primary/50 text-primary hover:bg-primary/10"
           >
             <Activity className="mr-2 h-3 w-3" /> Open Geophysical Expertise <ArrowRight className="ml-2 h-3 w-3" />
           </Button>
@@ -220,6 +218,16 @@ const OCRWellLog = () => {
               title="Slow (~60-180s) — uses Gemini 2.5 Pro to sample curve values along depth into log_readings"
             >
               <ScanText className="mr-2 h-4 w-4" /> Digitize curves (slow · Pro)
+            </Button>
+          </div>
+
+          <div className="pt-2 border-t border-border/50">
+            <Button
+              variant="outline"
+              className="w-full border-primary/50 text-primary hover:bg-primary/10"
+              onClick={() => navigate(pipelineOut?.well?.id ? `/dashboard/geophysical?wellId=${pipelineOut.well.id}` : "/dashboard/geophysical")}
+            >
+              <Activity className="mr-2 h-4 w-4" /> Open Geophysical Expertise <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
         </Card>
