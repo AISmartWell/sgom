@@ -84,6 +84,38 @@ const OCRWellLog = () => {
     }
   }, [result, targetWellId]);
 
+  const openInExpertise = useCallback(async () => {
+    if (pipelineOut?.well?.id) {
+      navigate(`/dashboard/geophysical?wellId=${pipelineOut.well.id}`);
+      return;
+    }
+    if (targetWellId) {
+      navigate(`/dashboard/geophysical?wellId=${targetWellId}`);
+      return;
+    }
+    if (!result) {
+      toast.error("Run OCR first, then open in Expertise");
+      return;
+    }
+    setPipelineLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("ocr-ingest-analyze", {
+        body: { ocrResult: result, targetWellId, sourceLabel: "ocr_paper_log" },
+      });
+      if (error) throw error;
+      if (!data?.ok) throw new Error(data?.error || "Ingest failed");
+      setPipelineOut(data);
+      const wid = data?.well?.id;
+      if (!wid) throw new Error("No well id returned");
+      toast.success(`Well ingested · ${data.logsInserted ?? 0} log points — opening Expertise`);
+      navigate(`/dashboard/geophysical?wellId=${wid}`);
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to open in Expertise");
+    } finally {
+      setPipelineLoading(false);
+    }
+  }, [pipelineOut, targetWellId, result, navigate]);
+
   const onFile = useCallback((file: File) => {
     if (!file.type.startsWith("image/")) {
       toast.error("Upload an image (PNG / JPG). PDF support coming soon.");
@@ -156,9 +188,11 @@ const OCRWellLog = () => {
           </Badge>
           <Button
             size="sm"
-            onClick={() => navigate(pipelineOut?.well?.id ? `/dashboard/geophysical?wellId=${pipelineOut.well.id}` : "/dashboard/geophysical")}
+            onClick={openInExpertise}
+            disabled={pipelineLoading || (!result && !pipelineOut?.well?.id && !targetWellId)}
           >
-            <Activity className="mr-2 h-3 w-3" /> Open Geophysical Expertise <ArrowRight className="ml-2 h-3 w-3" />
+            {pipelineLoading ? <Loader2 className="mr-2 h-3 w-3 animate-spin" /> : <Activity className="mr-2 h-3 w-3" />}
+            Open in Geophysical Expertise <ArrowRight className="ml-2 h-3 w-3" />
           </Button>
         </div>
       </div>
@@ -221,14 +255,18 @@ const OCRWellLog = () => {
             </Button>
           </div>
 
-          <div className="pt-2 border-t border-border/50">
+          <div className="pt-2 border-t border-border/50 space-y-1">
             <Button
-              variant="outline"
-              className="w-full border-primary/50 text-primary hover:bg-primary/10"
-              onClick={() => navigate(pipelineOut?.well?.id ? `/dashboard/geophysical?wellId=${pipelineOut.well.id}` : "/dashboard/geophysical")}
+              className="w-full"
+              onClick={openInExpertise}
+              disabled={pipelineLoading || (!result && !pipelineOut?.well?.id && !targetWellId)}
             >
-              <Activity className="mr-2 h-4 w-4" /> Open Geophysical Expertise <ArrowRight className="ml-2 h-4 w-4" />
+              {pipelineLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Activity className="mr-2 h-4 w-4" />}
+              Open OCR data in Geophysical Expertise <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
+            <p className="text-[11px] text-muted-foreground">
+              Ingests the extracted well + curves + perforations into the database, then opens Expertise pre-loaded with this well.
+            </p>
           </div>
         </Card>
 
