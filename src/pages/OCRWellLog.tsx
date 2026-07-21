@@ -84,6 +84,38 @@ const OCRWellLog = () => {
     }
   }, [result, targetWellId]);
 
+  const openInExpertise = useCallback(async () => {
+    if (pipelineOut?.well?.id) {
+      navigate(`/dashboard/geophysical?wellId=${pipelineOut.well.id}`);
+      return;
+    }
+    if (targetWellId) {
+      navigate(`/dashboard/geophysical?wellId=${targetWellId}`);
+      return;
+    }
+    if (!result) {
+      toast.error("Run OCR first, then open in Expertise");
+      return;
+    }
+    setPipelineLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("ocr-ingest-analyze", {
+        body: { ocrResult: result, targetWellId, sourceLabel: "ocr_paper_log" },
+      });
+      if (error) throw error;
+      if (!data?.ok) throw new Error(data?.error || "Ingest failed");
+      setPipelineOut(data);
+      const wid = data?.well?.id;
+      if (!wid) throw new Error("No well id returned");
+      toast.success(`Well ingested · ${data.logsInserted ?? 0} log points — opening Expertise`);
+      navigate(`/dashboard/geophysical?wellId=${wid}`);
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to open in Expertise");
+    } finally {
+      setPipelineLoading(false);
+    }
+  }, [pipelineOut, targetWellId, result, navigate]);
+
   const onFile = useCallback((file: File) => {
     if (!file.type.startsWith("image/")) {
       toast.error("Upload an image (PNG / JPG). PDF support coming soon.");
