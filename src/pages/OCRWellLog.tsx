@@ -447,6 +447,28 @@ const OCRWellLog = () => {
         </div>
       )}
 
+      {result && (
+        <Card className="mt-6 p-4 border-[#1A9FFF]/30">
+          <div className="text-sm font-medium mb-2">Next steps</div>
+          <div className="text-xs text-muted-foreground mb-3">
+            Push the recognised scan further through the pipeline — open Geophysical Expertise with this well,
+            inspect the formation registry, or browse Stage 8 petrophysics.
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button size="sm" onClick={() => openInExpertise()} disabled={ingesting}>
+              {ingesting ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <ArrowRight className="w-3.5 h-3.5 mr-1.5" />}
+              Open OCR data in Geophysical Expertise
+            </Button>
+            <Button size="sm" variant="outline" asChild>
+              <Link to="/dashboard/formation-codes">Open formation registry</Link>
+            </Button>
+            <Button size="sm" variant="outline" asChild>
+              <Link to="/dashboard/geophysical">Go to Stage 8</Link>
+            </Button>
+          </div>
+        </Card>
+      )}
+
       <Card className="mt-6 p-4 space-y-3 border-[#1A9FFF]/30">
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-2 text-sm font-medium">
