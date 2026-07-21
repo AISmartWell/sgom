@@ -437,6 +437,12 @@ const OCRWellLog = () => {
 
       {result && (
         <div className="mt-6">
+          <OCRRecognizedFields result={result as any} />
+        </div>
+      )}
+
+      {result && (
+        <div className="mt-6">
           <FormationAttribution result={result as any} />
         </div>
       )}
