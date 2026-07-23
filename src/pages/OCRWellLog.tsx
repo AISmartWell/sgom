@@ -75,8 +75,11 @@ const OCRWellLog = () => {
       if (error) throw error;
       if (!data?.ok) throw new Error(data?.error || "Pipeline failed");
       setPipelineOut(data);
+      const mergeNote = data.mergeMatch
+        ? `Merged into existing well ${data.mergeMatch.well_name}`
+        : targetWellId ? "Well updated" : "Well created";
       toast.success(
-        `${targetWellId ? "Well updated" : "Well created"} · ${data.logsInserted} log points · Stage 8 ${data.stageAnalysis ? "complete" : "skipped"}`
+        `${mergeNote} · ${data.logsInserted} log points · Stage 8 ${data.stageAnalysis ? "complete" : "skipped"}`
       );
     } catch (e: any) {
       toast.error(e?.message || "Pipeline failed");
