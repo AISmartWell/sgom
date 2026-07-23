@@ -129,14 +129,15 @@ const Index = () => {
             />
           </div>
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" onClick={() => navigate("/innovation")} className="text-muted-foreground hover:text-foreground">
+            <Button variant="ghost" size="sm" onClick={() => { if (requireGatePassword()) navigate("/innovation"); }} className="text-muted-foreground hover:text-foreground">
               <FileText className="mr-2 h-4 w-4" />
               Innovation
             </Button>
-            <Button variant="ghost" size="sm" onClick={() => navigate("/investor-deck")} className="text-muted-foreground hover:text-foreground">
+            <Button variant="ghost" size="sm" onClick={() => { if (requireGatePassword()) navigate("/investor-deck"); }} className="text-muted-foreground hover:text-foreground">
               <FileText className="mr-2 h-4 w-4" />
               Investor Deck
             </Button>
+
             <Button onClick={() => navigate("/auth")} className="glow-primary">
               Enter Platform
               <ArrowRight className="ml-2 h-4 w-4" />
