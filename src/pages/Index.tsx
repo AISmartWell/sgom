@@ -5,6 +5,21 @@ import nvidiaInceptionBadgeBw from "@/assets/nvidia-inception-badge-bw.png";
 import horizontalWellVideoAsset from "@/assets/horizontal-well-video.mp4.asset.json";
 import coreAnalysisVideoAsset from "@/assets/core-analysis-engine.mp4.asset.json";
 
+const GATED_PASSWORD = "Chardjou2025";
+const GATE_KEY = "innov_deck_unlocked";
+const requireGatePassword = (): boolean => {
+  if (typeof window === "undefined") return false;
+  if (sessionStorage.getItem(GATE_KEY) === "1") return true;
+  const input = window.prompt("Enter access password:");
+  if (input === GATED_PASSWORD) {
+    sessionStorage.setItem(GATE_KEY, "1");
+    return true;
+  }
+  if (input !== null) window.alert("Incorrect password");
+  return false;
+};
+
+
 const pipelineStages = [
   { emoji: "🛰️", stage: 1, title: "Field Scanning", desc: "Automated satellite imagery analysis & well detection across oil fields with weekly scan cycles", path: "/dashboard/field-scanning" },
   { emoji: "📂", stage: 2, title: "Data Classification", desc: "AI-driven well data categorization, filtering & quality scoring from 5+ state databases", path: "/dashboard/data-classification" },
