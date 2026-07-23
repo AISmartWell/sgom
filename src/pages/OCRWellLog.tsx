@@ -75,8 +75,11 @@ const OCRWellLog = () => {
       if (error) throw error;
       if (!data?.ok) throw new Error(data?.error || "Pipeline failed");
       setPipelineOut(data);
+      const mergeNote = data.mergeMatch
+        ? `Merged into existing well ${data.mergeMatch.well_name}`
+        : targetWellId ? "Well updated" : "Well created";
       toast.success(
-        `${targetWellId ? "Well updated" : "Well created"} · ${data.logsInserted} log points · Stage 8 ${data.stageAnalysis ? "complete" : "skipped"}`
+        `${mergeNote} · ${data.logsInserted} log points · Stage 8 ${data.stageAnalysis ? "complete" : "skipped"}`
       );
     } catch (e: any) {
       toast.error(e?.message || "Pipeline failed");
@@ -108,7 +111,10 @@ const OCRWellLog = () => {
       setPipelineOut(data);
       const wid = data?.well?.id;
       if (!wid) throw new Error("No well id returned");
-      toast.success(`Well ingested · ${data.logsInserted ?? 0} log points — opening Expertise`);
+      const mergeNote = data.mergeMatch
+        ? `Merged into ${data.mergeMatch.well_name}`
+        : `Well ingested`;
+      toast.success(`${mergeNote} · ${data.logsInserted ?? 0} log points — opening Expertise`);
       navigate(`/dashboard/geophysical?wellId=${wid}`);
     } catch (e: any) {
       toast.error(e?.message || "Failed to open in Expertise");
