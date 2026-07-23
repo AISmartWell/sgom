@@ -247,6 +247,13 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({
       ok: true,
       well: wellRow,
+      merged: !!mergeMatch || !!body.targetWellId,
+      mergeMatch: mergeMatch ? {
+        id: mergeMatch.id,
+        well_name: mergeMatch.well_name,
+        api_number: mergeMatch.api_number,
+        operator: mergeMatch.operator,
+      } : null,
       logsInserted,
       perfsInserted,
       stageAnalysis,
