@@ -42,7 +42,8 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const ocr = (body.ocrResult ?? body.result) as OcrResult | undefined;
     let companyId: string = body.companyId || DEFAULT_COMPANY;
-    const targetWellId: string | null = body.targetWellId || body.wellId || null;
+    let targetWellId: string | null = body.targetWellId || body.wellId || null;
+    const mergeMode: "auto" | "always_new" = body.mergeMode || "auto";
     const sourceLabel: string = body.sourceLabel || "ocr_paper_log";
 
     if (!ocr) {
@@ -62,7 +63,41 @@ Deno.serve(async (req) => {
     const bottomDepth = num(ocr.depth_range_ft?.bottom);
     const totalDepth = bottomDepth ?? topDepth ?? null;
 
-    // avoid clashing on unique api_number
+    // ── 1a. Auto-merge: try to match existing well by clean api_number or well_name+operator ──
+    let mergeMatch: any = null;
+    if (!targetWellId && mergeMode === "auto") {
+      const cleanApi = (ocr.api_number || "").replace(/[^0-9]/g, "");
+      if (cleanApi.length >= 10) {
+        const { data: apiMatches } = await sb
+          .from("wells")
+          .select("id, company_id, well_name, api_number, operator")
+          .eq("company_id", companyId)
+          .not("api_number", "is", null);
+        mergeMatch = (apiMatches || []).find((w) =>
+          (w.api_number || "").replace(/[^0-9]/g, "").startsWith(cleanApi.slice(0, 10))
+        );
+      }
+      if (!mergeMatch && ocr.well_name) {
+        const { data: nameMatches } = await sb
+          .from("wells")
+          .select("id, company_id, well_name, api_number, operator")
+          .eq("company_id", companyId)
+          .ilike("well_name", ocr.well_name.trim());
+        if (nameMatches && nameMatches.length > 0) {
+          mergeMatch = ocr.operator
+            ? nameMatches.find((w) =>
+                (w.operator || "").toLowerCase().includes(ocr.operator!.toLowerCase().slice(0, 6))
+              ) || nameMatches[0]
+            : nameMatches[0];
+        }
+      }
+      if (mergeMatch) {
+        targetWellId = mergeMatch.id;
+        companyId = mergeMatch.company_id || companyId;
+      }
+    }
+
+    // avoid clashing on unique api_number when creating new
     const apiNumber = ocr.api_number && ocr.api_number.trim().length > 0
       ? `${ocr.api_number}-ocr-${Date.now().toString(36)}`
       : null;
