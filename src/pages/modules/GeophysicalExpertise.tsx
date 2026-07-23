@@ -3219,7 +3219,7 @@ const GeophysicalExpertise = () => {
           ) : petroData.length > 0 ? (
             <StepLithology data={petroData} />
           ) : (
-            {logsLoading ? <div className="text-center py-16 text-muted-foreground">Loading well data...</div> : <div className="text-center py-16 text-muted-foreground">No log curves for this well. Upload a LAS file or run OCR on a paper log to see interpretation.</div>}
+            logsLoading ? <div className="text-center py-16 text-muted-foreground">Loading well data...</div> : <div className="text-center py-16 text-muted-foreground">No log curves for this well. Upload a LAS file or run OCR on a paper log to see interpretation.</div>
           )}
         </TabsContent>
 
