@@ -3219,7 +3219,7 @@ const GeophysicalExpertise = () => {
           ) : petroData.length > 0 ? (
             <StepLithology data={petroData} />
           ) : (
-            {logsLoading ? <div className="text-center py-16 text-muted-foreground">Loading well data...</div> : <div className="text-center py-16 text-muted-foreground">No log curves for this well. Upload a LAS file or run OCR on a paper log to see interpretation.</div>}
+            logsLoading ? <div className="text-center py-16 text-muted-foreground">Loading well data...</div> : <div className="text-center py-16 text-muted-foreground">No log curves for this well. Upload a LAS file or run OCR on a paper log to see interpretation.</div>
           )}
         </TabsContent>
 
@@ -3245,7 +3245,7 @@ const GeophysicalExpertise = () => {
           {petroData.length > 0 ? (
             <StepVshale data={petroData} />
           ) : (
-            {logsLoading ? <div className="text-center py-16 text-muted-foreground">Loading well data...</div> : <div className="text-center py-16 text-muted-foreground">No log curves for this well. Upload a LAS file or run OCR on a paper log to see interpretation.</div>}
+            logsLoading ? <div className="text-center py-16 text-muted-foreground">Loading well data...</div> : <div className="text-center py-16 text-muted-foreground">No log curves for this well. Upload a LAS file or run OCR on a paper log to see interpretation.</div>
           )}
         </TabsContent>
 
@@ -3254,7 +3254,7 @@ const GeophysicalExpertise = () => {
           {petroData.length > 0 ? (
             <StepPorosity data={petroData} />
           ) : (
-            {logsLoading ? <div className="text-center py-16 text-muted-foreground">Loading well data...</div> : <div className="text-center py-16 text-muted-foreground">No log curves for this well. Upload a LAS file or run OCR on a paper log to see interpretation.</div>}
+            logsLoading ? <div className="text-center py-16 text-muted-foreground">Loading well data...</div> : <div className="text-center py-16 text-muted-foreground">No log curves for this well. Upload a LAS file or run OCR on a paper log to see interpretation.</div>
           )}
         </TabsContent>
 
@@ -3263,7 +3263,7 @@ const GeophysicalExpertise = () => {
           {petroData.length > 0 ? (
             <StepDenNphi data={petroData} />
           ) : (
-            {logsLoading ? <div className="text-center py-16 text-muted-foreground">Loading well data...</div> : <div className="text-center py-16 text-muted-foreground">No log curves for this well. Upload a LAS file or run OCR on a paper log to see interpretation.</div>}
+            logsLoading ? <div className="text-center py-16 text-muted-foreground">Loading well data...</div> : <div className="text-center py-16 text-muted-foreground">No log curves for this well. Upload a LAS file or run OCR on a paper log to see interpretation.</div>
           )}
         </TabsContent>
 
@@ -3272,7 +3272,7 @@ const GeophysicalExpertise = () => {
           {petroData.length > 0 ? (
             <StepArchie data={petroData} />
           ) : (
-            {logsLoading ? <div className="text-center py-16 text-muted-foreground">Loading well data...</div> : <div className="text-center py-16 text-muted-foreground">No log curves for this well. Upload a LAS file or run OCR on a paper log to see interpretation.</div>}
+            logsLoading ? <div className="text-center py-16 text-muted-foreground">Loading well data...</div> : <div className="text-center py-16 text-muted-foreground">No log curves for this well. Upload a LAS file or run OCR on a paper log to see interpretation.</div>
           )}
         </TabsContent>
 
@@ -3281,7 +3281,7 @@ const GeophysicalExpertise = () => {
           {petroData.length > 0 ? (
             <StepTimur data={petroData} wellName={selectedWell?.well_name ?? null} />
           ) : (
-            {logsLoading ? <div className="text-center py-16 text-muted-foreground">Loading well data...</div> : <div className="text-center py-16 text-muted-foreground">No log curves for this well. Upload a LAS file or run OCR on a paper log to see interpretation.</div>}
+            logsLoading ? <div className="text-center py-16 text-muted-foreground">Loading well data...</div> : <div className="text-center py-16 text-muted-foreground">No log curves for this well. Upload a LAS file or run OCR on a paper log to see interpretation.</div>
           )}
         </TabsContent>
 
@@ -3290,7 +3290,7 @@ const GeophysicalExpertise = () => {
           {petroData.length > 0 ? (
             <StepKoKo data={petroData} />
           ) : (
-            {logsLoading ? <div className="text-center py-16 text-muted-foreground">Loading well data...</div> : <div className="text-center py-16 text-muted-foreground">No log curves for this well. Upload a LAS file or run OCR on a paper log to see interpretation.</div>}
+            logsLoading ? <div className="text-center py-16 text-muted-foreground">Loading well data...</div> : <div className="text-center py-16 text-muted-foreground">No log curves for this well. Upload a LAS file or run OCR on a paper log to see interpretation.</div>
           )}
         </TabsContent>
 
@@ -3299,7 +3299,7 @@ const GeophysicalExpertise = () => {
           {interpretation ? (
             <StepNetPay summary={interpretation} />
           ) : (
-            {logsLoading ? <div className="text-center py-16 text-muted-foreground">Loading interpretation...</div> : <div className="text-center py-16 text-muted-foreground">No interpretation available — this well has no log curves yet. Upload a LAS file or run OCR to populate <code>well_logs</code>.</div>}
+            logsLoading ? <div className="text-center py-16 text-muted-foreground">Loading interpretation...</div> : <div className="text-center py-16 text-muted-foreground">No interpretation available — this well has no log curves yet. Upload a LAS file or run OCR to populate <code>well_logs</code>.</div>
           )}
         </TabsContent>
 
