@@ -111,7 +111,10 @@ const OCRWellLog = () => {
       setPipelineOut(data);
       const wid = data?.well?.id;
       if (!wid) throw new Error("No well id returned");
-      toast.success(`Well ingested · ${data.logsInserted ?? 0} log points — opening Expertise`);
+      const mergeNote = data.mergeMatch
+        ? `Merged into ${data.mergeMatch.well_name}`
+        : `Well ingested`;
+      toast.success(`${mergeNote} · ${data.logsInserted ?? 0} log points — opening Expertise`);
       navigate(`/dashboard/geophysical?wellId=${wid}`);
     } catch (e: any) {
       toast.error(e?.message || "Failed to open in Expertise");
