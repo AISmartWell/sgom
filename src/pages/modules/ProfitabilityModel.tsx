@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,10 @@ import {
 } from "recharts";
 import {
   DollarSign, TrendingDown, AlertTriangle, RotateCcw, Download, Layers, Coins, Percent,
+  FileSpreadsheet, FileText, Loader2,
 } from "lucide-react";
+import { toast } from "sonner";
+import { exportModelXlsx, exportModelPdf } from "@/lib/profitability-export";
 import {
   DEFAULT_INPUTS, runModel, fmtUsd, fmtFullUsd,
   type ModelInputs, type CaseKey, type YearRow,
@@ -100,6 +103,45 @@ export default function ProfitabilityModel() {
     baseRevenue: Math.round(base[i].revenue / 1000),
   }));
 
+  const chartOneRef = useRef<HTMLDivElement>(null);
+  const chartTwoRef = useRef<HTMLDivElement>(null);
+  const [pdfBusy, setPdfBusy] = useState(false);
+
+  // Resolve design tokens to concrete colors so exported charts render correctly
+  const [colors, setColors] = useState({ primary: "#1A9FFF", muted: "#7c8798", danger: "#ef4444" });
+  useEffect(() => {
+    const cs = getComputedStyle(document.documentElement);
+    const v = (name: string, fallback: string) => {
+      const raw = cs.getPropertyValue(name).trim();
+      return raw ? `hsl(${raw})` : fallback;
+    };
+    setColors({
+      primary: v("--primary", "#1A9FFF"),
+      muted: v("--muted-foreground", "#7c8798"),
+      danger: v("--destructive", "#ef4444"),
+    });
+  }, []);
+
+  const exportXlsx = () => {
+    exportModelXlsx({ inputs, base, upside, lines: LINES });
+    toast.success("XLSX exported — assumptions, both cases and delta sheet");
+  };
+
+  const exportPdf = async () => {
+    setPdfBusy(true);
+    try {
+      await exportModelPdf({
+        inputs, rows, caseLabel: CASE_LABEL[activeCase], lines: LINES,
+        chartNodes: [chartOneRef.current, chartTwoRef.current],
+      });
+      toast.success("PDF report generated");
+    } catch (e) {
+      toast.error(`PDF export failed: ${e instanceof Error ? e.message : String(e)}`);
+    } finally {
+      setPdfBusy(false);
+    }
+  };
+
   const exportCsv = () => {
     const header = ["Line item", ...rows.map(r => r.year)].join(",");
     const body = LINES.map(l => [`"${l.label}"`, ...rows.map(r => Math.round(r[l.key] as number))].join(",")).join("\n");
@@ -131,8 +173,15 @@ export default function ProfitabilityModel() {
           <Button variant="outline" size="sm" onClick={() => setInputs(DEFAULT_INPUTS)} className="gap-2">
             <RotateCcw className="h-4 w-4" /> Reset
           </Button>
-          <Button size="sm" onClick={exportCsv} className="gap-2">
-            <Download className="h-4 w-4" /> Export CSV
+          <Button variant="outline" size="sm" onClick={exportCsv} className="gap-2">
+            <Download className="h-4 w-4" /> CSV
+          </Button>
+          <Button variant="outline" size="sm" onClick={exportXlsx} className="gap-2">
+            <FileSpreadsheet className="h-4 w-4" /> XLSX
+          </Button>
+          <Button size="sm" onClick={exportPdf} disabled={pdfBusy} className="gap-2">
+            {pdfBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
+            {pdfBusy ? "Generating…" : "PDF report"}
           </Button>
         </div>
       </div>
@@ -219,7 +268,7 @@ export default function ProfitabilityModel() {
             <div className="space-y-6 lg:col-span-2">
               <Card>
                 <CardHeader><CardTitle className="text-base">Revenue mix, EBITDA and cash ($K)</CardTitle></CardHeader>
-                <CardContent style={{ minHeight: 320 }}>
+                <CardContent style={{ minHeight: 320 }} ref={chartOneRef}>
                   <ResponsiveContainer width="100%" height={320}>
                     <ComposedChart data={chartData}>
                       <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
@@ -227,10 +276,10 @@ export default function ProfitabilityModel() {
                       <YAxis tick={{ fontSize: 12 }} />
                       <Tooltip formatter={(v: number) => `$${v.toLocaleString()}K`} />
                       <Legend />
-                      <Bar dataKey="software" stackId="rev" name="Software" fill="hsl(var(--primary))" />
-                      <Bar dataKey="oil" stackId="rev" name="Oil (net)" fill="hsl(var(--muted-foreground))" />
-                      <Line type="monotone" dataKey="ebitda" name="EBITDA" stroke="hsl(var(--destructive))" strokeWidth={2} dot />
-                      <Line type="monotone" dataKey="cash" name="Cash" stroke="hsl(var(--primary))" strokeDasharray="4 4" strokeWidth={2} dot />
+                      <Bar dataKey="software" stackId="rev" name="Software" fill={colors.primary} />
+                      <Bar dataKey="oil" stackId="rev" name="Oil (net)" fill={colors.muted} />
+                      <Line type="monotone" dataKey="ebitda" name="EBITDA" stroke={colors.danger} strokeWidth={2} dot />
+                      <Line type="monotone" dataKey="cash" name="Cash" stroke={colors.primary} strokeDasharray="4 4" strokeWidth={2} dot />
                     </ComposedChart>
                   </ResponsiveContainer>
                 </CardContent>
@@ -240,7 +289,7 @@ export default function ProfitabilityModel() {
                 <CardHeader>
                   <CardTitle className="text-base">Base vs upside — total revenue ($K)</CardTitle>
                 </CardHeader>
-                <CardContent style={{ minHeight: 260 }}>
+                <CardContent style={{ minHeight: 260 }} ref={chartTwoRef}>
                   <ResponsiveContainer width="100%" height={260}>
                     <AreaChart data={chartData}>
                       <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
@@ -248,8 +297,8 @@ export default function ProfitabilityModel() {
                       <YAxis tick={{ fontSize: 12 }} />
                       <Tooltip formatter={(v: number) => `$${v.toLocaleString()}K`} />
                       <Legend />
-                      <Area type="monotone" dataKey="upsideRevenue" name="Upside" stroke="hsl(var(--muted-foreground))" fill="hsl(var(--muted-foreground))" fillOpacity={0.15} />
-                      <Area type="monotone" dataKey="baseRevenue" name="Base" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.25} />
+                      <Area type="monotone" dataKey="upsideRevenue" name="Upside" stroke={colors.muted} fill={colors.muted} fillOpacity={0.15} />
+                      <Area type="monotone" dataKey="baseRevenue" name="Base" stroke={colors.primary} fill={colors.primary} fillOpacity={0.25} />
                     </AreaChart>
                   </ResponsiveContainer>
                   <p className="mt-3 text-xs text-muted-foreground">
