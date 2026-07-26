@@ -69,6 +69,7 @@ export const INVESTOR_ALLOWED_ROUTES = [
   "/dashboard/ingest-diagnostics",
   "/investor-deck",
   "/dashboard/saas-business-model",
+  "/dashboard/profitability-model",
   "/budget",
   "/docs",
 ];

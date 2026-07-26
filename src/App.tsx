@@ -31,6 +31,7 @@ import CumulativeAnalysis from "./pages/modules/CumulativeAnalysis";
 import MultiTenantDemo from "./pages/modules/MultiTenantDemo";
 import TelemetryArchitecture from "./pages/modules/TelemetryArchitecture";
 import SaaSBusinessModel from "./pages/modules/SaaSBusinessModel";
+import ProfitabilityModel from "./pages/modules/ProfitabilityModel";
 import Architecture from "./pages/modules/Architecture";
 import WellAnalysisPipeline from "./pages/modules/WellAnalysisPipeline";
 import DataPipeline from "./pages/modules/DataPipeline";
@@ -111,6 +112,7 @@ const App = () => (
             <Route path="well-selection" element={<WellSelection />} />
             <Route path="simulation" element={<Simulation />} />
             <Route path="financial" element={<Financial />} />
+            <Route path="profitability-model" element={<ProfitabilityModel />} />
             <Route path="spt-treatment" element={<SPTTreatment />} />
             <Route path="spt-projection" element={<SPTProjection />} />
             <Route path="economic-analysis" element={<EconomicAnalysis />} />

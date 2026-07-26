@@ -244,6 +244,12 @@ const menuItems = [
     badge: "🏢",
   },
   {
+    title: "Profitability Model",
+    icon: Presentation,
+    href: "/dashboard/profitability-model",
+    badge: "📊",
+  },
+  {
     title: "SaaS Business Model",
     icon: Presentation,
     href: "/dashboard/saas-business-model",
