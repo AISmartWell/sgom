@@ -130,7 +130,7 @@ export async function exportModelPdf(opts: {
     y = 78;
   };
 
-  header(`Combined Profitability Model 2026–2030 · ${caseLabel}`);
+  header(`Combined Profitability Model 2026-2030 · ${caseLabel}`);
 
   // KPI strip
   const last = rows[rows.length - 1];
@@ -159,7 +159,7 @@ export async function exportModelPdf(opts: {
   // Key assumptions
   doc.setFontSize(9).setTextColor(60);
   const notes = [
-    `Oil price $${inputs.oilPrice.toFixed(2)}/bbl · initial rate ${inputs.bblPerDay} bbl/d · wells ${inputs.wells[0]} → ${inputs.wells[inputs.wells.length - 1]}`,
+    `Oil price $${inputs.oilPrice.toFixed(2)}/bbl · initial rate ${inputs.bblPerDay} bbl/d · wells ${inputs.wells[0]} -> ${inputs.wells[inputs.wells.length - 1]}`,
     `Arps decline Di ${(inputs.declineDi * 100).toFixed(1)}%/yr · royalty ${(inputs.royaltyPct * 100).toFixed(2)}% · severance ${(inputs.severancePct * 100).toFixed(1)}% · well opex ${(inputs.opexPct * 100).toFixed(0)}%`,
     `SaaS churn ${(inputs.churn * 100).toFixed(0)}%/yr · depreciation ${inputs.daYears} yrs straight-line · SPT capex ${money(inputs.sptCapexPerWell)}/well`,
   ];
@@ -169,7 +169,12 @@ export async function exportModelPdf(opts: {
   // Charts
   for (const node of chartNodes) {
     if (!node) continue;
-    const canvas = await html2canvas(node, { backgroundColor: "#ffffff", scale: 2, logging: false });
+    const canvas = await html2canvas(node, {
+      backgroundColor: "#ffffff", scale: 2, logging: false,
+      width: node.offsetWidth, height: node.offsetHeight,
+      windowWidth: node.offsetWidth, windowHeight: node.offsetHeight,
+    });
+    if (!canvas.width || !canvas.height) continue;
     const imgW = W - 2 * M;
     const imgH = (canvas.height / canvas.width) * imgW;
     if (y + imgH > H - M) { doc.addPage(); header(`Charts · ${caseLabel}`); }
