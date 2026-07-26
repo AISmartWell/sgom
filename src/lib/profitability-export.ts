@@ -169,8 +169,11 @@ export async function exportModelPdf(opts: {
   // Charts
   for (const node of chartNodes) {
     if (!node) continue;
+    const own = getComputedStyle(node).backgroundColor;
+    const transparent = !own || own === "transparent" || own.startsWith("rgba(0, 0, 0, 0)");
+    const bg = transparent ? getComputedStyle(document.body).backgroundColor || "#ffffff" : own;
     const canvas = await html2canvas(node, {
-      backgroundColor: "#ffffff", scale: 2, logging: false,
+      backgroundColor: bg, scale: 2, logging: false,
       width: node.offsetWidth, height: node.offsetHeight,
       windowWidth: node.offsetWidth, windowHeight: node.offsetHeight,
     });
