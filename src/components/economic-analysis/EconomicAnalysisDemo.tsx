@@ -384,16 +384,18 @@ const EconomicAnalysisDemo = () => {
                 <span className="px-2 py-0.5 rounded-md bg-primary/15 text-primary text-[10px] font-mono tracking-wider uppercase">
                   How it works
                 </span>
-                Quantum Amplitude Estimation (QAE) — Methodology
+                GPU-Accelerated Monte Carlo — Methodology
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 text-sm">
               <p className="text-muted-foreground leading-relaxed">
-                QAE (Brassard, Høyer, Mosca, Tapp · 2000) replaces classical Monte Carlo for
-                expectation estimation. For target accuracy <span className="font-mono text-foreground">ε</span>,
-                classical MC needs <span className="font-mono text-foreground">O(1/ε²)</span> samples;
-                QAE needs only <span className="font-mono text-primary">O(1/ε)</span> oracle calls — a
-                quadratic speed-up.
+                Economic risk is quantified with classical Monte Carlo (50,000 seeded iterations in a
+                Web Worker). On top of it we test an <span className="font-medium text-foreground">amplitude-estimation
+                style variance-reduction scheme</span>, emulated with tensor networks on GPU. Classical MC error
+                scales as <span className="font-mono text-foreground">O(1/√N)</span>; the emulator is evaluated
+                against that baseline. <span className="font-medium text-foreground">No quantum-hardware speedup
+                is claimed</span> — this is a research prototype, and the production numbers below come from the
+                classical run.
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
