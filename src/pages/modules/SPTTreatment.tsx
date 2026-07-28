@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import RealSPTCaseCard from "@/components/spt/RealSPTCaseCard";
 
 const benefits = [
   { label: "Slot Depth", value: "Up to 5 ft" },
