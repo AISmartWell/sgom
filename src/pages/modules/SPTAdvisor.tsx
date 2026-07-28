@@ -143,9 +143,16 @@ export default function SPTAdvisor() {
           </h1>
           <Badge className="bg-primary/20 text-primary border-primary/30">openai/gpt-5.2 · tool-calling</Badge>
         </div>
-        <Button size="lg" className="w-full lg:w-auto" onClick={() => setAddOpen(true)}>
-          <PlusCircle className="w-4 h-4 mr-2" /> Add well
-        </Button>
+        <div className="flex flex-col gap-2 sm:flex-row lg:w-auto">
+          <Button size="lg" variant="outline" asChild>
+            <Link to="/modules/spt-benchmark">
+              <Database className="w-4 h-4 mr-2" /> Benchmark pool
+            </Link>
+          </Button>
+          <Button size="lg" className="w-full lg:w-auto" onClick={() => setAddOpen(true)}>
+            <PlusCircle className="w-4 h-4 mr-2" /> Add well
+          </Button>
+        </div>
       </div>
 
       <p className="text-sm text-muted-foreground max-w-3xl">
