@@ -409,11 +409,11 @@ const EconomicAnalysisDemo = () => {
                 </div>
                 <div className="p-3 rounded-lg bg-primary/10 border border-primary/30">
                   <p className="text-xs font-mono uppercase tracking-wider text-primary mb-2">
-                    Quantum Amplitude Estimation
+                    Variance-reduction emulator (prototype)
                   </p>
-                  <p className="text-xs">Error convergence: <span className="font-mono">O(1/N)</span></p>
-                  <p className="text-xs">For ε = 1%: ~<span className="font-mono">100</span> oracle calls</p>
-                  <p className="text-xs">Source of randomness: amplitude superposition</p>
+                  <p className="text-xs">Target: fewer samples at equal precision (under evaluation)</p>
+                  <p className="text-xs">Runs as tensor-network emulation on GPU / CPU fallback</p>
+                  <p className="text-xs">Source of randomness: seeded PRNG (reproducible)</p>
                 </div>
               </div>
 
