@@ -34,7 +34,7 @@ export default function SPTBenchmarkPool() {
           </Badge>
         </div>
         <Button asChild variant="outline">
-          <Link to="/modules/spt-advisor">
+          <Link to="/dashboard/spt-advisor">
             <Sparkles className="w-4 h-4 mr-2" /> Open SPT Advisor
           </Link>
         </Button>

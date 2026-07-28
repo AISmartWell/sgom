@@ -146,7 +146,7 @@ export default function SPTAdvisor() {
         </div>
         <div className="flex flex-col gap-2 sm:flex-row lg:w-auto">
           <Button size="lg" variant="outline" asChild>
-            <Link to="/modules/spt-benchmark">
+            <Link to="/dashboard/spt-benchmark">
               <Database className="w-4 h-4 mr-2" /> Benchmark pool
             </Link>
           </Button>
