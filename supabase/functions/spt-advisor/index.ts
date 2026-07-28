@@ -2,6 +2,7 @@
 // Picks the best well for SPT treatment, explains why, cites evidence, proposes alternatives,
 // and flags out-of-distribution (OOD) inputs to lower confidence.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { SPT_BENCHMARK_PROMPT } from "../_shared/spt-scoring-benchmark.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
