@@ -438,9 +438,8 @@ const EconomicAnalysisDemo = () => {
                     amplifies the "good" subspace.
                   </li>
                   <li>
-                    <span className="font-medium">Quantum Phase Estimation</span> on Q extracts
-                    <span className="font-mono ml-1">a = P(NPV &gt; 0)</span> with error
-                    <span className="font-mono ml-1">O(1/N)</span>.
+                    <span className="font-medium">Estimate</span> the tagged probability
+                    <span className="font-mono ml-1">a = P(NPV &gt; 0)</span> from the emulated amplitudes.
                   </li>
                   <li>
                     <span className="font-medium">Decode</span> → P10 / P50 / P90 NPV, IRR distribution, Payback.
@@ -453,10 +452,11 @@ const EconomicAnalysisDemo = () => {
                   Current implementation status
                 </p>
                 <p className="text-xs leading-relaxed">
-                  <span className="font-medium">CPU-emulated QAE</span> with deterministic seeded PRNG —
-                  reproducible and matches the O(1/N) convergence envelope. Roadmap (Phase II R&D):
-                  export circuits to Qiskit / CUDA-Q → run on NVIDIA cuQuantum (30+ qubit GPU sim) →
-                  real QPU on IBM Quantum / IonQ via AWS Braket for portfolio of 100+ wells.
+                  <span className="font-medium">Classical Monte Carlo is the production path</span> —
+                  50,000 seeded iterations in a Web Worker, fully reproducible. The amplitude-estimation
+                  scheme above is a <span className="font-medium">CPU/GPU emulation used for research</span>:
+                  it is benchmarked against the classical baseline and does not run on quantum hardware.
+                  No speedup claim is made until the benchmark is published.
                 </p>
               </div>
             </CardContent>
