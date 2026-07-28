@@ -393,7 +393,10 @@ Rules:
 - If enrichment fills a field from a fallback source, mention it in reasoning (e.g. "formation inferred from county lookup").
 - If forecast P10 < baseline cumulative, mark as risky and propose an alternative.
 - Never recommend a well you didn't inspect via get_well_context.
-- Keep multi-step tool usage focused: typically 4–6 tool calls total.`;
+- Keep multi-step tool usage focused: typically 4–6 tool calls total.
+- Calibrate every score against the labeled benchmark below and name the anchor you used.
+
+${SPT_BENCHMARK_PROMPT}`;
 
 async function callLLM(messages: any[]) {
   const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
