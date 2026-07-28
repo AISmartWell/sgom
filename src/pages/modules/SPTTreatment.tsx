@@ -89,7 +89,10 @@ const SPTTreatment = () => {
               </div>
             </CardContent>
           </Card>
+
+          <RealSPTCaseCard />
         </div>
+
 
         {/* Right Column - Benefits */}
         <div className="space-y-6">
