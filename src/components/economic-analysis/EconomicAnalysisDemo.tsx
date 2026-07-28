@@ -254,7 +254,7 @@ const EconomicAnalysisDemo = () => {
           <TabsTrigger value="roi">ROI & Payback</TabsTrigger>
           <TabsTrigger value="sensitivity">Sensitivity</TabsTrigger>
           <TabsTrigger value="montecarlo">Monte Carlo</TabsTrigger>
-          <TabsTrigger value="quantum">⚛ Quantum MC</TabsTrigger>
+          <TabsTrigger value="quantum">⚡ GPU MC</TabsTrigger>
           <TabsTrigger value="profit">Profit</TabsTrigger>
           <TabsTrigger value="cumulative">Cumulative</TabsTrigger>
           <TabsTrigger value="details">Well Details</TabsTrigger>
