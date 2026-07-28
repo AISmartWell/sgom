@@ -2,6 +2,7 @@
 // Picks the best well for SPT treatment, explains why, cites evidence, proposes alternatives,
 // and flags out-of-distribution (OOD) inputs to lower confidence.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { SPT_BENCHMARK_PROMPT } from "../_shared/spt-scoring-benchmark.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -393,7 +394,10 @@ Rules:
 - If enrichment fills a field from a fallback source, mention it in reasoning (e.g. "formation inferred from county lookup").
 - If forecast P10 < baseline cumulative, mark as risky and propose an alternative.
 - Never recommend a well you didn't inspect via get_well_context.
-- Keep multi-step tool usage focused: typically 4–6 tool calls total.`;
+- Keep multi-step tool usage focused: typically 4–6 tool calls total.
+- Calibrate every score against the labeled benchmark below and name the anchor you used.
+
+${SPT_BENCHMARK_PROMPT}`;
 
 async function callLLM(messages: any[]) {
   const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
