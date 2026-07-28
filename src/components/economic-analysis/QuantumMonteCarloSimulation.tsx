@@ -210,13 +210,13 @@ const QuantumMonteCarloSimulation = ({ baseOilPrice, baseTreatmentCost, baseOpex
       <div className="flex items-center gap-3">
         <Atom className="h-6 w-6 text-purple-400" />
         <div>
-          <h3 className="text-lg font-semibold">Quantum Monte Carlo — Amplitude Estimation</h3>
+          <h3 className="text-lg font-semibold">GPU-Accelerated Monte Carlo — Variance Reduction</h3>
           <p className="text-xs text-muted-foreground">
-            Quantum Amplitude Estimation (QAE) achieves O(1/N) convergence vs classical O(1/√N) — quadratic speedup for risk analysis
+            Tensor-network emulation of amplitude-estimation style variance reduction. Research prototype — no quantum-hardware speedup is claimed.
           </p>
         </div>
         <Badge className="ml-auto bg-purple-500/20 text-purple-300 border-purple-500/30">
-          Quantum-Inspired
+          Research prototype
         </Badge>
       </div>
 

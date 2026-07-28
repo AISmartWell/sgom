@@ -66,7 +66,7 @@ const STAGES = [
     n: 8,
     icon: Activity,
     title: "Geophysical Expertise",
-    body: "NPV, IRR, Payback, 5-yr ROI computed via monthly Arps decline. Quantum Amplitude Estimation (QAE) accelerates Monte Carlo convergence from O(1/ε²) to O(1/ε) — 10,000 classical iterations reduced to ~100 at identical precision. Tornado sensitivity charts on price, OPEX, decline, water cut.",
+    body: "NPV, IRR, Payback, 5-yr ROI computed via monthly Arps decline. Risk is quantified with GPU-accelerated Monte Carlo (50,000 iterations in a Web Worker, seeded and reproducible), reported as P10/P50/P90. A tensor-network variance-reduction emulator is included as a research prototype — no quantum-hardware speedup is claimed. Tornado sensitivity charts on price, OPEX, decline, water cut.",
   },
   {
     n: 9,
