@@ -13,7 +13,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Loader2, Brain, Wrench, CheckCircle2, AlertTriangle, Sparkles, ClipboardCheck, PlusCircle } from "lucide-react";
+import { Loader2, Brain, Wrench, CheckCircle2, AlertTriangle, Sparkles, ClipboardCheck, PlusCircle, Database } from "lucide-react";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import MCDAWeightsPanel from "@/components/spt-advisor/MCDAWeightsPanel";
 import { ManualWellEntry } from "@/components/data-import/ManualWellEntry";
@@ -143,9 +144,16 @@ export default function SPTAdvisor() {
           </h1>
           <Badge className="bg-primary/20 text-primary border-primary/30">openai/gpt-5.2 · tool-calling</Badge>
         </div>
-        <Button size="lg" className="w-full lg:w-auto" onClick={() => setAddOpen(true)}>
-          <PlusCircle className="w-4 h-4 mr-2" /> Add well
-        </Button>
+        <div className="flex flex-col gap-2 sm:flex-row lg:w-auto">
+          <Button size="lg" variant="outline" asChild>
+            <Link to="/modules/spt-benchmark">
+              <Database className="w-4 h-4 mr-2" /> Benchmark pool
+            </Link>
+          </Button>
+          <Button size="lg" className="w-full lg:w-auto" onClick={() => setAddOpen(true)}>
+            <PlusCircle className="w-4 h-4 mr-2" /> Add well
+          </Button>
+        </div>
       </div>
 
       <p className="text-sm text-muted-foreground max-w-3xl">

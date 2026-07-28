@@ -78,6 +78,7 @@ import OCRWellLog from "./pages/OCRWellLog";
 import OCRFormationDemo from "./pages/modules/OCRFormationDemo";
 import IngestRestorationDiagnostics from "./pages/modules/IngestRestorationDiagnostics";
 import SPTAdvisor from "./pages/modules/SPTAdvisor";
+import SPTBenchmarkPool from "./pages/modules/SPTBenchmarkPool";
 import AutonomousScan from "./pages/modules/AutonomousScan";
 import AIGuide from "./pages/modules/AIGuide";
 import ModelsReference from "./pages/modules/ModelsReference";
@@ -158,6 +159,7 @@ const App = () => (
               <Route path="aramco-pilot" element={<AramcoPilot />} />
               <Route path="ingest-diagnostics" element={<IngestRestorationDiagnostics />} />
               <Route path="spt-advisor" element={<SPTAdvisor />} />
+              <Route path="spt-benchmark" element={<SPTBenchmarkPool />} />
               <Route path="autonomous-scan" element={<AutonomousScan />} />
               <Route path="ai-guide" element={<AIGuide />} />
               <Route path="models-reference" element={<ModelsReference />} />
