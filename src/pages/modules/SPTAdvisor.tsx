@@ -13,7 +13,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Loader2, Brain, Wrench, CheckCircle2, AlertTriangle, Sparkles, ClipboardCheck, PlusCircle } from "lucide-react";
+import { Loader2, Brain, Wrench, CheckCircle2, AlertTriangle, Sparkles, ClipboardCheck, PlusCircle, Database } from "lucide-react";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import MCDAWeightsPanel from "@/components/spt-advisor/MCDAWeightsPanel";
 import { ManualWellEntry } from "@/components/data-import/ManualWellEntry";
