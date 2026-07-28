@@ -108,7 +108,36 @@ export const SPT_SCORING_BENCHMARK: SPTBenchmarkCase[] = [
       "Long-life shallow sandstone producer with high cumulative water (100 MBBL); short net slot length limits uplift — anchor for mature high-water-cut sandstone.",
     source: "/training-data/spt/REDMAN_D_1_API142090023639_Cut_Program.pdf",
   },
+  {
+    id: "JTM-1093W-HSP-CALC-5225",
+    well: "JTM 1093W · HSP parameter calculation (deep-interval design run, 5,225 ft)",
+    split: "validation",
+    label: "candidate",
+    groundTruthScore: 76,
+    features: {
+      totalDepthFt: 5225,
+      casingOD: 5.5,
+      formation: "Grayburg (deep design run)",
+      lithology: "carbonate",
+      payIntervalFt: [4875, 4916],
+      fluidPpg: 8.5,
+    },
+    program: {
+      pressurePsi: 5000,
+      slurryRateBblMin: 5.45,
+      sandPpg: 0.35, // 4.5 oz/gal working concentration (~2.67 oz/gal at nozzles)
+      speedMmMin: 5.08, // 0.2 in/min
+      netSlotsFt: 18.69,
+      grossSlotsFt: 23.36,
+      drainageAreaFt2: 334,
+      dpNozzlesPsi: 4434,
+    },
+    rationale:
+      "12 cuts of 1.31 ft over 4,875–4,916 ft; BHT 180 °F, hydrostatic 2,202 psi, total losses 566 psi, abrasive 22.3 t (2 nozzles) / 43.2 t (4 nozzles), rock removed 0.68 t, open area 334 ft² (2 noz) / 652 ft² (4 noz). Engineering design run — anchor for deep (>4,500 ft) carbonate intervals with 5.5\" casing and 2.38\" tubing.",
+    source: "/training-data/spt/199JTM1093W_HSP_Calculation.xlsx",
+  },
 ];
+
 
 export const SPT_BENCHMARK_PROMPT = `## SPT SCORING BENCHMARK — labeled examples (calibrate your 0-100 score against these)
 ${SPT_SCORING_BENCHMARK.map(
