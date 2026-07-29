@@ -96,8 +96,8 @@ const COURSES: Course[] = [
     price: "$30–90",
     level: "Stack-specific",
     url: "https://courses.nvidia.com",
-    description: "GPU acceleration, CUDA, cuQuantum, Triton Inference Server — directly relevant to Stage 7 QAE.",
-    tags: ["CUDA", "cuQuantum", "Triton"],
+    description: "GPU acceleration, CUDA, Triton Inference Server — directly relevant to the Stage 7 GPU Monte Carlo engine.",
+    tags: ["CUDA", "Triton", "GPU"],
     recommended: true,
   },
   {
@@ -343,10 +343,10 @@ const LearningPath = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
             <div className="p-3 rounded-lg bg-muted/30 border">
               <div className="font-semibold mb-1 flex items-center gap-1.5">
-                <Cpu className="h-3.5 w-3.5 text-warning" /> Stage 7 QAE
+                <Cpu className="h-3.5 w-3.5 text-warning" /> Stage 7 GPU Monte Carlo
               </div>
               <p className="text-xs text-muted-foreground">
-                NVIDIA DLI — cuQuantum & quantum simulation acceleration
+                NVIDIA DLI — CUDA & GPU-accelerated simulation
               </p>
             </div>
             <div className="p-3 rounded-lg bg-muted/30 border">
