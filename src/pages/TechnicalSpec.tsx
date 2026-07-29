@@ -87,7 +87,7 @@ const TechnicalSpec = () => {
                 <li>NVIDIA NIM (nemotron-nano-12b-v2-vl) — seismic CV analysis (with Gemini fallback)</li>
                 <li>SGOM Physics Simulator · Powered by NVIDIA NIM — Predict (video forecasting), Transfer (domain adaptation), Reason (physics reasoning)</li>
                 <li>Computer Vision — rock classification, seismic fault/horizon detection</li>
-                <li>Quantum-Inspired Monte Carlo (QAE) — economic risk assessment</li>
+                <li>GPU-accelerated Monte Carlo (importance-sampled tail estimation) — economic risk assessment</li>
                 <li>ML well ranking — multi-criteria scoring</li>
               </ul>
             </div>
