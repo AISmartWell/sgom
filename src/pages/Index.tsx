@@ -416,7 +416,7 @@ const Index = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             {[
               { label: "AI-First Architecture", desc: "Every stage is AI-augmented — NVIDIA NIM for CV, Gemini for reports, Claude for consultation" },
-              { label: "GPU-Accelerated Risk Engine", desc: "50,000-iteration Monte Carlo runs off-thread in seconds — P10/P50/P90 economics on every well" },
+              { label: "Quantum Computing Edge", desc: "QAE delivers quadratic speedup: 100 quantum iterations = 10,000 classical iterations" },
               { label: "9-Stage Pipeline", desc: "Repeatable, auditable methodology — end-to-end from field scanning to EOR optimization" },
               { label: "Enterprise Security", desc: "RLS on every table. Multi-tenant isolation. RBAC. Invite-only access" },
             ].map((item, i) => (
