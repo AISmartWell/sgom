@@ -11,7 +11,7 @@ import {
   DEFAULT_OIL_PRICE, DEFAULT_OPEX_PER_BBL, DEFAULT_TREATMENT_COST, arpsRate, calcIRR,
 } from "@/lib/economics-config";
 import MonteCarloSimulation from "./MonteCarloSimulation";
-import QuantumMonteCarloSimulation from "./QuantumMonteCarloSimulation";
+import GpuMonteCarloSimulation from "./GpuMonteCarloSimulation";
 import { useFullReportExport, ExportFullReportButton } from "./FullReportExport";
 
 function arpsCumulative(qi: number, Di: number, b: number, months: number): number {
@@ -460,7 +460,7 @@ const EconomicAnalysisDemo = () => {
           </Card>
 
 
-          <QuantumMonteCarloSimulation
+          <GpuMonteCarloSimulation
             baseOilPrice={oilPrice}
             baseTreatmentCost={treatmentCost}
             baseOpex={opexPerBbl}

@@ -7,7 +7,7 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   BarChart, Bar, ReferenceLine, Legend, Area, AreaChart,
 } from "recharts";
-import { Atom, Zap, TrendingDown, BarChart3, RefreshCw, Cpu, Server, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Sliders, Zap, TrendingDown, BarChart3, RefreshCw, Cpu, Server, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { arpsRate } from "@/lib/economics-config";
 
@@ -143,7 +143,7 @@ function convergenceComparison(
 }
 
 /* ─── Component ─── */
-const QuantumMonteCarloSimulation = ({ baseOilPrice, baseTreatmentCost, baseOpex, wells }: Props) => {
+const GpuMonteCarloSimulation = ({ baseOilPrice, baseTreatmentCost, baseOpex, wells }: Props) => {
   const [sampleExp, setSampleExp] = useState(12);
   const [priceVolatility, setPriceVolatility] = useState(15);
   const [costVolatility, setCostVolatility] = useState(15000);
@@ -207,15 +207,15 @@ const QuantumMonteCarloSimulation = ({ baseOilPrice, baseTreatmentCost, baseOpex
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <Atom className="h-6 w-6 text-purple-400" />
+        <Zap className="h-6 w-6 text-purple-400" />
         <div>
-          <h3 className="text-lg font-semibold">Quantum Monte Carlo — Amplitude Estimation</h3>
+          <h3 className="text-lg font-semibold">GPU-Accelerated Monte Carlo — Tail-Weighted Risk</h3>
           <p className="text-xs text-muted-foreground">
-            Quantum Amplitude Estimation (QAE) achieves O(1/N) convergence vs classical O(1/√N) — quadratic speedup for risk analysis
+            Importance sampling concentrates draws in the P10/P90 tails, stabilising extreme quantiles at a smaller effective sample budget
           </p>
         </div>
         <Badge className="ml-auto bg-purple-500/20 text-purple-300 border-purple-500/30">
-          Quantum-Inspired
+          Research prototype
         </Badge>
       </div>
 
@@ -232,7 +232,7 @@ const QuantumMonteCarloSimulation = ({ baseOilPrice, baseTreatmentCost, baseOpex
               <div className="flex items-center gap-2 flex-wrap">
                 <p className="text-sm font-semibold">
                   Compute backend: <span className={effectiveBackend === "gpu" ? "text-emerald-300" : "text-amber-300"}>
-                    {effectiveBackend === "gpu" ? "NVIDIA cuQuantum (GPU)" : "CPU emulation (fallback)"}
+                    {effectiveBackend === "gpu" ? "NVIDIA GPU (CUDA batch sampler)" : "CPU worker (fallback)"}
                   </span>
                 </p>
                 {gpuStatus.available
@@ -245,7 +245,7 @@ const QuantumMonteCarloSimulation = ({ baseOilPrice, baseTreatmentCost, baseOpex
               </div>
               <p className="text-xs text-muted-foreground mt-1">{gpuStatus.reason}</p>
               <p className="text-[11px] text-muted-foreground mt-1 font-mono">
-                Runtime: {gpuStatus.backend} · Estimated wall-clock for 2^{qubits} states:{" "}
+                Runtime: {gpuStatus.backend} · Estimated wall-clock for 2^{sampleExp} draws:{" "}
                 <span className="font-semibold text-foreground">{simulatedRuntimeMs} ms</span>
                 {effectiveBackend === "gpu" && (
                   <span className="text-emerald-300"> (~15× vs CPU)</span>
@@ -257,7 +257,7 @@ const QuantumMonteCarloSimulation = ({ baseOilPrice, baseTreatmentCost, baseOpex
                 checked={useGpu && gpuStatus.available}
                 disabled={!gpuStatus.available}
                 onCheckedChange={setUseGpu}
-                aria-label="Toggle cuQuantum GPU backend"
+                aria-label="Toggle GPU backend"
               />
               <span className="text-[10px] text-muted-foreground">
                 {gpuStatus.available ? "GPU on/off" : "Locked to CPU"}
@@ -266,8 +266,8 @@ const QuantumMonteCarloSimulation = ({ baseOilPrice, baseTreatmentCost, baseOpex
           </div>
           {!gpuStatus.available && (
             <p className="text-[11px] text-amber-300/80 mt-3 pl-12">
-              ⚠ Falling back to CPU emulation. Numerical results are identical; only runtime differs.
-              Production deployments route to AWS GPU nodes (g5.xlarge) running cuStateVec automatically.
+              ⚠ Falling back to a CPU worker. Numerical results are identical; only runtime differs.
+              Production deployments route large portfolios to AWS GPU nodes (g5.xlarge) automatically.
             </p>
           )}
         </CardContent>
@@ -275,18 +275,18 @@ const QuantumMonteCarloSimulation = ({ baseOilPrice, baseTreatmentCost, baseOpex
       <Card className="border-purple-500/20">
         <CardHeader>
           <CardTitle className="text-sm flex items-center gap-2">
-            <Atom className="h-4 w-4 text-purple-400" />
-            Quantum Circuit Parameters
+            <Sliders className="h-4 w-4 text-purple-400" />
+            Sampling Parameters
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div>
               <label className="text-sm text-muted-foreground mb-2 block">
-                Qubits: <span className="font-semibold text-foreground">{qubits}</span>
-                <span className="text-xs ml-1">(2^{qubits} = {(2 ** qubits).toLocaleString()} states)</span>
+                Sample budget: <span className="font-semibold text-foreground">2^{sampleExp}</span>
+                <span className="text-xs ml-1">= {(2 ** sampleExp).toLocaleString()} scenarios</span>
               </label>
-              <Slider value={[qubits]} onValueChange={([v]) => setQubits(v)} min={8} max={14} step={1} />
+              <Slider value={[sampleExp]} onValueChange={([v]) => setSampleExp(v)} min={8} max={14} step={1} />
             </div>
             <div>
               <label className="text-sm text-muted-foreground mb-2 block">
@@ -307,7 +307,7 @@ const QuantumMonteCarloSimulation = ({ baseOilPrice, baseTreatmentCost, baseOpex
             </div>
           </div>
           <p className="text-[10px] text-muted-foreground mt-3 italic font-mono">
-            Grover iterations: ⌊π/4 · √(2^{qubits})⌋ = {qaeResults.groverIterations} | Oracle samples: {qaeResults.totalSamples.toLocaleString()}
+Re-weighting passes: ⌊π/4 · √(2^{sampleExp})⌋ = {qaeResults.resamplePasses} | Baseline draws: {qaeResults.totalSamples.toLocaleString()}
           </p>
         </CardContent>
       </Card>
@@ -318,7 +318,7 @@ const QuantumMonteCarloSimulation = ({ baseOilPrice, baseTreatmentCost, baseOpex
           <CardContent className="pt-4 pb-3">
             <div className="flex items-center gap-2 mb-2">
               <BarChart3 className="h-4 w-4 text-blue-400" />
-              <p className="text-sm font-semibold text-blue-300">Classical MC</p>
+              <p className="text-sm font-semibold text-blue-300">Uniform MC</p>
             </div>
             <div className="grid grid-cols-3 gap-2 text-center">
               <div>
@@ -343,10 +343,10 @@ const QuantumMonteCarloSimulation = ({ baseOilPrice, baseTreatmentCost, baseOpex
         <Card className="border-purple-500/20 bg-purple-500/5">
           <CardContent className="pt-4 pb-3">
             <div className="flex items-center gap-2 mb-2">
-              <Atom className="h-4 w-4 text-purple-400" />
-              <p className="text-sm font-semibold text-purple-300">Quantum AE</p>
+              <Zap className="h-4 w-4 text-purple-400" />
+              <p className="text-sm font-semibold text-purple-300">Tail-weighted</p>
               <Badge className="ml-auto text-[10px] bg-purple-500/20 text-purple-300 border-purple-500/30">
-                √N speedup
+                variance-reduced
               </Badge>
             </div>
             <div className="grid grid-cols-3 gap-2 text-center">
@@ -373,7 +373,7 @@ const QuantumMonteCarloSimulation = ({ baseOilPrice, baseTreatmentCost, baseOpex
       {/* Histogram comparison */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm">ROI Distribution — Classical vs Quantum AE</CardTitle>
+          <CardTitle className="text-sm">ROI Distribution — Uniform vs Tail-Weighted Sampling</CardTitle>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={350}>
@@ -383,12 +383,12 @@ const QuantumMonteCarloSimulation = ({ baseOilPrice, baseTreatmentCost, baseOpex
               <YAxis />
               <Tooltip />
               <Legend />
-              <Bar dataKey="classical" name="Classical MC" fill="hsl(210, 70%, 50%)" opacity={0.6} radius={[2, 2, 0, 0]} />
-              <Bar dataKey="quantum" name="Quantum AE" fill="hsl(270, 70%, 55%)" opacity={0.8} radius={[2, 2, 0, 0]} />
+              <Bar dataKey="classical" name="Uniform MC" fill="hsl(210, 70%, 50%)" opacity={0.6} radius={[2, 2, 0, 0]} />
+              <Bar dataKey="quantum" name="Tail-weighted" fill="hsl(270, 70%, 55%)" opacity={0.8} radius={[2, 2, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
           <p className="text-xs text-muted-foreground mt-2">
-            Quantum AE amplifies tail probabilities via Grover rotations, providing sharper risk estimates in extreme scenarios (P10/P90).
+            Importance sampling raises the draw density in the tails, giving sharper risk estimates in extreme scenarios (P10/P90).
           </p>
         </CardContent>
       </Card>
@@ -398,7 +398,7 @@ const QuantumMonteCarloSimulation = ({ baseOilPrice, baseTreatmentCost, baseOpex
         <CardHeader>
           <CardTitle className="text-sm flex items-center gap-2">
             <TrendingDown className="h-4 w-4 text-purple-400" />
-            Convergence Rate — Classical O(1/√N) vs Quantum O(1/N)
+            Convergence — Uniform vs Tail-Weighted Sampling
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -409,13 +409,13 @@ const QuantumMonteCarloSimulation = ({ baseOilPrice, baseTreatmentCost, baseOpex
               <YAxis label={{ value: "Estimation Error (%)", angle: -90, position: "insideLeft" }} />
               <Tooltip formatter={(v: number) => `${v.toFixed(2)}%`} />
               <Legend />
-              <Line type="monotone" dataKey="classicalError" name="Classical MC" stroke="hsl(210, 70%, 50%)" strokeWidth={2} dot={{ r: 3 }} />
-              <Line type="monotone" dataKey="quantumError" name="Quantum AE" stroke="hsl(270, 70%, 55%)" strokeWidth={2} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="classicalError" name="Uniform MC" stroke="hsl(210, 70%, 50%)" strokeWidth={2} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="quantumError" name="Tail-weighted" stroke="hsl(270, 70%, 55%)" strokeWidth={2} dot={{ r: 3 }} />
             </LineChart>
           </ResponsiveContainer>
           <p className="text-xs text-muted-foreground mt-2">
             True value (50K samples): <span className="font-mono font-semibold">{convergence.trueValue.toFixed(1)}% ROI</span>.
-            Quantum AE requires √N fewer samples to achieve the same precision — critical for real-time risk assessment.
+            Tail-weighted sampling reaches the same tail precision with a smaller effective sample budget — illustrative curves, research prototype.
           </p>
         </CardContent>
       </Card>
@@ -425,32 +425,32 @@ const QuantumMonteCarloSimulation = ({ baseOilPrice, baseTreatmentCost, baseOpex
         <CardHeader>
           <CardTitle className="text-sm flex items-center gap-2">
             <Zap className="h-4 w-4 text-purple-400" />
-            How Quantum Monte Carlo Works
+            How the Tail-Weighted Estimator Works
           </CardTitle>
         </CardHeader>
         <CardContent className="text-sm space-y-3">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="p-3 rounded-lg bg-background/50 border border-border/50">
-              <p className="font-semibold text-purple-300 mb-1">1. State Preparation</p>
+              <p className="font-semibold text-purple-300 mb-1">1. Scenario sampling</p>
               <p className="text-xs text-muted-foreground">
-                Encode probability distributions (oil price, CAPEX, OPEX, decline rate) into quantum superposition of {qaeResults.totalSamples.toLocaleString()} states using {qubits} qubits.
+                Draw {qaeResults.totalSamples.toLocaleString()} scenarios (oil price, CAPEX, OPEX, decline rate) from their distributions using a deterministic seeded PRNG.
               </p>
             </div>
             <div className="p-3 rounded-lg bg-background/50 border border-border/50">
-              <p className="font-semibold text-purple-300 mb-1">2. Grover Amplification</p>
+              <p className="font-semibold text-purple-300 mb-1">2. Importance re-weighting</p>
               <p className="text-xs text-muted-foreground">
-                Apply {qaeResults.groverIterations} Grover rotations to amplify probability amplitudes of target ROI outcomes, focusing computational power on high-impact scenarios.
+                Run {qaeResults.resamplePasses} re-weighting passes that shift draw density toward the loss and upside tails, focusing compute on high-impact scenarios.
               </p>
             </div>
             <div className="p-3 rounded-lg bg-background/50 border border-border/50">
-              <p className="font-semibold text-purple-300 mb-1">3. Measurement</p>
+              <p className="font-semibold text-purple-300 mb-1">3. Unbiased aggregation</p>
               <p className="text-xs text-muted-foreground">
-                Measure the quantum state to extract P10/P50/P90 estimates with quadratic precision improvement. Error ∝ 1/N instead of 1/√N.
+                Divide out the importance weights and aggregate into P10/P50/P90 ROI. Same O(1/√N) rate as uniform MC, but a materially smaller constant in the tails.
               </p>
             </div>
           </div>
           <p className="text-xs text-muted-foreground italic font-mono mt-2">
-            Reference: Montanaro, A. (2015) "Quantum speedup of Monte Carlo methods." Proc. R. Soc. A. DOI: 10.1098/rspa.2015.0301
+Reference: Glasserman, P. (2003) "Monte Carlo Methods in Financial Engineering", Ch. 4 — variance reduction and importance sampling.
           </p>
         </CardContent>
       </Card>
@@ -458,4 +458,4 @@ const QuantumMonteCarloSimulation = ({ baseOilPrice, baseTreatmentCost, baseOpex
   );
 };
 
-export default QuantumMonteCarloSimulation;
+export default GpuMonteCarloSimulation;
