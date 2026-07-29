@@ -66,7 +66,7 @@ const STAGES = [
     n: 8,
     icon: Activity,
     title: "Geophysical Expertise",
-    body: "NPV, IRR, Payback, 5-yr ROI computed via monthly Arps decline. Quantum Amplitude Estimation (QAE) accelerates Monte Carlo convergence from O(1/ε²) to O(1/ε) — 10,000 classical iterations reduced to ~100 at identical precision. Tornado sensitivity charts on price, OPEX, decline, water cut.",
+    body: "NPV, IRR, Payback, 5-yr ROI computed via monthly Arps decline. GPU-accelerated Monte Carlo (50,000 trials in a multi-threaded worker) with importance-sampled tail estimation for P10/P90 risk — a research prototype, no quantum-hardware speedup is claimed. Tornado sensitivity charts on price, OPEX, decline, water cut.",
   },
   {
     n: 9,
@@ -95,7 +95,7 @@ const Innovation = () => {
           <p className="text-muted-foreground leading-relaxed">
             AI Smart Well is a 9-stage, 32-module AI platform that transforms raw well data into a
             scientifically validated restoration decision — integrating geology, geophysics,
-            computer vision, physics simulation, and quantum-enhanced economics into a single
+            computer vision, physics simulation, and GPU-accelerated probabilistic economics into a single
             automated pipeline. Each stage addresses a distinct scientific challenge.
           </p>
         </div>
