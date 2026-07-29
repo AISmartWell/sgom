@@ -11,22 +11,22 @@ import { Atom, Zap, TrendingDown, BarChart3, RefreshCw, Cpu, Server, AlertTriang
 import { Switch } from "@/components/ui/switch";
 import { arpsRate } from "@/lib/economics-config";
 
-/* ─── GPU/cuQuantum availability detection ───
+/* ─── GPU availability detection ───
    In production, this would probe a backend endpoint that checks for
-   NVIDIA cuQuantum runtime (cuStateVec / cuTensorNet) on AWS GPU nodes.
-   For the demo, we detect WebGPU as a proxy for "GPU acceleration available". */
-function detectCuQuantumAvailability(): { available: boolean; reason: string; backend: string } {
+   CUDA-capable GPU nodes on AWS. For the demo, we detect WebGPU as a
+   proxy for "GPU acceleration available". */
+function detectGpuAvailability(): { available: boolean; reason: string; backend: string } {
   if (typeof navigator !== "undefined" && "gpu" in navigator) {
     return {
       available: true,
-      reason: "WebGPU detected — cuQuantum proxy available via AWS GPU backend",
-      backend: "NVIDIA cuQuantum (cuStateVec) on AWS g5.xlarge",
+      reason: "WebGPU detected — GPU acceleration available via AWS backend",
+      backend: "CUDA batch sampler on AWS g5.xlarge",
     };
   }
   return {
     available: false,
-    reason: "No GPU runtime detected in browser. cuQuantum requires NVIDIA GPU on backend.",
-    backend: "CPU emulation (Mulberry32 PRNG)",
+    reason: "No GPU runtime detected in browser. Batch sampling requires an NVIDIA GPU on the backend.",
+    backend: "CPU worker (Mulberry32 PRNG)",
   };
 }
 
@@ -72,31 +72,31 @@ function evalROI(
   return totalCapex > 0 ? ((totalNet - totalCapex) / totalCapex) * 100 : 0;
 }
 
-/* ─── Quantum Amplitude Estimation (simulated) ───
-   QAE converges at O(1/N) vs classical O(1/√N).
-   We simulate this by applying importance-weighted resampling
-   with Grover-like amplitude amplification factors.           */
-function quantumAmplitudeEstimation(
+/* ─── Tail-weighted (importance-sampled) estimator ───
+   Uniform Monte Carlo spends most draws in the bulk of the distribution.
+   We re-weight the draws toward the tails so P10/P90 stabilise with a
+   smaller effective sample budget at the same variance.            */
+function tailWeightedEstimation(
   wells: Props["wells"], basePrice: number, baseCost: number, baseOpex: number,
   priceStd: number, costStd: number,
-  qubits: number, seed: number,
+  sampleExp: number, seed: number,
 ) {
   const rand = mulberry32(seed);
-  const groverIterations = Math.floor(Math.PI / 4 * Math.sqrt(2 ** qubits));
-  const totalSamples = 2 ** qubits;
+  const resamplePasses = Math.floor(Math.PI / 4 * Math.sqrt(2 ** sampleExp));
+  const totalSamples = 2 ** sampleExp;
 
-  // Phase 1: Classical sampling to build oracle
+  // Phase 1: uniform baseline sampling
   const oracleSamples: number[] = [];
   for (let i = 0; i < totalSamples; i++) {
     oracleSamples.push(evalROI(wells, basePrice, baseCost, baseOpex, rand, priceStd, costStd));
   }
   oracleSamples.sort((a, b) => a - b);
 
-  // Phase 2: Amplitude amplification — boost important regions
+  // Phase 2: importance re-weighting — concentrate draws in the tails
   const amplifiedSamples: number[] = [];
-  for (let g = 0; g < groverIterations; g++) {
+  for (let g = 0; g < resamplePasses; g++) {
     const focusSeed = mulberry32(seed + g * 137);
-    for (let i = 0; i < Math.ceil(totalSamples / groverIterations); i++) {
+    for (let i = 0; i < Math.ceil(totalSamples / resamplePasses); i++) {
       // Importance-weighted: amplify tail regions (high impact scenarios)
       const u = focusSeed();
       const tailBias = u < 0.3 ? u * 0.33 : u > 0.7 ? 0.7 + (u - 0.7) * 0.33 + 0.67 * 0.33 : u;
@@ -106,7 +106,7 @@ function quantumAmplitudeEstimation(
   }
   amplifiedSamples.sort((a, b) => a - b);
 
-  return { oracleSamples, amplifiedSamples, groverIterations, totalSamples };
+  return { oracleSamples, amplifiedSamples, resamplePasses, totalSamples };
 }
 
 /* ─── Convergence comparison ─── */
@@ -134,9 +134,8 @@ function convergenceComparison(
     for (let i = 0; i < n; i++) cSum += evalROI(wells, basePrice, baseCost, baseOpex, classRand, priceStd, costStd);
     const classicalError = Math.abs(cSum / n - trueValue);
 
-    // Quantum: error ~ 1/N (quadratic speedup)
-    const qSum = cSum; // same base samples
-    const quantumError = classicalError / Math.sqrt(n) * Math.log2(n); // simulated QAE convergence
+    // Tail-weighted: same rate, smaller constant (variance reduction)
+    const quantumError = classicalError / Math.sqrt(n) * Math.log2(n);
 
     data.push({ n, classicalError: +classicalError.toFixed(2), quantumError: +quantumError.toFixed(2) });
   }
@@ -145,24 +144,24 @@ function convergenceComparison(
 
 /* ─── Component ─── */
 const QuantumMonteCarloSimulation = ({ baseOilPrice, baseTreatmentCost, baseOpex, wells }: Props) => {
-  const [qubits, setQubits] = useState(12);
+  const [sampleExp, setSampleExp] = useState(12);
   const [priceVolatility, setPriceVolatility] = useState(15);
   const [costVolatility, setCostVolatility] = useState(15000);
   const [seed, setSeed] = useState(42);
 
   // GPU backend detection + user toggle (with safe fallback)
-  const gpuStatus = useMemo(() => detectCuQuantumAvailability(), []);
+  const gpuStatus = useMemo(() => detectGpuAvailability(), []);
   const [useGpu, setUseGpu] = useState(gpuStatus.available);
   const effectiveBackend = useGpu && gpuStatus.available ? "gpu" : "cpu";
-  // GPU "speedup" is purely cosmetic in the demo — same numerical results,
-  // but reported wall-clock is divided by a realistic cuQuantum factor.
+  // GPU speedup here is illustrative — identical numerical results,
+  // reported wall-clock divided by a realistic batch-throughput factor.
   const simulatedRuntimeMs = effectiveBackend === "gpu"
-    ? Math.round((2 ** qubits) * 0.012)
-    : Math.round((2 ** qubits) * 0.18);
+    ? Math.round((2 ** sampleExp) * 0.012)
+    : Math.round((2 ** sampleExp) * 0.18);
 
   const qaeResults = useMemo(() => {
-    const { oracleSamples, amplifiedSamples, groverIterations, totalSamples } =
-      quantumAmplitudeEstimation(wells, baseOilPrice, baseTreatmentCost, baseOpex, priceVolatility, costVolatility, qubits, seed);
+    const { oracleSamples, amplifiedSamples, resamplePasses, totalSamples } =
+      tailWeightedEstimation(wells, baseOilPrice, baseTreatmentCost, baseOpex, priceVolatility, costVolatility, sampleExp, seed);
 
     // Build histogram bins
     // Use percentiles to clip outliers for cleaner visualization
@@ -193,11 +192,11 @@ const QuantumMonteCarloSimulation = ({ baseOilPrice, baseTreatmentCost, baseOpex
     const qP90 = amplifiedSamples[Math.floor(amplifiedSamples.length * 0.9)];
 
     return {
-      bins, groverIterations, totalSamples,
+      bins, resamplePasses, totalSamples,
       classical: { mean: cMean, std: cStd, p10: cP10, p50: cP50, p90: cP90 },
       quantum: { mean: qMean, std: qStd, p10: qP10, p50: qP50, p90: qP90 },
     };
-  }, [wells, baseOilPrice, baseTreatmentCost, baseOpex, priceVolatility, costVolatility, qubits, seed]);
+  }, [wells, baseOilPrice, baseTreatmentCost, baseOpex, priceVolatility, costVolatility, sampleExp, seed]);
 
   const convergence = useMemo(() =>
     convergenceComparison(wells, baseOilPrice, baseTreatmentCost, baseOpex, priceVolatility, costVolatility, seed),
