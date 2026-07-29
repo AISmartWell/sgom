@@ -219,7 +219,7 @@ const GpuMonteCarloSimulation = ({ baseOilPrice, baseTreatmentCost, baseOpex, we
         </Badge>
       </div>
 
-      {/* Backend selector — cuQuantum (GPU) vs CPU emulation */}
+      {/* Backend selector — GPU vs CPU worker */}
       <Card className={effectiveBackend === "gpu" ? "border-emerald-500/30 bg-emerald-500/5" : "border-amber-500/30 bg-amber-500/5"}>
         <CardContent className="pt-4 pb-4">
           <div className="flex items-start gap-4">
@@ -312,7 +312,7 @@ Re-weighting passes: ⌊π/4 · √(2^{sampleExp})⌋ = {qaeResults.resamplePass
         </CardContent>
       </Card>
 
-      {/* KPIs — Classical vs Quantum */}
+      {/* KPIs — Uniform vs Tail-weighted */}
       <div className="grid grid-cols-2 gap-4">
         <Card className="border-blue-500/20 bg-blue-500/5">
           <CardContent className="pt-4 pb-3">
