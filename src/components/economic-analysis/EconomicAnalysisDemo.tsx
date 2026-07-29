@@ -254,7 +254,7 @@ const EconomicAnalysisDemo = () => {
           <TabsTrigger value="roi">ROI & Payback</TabsTrigger>
           <TabsTrigger value="sensitivity">Sensitivity</TabsTrigger>
           <TabsTrigger value="montecarlo">Monte Carlo</TabsTrigger>
-          <TabsTrigger value="quantum">⚛ Quantum MC</TabsTrigger>
+          <TabsTrigger value="quantum">⚡ GPU Monte Carlo</TabsTrigger>
           <TabsTrigger value="profit">Profit</TabsTrigger>
           <TabsTrigger value="cumulative">Cumulative</TabsTrigger>
           <TabsTrigger value="details">Well Details</TabsTrigger>
@@ -384,34 +384,37 @@ const EconomicAnalysisDemo = () => {
                 <span className="px-2 py-0.5 rounded-md bg-primary/15 text-primary text-[10px] font-mono tracking-wider uppercase">
                   How it works
                 </span>
-                Quantum Amplitude Estimation (QAE) — Methodology
+                GPU-Accelerated Monte Carlo — Methodology
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 text-sm">
               <p className="text-muted-foreground leading-relaxed">
-                QAE (Brassard, Høyer, Mosca, Tapp · 2000) replaces classical Monte Carlo for
-                expectation estimation. For target accuracy <span className="font-mono text-foreground">ε</span>,
-                classical MC needs <span className="font-mono text-foreground">O(1/ε²)</span> samples;
-                QAE needs only <span className="font-mono text-primary">O(1/ε)</span> oracle calls — a
-                quadratic speed-up.
+                Economic risk is estimated by sampling the joint distribution of oil price, CAPEX,
+                OPEX and decline rate, then evaluating NPV/ROI for each draw. Plain Monte Carlo
+                converges as <span className="font-mono text-foreground">O(1/√N)</span>, and tail
+                quantiles (P10 / P90) are the slowest part of the distribution to stabilise because
+                few draws land there. This module applies{" "}
+                <span className="font-medium text-foreground">importance sampling</span> — draws are
+                re-weighted toward the tails — so P10/P90 estimates settle with a substantially
+                smaller effective sample budget at the same variance.
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="p-3 rounded-lg bg-muted/30 border border-border/40">
                   <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-2">
-                    Classical Monte Carlo
+                    Baseline Monte Carlo
                   </p>
                   <p className="text-xs">Error convergence: <span className="font-mono">O(1/√N)</span></p>
-                  <p className="text-xs">For ε = 1%: ~<span className="font-mono">10 000</span> simulations</p>
+                  <p className="text-xs">Uniform sampling across the full distribution</p>
                   <p className="text-xs">Source of randomness: seeded PRNG (stableHash)</p>
                 </div>
                 <div className="p-3 rounded-lg bg-primary/10 border border-primary/30">
                   <p className="text-xs font-mono uppercase tracking-wider text-primary mb-2">
-                    Quantum Amplitude Estimation
+                    Tail-weighted estimator
                   </p>
-                  <p className="text-xs">Error convergence: <span className="font-mono">O(1/N)</span></p>
-                  <p className="text-xs">For ε = 1%: ~<span className="font-mono">100</span> oracle calls</p>
-                  <p className="text-xs">Source of randomness: amplitude superposition</p>
+                  <p className="text-xs">Same <span className="font-mono">O(1/√N)</span> rate, lower constant</p>
+                  <p className="text-xs">Variance reduction concentrated in P10 / P90</p>
+                  <p className="text-xs">Source of randomness: seeded PRNG + importance weights</p>
                 </div>
               </div>
 
@@ -421,27 +424,23 @@ const EconomicAnalysisDemo = () => {
                 </p>
                 <ol className="list-decimal list-inside space-y-1.5 text-xs leading-relaxed">
                   <li>
-                    <span className="font-medium">Encode uncertainties</span> — oil price P, decline rate D, OPEX,
-                    water cut, initial rate q<sub>i</sub> as amplitudes:
-                    <span className="font-mono ml-1">|ψ⟩ = Σ √p(x) |x⟩</span>
+                    <span className="font-medium">Define uncertainties</span> — oil price P, decline rate D,
+                    OPEX, water cut and initial rate q<sub>i</sub> as parametric distributions.
                   </li>
                   <li>
-                    <span className="font-medium">Apply oracle 𝒜</span> — computes NPV(x) and tags
-                    profitable outcomes (NPV &gt; 0) with phase:
-                    <span className="font-mono ml-1">𝒜|0⟩ = √a |good⟩ + √(1−a) |bad⟩</span>
+                    <span className="font-medium">Sample</span> — draw scenarios from a seeded PRNG so every
+                    run is bit-for-bit reproducible.
                   </li>
                   <li>
-                    <span className="font-medium">Grover operator</span> —
-                    <span className="font-mono ml-1">Q = −𝒜·S₀·𝒜⁻¹·S<sub>χ</sub></span>
-                    amplifies the "good" subspace.
+                    <span className="font-medium">Re-weight</span> — importance weights shift sampling density
+                    toward loss and upside tails, then unbias the estimator by dividing by the weights.
                   </li>
                   <li>
-                    <span className="font-medium">Quantum Phase Estimation</span> on Q extracts
-                    <span className="font-mono ml-1">a = P(NPV &gt; 0)</span> with error
-                    <span className="font-mono ml-1">O(1/N)</span>.
+                    <span className="font-medium">Evaluate</span> — monthly Arps decline → cash flow → NPV, IRR
+                    and ROI per scenario.
                   </li>
                   <li>
-                    <span className="font-medium">Decode</span> → P10 / P50 / P90 NPV, IRR distribution, Payback.
+                    <span className="font-medium">Aggregate</span> → P10 / P50 / P90 NPV, IRR distribution, Payback.
                   </li>
                 </ol>
               </div>
@@ -451,14 +450,15 @@ const EconomicAnalysisDemo = () => {
                   Current implementation status
                 </p>
                 <p className="text-xs leading-relaxed">
-                  <span className="font-medium">CPU-emulated QAE</span> with deterministic seeded PRNG —
-                  reproducible and matches the O(1/N) convergence envelope. Roadmap (Phase II R&D):
-                  export circuits to Qiskit / CUDA-Q → run on NVIDIA cuQuantum (30+ qubit GPU sim) →
-                  real QPU on IBM Quantum / IonQ via AWS Braket for portfolio of 100+ wells.
+                  <span className="font-medium">Research prototype.</span> Runs on CPU web workers with a
+                  deterministic seeded PRNG; production portfolios (100+ wells) route to GPU nodes for
+                  throughput. Convergence curves below are illustrative of the variance-reduction effect.
+                  No quantum hardware is used and no quantum speedup is claimed.
                 </p>
               </div>
             </CardContent>
           </Card>
+
 
           <QuantumMonteCarloSimulation
             baseOilPrice={oilPrice}
