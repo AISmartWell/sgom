@@ -187,6 +187,47 @@ const Innovation = () => {
           })}
         </div>
 
+        <Card className="glass-card border-primary/30 mb-6">
+          <CardHeader>
+            <CardTitle>Open Research Gaps and Fallback Paths</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4 text-sm text-muted-foreground leading-relaxed">
+            <div>
+              <p className="text-foreground font-semibold">R1 — Physics-informed few-shot generalization</p>
+              <p>
+                Open question: can differentiable physical constraints (Darcy, Archie) substitute
+                for data volume when transferring a geological regressor to an unseen region?
+                Unsolved today. Target: ≥75% blind accuracy, leave-one-case-out with bootstrap CI.
+                Fallback: region-conditional models with explicit abstention below a confidence
+                floor.
+              </p>
+            </div>
+            <div>
+              <p className="text-foreground font-semibold">R2 — Missing-modality inference on degraded logs</p>
+              <p>
+                Open question: can absent curves be reconstructed from pre-1980s partial suites
+                without introducing systematic bias? Target: ≤30% reconstruction error on ≥200
+                masked wells. Fallback: report modality gaps as intervals rather than point
+                estimates and exclude affected wells from scoring.
+              </p>
+            </div>
+            <div>
+              <p className="text-foreground font-semibold">R3 — Calibrated uncertainty for regulatory-grade output</p>
+              <p>
+                Open question: does conformal prediction hold nominal coverage under domain shift
+                and heavy masking? Target: ≥90% empirical coverage across deciles, regions and
+                masking levels; Brier and CRPS scored. Fallback: Mondrian (region-conditional)
+                conformal prediction.
+              </p>
+            </div>
+            <p className="border-t border-border/50 pt-3">
+              Aggregate criterion: R1 is required; at least one of R2/R3 must also meet target on
+              blind sets, reproducible with published code and public/synthetic data. None of these
+              targets has been met — the pipeline provides the experimental harness, not the answer.
+            </p>
+          </CardContent>
+        </Card>
+
         <Card className="glass-card border-primary/30">
           <CardHeader>
             <CardTitle>Core Scientific Challenge</CardTitle>
@@ -196,15 +237,16 @@ const Innovation = () => {
               Abandoned wells have degraded borehole conditions, inconsistent pre-1980s logging
               tools, fragmented records, and missing modalities. Training a self-learning geological
               model on such data requires solving <strong className="text-foreground">domain shift
-              adaptation</strong>, <strong className="text-foreground">missing modality inference
-              via SGOM Transfer</strong>, and <strong className="text-foreground">calibrated
+              adaptation</strong>, <strong className="text-foreground">missing modality
+              inference</strong>, and <strong className="text-foreground">calibrated
               uncertainty quantification</strong> for regulatory-grade output. These are open ML
-              research problems — not engineering tasks. Phase I will validate RPS against 200+
-              wells with known production outcomes, establishing the scientific foundation for
-              national-scale deployment.
+              research problems, and the current implementation is an unvalidated prototype: the
+              existing modules make the experiments runnable, but none of the R1–R3 hypotheses has
+              been confirmed on blind data. Phase I is a test of whether the approach works at all.
             </p>
           </CardContent>
         </Card>
+
       </div>
     </div>
   );
