@@ -93,11 +93,14 @@ const Innovation = () => {
           </Badge>
           <h1 className="text-4xl font-bold mb-3">Innovation and Technical Merit</h1>
           <p className="text-muted-foreground leading-relaxed">
-            AI Smart Well is a 9-stage, 32-module AI platform that transforms raw well data into a
-            scientifically validated restoration decision — integrating geology, geophysics,
-            computer vision, physics simulation, and GPU-accelerated probabilistic economics into a single
-            automated pipeline. Each stage addresses a distinct scientific challenge.
+            AI Smart Well is a research platform organized as a 9-stage analysis pipeline for
+            legacy well data. The engineering scaffolding — ingest, petrophysics, decline, scoring —
+            exists to support experiments; the scientific core is <em>unsolved</em>. Predictive
+            accuracy on degraded pre-1980s logs, cross-region generalization, and calibrated
+            uncertainty remain open research questions with no validated solution today. Each stage
+            below states what it does and where it currently fails.
           </p>
+
         </div>
 
         {/* Core Thesis — what the AI actually does */}
