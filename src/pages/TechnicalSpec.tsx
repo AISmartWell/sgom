@@ -45,7 +45,9 @@ const TechnicalSpec = () => {
         {/* 1. Project Overview */}
         <Section icon={Globe} title="1. Project Overview">
           <p><strong>Name:</strong> AI Smart Well (AI Smart Well Inc. — USA)</p>
-          <p><strong>Purpose:</strong> Multi-tenant SaaS platform for AI-powered oil & gas analytics. 9-stage well analysis pipeline, production optimization, geological modeling, financial planning, and Enhanced Oil Recovery (EOR) using patented SPT (Slot Perforation Technology, US Patent 8,863,823).</p>
+          <p><strong>Purpose:</strong> Multi-tenant research platform for AI-assisted oil &amp; gas analytics. 9-stage well analysis pipeline, production optimization, geological modeling, financial planning, and Enhanced Oil Recovery (EOR) using patented SPT (Slot Perforation Technology, US Patent 8,863,823).</p>
+          <p><strong>Research status:</strong> The pipeline is an experimental harness, not a validated product. Predictive components (formation attribution, missing-curve reconstruction, RPS scoring) have not been confirmed on blind hold-out data; accuracy, coverage and bias targets remain open research questions (see §13).</p>
+
           <p><strong>Target Audience:</strong> Oil & gas field operators, service companies, petroleum engineers, geologists, investors.</p>
           <p><strong>Website:</strong> <a href="https://www.aismartwell.com" className="text-primary hover:underline" target="_blank" rel="noreferrer">www.aismartwell.com</a></p>
           <p><strong>Core Pipeline:</strong> Stage 1 (Field Scanning) → Stage 2 (Data Classification) → Stage 3 (Core Analysis) → Stage 4 (Cumulative Analysis) → Stage 5 (Seismic Interpretation) → Stage 6 (SPT Projection) → Stage 7 (Economic Analysis) → Stage 8 (Geophysical Expertise) → Stage 9 (EOR Optimization)</p>
@@ -495,7 +497,7 @@ const TechnicalSpec = () => {
         {/* 13. Core Thesis & RPS */}
         <Section icon={Brain} title="13. Core Thesis — Restoration Potential Score (RPS)">
           <p><strong>Mission:</strong> The platform's AI determines the <em>restoration potential</em> of a well — whether an idle, low-rate, or abandoned wellbore can be brought back into productive service instead of being plugged (P&A).</p>
-          <p><strong>Restoration Potential Score (RPS):</strong> A calibrated 0–100 score per well, computed as the final aggregation of all 9 pipeline stages. Phase I R&D target: ≥75% predictive accuracy on held-out wells with known production outcomes (200+ well validation set).</p>
+          <p><strong>Restoration Potential Score (RPS):</strong> A 0–100 score per well aggregating the 9 pipeline stages. The score is <em>not yet calibrated</em>: no blind validation has been completed. Phase I R&amp;D target: ≥75% predictive accuracy on held-out wells with known production outcomes (≥200-well validation set), with leave-one-case-out evaluation and bootstrap confidence intervals. Fallback if the target is missed: restrict output to a ranked shortlist with explicit abstention instead of an absolute score.</p>
           <p><strong>Decision Framework:</strong> RPS output maps to a three-way recommendation:</p>
           <ul className="list-disc pl-5 space-y-1">
             <li><strong className="text-success">Restore</strong> — High RPS; SPT or alternative EOR justified.</li>

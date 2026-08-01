@@ -30,7 +30,7 @@ const STAGES = [
     n: 2,
     icon: FolderSearch,
     title: "Data Classification",
-    body: "AI auto-fills missing parameters using a 3-tier transparency strategy — Tier 1: real LAS/CSV data; Tier 2: formation-specific defaults from FORMATION_DB (200+ formations); Tier 3: SGOM Physics Simulator · Powered by NVIDIA NIM Transfer synthetic generation. Log curve completeness improves from 42% to 94%; pay zone identification accuracy from 55% to 87%.",
+    body: "AI attempts to fill missing parameters under a 3-tier transparency strategy — Tier 1: real LAS/CSV data; Tier 2: defaults from a curated geologic reference set; Tier 3: physics-guided synthetic generation (NVIDIA NIM). Open gap: formation attribution and synthetic infill are not yet validated against blind hold-out wells, and Tier 2/3 values carry unquantified bias. Phase I target: ≥75% attribution accuracy on a blind set; fallback — restrict inference to Tier 1 wells and report abstention rate.",
   },
   {
     n: 3,
@@ -93,11 +93,14 @@ const Innovation = () => {
           </Badge>
           <h1 className="text-4xl font-bold mb-3">Innovation and Technical Merit</h1>
           <p className="text-muted-foreground leading-relaxed">
-            AI Smart Well is a 9-stage, 32-module AI platform that transforms raw well data into a
-            scientifically validated restoration decision — integrating geology, geophysics,
-            computer vision, physics simulation, and GPU-accelerated probabilistic economics into a single
-            automated pipeline. Each stage addresses a distinct scientific challenge.
+            AI Smart Well is a research platform organized as a 9-stage analysis pipeline for
+            legacy well data. The engineering scaffolding — ingest, petrophysics, decline, scoring —
+            exists to support experiments; the scientific core is <em>unsolved</em>. Predictive
+            accuracy on degraded pre-1980s logs, cross-region generalization, and calibrated
+            uncertainty remain open research questions with no validated solution today. Each stage
+            below states what it does and where it currently fails.
           </p>
+
         </div>
 
         {/* Core Thesis — what the AI actually does */}
@@ -184,6 +187,47 @@ const Innovation = () => {
           })}
         </div>
 
+        <Card className="glass-card border-primary/30 mb-6">
+          <CardHeader>
+            <CardTitle>Open Research Gaps and Fallback Paths</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4 text-sm text-muted-foreground leading-relaxed">
+            <div>
+              <p className="text-foreground font-semibold">R1 — Physics-informed few-shot generalization</p>
+              <p>
+                Open question: can differentiable physical constraints (Darcy, Archie) substitute
+                for data volume when transferring a geological regressor to an unseen region?
+                Unsolved today. Target: ≥75% blind accuracy, leave-one-case-out with bootstrap CI.
+                Fallback: region-conditional models with explicit abstention below a confidence
+                floor.
+              </p>
+            </div>
+            <div>
+              <p className="text-foreground font-semibold">R2 — Missing-modality inference on degraded logs</p>
+              <p>
+                Open question: can absent curves be reconstructed from pre-1980s partial suites
+                without introducing systematic bias? Target: ≤30% reconstruction error on ≥200
+                masked wells. Fallback: report modality gaps as intervals rather than point
+                estimates and exclude affected wells from scoring.
+              </p>
+            </div>
+            <div>
+              <p className="text-foreground font-semibold">R3 — Calibrated uncertainty for regulatory-grade output</p>
+              <p>
+                Open question: does conformal prediction hold nominal coverage under domain shift
+                and heavy masking? Target: ≥90% empirical coverage across deciles, regions and
+                masking levels; Brier and CRPS scored. Fallback: Mondrian (region-conditional)
+                conformal prediction.
+              </p>
+            </div>
+            <p className="border-t border-border/50 pt-3">
+              Aggregate criterion: R1 is required; at least one of R2/R3 must also meet target on
+              blind sets, reproducible with published code and public/synthetic data. None of these
+              targets has been met — the pipeline provides the experimental harness, not the answer.
+            </p>
+          </CardContent>
+        </Card>
+
         <Card className="glass-card border-primary/30">
           <CardHeader>
             <CardTitle>Core Scientific Challenge</CardTitle>
@@ -193,15 +237,16 @@ const Innovation = () => {
               Abandoned wells have degraded borehole conditions, inconsistent pre-1980s logging
               tools, fragmented records, and missing modalities. Training a self-learning geological
               model on such data requires solving <strong className="text-foreground">domain shift
-              adaptation</strong>, <strong className="text-foreground">missing modality inference
-              via SGOM Transfer</strong>, and <strong className="text-foreground">calibrated
+              adaptation</strong>, <strong className="text-foreground">missing modality
+              inference</strong>, and <strong className="text-foreground">calibrated
               uncertainty quantification</strong> for regulatory-grade output. These are open ML
-              research problems — not engineering tasks. Phase I will validate RPS against 200+
-              wells with known production outcomes, establishing the scientific foundation for
-              national-scale deployment.
+              research problems, and the current implementation is an unvalidated prototype: the
+              existing modules make the experiments runnable, but none of the R1–R3 hypotheses has
+              been confirmed on blind data. Phase I is a test of whether the approach works at all.
             </p>
           </CardContent>
         </Card>
+
       </div>
     </div>
   );
