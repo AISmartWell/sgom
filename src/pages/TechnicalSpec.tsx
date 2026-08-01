@@ -45,7 +45,9 @@ const TechnicalSpec = () => {
         {/* 1. Project Overview */}
         <Section icon={Globe} title="1. Project Overview">
           <p><strong>Name:</strong> AI Smart Well (AI Smart Well Inc. — USA)</p>
-          <p><strong>Purpose:</strong> Multi-tenant SaaS platform for AI-powered oil & gas analytics. 9-stage well analysis pipeline, production optimization, geological modeling, financial planning, and Enhanced Oil Recovery (EOR) using patented SPT (Slot Perforation Technology, US Patent 8,863,823).</p>
+          <p><strong>Purpose:</strong> Multi-tenant research platform for AI-assisted oil &amp; gas analytics. 9-stage well analysis pipeline, production optimization, geological modeling, financial planning, and Enhanced Oil Recovery (EOR) using patented SPT (Slot Perforation Technology, US Patent 8,863,823).</p>
+          <p><strong>Research status:</strong> The pipeline is an experimental harness, not a validated product. Predictive components (formation attribution, missing-curve reconstruction, RPS scoring) have not been confirmed on blind hold-out data; accuracy, coverage and bias targets remain open research questions (see §13).</p>
+
           <p><strong>Target Audience:</strong> Oil & gas field operators, service companies, petroleum engineers, geologists, investors.</p>
           <p><strong>Website:</strong> <a href="https://www.aismartwell.com" className="text-primary hover:underline" target="_blank" rel="noreferrer">www.aismartwell.com</a></p>
           <p><strong>Core Pipeline:</strong> Stage 1 (Field Scanning) → Stage 2 (Data Classification) → Stage 3 (Core Analysis) → Stage 4 (Cumulative Analysis) → Stage 5 (Seismic Interpretation) → Stage 6 (SPT Projection) → Stage 7 (Economic Analysis) → Stage 8 (Geophysical Expertise) → Stage 9 (EOR Optimization)</p>
