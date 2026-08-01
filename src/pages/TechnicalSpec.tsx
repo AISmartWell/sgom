@@ -497,7 +497,7 @@ const TechnicalSpec = () => {
         {/* 13. Core Thesis & RPS */}
         <Section icon={Brain} title="13. Core Thesis — Restoration Potential Score (RPS)">
           <p><strong>Mission:</strong> The platform's AI determines the <em>restoration potential</em> of a well — whether an idle, low-rate, or abandoned wellbore can be brought back into productive service instead of being plugged (P&A).</p>
-          <p><strong>Restoration Potential Score (RPS):</strong> A calibrated 0–100 score per well, computed as the final aggregation of all 9 pipeline stages. Phase I R&D target: ≥75% predictive accuracy on held-out wells with known production outcomes (200+ well validation set).</p>
+          <p><strong>Restoration Potential Score (RPS):</strong> A 0–100 score per well aggregating the 9 pipeline stages. The score is <em>not yet calibrated</em>: no blind validation has been completed. Phase I R&amp;D target: ≥75% predictive accuracy on held-out wells with known production outcomes (≥200-well validation set), with leave-one-case-out evaluation and bootstrap confidence intervals. Fallback if the target is missed: restrict output to a ranked shortlist with explicit abstention instead of an absolute score.</p>
           <p><strong>Decision Framework:</strong> RPS output maps to a three-way recommendation:</p>
           <ul className="list-disc pl-5 space-y-1">
             <li><strong className="text-success">Restore</strong> — High RPS; SPT or alternative EOR justified.</li>
