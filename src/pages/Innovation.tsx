@@ -192,12 +192,29 @@ const Innovation = () => {
             <CardTitle>Open Research Gaps and Fallback Paths</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 text-sm text-muted-foreground leading-relaxed">
+            <p className="text-xs text-muted-foreground/80 border border-border/50 rounded-md p-2">
+              Two levels of targets are reported below. <strong className="text-foreground">Subcomponent
+              target</strong> = accuracy of a single module (e.g. formation attribution) measured in
+              isolation. <strong className="text-foreground">Overall target</strong> = end-to-end
+              performance of the research hypothesis on blind data. They are not interchangeable.
+            </p>
             <div>
               <p className="text-foreground font-semibold">R1 — Physics-informed few-shot generalization</p>
               <p>
                 Open question: can differentiable physical constraints (Darcy, Archie) substitute
                 for data volume when transferring a geological regressor to an unseen region?
-                Unsolved today. Target: ≥75% blind accuracy, leave-one-case-out with bootstrap CI.
+                Unsolved today.
+              </p>
+              <p className="mt-1">
+                <Badge variant="outline" className="mr-2">Subcomponent target</Badge>
+                ≥75% formation-attribution accuracy on a blind well set.
+              </p>
+              <p className="mt-1">
+                <Badge variant="outline" className="mr-2">Overall target</Badge>
+                &lt;15% MAPE degradation when transferring to an unseen region, leave-one-case-out
+                with bootstrap CI.
+              </p>
+              <p className="mt-1">
                 Fallback: region-conditional models with explicit abstention below a confidence
                 floor.
               </p>
@@ -206,20 +223,33 @@ const Innovation = () => {
               <p className="text-foreground font-semibold">R2 — Missing-modality inference on degraded logs</p>
               <p>
                 Open question: can absent curves be reconstructed from pre-1980s partial suites
-                without introducing systematic bias? Target: ≤30% reconstruction error on ≥200
-                masked wells. Fallback: report modality gaps as intervals rather than point
-                estimates and exclude affected wells from scoring.
+                without introducing systematic bias?
+              </p>
+              <p className="mt-1">
+                <Badge variant="outline" className="mr-2">Subcomponent target</Badge>
+                ≤30% curve-reconstruction error on ≥200 masked wells.
+              </p>
+              <p className="mt-1">
+                <Badge variant="outline" className="mr-2">Overall target</Badge>
+                ≥20% MAPE reduction against MICE and GAIN baselines on the same masked set.
+              </p>
+              <p className="mt-1">
+                Fallback: report modality gaps as intervals rather than point estimates and exclude
+                affected wells from scoring.
               </p>
             </div>
             <div>
               <p className="text-foreground font-semibold">R3 — Calibrated uncertainty for regulatory-grade output</p>
               <p>
                 Open question: does conformal prediction hold nominal coverage under domain shift
-                and heavy masking? Target: ≥90% empirical coverage across deciles, regions and
-                masking levels; Brier and CRPS scored. Fallback: Mondrian (region-conditional)
-                conformal prediction.
+                and heavy masking? Target: empirical coverage within <strong className="text-foreground">±3
+                percentage points of the nominal 90% level</strong> across deciles, regions and
+                masking levels — over-coverage counts as miscalibration, not as success. Brier and
+                CRPS scored alongside. Fallback: Mondrian (region-conditional) conformal prediction
+                with region-disjoint calibration folds.
               </p>
             </div>
+
             <p className="border-t border-border/50 pt-3">
               Aggregate criterion: R1 is required; at least one of R2/R3 must also meet target on
               blind sets, reproducible with published code and public/synthetic data. None of these
