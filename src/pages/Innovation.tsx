@@ -30,7 +30,7 @@ const STAGES = [
     n: 2,
     icon: FolderSearch,
     title: "Data Classification",
-    body: "AI attempts to fill missing parameters under a 3-tier transparency strategy — Tier 1: real LAS/CSV data; Tier 2: defaults from a curated geologic reference set; Tier 3: physics-guided synthetic generation (NVIDIA NIM). Open gap: formation attribution and synthetic infill are not yet validated against blind hold-out wells, and Tier 2/3 values carry unquantified bias. Phase I target: ≥75% attribution accuracy on a blind set; fallback — restrict inference to Tier 1 wells and report abstention rate.",
+    body: "AI attempts to fill missing parameters under a 3-tier transparency strategy — Tier 1: real LAS/CSV data; Tier 2: defaults from a curated geologic reference set; Tier 3: physics-guided synthetic generation (NVIDIA NIM). Open gap: formation attribution and synthetic infill are not yet validated against blind hold-out wells, and Tier 2/3 values carry unquantified bias. Phase I subcomponent target: ≥75% attribution accuracy on a blind set (the overall R1 target is <15% MAPE degradation on unseen regions); fallback — restrict inference to Tier 1 wells and report abstention rate.",
   },
   {
     n: 3,
