@@ -13,6 +13,44 @@ interface Props {
   wellName: string;
 }
 
+const REFERENCES = [
+  {
+    label: "Archie (water saturation)",
+    formula: "Sw^n = (a·Rw) / (φ^m·Rt)",
+    citation:
+      "Archie, G.E. (1942). The Electrical Resistivity Log as an Aid in Determining Some Reservoir Characteristics. Trans. AIME, 146(1), 54–62.",
+    url: "https://doi.org/10.2118/942054-G",
+  },
+  {
+    label: "Timur (permeability)",
+    formula: "k = 0.136 · φ^4.4 / Swirr²",
+    citation:
+      "Timur, A. (1968). An Investigation of Permeability, Porosity and Residual Water Saturation Relationships. SPWLA 9th Annual Logging Symposium.",
+    url: "https://onepetro.org/SPWLAALS/proceedings-abstract/SPWLA-1968/All-SPWLA-1968/SPWLA-1968-J/20244",
+  },
+  {
+    label: "Larionov (shale volume, non-linear)",
+    formula: "Vsh = 0.083 · (2^(3.7·IGR) − 1)  [Tertiary]",
+    citation:
+      "Larionov, V.V. (1969). Borehole Radiometry. Nedra, Moscow. (Older rocks: Vsh = 0.33·(2^(2·IGR) − 1))",
+    url: "https://wiki.aapg.org/Shale_volume",
+  },
+  {
+    label: "Linear Vshale (IGR method)",
+    formula: "Vsh = (GR − GRclean) / (GRshale − GRclean)",
+    citation:
+      "Asquith, G. & Krygowski, D. (2004). Basic Well Log Analysis, 2nd ed. AAPG Methods in Exploration Series 16.",
+    url: "https://doi.org/10.1306/Mth16823",
+  },
+  {
+    label: "Density porosity",
+    formula: "φD = (ρma − ρb) / (ρma − ρf)",
+    citation:
+      "Schlumberger (1989). Log Interpretation Principles/Applications. Schlumberger Educational Services.",
+    url: "https://www.slb.com/resource-library",
+  },
+] as const;
+
 const WellLogInterpretation = ({ summary, wellName }: Props) => {
   const { intervals, grossPay, netPay, netToGross, avgPorosity, avgSw, dominantFluid } = summary;
 
@@ -76,6 +114,33 @@ const WellLogInterpretation = ({ summary, wellName }: Props) => {
           <li><strong>Fluid</strong>: Water-bearing (Rt 2–8), Oil-bearing (Rt &gt;10), Tight (Rt &gt;30)</li>
           <li><strong>Net Pay Cutoffs</strong>: φ &gt; 8% AND Sw &lt; 60% AND Vsh &lt; 40%</li>
         </ul>
+      </div>
+
+      {/* References */}
+      <div className="p-2.5 bg-muted/20 rounded-lg text-[10px] text-muted-foreground space-y-1">
+        <p className="font-semibold text-foreground/80">📚 References &amp; Source Formulas:</p>
+        <ul className="space-y-1">
+          {REFERENCES.map((r) => (
+            <li key={r.label} className="leading-relaxed">
+              <span className="text-foreground/70 font-semibold">{r.label}</span>{" "}
+              — <span className="font-mono text-[9px]">{r.formula}</span>
+              <br />
+              <span>{r.citation}</span>{" "}
+              <a
+                href={r.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary underline underline-offset-2 hover:opacity-80"
+              >
+                source
+              </a>
+            </li>
+          ))}
+        </ul>
+        <p className="pt-1 border-t border-border/20 text-[9px]">
+          Implemented independently from open industry literature (Schlumberger interpretation
+          methodology); no proprietary software is used.
+        </p>
       </div>
     </div>
   );
