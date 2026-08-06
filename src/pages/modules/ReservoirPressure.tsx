@@ -915,7 +915,7 @@ export default function ReservoirPressure() {
                     </div>
 
                     <p className="text-[10px] text-muted-foreground">
-                      Aggregation is a <b>median</b> — robust to a single bad RFT reading. Individual n is clamped to [0.6, 2.0] when applied. Treat Eaton output as a <b>soft prior</b> for the Digital Twin Kalman/Bayesian layer, never as a hard constraint in ELAN SLSQP inversion.
+                      Aggregation is a <b>median</b> — robust to a single bad RFT reading. Individual n is clamped to [0.6, 2.0] when applied. Treat Eaton output as a <b>soft prior</b> for the Digital Twin Kalman/Bayesian layer, never as a hard constraint in Petrophysical Solver Module SLSQP inversion.
                     </p>
                   </div>
 
