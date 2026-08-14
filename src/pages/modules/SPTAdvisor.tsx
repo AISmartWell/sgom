@@ -157,8 +157,9 @@ export default function SPTAdvisor() {
       </div>
 
       <p className="text-sm text-muted-foreground max-w-3xl">
-        Autonomous agent that ranks wells, forecasts production with SPT uplift, runs an out-of-distribution check,
-        and returns an explained recommendation with alternatives. All calls are real (no mocks).
+        Autonomous agent that diagnoses the restoration potential of any idle, low-rate, or abandoned well,
+        then ranks candidates for SPT treatment. SPT remains the primary recommendation path, but the
+        underlying scoring and forecasting apply to any wellbore with sufficient data.
       </p>
 
       <Dialog open={addOpen} onOpenChange={setAddOpen}>

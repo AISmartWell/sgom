@@ -217,7 +217,7 @@ const OUTCOMES = [
   },
   {
     title: "Decision, not dashboards",
-    body: "Every module feeds one output: Restoration Potential Score with an auditable evidence trail behind Restore / Monitor / P&A. No handoff between vendors, no manual spreadsheet assembly.",
+    body: "Every module feeds one output: Restoration Potential Score with an auditable evidence trail behind Restore / Monitor / P&A. The scoring engine can diagnose any well; SPT is the preferred execution path when the candidate fits.",
   },
   {
     title: "SPT-specific physics",
@@ -261,7 +261,9 @@ const WhyAISmartWell = () => {
             AI Smart Well is built around one closed workflow: <strong className="text-foreground">OCR →
             petrophysics → forecast → SPT Advisor → economics</strong>. Each step feeds the next inside
             a single dataset, so an idle or low-rate well moves from raw paper/scanned inputs to a
-            Restore / Monitor / P&A decision with an auditable evidence trail.
+            Restore / Monitor / P&A decision with an auditable evidence trail. While SPT is the primary
+            treatment path, the diagnostic engine works for any well with sufficient log, production, and
+            completion data.
           </p>
         </header>
 
