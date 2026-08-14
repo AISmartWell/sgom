@@ -358,6 +358,12 @@ const menuItems = [
     badge: "🤖",
   },
   {
+    title: "SPT End-to-End Demo",
+    icon: Zap,
+    href: "/dashboard/spt-demo",
+    badge: "▶️",
+  },
+  {
     title: "Autonomous Registry Scan",
     icon: Radar,
     href: "/dashboard/autonomous-scan",
