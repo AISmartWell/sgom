@@ -180,8 +180,7 @@ async function callGateway(apiKey: string, model: string, dataUrl: string, mode:
       body: JSON.stringify({
         model,
         temperature: 0,
-        response_format: { type: "json_object" },
-        max_tokens: 8192,
+        max_tokens: 4096,
         messages: [
           { role: "system", content: `${SYSTEM}\n\nSchema:\n${SCHEMA_HINT}` },
           {
