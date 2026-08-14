@@ -208,20 +208,20 @@ const LevelCell = ({ level }: { level: Level }) => {
 
 const OUTCOMES = [
   {
-    title: "One closed SPT cycle",
-    body: "Discovery, digitization, petrophysics, decline, simulation, scoring and economics run inside a single dataset — no export/import handoff between vendors.",
+    title: "OCR → petrophysics → forecast → SPT Advisor → economics",
+    body: "Five connected phases in one dataset. Paper logs become curves, curves become Vsh/φe/Sw, decline and twin become a production forecast, SPT Advisor ranks candidates, and economics closes the decision with NPV/IRR/P10/P90.",
   },
   {
     title: "Legacy-data first",
-    body: "Built for degraded pre-1980s paper logs and fragmented histories, not for fully instrumented modern assets.",
+    body: "Built for degraded pre-1980s paper logs and fragmented histories. NVIDIA Vision OCR, open-formula petrophysics, and few-shot analogs are tuned for data that other platforms discard.",
   },
   {
     title: "Decision, not dashboards",
-    body: "Every module feeds one output: Restoration Potential Score with an auditable evidence trail behind Restore / Monitor / P&A.",
+    body: "Every module feeds one output: Restoration Potential Score with an auditable evidence trail behind Restore / Monitor / P&A. No handoff between vendors, no manual spreadsheet assembly.",
   },
   {
     title: "SPT-specific physics",
-    body: "Slot Perforation Technology (US 8,863,823) parameters are first-class inputs, benchmarked against real field cases.",
+    body: "Slot Perforation Technology (US 8,863,823) parameters are first-class inputs, benchmarked against real field cases such as JTM 1093W. Competing platforms treat refract/restoration as a generic add-on.",
   },
 ];
 
