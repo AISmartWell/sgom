@@ -205,6 +205,16 @@ const OCRWellLog = () => {
         </div>
       </div>
 
+      <div className="mb-6">
+        <OCRBatchQueue
+          quality="auto"
+          onMerged={(merged, pages) => {
+            setResult(merged as OcrResult);
+            setFileName(`${pages} page(s) — batch OCR`);
+          }}
+        />
+      </div>
+
       <div className="grid lg:grid-cols-2 gap-6">
         <Card className="p-6 space-y-4">
           <h2 className="font-semibold text-lg flex items-center gap-2">
