@@ -79,6 +79,7 @@ import OCRWellLog from "./pages/OCRWellLog";
 import OCRFormationDemo from "./pages/modules/OCRFormationDemo";
 import IngestRestorationDiagnostics from "./pages/modules/IngestRestorationDiagnostics";
 import SPTAdvisor from "./pages/modules/SPTAdvisor";
+import SPTDemo from "./pages/modules/SPTDemo";
 import SPTBenchmarkPool from "./pages/modules/SPTBenchmarkPool";
 import AutonomousScan from "./pages/modules/AutonomousScan";
 import AIGuide from "./pages/modules/AIGuide";
