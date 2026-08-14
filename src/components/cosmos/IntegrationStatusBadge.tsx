@@ -21,7 +21,7 @@ const CONFIG: Record<IntegrationMode, {
     className: "bg-[#76b900]/15 text-[#9bd400] border-[#76b900]/40",
     icon: Cpu,
     defaultTooltip:
-      "Real inference via NVIDIA NIM (nvidia/nemotron-nano-12b-v2-vl) on NVIDIA API Catalog. Production-grade GPU endpoint.",
+      "Real inference via NVIDIA API Catalog (meta/llama-3.3-70b-instruct or configured COSMOS_MODEL) on cosmos-inference edge function. Production-grade GPU endpoint.",
   },
   "live-ai-hybrid": {
     label: "Hybrid · Live AI + Physics",
