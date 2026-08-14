@@ -38,6 +38,29 @@ const readAsDataUrl = (f: File) =>
 
 const uniq = (arr: any[]) => Array.from(new Set(arr.filter((v) => v != null && v !== "")));
 
+/** Longest edge sent to the model — keeps huge scans under the edge-function runtime limit */
+const MAX_EDGE_PX = 2200;
+
+/** Downscale a data URL client-side (no quality loss for text at 2200 px long edge) */
+const downscaleDataUrl = (dataUrl: string, maxEdge: number) =>
+  new Promise<string>((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, maxEdge / Math.max(img.width, img.height));
+      if (scale >= 1) return resolve(dataUrl);
+      const c = document.createElement("canvas");
+      c.width = Math.round(img.width * scale);
+      c.height = Math.round(img.height * scale);
+      const ctx = c.getContext("2d");
+      if (!ctx) return resolve(dataUrl);
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(img, 0, 0, c.width, c.height);
+      resolve(c.toDataURL("image/jpeg", 0.92));
+    };
+    img.onerror = () => resolve(dataUrl);
+    img.src = dataUrl;
+  });
+
 /** Merge per-page OCR payloads into a single document-level result */
 export function mergeOcrPages(results: any[]): any {
   const ok = results.filter(Boolean);
@@ -96,14 +119,19 @@ export function mergeOcrPages(results: any[]): any {
 
 export default function OCRBatchQueue({ quality = "auto", onMerged }: Props) {
   const [jobs, setJobs] = useState<PageJob[]>([]);
-  const [concurrency, setConcurrency] = useState(3);
+  const [concurrency, setConcurrency] = useState(1);
   const [running, setRunning] = useState(false);
+  const [currentPage, setCurrentPage] = useState<string | null>(null);
   const cancelRef = useRef(false);
 
   const done = jobs.filter((j) => j.status === "done").length;
   const failed = jobs.filter((j) => j.status === "error").length;
   const pct = jobs.length ? Math.round(((done + failed) / jobs.length) * 100) : 0;
   const totalMs = useMemo(() => jobs.reduce((s, j) => s + (j.ms ?? 0), 0), [jobs]);
+  const avgMs = done ? totalMs / done : 0;
+  const etaS = avgMs
+    ? Math.round(((jobs.length - done - failed) * avgMs) / Math.max(1, concurrency) / 1000)
+    : null;
 
   const addFiles = useCallback(async (files: FileList | null) => {
     if (!files?.length) return;
@@ -114,14 +142,16 @@ export default function OCRBatchQueue({ quality = "auto", onMerged }: Props) {
     }
     const next: PageJob[] = [];
     for (const f of imgs.slice(0, MAX_FILES)) {
-      if (f.size > 12 * 1024 * 1024) {
-        toast.error(`${f.name}: >12 MB, downscale first`);
+      if (f.size > 30 * 1024 * 1024) {
+        toast.error(`${f.name}: >30 MB, downscale first`);
         continue;
       }
+      const raw = await readAsDataUrl(f);
+      const dataUrl = await downscaleDataUrl(raw, MAX_EDGE_PX);
       next.push({
         id: `${f.name}-${f.size}-${Math.random().toString(36).slice(2, 8)}`,
         name: f.name,
-        dataUrl: await readAsDataUrl(f),
+        dataUrl,
         status: "queued",
       });
     }
@@ -132,20 +162,23 @@ export default function OCRBatchQueue({ quality = "auto", onMerged }: Props) {
     setJobs((p) => p.map((j) => (j.id === id ? { ...j, ...upd } : j)));
 
   const runQueue = useCallback(async () => {
-    const pending = jobs.filter((j) => j.status === "queued" || j.status === "error");
+    const all = jobs;
+    const pending = all.filter((j) => j.status === "queued" || j.status === "error");
     if (!pending.length) return;
     cancelRef.current = false;
     setRunning(true);
     const started = performance.now();
 
     let cursor = 0;
-    const results: any[] = [];
+    // keep already-recognised pages so partial merges stay complete
+    const results: any[] = all.filter((j) => j.status === "done" && j.result).map((j) => j.result);
 
     const worker = async () => {
       while (!cancelRef.current) {
         const job = pending[cursor++];
         if (!job) return;
         patch(job.id, { status: "running", error: undefined });
+        setCurrentPage(job.name);
         const t0 = performance.now();
         try {
           const { data, error } = await supabase.functions.invoke("ocr-well-log", {
@@ -155,6 +188,8 @@ export default function OCRBatchQueue({ quality = "auto", onMerged }: Props) {
           if (!data?.ok) throw new Error(data?.error || "Recognition failed");
           patch(job.id, { status: "done", ms: performance.now() - t0, result: data.result });
           results.push(data.result);
+          // incremental merge — results appear after every finished page
+          onMerged?.(mergeOcrPages(results), results.length);
         } catch (e: any) {
           patch(job.id, { status: "error", ms: performance.now() - t0, error: e?.message || "OCR failed" });
         }
@@ -163,12 +198,13 @@ export default function OCRBatchQueue({ quality = "auto", onMerged }: Props) {
 
     await Promise.all(Array.from({ length: Math.min(concurrency, pending.length) }, worker));
     setRunning(false);
+    setCurrentPage(null);
 
     const wall = Math.round((performance.now() - started) / 1000);
     if (results.length) {
-      const merged = mergeOcrPages(results);
-      onMerged?.(merged, results.length);
-      toast.success(`${results.length} page(s) recognised in ${wall}s (×${concurrency} parallel)`);
+      toast.success(
+        `${results.length} page(s) merged in ${wall}s (${concurrency === 1 ? "sequential" : `×${concurrency} parallel`})`,
+      );
     } else {
       toast.error("No pages recognised");
     }
@@ -179,12 +215,13 @@ export default function OCRBatchQueue({ quality = "auto", onMerged }: Props) {
       <div className="flex items-start justify-between gap-3">
         <div>
           <h2 className="font-semibold text-lg flex items-center gap-2">
-            <Layers className="h-4 w-4 text-primary" /> Batch queue — page-by-page parallel OCR
+            <Layers className="h-4 w-4 text-primary" /> Page queue — strictly one page per request
           </h2>
           <p className="text-xs text-muted-foreground mt-1 max-w-xl">
-            Split a heavy scan into single pages and upload them together. Pages run as independent
-            edge-function calls with a configurable parallelism, then merge into one document result —
-            total time drops roughly by the concurrency factor and each call stays under the runtime limit.
+            Upload a heavy scan as separate pages. Each page is one independent OCR request (default:
+            strictly sequential, ×1), oversized images are auto-downscaled to {MAX_EDGE_PX} px long edge,
+            and the document result is re-merged after every finished page — so partial results are
+            usable immediately and no single call hits the runtime limit.
           </p>
         </div>
         <Badge variant="outline" className="shrink-0">{jobs.length} / {MAX_FILES} pages</Badge>
@@ -205,7 +242,7 @@ export default function OCRBatchQueue({ quality = "auto", onMerged }: Props) {
         </label>
 
         <div className="flex items-center gap-1 text-xs text-muted-foreground">
-          Parallel:
+          Mode:
           {CONCURRENCY_OPTIONS.map((c) => (
             <Button
               key={c}
@@ -214,8 +251,9 @@ export default function OCRBatchQueue({ quality = "auto", onMerged }: Props) {
               className="h-7 px-2"
               disabled={running}
               onClick={() => setConcurrency(c)}
+              title={c === 1 ? "One page at a time (safest for heavy scans)" : `${c} pages in flight`}
             >
-              ×{c}
+              {c === 1 ? "×1 one-by-one" : `×${c}`}
             </Button>
           ))}
         </div>
@@ -226,6 +264,11 @@ export default function OCRBatchQueue({ quality = "auto", onMerged }: Props) {
         </Button>
         {running && (
           <Button variant="outline" onClick={() => { cancelRef.current = true; }}>Stop</Button>
+        )}
+        {!running && failed > 0 && (
+          <Button variant="outline" size="sm" onClick={runQueue}>
+            Retry {failed} failed
+          </Button>
         )}
         <Button
           variant="ghost"
@@ -240,10 +283,12 @@ export default function OCRBatchQueue({ quality = "auto", onMerged }: Props) {
       {jobs.length > 0 && (
         <>
           <Progress value={pct} className="h-2" />
-          <div className="text-xs text-muted-foreground flex gap-4">
-            <span>{done} done</span>
+          <div className="text-xs text-muted-foreground flex flex-wrap gap-4">
+            <span>{done} / {jobs.length} done</span>
             <span>{failed} failed</span>
-            <span>CPU-time sum {(totalMs / 1000).toFixed(1)}s</span>
+            <span>avg {(avgMs / 1000).toFixed(1)}s / page</span>
+            {etaS != null && running && <span>ETA ≈ {etaS}s</span>}
+            {currentPage && <span className="text-primary truncate max-w-[240px]">now: {currentPage}</span>}
           </div>
 
           <div className="space-y-1 max-h-64 overflow-auto">
