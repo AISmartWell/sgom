@@ -1,4 +1,4 @@
-// OCR for paper / scanned well logs via Lovable AI Gateway (Gemini vision).
+// OCR for paper / scanned well logs via NVIDIA NIM Vision (VLM).
 // Accepts a base64 image (data URL or raw base64) and returns structured fields.
 
 const corsHeaders = {
@@ -7,8 +7,11 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-const FAST_MODEL = "google/gemini-3-flash-preview";
-const DEEP_MODEL = "google/gemini-2.5-pro";
+const NVIDIA_URL = Deno.env.get("NVIDIA_BASE_URL")
+  ?? "https://integrate.api.nvidia.com/v1/chat/completions";
+const FAST_MODEL = Deno.env.get("NVIDIA_VISION_MODEL") ?? "nvidia/nemotron-nano-12b-v2-vl";
+const DEEP_MODEL = Deno.env.get("NVIDIA_VISION_DEEP_MODEL") ?? FAST_MODEL;
+
 
 const SYSTEM = `You are an expert petroleum well-log OCR engine and petrophysicist.
 The user uploads a scanned or photographed paper WELL LOG (GR, SP, resistivity,
@@ -167,16 +170,17 @@ async function callGateway(apiKey: string, model: string, dataUrl: string, mode:
   let lastStatus = 502;
 
   for (let attempt = 1; attempt <= 3; attempt++) {
-    const gwRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const gwRes = await fetch(NVIDIA_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Lovable-API-Key": apiKey,
+        "Authorization": `Bearer ${apiKey}`,
       },
+
       body: JSON.stringify({
         model,
         temperature: 0,
-        response_format: { type: "json_object" },
+        max_tokens: 2048,
         messages: [
           { role: "system", content: `${SYSTEM}\n\nSchema:\n${SCHEMA_HINT}` },
           {
@@ -202,7 +206,7 @@ async function callGateway(apiKey: string, model: string, dataUrl: string, mode:
     if (attempt < 3) await wait(500 * attempt * attempt);
   }
 
-  throw new Response(JSON.stringify({ error: "AI gateway error", status: lastStatus, body: lastBody }), {
+  throw new Response(JSON.stringify({ error: "NVIDIA Vision error", status: lastStatus, body: lastBody }), {
     status: lastStatus === 429 || lastStatus === 402 ? lastStatus : 502,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
@@ -218,9 +222,9 @@ Deno.serve(async (req) => {
     }
     const dataUrl = image.startsWith("data:") ? image : `data:${mime};base64,${image}`;
 
-    const apiKey = Deno.env.get("LOVABLE_API_KEY");
+    const apiKey = Deno.env.get("NVIDIA_API_KEY");
     if (!apiKey) {
-      return jsonResponse({ error: "LOVABLE_API_KEY missing" }, 500);
+      return jsonResponse({ error: "NVIDIA_API_KEY missing" }, 500);
     }
 
     if (quality === "digitize") {

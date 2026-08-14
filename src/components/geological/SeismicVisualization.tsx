@@ -273,7 +273,7 @@ const SeismicVisualization = () => {
           {isAnalyzing ? (
             <div className="flex items-center gap-3 text-muted-foreground py-8 justify-center">
               <Loader2 className="h-5 w-5 animate-spin" />
-              <span>Gemini is analyzing seismic data with few-shot reasoning...</span>
+              <span>NVIDIA Vision is analyzing seismic data with few-shot reasoning...</span>
             </div>
           ) : (
             <div className="prose prose-sm dark:prose-invert max-w-none text-sm">

@@ -88,7 +88,7 @@ const layers: { label: string; color: string; nodes: ArchNode[] }[] = [
         techs: ["Deno", "TypeScript"],
         description: "Server-side logic: external API integrations and AI processing.",
         details: [
-          "analyze-core — CV analysis of core samples via Gemini AI",
+          "analyze-core — CV analysis of core samples via NVIDIA Vision (NIM VLM)",
           "rank-wells — ML-based well ranking by potential",
           "fetch-wells — data retrieval from OCC ArcGIS API",
           "get-oil-price — current oil price fetching",

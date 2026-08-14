@@ -307,7 +307,7 @@ export const EvidenceConfidenceSection = ({ well, stages, completedStages }: Pro
         <p>• Confidence scores reflect data availability, calibration quality, and model maturity. Scores above 80% indicate strong field-data backing.</p>
         <p>• All decline curve projections use Arps hyperbolic model (Dᵢ=0.025, b=0.5) calibrated against actual production when available.</p>
         <p>• Economic calculations use centralized pricing ($72/bbl, $18/bbl OPEX) and can be adjusted in platform settings.</p>
-        <p>• AI interpretations (Gemini / NVIDIA NIM) are advisory and should be validated by qualified petroleum engineers.</p>
+        <p>• AI interpretations (NVIDIA Vision / NVIDIA NIM) are advisory and should be validated by qualified petroleum engineers.</p>
       </div>
     </div>
   );
