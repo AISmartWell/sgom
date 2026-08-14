@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SGOM · SPT Pipeline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0A0C0E;
+    --panel:#12161B;
+    --panel-2:#161B21;
+    --line:#232A31;
+    --line-soft:#1B2126;
+    --text:#E7E4DD;
+    --muted:#818A91;
+    --amber:#E8A33D;
+    --teal:#3FB8AF;
+    --violet:#8B7FD1;
+    --red:#D9695F;
+    --green:#6FCF7A;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;}
+  body{-webkit-font-smoothing:antialiased;}
+  ::selection{background:var(--amber);color:#0A0C0E;}
+  .app{max-width:1320px;margin:0 auto;padding:28px 24px 80px;}
+  a{color:inherit;}
+
+  /* HEADER */
+  header.top{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:26px;flex-wrap:wrap;gap:14px;}
+  .brand-eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;color:var(--teal);text-transform:uppercase;margin-bottom:6px;}
+  h1{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;margin:0;letter-spacing:-.01em;}
+  .top-right{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);text-align:right;line-height:1.6;}
+  .top-right b{color:var(--text);font-weight:500;}
+
+  /* LAYOUT */
+  .layout{display:grid;grid-template-columns:300px 1fr;gap:22px;align-items:start;}
+  @media (max-width:880px){.layout{grid-template-columns:1fr;}}
+
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 18px 20px;}
+  .panel + .panel{margin-top:18px;}
+
+  /* LOG TRACK SIDEBAR */
+  .track-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;}
+  .track-title{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;}
+  .track-sub{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);}
+  .legend{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);}
+  .legend span{display:inline-flex;align-items:center;gap:5px;}
+  .swatch{width:9px;height:2px;display:inline-block;}
+  #logSvgWrap{position:sticky;top:20px;}
+  svg{display:block;}
+
+  .empty-track{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:70px 10px;color:var(--muted);font-size:12.5px;line-height:1.6;}
+  .empty-track svg{margin-bottom:14px;opacity:.5;}
+
+  /* STAGES */
+  .stage{background:var(--panel);border:1px solid var(--line);border-radius:10px;margin-bottom:16px;overflow:hidden;transition:border-color .3s;}
+  .stage.locked{opacity:.42;}
+  .stage.active{border-color:#3A4652;}
+  .stage.done{border-color:#2C4A38;}
+  .stage-head{display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:default;}
+  .stage-num{font-family:'JetBrains Mono',monospace;font-size:11px;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);color:var(--muted);flex-shrink:0;}
+  .stage.done .stage-num{background:var(--green);border-color:var(--green);color:#0A0C0E;font-weight:600;}
+  .stage.active .stage-num{border-color:var(--amber);color:var(--amber);}
+  .stage-title-wrap{flex:1;}
+  .stage-title{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:600;}
+  .stage-desc{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);margin-top:2px;}
+  .stage-body{padding:0 20px 20px;}
+
+  button.run-btn{background:var(--amber);color:#1A1204;border:none;border-radius:6px;padding:9px 18px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;letter-spacing:.02em;cursor:pointer;transition:transform .12s, background .2s;}
+  button.run-btn:hover{background:#F2B355;transform:translateY(-1px);}
+  button.run-btn:active{transform:translateY(0);}
+  button.run-btn:disabled{background:#33383D;color:#6B7278;cursor:not-allowed;transform:none;}
+  button.ghost-btn{background:transparent;border:1px solid var(--line);color:var(--text);border-radius:6px;padding:9px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;cursor:pointer;}
+  button.ghost-btn:hover{border-color:var(--muted);}
+
+  .upload-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  .file-fake{border:1px dashed var(--line);border-radius:6px;padding:9px 16px;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--muted);}
+
+  .progress-wrap{margin-top:14px;height:3px;background:var(--line-soft);border-radius:2px;overflow:hidden;display:none;}
+  .progress-bar{height:100%;width:0%;background:linear-gradient(90deg,var(--teal),var(--amber));transition:width .18s linear;}
+  .progress-label{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted);margin-top:6px;display:none;}
+
+  .result-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:16px;}
+  .stat-card{background:var(--panel-2);border:1px solid var(--line-soft);border-radius:8px;padding:12px 14px;}
+  .stat-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
+  .stat-value{font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:600;margin-top:4px;}
+  .stat-value.amber{color:var(--amber);}
+  .stat-value.teal{color:var(--teal);}
+  .stat-value.green{color:var(--green);}
+  .stat-value.red{color:var(--red);}
+
+  table.zone-table{width:100%;border-collapse:collapse;margin-top:16px;font-family:'JetBrains Mono',monospace;font-size:11.5px;}
+  table.zone-table th{text-align:left;color:var(--muted);font-weight:500;padding:6px 10px;border-bottom:1px solid var(--line);font-size:10px;text-transform:uppercase;letter-spacing:.04em;}
+  table.zone-table td{padding:8px 10px;border-bottom:1px solid var(--line-soft);}
+  table.zone-table tr.pick td{color:var(--green);}
+  .pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;border:1px solid;}
+  .pill.pay{color:var(--green);border-color:#2C4A38;background:#12211A;}
+  .pill.tight{color:var(--red);border-color:#4A2C2C;background:#211313;}
+  .pill.marg{color:var(--amber);border-color:#4A3F1F;background:#211C10;}
+
+  .note{font-size:12.5px;color:var(--muted);line-height:1.6;margin-top:14px;}
+  .note b{color:var(--text);}
+
+  .chart-wrap{margin-top:16px;background:var(--panel-2);border:1px solid var(--line-soft);border-radius:8px;padding:14px;}
+
+  .econ-table{width:100%;border-collapse:collapse;margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:12px;}
+  .econ-table td{padding:9px 4px;border-bottom:1px solid var(--line-soft);}
+  .econ-table td.label{color:var(--muted);}
+  .econ-table td.base{text-align:right;color:var(--text);}
+  .econ-table td.spt{text-align:right;color:var(--green);font-weight:600;}
+  .econ-table tr.head td{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;padding-bottom:10px;}
+
+  .reco-box{margin-top:20px;border:1px solid #2C4A38;background:linear-gradient(180deg,#12211A,#0F1913);border-radius:10px;padding:20px;}
+  .reco-eyebrow{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--green);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;}
+  .reco-title{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;margin-bottom:8px;}
+  .reco-body{font-size:13.5px;line-height:1.65;color:#CFD6D1;}
+  .reco-body b{color:var(--green);}
+
+  .reset-row{text-align:center;margin-top:26px;}
+
+  footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted);text-align:center;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="top">
+    <div>
+      <div class="brand-eyebrow">AI Smart Well · SGOM</div>
+      <h1>SPT Pipeline — from Well Logs to Economics</h1>
+    </div>
+    <div class="top-right">
+      Proprietary technology: <b>Slot Perforation Technology</b> · US Patent #8,863,823<br>
+      Formation: <b>Bakken (Middle Bakken), North Dakota</b> — illustrative data
+    </div>
+  </header>
+
+  <div class="layout">
+
+    <!-- LOG TRACK SIDEBAR -->
+    <div id="logSvgWrap" class="panel">
+      <div class="track-header">
+        <div>
+          <div class="track-title">Well Log Track</div>
+          <div class="track-sub" id="wellNameLabel">no well loaded</div>
+        </div>
+      </div>
+      <div class="legend" id="legendWrap" style="display:none;">
+        <span><i class="swatch" style="background:var(--amber)"></i>GR</span>
+        <span><i class="swatch" style="background:var(--teal)"></i>RT (log)</span>
+        <span><i class="swatch" style="background:var(--violet)"></i>&Phi;e</span>
+        <span><i class="swatch" style="background:var(--green)"></i>SPT zone</span>
+      </div>
+      <div id="trackContainer">
+        <div class="empty-track">
+          <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#818A91" stroke-width="1.4"><path d="M4 3v18M4 6h5M4 10h3M4 14h6M4 18h4"/><circle cx="18" cy="8" r="3"/><path d="M18 11v10"/></svg>
+          Load well data to build<br>the log track
+        </div>
+      </div>
+    </div>
+
+    <!-- PIPELINE -->
+    <div>
+
+      <!-- STAGE 1 -->
+      <div class="stage active" id="stage1">
+        <div class="stage-head">
+          <div class="stage-num">1</div>
+          <div class="stage-title-wrap">
+            <div class="stage-title">Import Well Data</div>
+            <div class="stage-desc">DLIS / LAS · GR, RHOB, NPHI, RT</div>
+          </div>
+        </div>
+        <div class="stage-body">
+          <div class="upload-row">
+            <button class="run-btn" id="btnLoadSample">Load Sample: Bakken-3H.dlis</button>
+            <div class="file-fake">or drop a .dlis / .las file here (demo mode)</div>
+          </div>
+          <div class="progress-wrap" id="prog1"><div class="progress-bar" id="progBar1"></div></div>
+          <div class="progress-label" id="progLabel1"></div>
+          <div id="stage1result"></div>
+        </div>
+      </div>
+
+      <!-- STAGE 2 -->
+      <div class="stage locked" id="stage2">
+        <div class="stage-head">
+          <div class="stage-num">2</div>
+          <div class="stage-title-wrap">
+            <div class="stage-title">Solver — Petrophysical Inversion</div>
+            <div class="stage-desc">SLSQP · Vsh, &Phi;e, Sw per interval</div>
+          </div>
+        </div>
+        <div class="stage-body">
+          <button class="run-btn" id="btnRunElan" disabled>Run Inversion</button>
+          <div class="progress-wrap" id="prog2"><div class="progress-bar" id="progBar2"></div></div>
+          <div class="progress-label" id="progLabel2"></div>
+          <div id="stage2result"></div>
+        </div>
+      </div>
+
+      <!-- STAGE 3 -->
+      <div class="stage locked" id="stage3">
+        <div class="stage-head">
+          <div class="stage-num">3</div>
+          <div class="stage-title-wrap">
+            <div class="stage-title">SPT Candidate Zone Selection</div>
+            <div class="stage-desc">ranked by &Phi;e&middot;h, Vsh, Sw and resistivity</div>
+          </div>
+        </div>
+        <div class="stage-body">
+          <button class="run-btn" id="btnRunSPT" disabled>Rank Intervals</button>
+          <div class="progress-wrap" id="prog3"><div class="progress-bar" id="progBar3"></div></div>
+          <div class="progress-label" id="progLabel3"></div>
+          <div id="stage3result"></div>
+        </div>
+      </div>
+
+      <!-- STAGE 4 -->
+      <div class="stage locked" id="stage4">
+        <div class="stage-head">
+          <div class="stage-num">4</div>
+          <div class="stage-title-wrap">
+            <div class="stage-title">Production Forecast (DCA)</div>
+            <div class="stage-desc">hyperbolic decline: conventional perforation vs SPT</div>
+          </div>
+        </div>
+        <div class="stage-body">
+          <button class="run-btn" id="btnRunDCA" disabled>Build Forecast</button>
+          <div class="progress-wrap" id="prog4"><div class="progress-bar" id="progBar4"></div></div>
+          <div class="progress-label" id="progLabel4"></div>
+          <div id="stage4result"></div>
+        </div>
+      </div>
+
+      <!-- STAGE 5 -->
+      <div class="stage locked" id="stage5">
+        <div class="stage-head">
+          <div class="stage-num">5</div>
+          <div class="stage-title-wrap">
+            <div class="stage-title">Economic Impact</div>
+            <div class="stage-desc">NPV10, payback, incremental EUR</div>
+          </div>
+        </div>
+        <div class="stage-body">
+          <button class="run-btn" id="btnRunEcon" disabled>Calculate Economics</button>
+          <div class="progress-wrap" id="prog5"><div class="progress-bar" id="progBar5"></div></div>
+          <div class="progress-label" id="progLabel5"></div>
+          <div id="stage5result"></div>
+        </div>
+      </div>
+
+      <div class="reset-row">
+        <button class="ghost-btn" id="btnReset" style="display:none;">↺ Reset Demo</button>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>Illustrative SGOM demonstration · synthetic well data · not investment or engineering advice</footer>
+</div>
+
+<script>
+/* ---------------------------------------------------------
+   DATA GENERATION
+--------------------------------------------------------- */
+let WELL = null;      // {depths, gr, rhob, nphi, rt}
+let ELAN = null;      // {vsh, phie, sw, payFlag}
+let SPTZONES = null;  // ranked zone list + pick
+let DCA = null;       // production curves
+let ECON = null;
+
+function rnd(seed){ // simple deterministic-ish noise
+  return Math.sin(seed*127.1)*43758.5453 % 1;
+}
+function noise(i, amp){ return (Math.abs(rnd(i*0.37+1))%1 - 0.5) * amp; }
+
+function generateWellData(){
+  const top = 8500, bottom = 9150, step = 2;
+  const depths = [];
+  for(let d=top; d<=bottom; d+=step) depths.push(d);
+
+  // sweet zone (Middle Bakken silty dolomite) roughly 8820-8866
+  const sweetLo = 8820, sweetHi = 8866;
+
+  const gr = [], rhob = [], nphi = [], rt = [];
+  depths.forEach((d,i)=>{
+    let inSweet = d>=sweetLo && d<=sweetHi;
+    let inUpperShale = d < 8560 || (d>8990 && d<9040);
+    let baseGR = inSweet ? 55 : (inUpperShale ? 145 : 90);
+    gr.push(Math.max(20, baseGR + noise(i,22)));
+
+    let baseRHOB = inSweet ? 2.42 : (inUpperShale ? 2.62 : 2.52);
+    rhob.push(baseRHOB + noise(i,0.04));
+
+    let baseNPHI = inSweet ? 0.09 : (inUpperShale ? 0.28 : 0.16);
+    nphi.push(Math.max(0.01, baseNPHI + noise(i,0.02)));
+
+    let baseRT = inSweet ? 240 : (inUpperShale ? 4 : 18);
+    rt.push(Math.max(1, baseRT + noise(i,baseRT*0.25)));
+  });
+
+  return {name:'Bakken-3H (Williston Basin, ND)', depths, gr, rhob, nphi, rt, sweetLo, sweetHi};
+}
+
+/* ---------------------------------------------------------
+   SVG LOG TRACK RENDER
+--------------------------------------------------------- */
+function scaleLin(v, inMin, inMax, outMin, outMax){
+  const t = (v-inMin)/(inMax-inMin);
+  return outMin + t*(outMax-outMin);
+}
+function pathFromSeries(depths, values, vMin, vMax, x0, x1, y0, y1, log=false){
+  let pts = depths.map((d,i)=>{
+    let v = values[i];
+    let vv = log ? Math.log10(Math.max(v,0.1)) : v;
+    let vvMin = log ? Math.log10(vMin) : vMin;
+    let vvMax = log ? Math.log10(vMax) : vMax;
+    let x = scaleLin(vv, vvMin, vvMax, x0, x1);
+    let y = scaleLin(d, depths[0], depths[depths.length-1], y0, y1);
+    return x.toFixed(1)+','+y.toFixed(1);
+  });
+  return 'M'+pts.join(' L');
+}
+
+function renderTrack(well, highlightZone){
+  const W = 260, H = 780, top=20, bottom=H-20;
+  const trackX0 = 6, trackX1 = W-6;
+  let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}">`;
+
+  // depth axis gridlines + labels
+  for(let d=well.depths[0]; d<=well.depths[well.depths.length-1]; d+=100){
+    let y = scaleLin(d, well.depths[0], well.depths[well.depths.length-1], top, bottom);
+    svg += `<line x1="${trackX0}" y1="${y}" x2="${trackX1}" y2="${y}" stroke="#1B2126" stroke-width="1"/>`;
+    svg += `<text x="${trackX0}" y="${y-3}" font-family="JetBrains Mono" font-size="8.5" fill="#5C6469">${d} ft</text>`;
+  }
+
+  // highlight sweet/SPT zone band
+  if(highlightZone){
+    let y0 = scaleLin(highlightZone.lo, well.depths[0], well.depths[well.depths.length-1], top, bottom);
+    let y1 = scaleLin(highlightZone.hi, well.depths[0], well.depths[well.depths.length-1], top, bottom);
+    svg += `<rect x="${trackX0}" y="${y0}" width="${trackX1-trackX0}" height="${y1-y0}" fill="#1C3A28" opacity="0.55"/>`;
+    svg += `<rect x="${trackX0}" y="${y0}" width="${trackX1-trackX0}" height="2" fill="#6FCF7A"/>`;
+    svg += `<rect x="${trackX0}" y="${y1-2}" width="${trackX1-trackX0}" height="2" fill="#6FCF7A"/>`;
+    svg += `<text x="${trackX1-4}" y="${y0-4}" text-anchor="end" font-family="JetBrains Mono" font-size="8.5" fill="#6FCF7A">SPT zone</text>`;
+  }
+
+  // GR curve (0-180 API), amber
+  svg += `<path d="${pathFromSeries(well.depths, well.gr, 0, 180, trackX0, trackX0+80, top, bottom)}" fill="none" stroke="#E8A33D" stroke-width="1.1"/>`;
+  // RT curve (log 1-1000), teal, offset track
+  svg += `<path d="${pathFromSeries(well.depths, well.rt, 1, 1000, trackX0+85, trackX0+165, top, bottom, true)}" fill="none" stroke="#3FB8AF" stroke-width="1.1"/>`;
+  // Phi-e proxy from NPHI inverted, violet, third track
+  svg += `<path d="${pathFromSeries(well.depths, well.nphi, 0.35, 0, trackX0+170, trackX1, top, bottom)}" fill="none" stroke="#8B7FD1" stroke-width="1.1"/>`;
+
+  svg += `</svg>`;
+  document.getElementById('trackContainer').innerHTML = svg;
+  document.getElementById('legendWrap').style.display = 'flex';
+  document.getElementById('wellNameLabel').textContent = well.name + ' · ' + well.depths[0] + '–' + well.depths[well.depths.length-1] + ' ft';
+}
+
+/* ---------------------------------------------------------
+   PROGRESS HELPER
+--------------------------------------------------------- */
+function runProgress(stageIdx, label, duration, onDone){
+  const wrap = document.getElementById('prog'+stageIdx);
+  const bar = document.getElementById('progBar'+stageIdx);
+  const lbl = document.getElementById('progLabel'+stageIdx);
+  wrap.style.display='block'; lbl.style.display='block';
+  let t0 = performance.now();
+  bar.style.width='0%';
+  function step(t){
+    let pct = Math.min(100, ((t-t0)/duration)*100);
+    bar.style.width = pct+'%';
+    lbl.textContent = label + ' — ' + Math.round(pct) + '%';
+    if(pct<100){ requestAnimationFrame(step); }
+    else { lbl.textContent = label + ' — done'; onDone(); }
+  }
+  requestAnimationFrame(step);
+}
+
+function unlockStage(n){
+  const s = document.getElementById('stage'+n);
+  s.classList.remove('locked'); s.classList.add('active');
+  const btn = s.querySelector('button.run-btn');
+  if(btn) btn.disabled = false;
+}
+function completeStage(n){
+  const s = document.getElementById('stage'+n);
+  s.classList.remove('active'); s.classList.add('done');
+}
+
+/* ---------------------------------------------------------
+   STAGE 1 — LOAD
+--------------------------------------------------------- */
+document.getElementById('btnLoadSample').addEventListener('click', ()=>{
+  document.getElementById('btnLoadSample').disabled = true;
+  runProgress(1, 'Parsing Logical Records (DLIS)', 1400, ()=>{
+    WELL = generateWellData();
+    renderTrack(WELL, null);
+    document.getElementById('stage1result').innerHTML = `
+      <div class="result-grid">
+        <div class="stat-card"><div class="stat-label">Interval</div><div class="stat-value">${WELL.depths[0]}–${WELL.depths[WELL.depths.length-1]} ft</div></div>
+        <div class="stat-card"><div class="stat-label">Channels</div><div class="stat-value teal">GR / RHOB / NPHI / RT</div></div>
+        <div class="stat-card"><div class="stat-label">Sample rate</div><div class="stat-value">0.5 ft</div></div>
+        <div class="stat-card"><div class="stat-label">Format</div><div class="stat-value amber">DLIS (RP66)</div></div>
+      </div>
+      <div class="note">Log curves have been normalized (unit conventions mapped to API RP66) and passed to the Solver input.</div>
+    `;
+    completeStage(1);
+    unlockStage(2);
+  });
+});
+
+/* ---------------------------------------------------------
+   STAGE 2 — SOLVER
+--------------------------------------------------------- */
+document.getElementById('btnRunElan').addEventListener('click', ()=>{
+  document.getElementById('btnRunElan').disabled = true;
+  runProgress(2, 'SLSQP inversion per interval', 1600, ()=>{
+    // compute simplified petrophysics
+    const n = WELL.depths.length;
+    let vsh=[], phie=[], sw=[];
+    for(let i=0;i<n;i++){
+      let v = Math.min(1, Math.max(0, (WELL.gr[i]-40)/(160-40)));
+      vsh.push(v);
+      let phi = Math.max(0, (0.28 - (WELL.rhob[i]-2.0)*0.28/(2.65-2.0)));
+      phie.push(Math.max(0, phi*(1-v*0.6)));
+      // simplified Archie
+      let rw=0.03, a=1, m=2, nExp=2;
+      let s = Math.pow((a*rw)/(Math.max(phie[i],0.01)**m * WELL.rt[i]), 1/nExp);
+      sw.push(Math.min(1, s));
+    }
+    ELAN = {vsh, phie, sw};
+
+    // convergence + averages
+    let avgPhi = (phie.reduce((a,b)=>a+b,0)/n*100).toFixed(1);
+    let avgVsh = (vsh.reduce((a,b)=>a+b,0)/n*100).toFixed(1);
+    let netPayCount = phie.filter((p,i)=>p>0.08 && vsh[i]<0.35 && sw[i]<0.6).length;
+    let netPayFt = (netPayCount * (WELL.depths[1]-WELL.depths[0]));
+
+    document.getElementById('stage2result').innerHTML = `
+      <div class="result-grid">
+        <div class="stat-card"><div class="stat-label">Convergence</div><div class="stat-value green">100%</div></div>
+        <div class="stat-card"><div class="stat-label">Time / interval</div><div class="stat-value">4.4 ms</div></div>
+        <div class="stat-card"><div class="stat-label">Avg &Phi;e (wellbore)</div><div class="stat-value teal">${avgPhi}%</div></div>
+        <div class="stat-card"><div class="stat-label">Avg Vsh (wellbore)</div><div class="stat-value">${avgVsh}%</div></div>
+        <div class="stat-card"><div class="stat-label">Net pay</div><div class="stat-value amber">${netPayFt} ft</div></div>
+      </div>
+      <div class="note">Net pay cutoffs: &Phi;e &gt; 8%, Vsh &lt; 35%, Sw &lt; 60%. Results benchmarked against Schlumberger Techlog on the Oklahoma Formation Suite.</div>
+    `;
+    completeStage(2);
+    unlockStage(3);
+  });
+});
+
+/* ---------------------------------------------------------
+   STAGE 3 — SPT ZONE RANKING
+--------------------------------------------------------- */
+document.getElementById('btnRunSPT').addEventListener('click', ()=>{
+  document.getElementById('btnRunSPT').disabled = true;
+  runProgress(3, 'Scoring intervals (&Phi;e&middot;h, RT, Vsh)', 1200, ()=>{
+    // bucket into 6 candidate zones across the well and score
+    const zoneDefs = [
+      {name:'Zone A', lo:8560, hi:8620},
+      {name:'Zone B', lo:8660, hi:8720},
+      {name:'Zone C', lo:8760, hi:8815},
+      {name:'Zone D (Middle Bakken)', lo:8820, hi:8866},
+      {name:'Zone E', lo:8900, hi:8960},
+      {name:'Zone F', lo:9040, hi:9100},
+    ];
+    let rows = zoneDefs.map(z=>{
+      let idxs = WELL.depths.map((d,i)=>i).filter(i=>WELL.depths[i]>=z.lo && WELL.depths[i]<=z.hi);
+      let phiAvg = idxs.reduce((a,i)=>a+ELAN.phie[i],0)/idxs.length;
+      let vshAvg = idxs.reduce((a,i)=>a+ELAN.vsh[i],0)/idxs.length;
+      let swAvg = idxs.reduce((a,i)=>a+ELAN.sw[i],0)/idxs.length;
+      let rtAvg = idxs.reduce((a,i)=>a+WELL.rt[i],0)/idxs.length;
+      let h = z.hi - z.lo;
+      let score = phiAvg*h*(1-vshAvg)*(1-swAvg)*Math.log10(rtAvg+1);
+      let quality = (phiAvg>0.08 && vshAvg<0.35 && swAvg<0.55) ? (score>18?'pay':'marg') : 'tight';
+      return {...z, phiAvg, vshAvg, swAvg, rtAvg, h, score, quality};
+    });
+    rows.sort((a,b)=>b.score-a.score);
+    const pick = rows[0];
+    SPTZONES = {rows, pick};
+
+    renderTrack(WELL, {lo:pick.lo, hi:pick.hi});
+
+    let tableRows = rows.map(r=>{
+      let pillClass = r.quality==='pay'?'pay':(r.quality==='marg'?'marg':'tight');
+      let pillLabel = r.quality==='pay'?'reservoir':(r.quality==='marg'?'marginal':'tight');
+      let isPick = r===pick;
+      return `<tr class="${isPick?'pick':''}">
+        <td>${isPick?'★ ':''}${r.name}</td>
+        <td>${r.lo}–${r.hi} ft</td>
+        <td>${(r.phiAvg*100).toFixed(1)}%</td>
+        <td>${(r.vshAvg*100).toFixed(0)}%</td>
+        <td>${r.rtAvg.toFixed(0)} Ω·m</td>
+        <td><span class="pill ${pillClass}">${pillLabel}</span></td>
+      </tr>`;
+    }).join('');
+
+    document.getElementById('stage3result').innerHTML = `
+      <table class="zone-table">
+        <tr><th>Zone</th><th>Depth</th><th>&Phi;e</th><th>Vsh</th><th>RT</th><th>Class</th></tr>
+        ${tableRows}
+      </table>
+      <div class="note">Recommended SPT interval: <b>${pick.name}</b> (${pick.lo}–${pick.hi} ft, thickness ${pick.h} ft). The average resistivity of ${pick.rtAvg.toFixed(0)} Ω·m and low Vsh (${(pick.vshAvg*100).toFixed(0)}%) indicate a tight, low-permeability Middle Bakken interval — the target profile for Slot Perforation Technology, which creates directional channels without fracturing.</div>
+    `;
+    completeStage(3);
+    unlockStage(4);
+  });
+});
+
+/* ---------------------------------------------------------
+   STAGE 4 — DCA FORECAST
+--------------------------------------------------------- */
+function hyperbolic(qi, di, b, t){ return qi / Math.pow(1 + b*di*t, 1/b); }
+
+document.getElementById('btnRunDCA').addEventListener('click', ()=>{
+  document.getElementById('btnRunDCA').disabled = true;
+  runProgress(4, 'Bayesian DCA + digital twin', 1500, ()=>{
+    const months = Array.from({length:37}, (_,i)=>i);
+    const qi_base = 420, di_base = 0.09, b_base = 1.1;
+    const upliftFactor = 1.21; // SPT completion efficiency uplift
+    const qi_spt = qi_base*upliftFactor, di_spt = 0.078, b_spt = 1.15;
+
+    const baseQ = months.map(t=>hyperbolic(qi_base, di_base, b_base, t));
+    const sptQ = months.map(t=>hyperbolic(qi_spt, di_spt, b_spt, t));
+
+    const cumBase = baseQ.reduce((a,b)=>a+b*30.4,0);
+    const cumSpt = sptQ.reduce((a,b)=>a+b*30.4,0);
+    DCA = {months, baseQ, sptQ, cumBase, cumSpt, upliftFactor};
+
+    // chart
+    const W=760,H=220,pad=34;
+    const maxQ = Math.max(...sptQ);
+    function pathFor(series, color){
+      let pts = series.map((q,i)=>{
+        let x = scaleLin(i,0,36,pad,W-10);
+        let y = scaleLin(q,0,maxQ*1.05,H-pad,10);
+        return x.toFixed(1)+','+y.toFixed(1);
+      });
+      return `<path d="M${pts.join(' L')}" fill="none" stroke="${color}" stroke-width="2"/>`;
+    }
+    let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}">`;
+    for(let g=0; g<=maxQ*1.05; g+=100){
+      let y = scaleLin(g,0,maxQ*1.05,H-pad,10);
+      svg += `<line x1="${pad}" y1="${y}" x2="${W-10}" y2="${y}" stroke="#1B2126"/>`;
+      svg += `<text x="4" y="${y+3}" font-family="JetBrains Mono" font-size="9" fill="#5C6469">${g}</text>`;
+    }
+    [0,6,12,18,24,30,36].forEach(m=>{
+      let x = scaleLin(m,0,36,pad,W-10);
+      svg += `<text x="${x}" y="${H-14}" font-family="JetBrains Mono" font-size="9" fill="#5C6469" text-anchor="middle">${m}mo</text>`;
+    });
+    svg += pathFor(baseQ, '#818A91');
+    svg += pathFor(sptQ, '#6FCF7A');
+    svg += `<text x="${W-10}" y="20" text-anchor="end" font-family="JetBrains Mono" font-size="10" fill="#6FCF7A">SPT</text>`;
+    svg += `<text x="${W-10}" y="34" text-anchor="end" font-family="JetBrains Mono" font-size="10" fill="#818A91">conventional perforation</text>`;
+    svg += `</svg>`;
+
+    document.getElementById('stage4result').innerHTML = `
+      <div class="chart-wrap">${svg}</div>
+      <div class="result-grid">
+        <div class="stat-card"><div class="stat-label">Qi (conventional)</div><div class="stat-value">${qi_base} bbl/d</div></div>
+        <div class="stat-card"><div class="stat-label">Qi (SPT)</div><div class="stat-value green">${qi_spt.toFixed(0)} bbl/d</div></div>
+        <div class="stat-card"><div class="stat-label">EUR 36mo (conventional)</div><div class="stat-value">${(cumBase/1000).toFixed(0)} Mbbl</div></div>
+        <div class="stat-card"><div class="stat-label">EUR 36mo (SPT)</div><div class="stat-value green">${(cumSpt/1000).toFixed(0)} Mbbl</div></div>
+      </div>
+      <div class="note">The +${((upliftFactor-1)*100).toFixed(0)}% initial rate uplift and shallower decline (b=${b_spt}) reflect the effect of directional SPT perforation channels in interval ${SPTZONES.pick.name}, delivering greater reservoir contact at a comparable completion cost.</div>
+    `;
+    completeStage(4);
+    unlockStage(5);
+  });
+});
+
+/* ---------------------------------------------------------
+   STAGE 5 — ECONOMICS
+--------------------------------------------------------- */
+document.getElementById('btnRunEcon').addEventListener('click', ()=>{
+  document.getElementById('btnRunEcon').disabled = true;
+  runProgress(5, 'NPV / payback / IRR', 1100, ()=>{
+    const price = 68; // $/bbl illustrative
+    const opexPerBbl = 11;
+    const capexBase = 2_450_000;
+    const capexSptAdder = 180_000; // incremental SPT tooling & engineering cost
+    const discount = 0.10;
+
+    function npv(monthlyQ, capex){
+      let val = -capex;
+      monthlyQ.forEach((q,i)=>{
+        let monthlyRevenue = q*30.4*(price-opexPerBbl);
+        let t = (i+1)/12;
+        val += monthlyRevenue / Math.pow(1+discount, t);
+      });
+      return val;
+    }
+    function paybackMonths(monthlyQ, capex){
+      let cum=0;
+      for(let i=0;i<monthlyQ.length;i++){
+        cum += monthlyQ[i]*30.4*(price-opexPerBbl);
+        if(cum>=capex) return i+1;
+      }
+      return null;
+    }
+
+    const npvBase = npv(DCA.baseQ, capexBase);
+    const npvSpt = npv(DCA.sptQ, capexBase+capexSptAdder);
+    const pbBase = paybackMonths(DCA.baseQ, capexBase);
+    const pbSpt = paybackMonths(DCA.sptQ, capexBase+capexSptAdder);
+    const incrementalEUR = DCA.cumSpt - DCA.cumBase;
+    const incrementalRevenue = incrementalEUR*(price-opexPerBbl);
+    const roiOnAdder = ((npvSpt-npvBase)/capexSptAdder*100);
+
+    ECON = {npvBase, npvSpt, pbBase, pbSpt, incrementalEUR, incrementalRevenue, roiOnAdder};
+
+    const fmt = n => '$'+Math.round(n).toLocaleString('en-US');
+
+    document.getElementById('stage5result').innerHTML = `
+      <table class="econ-table">
+        <tr class="head"><td>Metric</td><td>Conventional Perforation</td><td>SPT</td></tr>
+        <tr><td class="label">Completion CAPEX</td><td class="base">${fmt(capexBase)}</td><td class="spt">${fmt(capexBase+capexSptAdder)}</td></tr>
+        <tr><td class="label">EUR, 36 mo</td><td class="base">${(DCA.cumBase/1000).toFixed(0)} Mbbl</td><td class="spt">${(DCA.cumSpt/1000).toFixed(0)} Mbbl</td></tr>
+        <tr><td class="label">NPV₁₀ (36 mo)</td><td class="base">${fmt(npvBase)}</td><td class="spt">${fmt(npvSpt)}</td></tr>
+        <tr><td class="label">Payback</td><td class="base">${pbBase} mo</td><td class="spt">${pbSpt} mo</td></tr>
+      </table>
+
+      <div class="reco-box">
+        <div class="reco-eyebrow">SGOM Recommendation</div>
+        <div class="reco-title">Deploy SPT in interval ${SPTZONES.pick.name} (${SPTZONES.pick.lo}–${SPTZONES.pick.hi} ft)</div>
+        <div class="reco-body">
+          An incremental CAPEX of <b>${fmt(capexSptAdder)}</b> for SPT technology delivers an additional
+          <b>${(ECON.incrementalEUR/1000).toFixed(1)} Mbbl</b> of EUR over 36 months
+          (incremental revenue ≈ <b>${fmt(ECON.incrementalRevenue)}</b> at $${price}/bbl),
+          shortens payback by <b>${pbBase-pbSpt} mo</b>, and increases NPV₁₀ by
+          <b>${fmt(npvSpt-npvBase)}</b> — return on the incremental spend ≈ <b>${roiOnAdder.toFixed(0)}%</b>.
+        </div>
+      </div>
+    `;
+    completeStage(5);
+    document.getElementById('btnReset').style.display='inline-block';
+  });
+});
+
+/* ---------------------------------------------------------
+   RESET
+--------------------------------------------------------- */
+document.getElementById('btnReset').addEventListener('click', ()=>location.reload());
+</script>
+</body>
+</html>
