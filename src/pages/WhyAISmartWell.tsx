@@ -25,11 +25,45 @@ type Level = "full" | "partial" | "none";
 interface Row {
   module: string;
   detail: string;
+  cyclePhase?: string;
   aisw: Level;
   cognite: Level;
   petroai: Level;
   novi: Level;
 }
+
+const SPT_CYCLE = [
+  {
+    id: "ocr",
+    label: "OCR & digitization",
+    icon: ScanLine,
+    desc: "Paper logs, core photos, scanned reports → structured LAS/CSV curves.",
+  },
+  {
+    id: "petrophysics",
+    label: "Petrophysics",
+    icon: Microscope,
+    desc: "Archie, Timur, Larionov: Vsh, φe, Sw, net pay, lithology.",
+  },
+  {
+    id: "forecast",
+    label: "Forecast & twin",
+    icon: TrendingDown,
+    desc: "Arps decline, IOIP, Digital Twin, SCADA feedback, GPU physics simulation.",
+  },
+  {
+    id: "advisor",
+    label: "SPT Advisor",
+    icon: Bot,
+    desc: "MCDA ranking, few-shot analogs, Restoration Potential Score.",
+  },
+  {
+    id: "economics",
+    label: "Economics",
+    icon: DollarSign,
+    desc: "NPV, IRR, payback, Monte Carlo P10/P90, Base vs Upside.",
+  },
+];
 
 const VENDORS: { key: keyof Pick<Row, "aisw" | "cognite" | "petroai" | "novi">; label: string; accent?: boolean }[] = [
   { key: "aisw", label: "AI Smart Well", accent: true },
