@@ -258,12 +258,7 @@ const WhyAISmartWell = () => {
           </Badge>
           <h1 className="text-4xl font-bold mb-3">Why AI Smart Well vs. alternatives</h1>
           <p className="text-muted-foreground leading-relaxed max-w-3xl">
-            Industrial data platforms and well-analytics vendors each cover part of the restoration
-            workflow. AI Smart Well is built around one specific goal: deciding whether an idle or
-            low-rate well is a viable Slot Perforation Technology candidate. The table compares
-            module coverage for that cycle.
-          </p>
-        </header>
+            AI Smart Well is built around one closed workflow:{
 
         <Card className="glass-card mb-8">
           <CardHeader className="pb-3">
