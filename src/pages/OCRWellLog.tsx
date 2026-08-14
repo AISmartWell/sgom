@@ -12,6 +12,7 @@ import { OCRQualityCheck } from "@/components/ocr/OCRQualityCheck";
 import { FormationAttribution } from "@/components/ocr/FormationAttribution";
 import { FormationComparison } from "@/components/ocr/FormationComparison";
 import { OCRRecognizedFields } from "@/components/ocr/OCRRecognizedFields";
+import OCRBatchQueue from "@/components/ocr/OCRBatchQueue";
 import { GitCompare, Camera } from "lucide-react";
 
 type OcrResult = {
@@ -202,6 +203,16 @@ const OCRWellLog = () => {
             Open in Geophysical Expertise <ArrowRight className="ml-2 h-3 w-3" />
           </Button>
         </div>
+      </div>
+
+      <div className="mb-6">
+        <OCRBatchQueue
+          quality="auto"
+          onMerged={(merged, pages) => {
+            setResult(merged as OcrResult);
+            setFileName(`${pages} page(s) — batch OCR`);
+          }}
+        />
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">
