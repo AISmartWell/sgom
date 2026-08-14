@@ -127,6 +127,8 @@ const Innovation = () => {
               <strong className="text-foreground">OCR → petrophysics → forecast → SPT Advisor → economics</strong>.
               Each stage feeds the next inside a single dataset, so a paper log or scanned history
               can travel all the way to a Restore / Monitor / P&A decision with a full audit trail.
+              SPT is the primary execution method, but the diagnostic pipeline itself can evaluate
+              any well with adequate data.
             </p>
             <div className="grid md:grid-cols-3 gap-3">
               <div className="p-3 rounded-lg bg-background/60 border border-border/50">
