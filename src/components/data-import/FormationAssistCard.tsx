@@ -35,7 +35,7 @@ export const FormationAssistCard = () => {
       num: 2,
       icon: ScanText,
       title: "OCR a paper well log",
-      desc: "Upload a scanned SP / Res / GR log — Gemini Vision extracts header, formation tops and depth ranges.",
+      desc: "Upload a scanned SP / Res / GR log — NVIDIA Vision extracts header, formation tops and depth ranges.",
       cta: { label: "Open OCR", to: "/dashboard/ocr" },
       badge: "Best for legacy wells",
     },

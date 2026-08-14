@@ -27,7 +27,7 @@ const pipelineStages = [
   { emoji: "🚀", stage: 4, title: "SPT Projection", desc: "AI well ranking & inflow performance projection for SPT treatment candidates", path: "/dashboard/spt-projection" },
   { emoji: "💵", stage: 5, title: "Economic Analysis", desc: "ROI calculation, payback period modeling & profit projection per well candidate", path: "/dashboard/economic-analysis" },
   { emoji: "📊", stage: 6, title: "Geophysical Expertise", desc: "Well log interpretation, formation evaluation & pay zone detection with petrophysics", path: "/dashboard/geophysical" },
-  { emoji: "🔬", stage: 7, title: "Core Analysis", desc: "Computer vision rock analysis powered by Gemini Vision — porosity, permeability, fractures", path: "/dashboard/core-analysis" },
+  { emoji: "🔬", stage: 7, title: "Core Analysis", desc: "Computer vision rock analysis powered by NVIDIA Vision — porosity, permeability, fractures", path: "/dashboard/core-analysis" },
   { emoji: "🧠", stage: 8, title: "EOR Optimization", desc: "Final treatment recommendations combining all stages into actionable field reports", path: "/dashboard/eor-optimization" },
 ];
 
@@ -415,7 +415,7 @@ const Index = () => {
           {/* Competitive Advantages grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             {[
-              { label: "AI-First Architecture", desc: "Every stage is AI-augmented — Gemini Vision for CV, Gemini for reports, Claude for consultation" },
+              { label: "AI-First Architecture", desc: "Every stage is AI-augmented — NVIDIA Vision for CV, Gemini for reports, Claude for consultation" },
               { label: "GPU-Accelerated Risk Engine", desc: "50,000-trial Monte Carlo in multi-threaded workers with importance-sampled P10/P90 tail estimation" },
               { label: "9-Stage Pipeline", desc: "Repeatable, auditable methodology — end-to-end from field scanning to EOR optimization" },
               { label: "Enterprise Security", desc: "RLS on every table. Multi-tenant isolation. RBAC. Invite-only access" },

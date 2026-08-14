@@ -36,7 +36,7 @@ const STAGES = [
     n: 3,
     icon: Microscope,
     title: "Core Analysis",
-    body: "Gemini Vision (via Lovable AI Gateway) analyzes core photographs in 3 modes — Segmentation (grain/matrix boundaries), Fractures (orientation and density mapping), Mineralogy (composition estimation). Replaces costly laboratory petrographic analysis.",
+    body: "NVIDIA Vision (NVIDIA NIM VLM) analyzes core photographs in 3 modes — Segmentation (grain/matrix boundaries), Fractures (orientation and density mapping), Mineralogy (composition estimation). Replaces costly laboratory petrographic analysis.",
   },
   {
     n: 4,

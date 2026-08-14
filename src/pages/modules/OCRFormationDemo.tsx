@@ -219,7 +219,7 @@ export default function OCRFormationDemo() {
             <CardContent>
               {!revealed ? (
                 <div className="py-10 text-center text-sm text-muted-foreground">
-                  Press <span className="text-foreground">Run OCR on demo</span> to see how Gemini Vision parses each region of the scan.
+                  Press <span className="text-foreground">Run OCR on demo</span> to see how NVIDIA Vision parses each region of the scan.
                 </div>
               ) : (
                 <div className="divide-y divide-white/5">
