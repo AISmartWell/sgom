@@ -215,12 +215,13 @@ export default function OCRBatchQueue({ quality = "auto", onMerged }: Props) {
       <div className="flex items-start justify-between gap-3">
         <div>
           <h2 className="font-semibold text-lg flex items-center gap-2">
-            <Layers className="h-4 w-4 text-primary" /> Batch queue — page-by-page parallel OCR
+            <Layers className="h-4 w-4 text-primary" /> Page queue — strictly one page per request
           </h2>
           <p className="text-xs text-muted-foreground mt-1 max-w-xl">
-            Split a heavy scan into single pages and upload them together. Pages run as independent
-            edge-function calls with a configurable parallelism, then merge into one document result —
-            total time drops roughly by the concurrency factor and each call stays under the runtime limit.
+            Upload a heavy scan as separate pages. Each page is one independent OCR request (default:
+            strictly sequential, ×1), oversized images are auto-downscaled to {MAX_EDGE_PX} px long edge,
+            and the document result is re-merged after every finished page — so partial results are
+            usable immediately and no single call hits the runtime limit.
           </p>
         </div>
         <Badge variant="outline" className="shrink-0">{jobs.length} / {MAX_FILES} pages</Badge>
