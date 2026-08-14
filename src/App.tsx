@@ -66,6 +66,7 @@ import CosmosDemo from "./pages/CosmosDemo";
 import CosmosSimulatorPage from "./pages/CosmosSimulator";
 import CosmosSimulatorEmbed from "./pages/CosmosSimulatorEmbed";
 import CosmosRealTest from "./pages/CosmosRealTest";
+import SPTPipelineDemo from "./pages/SPTPipelineDemo";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import FluidPhysicsSimulation from "./pages/FluidPhysicsSimulation";
