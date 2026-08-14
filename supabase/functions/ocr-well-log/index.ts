@@ -181,6 +181,7 @@ async function callGateway(apiKey: string, model: string, dataUrl: string, mode:
         model,
         temperature: 0,
         response_format: { type: "json_object" },
+        max_tokens: 8192,
         messages: [
           { role: "system", content: `${SYSTEM}\n\nSchema:\n${SCHEMA_HINT}` },
           {
@@ -206,7 +207,7 @@ async function callGateway(apiKey: string, model: string, dataUrl: string, mode:
     if (attempt < 3) await wait(500 * attempt * attempt);
   }
 
-  throw new Response(JSON.stringify({ error: "AI gateway error", status: lastStatus, body: lastBody }), {
+  throw new Response(JSON.stringify({ error: "NVIDIA Vision error", status: lastStatus, body: lastBody }), {
     status: lastStatus === 429 || lastStatus === 402 ? lastStatus : 502,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
@@ -222,9 +223,9 @@ Deno.serve(async (req) => {
     }
     const dataUrl = image.startsWith("data:") ? image : `data:${mime};base64,${image}`;
 
-    const apiKey = Deno.env.get("LOVABLE_API_KEY");
+    const apiKey = Deno.env.get("NVIDIA_API_KEY");
     if (!apiKey) {
-      return jsonResponse({ error: "LOVABLE_API_KEY missing" }, 500);
+      return jsonResponse({ error: "NVIDIA_API_KEY missing" }, 500);
     }
 
     if (quality === "digitize") {
