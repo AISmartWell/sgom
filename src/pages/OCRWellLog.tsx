@@ -256,7 +256,7 @@ const OCRWellLog = () => {
               disabled={!preview || loading}
               variant="outline"
               className="w-full"
-              title="Slow (~60-180s) — uses Gemini 2.5 Pro to sample curve values along depth into log_readings"
+              title="Slow (~60-180s) — uses NVIDIA Vision (NIM VLM) to sample curve values along depth into log_readings"
             >
               <ScanText className="mr-2 h-4 w-4" /> Digitize curves (slow · Pro)
             </Button>
