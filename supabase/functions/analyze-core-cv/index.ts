@@ -104,31 +104,25 @@ Return a JSON object with this exact structure:
 }`;
     }
 
-    const imageUrl = imageBase64.startsWith('data:') 
-      ? imageBase64 
+    const imageUrl = imageBase64.startsWith('data:')
+      ? imageBase64
       : `data:image/jpeg;base64,${imageBase64}`;
 
-    const response = await fetch(NVIDIA_NIM_URL, {
+    const response = await fetch(GATEWAY_URL, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${NVIDIA_API_KEY}`,
+        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: VL_MODEL,
+        model: MODEL,
         messages: [
           { role: 'system', content: systemPrompt },
           {
             role: 'user',
             content: [
-              {
-                type: 'text',
-                text: `Analyze this core sample image. Analysis type: ${analysisType || 'full'}. Return ONLY valid JSON.`
-              },
-              {
-                type: 'image_url',
-                image_url: { url: imageUrl }
-              }
+              { type: 'text', text: `Analyze this core sample image. Analysis type: ${analysisType || 'full'}. Return ONLY valid JSON.` },
+              { type: 'image_url', image_url: { url: imageUrl } }
             ]
           }
         ],
@@ -139,29 +133,30 @@ Return a JSON object with this exact structure:
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('NVIDIA NIM error:', response.status, errorText);
-      
+      console.error('Gemini Vision error:', response.status, errorText);
+
       if (response.status === 401 || response.status === 403) {
         return new Response(
-          JSON.stringify({ error: 'NVIDIA API key is invalid or expired. Please update it.' }),
+          JSON.stringify({ error: 'Lovable API key is invalid or expired. Please update it.' }),
           { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
       if (response.status === 429) {
         return new Response(
-          JSON.stringify({ error: 'NVIDIA API rate limit exceeded. Please try again later.' }),
+          JSON.stringify({ error: 'AI gateway rate limit exceeded. Please try again later.' }),
           { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
-      throw new Error(`NVIDIA NIM error: ${response.status} — ${errorText}`);
+      throw new Error(`Gemini Vision error: ${response.status} — ${errorText}`);
     }
 
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content;
 
     if (!content) {
-      throw new Error('No analysis returned from NVIDIA NIM');
+      throw new Error('No analysis returned from Gemini Vision');
     }
+
 
     // Try to parse as JSON, fallback to raw text
     let parsedResult;
