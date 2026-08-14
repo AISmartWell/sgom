@@ -335,10 +335,10 @@ NVIDIA INCEPTION: Official Member`;
                   <h2 className="text-3xl font-bold">AI Smart Well — SGOM Platform</h2>
                   <p className="text-muted-foreground max-w-2xl mx-auto">
                     AI-powered SaaS platform for Enhanced Oil Recovery optimization.
-                    NVIDIA Inception member leveraging GPU-accelerated computer vision and ML.
+                    NVIDIA Inception member leveraging GPU-accelerated physics inference and ML.
                   </p>
                   <div className="flex justify-center gap-3 flex-wrap pt-2">
-                    {["NVIDIA Inception", "Computer Vision", "Machine Learning", "SaaS B2B", "Oil & Gas"].map((tag) => (
+                    {["NVIDIA Inception", "Gemini Vision", "Machine Learning", "SaaS B2B", "Oil & Gas"].map((tag) => (
                       <Badge key={tag} variant="secondary" className="text-sm px-3 py-1">{tag}</Badge>
                     ))}
                   </div>
