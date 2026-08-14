@@ -161,6 +161,7 @@ const App = () => (
               <Route path="aramco-pilot" element={<AramcoPilot />} />
               <Route path="ingest-diagnostics" element={<IngestRestorationDiagnostics />} />
               <Route path="spt-advisor" element={<SPTAdvisor />} />
+              <Route path="spt-demo" element={<SPTDemo />} />
               <Route path="spt-benchmark" element={<SPTBenchmarkPool />} />
               <Route path="autonomous-scan" element={<AutonomousScan />} />
               <Route path="ai-guide" element={<AIGuide />} />
