@@ -3,7 +3,22 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Check, Minus, X, Target, Sparkles, ShieldCheck } from "lucide-react";
+import {
+  ArrowLeft,
+  Check,
+  Minus,
+  X,
+  Target,
+  Sparkles,
+  ShieldCheck,
+  ArrowRight,
+  ScanLine,
+  Microscope,
+  TrendingDown,
+  TrendingUp,
+  DollarSign,
+  Bot,
+} from "lucide-react";
 
 type Level = "full" | "partial" | "none";
 
