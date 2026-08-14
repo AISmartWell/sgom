@@ -229,7 +229,7 @@ const Dashboard = () => {
       status: "ready" as const,
       emoji: "📄",
       stats: [
-        { label: "Engine", value: "Gemini Vision" },
+        { label: "Engine", value: "NVIDIA Vision" },
         { label: "Pipeline", value: "OCR→DB→S8" },
       ],
     },

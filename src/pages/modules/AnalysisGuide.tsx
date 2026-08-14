@@ -88,7 +88,7 @@ const GUIDE_STEPS: GuideStep[] = [
     icon: Microscope,
     color: "text-purple-500",
     description:
-      "Загрузите фотографии керна — ИИ (Gemini Vision) определит тип породы, пористость, проницаемость, трещины, минеральный состав и качество резервуара.",
+      "Загрузите фотографии керна — ИИ (NVIDIA Vision) определит тип породы, пористость, проницаемость, трещины, минеральный состав и качество резервуара.",
     dataRequired: [
       { label: "Фото керна", format: "JPG / PNG, до 10 МБ на файл", required: true, icon: Camera },
       { label: "Метаданные (опционально)", format: "API-номер, глубина отбора, формация", required: false, icon: FileSpreadsheet },

@@ -110,7 +110,7 @@ const NvidiaCapitalConnectLetter = () => {
           </p>
 
           <p>
-            Our platform leverages NVIDIA technologies — including GPU-accelerated inference for physics simulation and plans for DGX Cloud, TensorRT, and RAPIDS integration — while core and seismic computer vision are powered by Gemini Vision via the Lovable AI Gateway.
+            Our platform leverages NVIDIA technologies — including GPU-accelerated inference for physics simulation and plans for DGX Cloud, TensorRT, and RAPIDS integration — including core and seismic computer vision powered by NVIDIA Vision (NIM vision-language models).
 
           </p>
 

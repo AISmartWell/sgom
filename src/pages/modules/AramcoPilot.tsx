@@ -239,7 +239,7 @@ export default function AramcoPilot() {
                   kept: "500 → 312", color: "border-emerald-500/40" },
                 { n: 3, name: "Core Analysis (CV)", icon: "🔬",
                   inp: "Core photos (optional, where Aramco provides) + formation defaults",
-                  proc: "Gemini Vision: lithology, porosity, fractures, mineralogy, reservoir quality; reconciled vs petrophysics",
+                  proc: "NVIDIA Vision: lithology, porosity, fractures, mineralogy, reservoir quality; reconciled vs petrophysics",
                   out: "Per-well core report (6 sections) + Deviation Report vs FORMATION_DB",
                   cut: "Quality flag only — does not drop wells",
                   kept: "312 → 312", color: "border-purple-500/40" },
@@ -1040,7 +1040,7 @@ export default function AramcoPilot() {
                     {[
                       { i: "AWS GPU batch",        d: "H100/A100 on-demand + reserved for ML training & CV inference", c: 180 },
                       { i: "AWS storage & DB",     d: "S3, RDS Postgres, CloudWatch, backups, egress",                  c:  40 },
-                      { i: "AI API gateway",       d: "Gemini Vision + Gemini 2.5 (LLM + Vision tokens) via Lovable AI Gateway",        c:  60 },
+                      { i: "AI API gateway",       d: "NVIDIA Vision (NIM VLM) + Gemini 2.5 (LLM tokens)",        c:  60 },
                       { i: "Data licenses",        d: "IHS / Enverus / Drillinginfo, USGS premium, seismic cubes",      c: 250 },
                       { i: "SOC2 + security tools",d: "Datadog, Sentry, Vanta, pen-tests, audits",                       c:  80 },
                       { i: "Patents & legal",      d: "US 8,863,823 maintenance, NDAs, contracts, IP counsel",          c:  60 },
