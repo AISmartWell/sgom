@@ -331,7 +331,17 @@ const WhyAISmartWell = () => {
                   {ROWS.map((r) => (
                     <tr key={r.module} className="border-b border-border/40 align-top">
                       <th scope="row" className="text-left px-4 py-3 font-medium">
-                        {r.module}
+                        <div className="flex items-start gap-2 flex-wrap">
+                          {r.cyclePhase && (
+                            <Badge
+                              variant="secondary"
+                              className="text-[10px] whitespace-nowrap mt-0.5"
+                            >
+                              {r.cyclePhase}
+                            </Badge>
+                          )}
+                          <span>{r.module}</span>
+                        </div>
                         <span className="block text-xs font-normal text-muted-foreground mt-1">
                           {r.detail}
                         </span>
