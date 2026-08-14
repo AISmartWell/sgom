@@ -256,7 +256,7 @@ const SeismicImageAnalysis = ({ selectedWell }: SeismicImageAnalysisProps) => {
               ) : (
                 <Eye className="mr-2 h-4 w-4" />
               )}
-              {isAnalyzing ? "NVIDIA NIM analyzing..." : "Run CV Analysis"}
+              {isAnalyzing ? "Gemini Vision analyzing..." : "Run CV Analysis"}
             </Button>
           </div>
         )}

@@ -60,11 +60,12 @@ KEY METRICS:
 • 312% projected ROI, 7-8 month payback
 
 NVIDIA TECHNOLOGIES USED:
-• NVIDIA API Catalog — Computer vision for geological core sample analysis (rock classification, porosity estimation, fracture detection)
+• Gemini Vision via Lovable AI Gateway — Computer vision for geological core sample analysis (rock classification, porosity estimation, fracture detection)
 • DGX Cloud (planned) — Custom model training for well log interpretation
 • RAPIDS (planned) — GPU-accelerated processing of seismic datasets
 • NGC Containers (planned) — Pre-trained models for geological image segmentation
 • DLI — Team certification in CUDA, TensorRT, LLM fine-tuning
+
 
 TEAM:
 • Anatoliy Nikouline — CEO & SPT Engineer, Maxxwell Production (10+ years field experience, patent inventor)

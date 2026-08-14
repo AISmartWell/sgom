@@ -234,11 +234,12 @@ const NvidiaCosmos = () => {
               <div className="p-3 rounded-lg border border-[#76b900]/30 bg-[#76b900]/5">
                 <div className="flex items-center gap-2 mb-2">
                   <Cpu className="h-4 w-4 text-[#9bd400]" />
-                  <span className="font-semibold text-[#9bd400] uppercase text-xs tracking-wider">Live NVIDIA API</span>
+                  <span className="font-semibold text-[#9bd400] uppercase text-xs tracking-wider">Live Gemini Vision</span>
                 </div>
                 <div className="text-xs text-muted-foreground leading-relaxed">
-                  Real GPU inference via NVIDIA NIM (<code className="text-foreground">nemotron-nano-12b-v2-vl</code>): Core CV analysis, Seismic interpretation, AI Analyst chat.
+                  Real multimodal inference via Lovable AI Gateway (<code className="text-foreground">google/gemini-2.5-flash</code>): Core CV analysis, Seismic interpretation, AI Analyst chat.
                 </div>
+
               </div>
               <div className="p-3 rounded-lg border border-orange-500/30 bg-orange-500/5">
                 <div className="flex items-center gap-2 mb-2">
