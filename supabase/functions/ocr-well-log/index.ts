@@ -1,4 +1,4 @@
-// OCR for paper / scanned well logs via Lovable AI Gateway (Gemini vision).
+// OCR for paper / scanned well logs via NVIDIA NIM Vision (VLM).
 // Accepts a base64 image (data URL or raw base64) and returns structured fields.
 
 const corsHeaders = {
@@ -7,8 +7,11 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-const FAST_MODEL = "google/gemini-3-flash-preview";
-const DEEP_MODEL = "google/gemini-2.5-pro";
+const NVIDIA_URL = Deno.env.get("NVIDIA_BASE_URL")
+  ?? "https://integrate.api.nvidia.com/v1/chat/completions";
+const FAST_MODEL = Deno.env.get("NVIDIA_VISION_MODEL") ?? "nvidia/nemotron-nano-12b-v2-vl";
+const DEEP_MODEL = Deno.env.get("NVIDIA_VISION_DEEP_MODEL") ?? FAST_MODEL;
+
 
 const SYSTEM = `You are an expert petroleum well-log OCR engine and petrophysicist.
 The user uploads a scanned or photographed paper WELL LOG (GR, SP, resistivity,
