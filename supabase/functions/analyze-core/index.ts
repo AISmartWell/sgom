@@ -20,10 +20,13 @@ serve(async (req) => {
       );
     }
 
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY is not configured');
+    const NVIDIA_API_KEY = Deno.env.get('NVIDIA_API_KEY');
+    if (!NVIDIA_API_KEY) {
+      throw new Error('NVIDIA_API_KEY is not configured');
     }
+    const NVIDIA_URL = Deno.env.get('NVIDIA_VISION_URL')
+      ?? 'https://integrate.api.nvidia.com/v1/chat/completions';
+    const MODEL = Deno.env.get('NVIDIA_VISION_MODEL') ?? 'nvidia/nemotron-nano-12b-v2-vl';
 
     const systemPrompt = `You are an expert petroleum geologist and petrophysicist specializing in core sample analysis. 
 Analyze the provided core sample image and provide detailed geological interpretation.
