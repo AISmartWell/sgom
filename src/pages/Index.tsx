@@ -415,7 +415,7 @@ const Index = () => {
           {/* Competitive Advantages grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             {[
-              { label: "AI-First Architecture", desc: "Every stage is AI-augmented — NVIDIA NIM for CV, Gemini for reports, Claude for consultation" },
+              { label: "AI-First Architecture", desc: "Every stage is AI-augmented — Gemini Vision for CV, Gemini for reports, Claude for consultation" },
               { label: "GPU-Accelerated Risk Engine", desc: "50,000-trial Monte Carlo in multi-threaded workers with importance-sampled P10/P90 tail estimation" },
               { label: "9-Stage Pipeline", desc: "Repeatable, auditable methodology — end-to-end from field scanning to EOR optimization" },
               { label: "Enterprise Security", desc: "RLS on every table. Multi-tenant isolation. RBAC. Invite-only access" },

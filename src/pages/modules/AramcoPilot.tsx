@@ -1040,7 +1040,7 @@ export default function AramcoPilot() {
                     {[
                       { i: "AWS GPU batch",        d: "H100/A100 on-demand + reserved for ML training & CV inference", c: 180 },
                       { i: "AWS storage & DB",     d: "S3, RDS Postgres, CloudWatch, backups, egress",                  c:  40 },
-                      { i: "AI API gateway",       d: "NVIDIA NIM endpoints + Gemini 2.5 (LLM + Vision tokens)",        c:  60 },
+                      { i: "AI API gateway",       d: "Gemini Vision + Gemini 2.5 (LLM + Vision tokens) via Lovable AI Gateway",        c:  60 },
                       { i: "Data licenses",        d: "IHS / Enverus / Drillinginfo, USGS premium, seismic cubes",      c: 250 },
                       { i: "SOC2 + security tools",d: "Datadog, Sentry, Vanta, pen-tests, audits",                       c:  80 },
                       { i: "Patents & legal",      d: "US 8,863,823 maintenance, NDAs, contracts, IP counsel",          c:  60 },
