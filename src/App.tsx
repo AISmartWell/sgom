@@ -195,6 +195,7 @@ const App = () => (
                <Route path="/cosmos-simulator-embed" element={<CosmosSimulatorEmbed />} />
                <Route path="/cosmos-real-test" element={<CosmosRealTest />} />
                <Route path="/fluid-simulation" element={<FluidPhysicsSimulation />} />
+               <Route path="/spt-pipeline-demo" element={<SPTPipelineDemo />} />
                <Route path="/innovation" element={<Innovation />} />
                <Route path="/why-ai-smart-well" element={<WhyAISmartWell />} />
                <Route path="/alberta-petrel" element={<AlbertaPetrel />} />
