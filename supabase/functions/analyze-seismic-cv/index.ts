@@ -5,8 +5,10 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
-const GATEWAY_URL = 'https://ai.gateway.lovable.dev/v1/chat/completions';
-const MODEL = 'google/gemini-2.5-flash';
+const NVIDIA_URL = Deno.env.get('NVIDIA_VISION_URL')
+  ?? 'https://integrate.api.nvidia.com/v1/chat/completions';
+// NVIDIA NIM vision-language model (NVIDIA Vision)
+const MODEL = Deno.env.get('NVIDIA_VISION_MODEL') ?? 'nvidia/nemotron-nano-12b-v2-vl';
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -114,18 +116,18 @@ Return a JSON object with this exact structure:
       ? imageBase64
       : `data:image/jpeg;base64,${imageBase64}`;
 
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY is not configured');
+    const NVIDIA_API_KEY = Deno.env.get('NVIDIA_API_KEY');
+    if (!NVIDIA_API_KEY) {
+      throw new Error('NVIDIA_API_KEY is not configured');
     }
 
     let content: string;
     const modelUsed = MODEL;
 
-    const response = await fetch(GATEWAY_URL, {
+    const response = await fetch(NVIDIA_URL, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Authorization': `Bearer ${NVIDIA_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -147,15 +149,15 @@ Return a JSON object with this exact structure:
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Gemini Vision error:', response.status, errorText);
-      throw new Error(`Gemini Vision error: ${response.status}`);
+      console.error('NVIDIA Vision error:', response.status, errorText);
+      throw new Error(`NVIDIA Vision error: ${response.status}`);
     }
 
     const data = await response.json();
     content = data.choices?.[0]?.message?.content || '';
 
     if (!content) {
-      throw new Error('No analysis returned from Gemini Vision');
+      throw new Error('No analysis returned from NVIDIA Vision');
     }
 
 
