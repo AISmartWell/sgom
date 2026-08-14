@@ -5,9 +5,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
-const NVIDIA_NIM_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
-const MODEL = 'nvidia/llama-3.2-nv-embedqa-1b-v2';
-const VL_MODEL = 'nvidia/nemotron-nano-12b-v2-vl';
+const GATEWAY_URL = 'https://ai.gateway.lovable.dev/v1/chat/completions';
+const MODEL = 'google/gemini-2.5-flash';
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -24,10 +23,11 @@ serve(async (req) => {
       );
     }
 
-    const NVIDIA_API_KEY = Deno.env.get('NVIDIA_API_KEY');
-    if (!NVIDIA_API_KEY) {
-      throw new Error('NVIDIA_API_KEY is not configured');
+    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    if (!LOVABLE_API_KEY) {
+      throw new Error('LOVABLE_API_KEY is not configured');
     }
+
 
     // Build prompt based on analysis type
     let systemPrompt: string;
@@ -104,31 +104,25 @@ Return a JSON object with this exact structure:
 }`;
     }
 
-    const imageUrl = imageBase64.startsWith('data:') 
-      ? imageBase64 
+    const imageUrl = imageBase64.startsWith('data:')
+      ? imageBase64
       : `data:image/jpeg;base64,${imageBase64}`;
 
-    const response = await fetch(NVIDIA_NIM_URL, {
+    const response = await fetch(GATEWAY_URL, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${NVIDIA_API_KEY}`,
+        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: VL_MODEL,
+        model: MODEL,
         messages: [
           { role: 'system', content: systemPrompt },
           {
             role: 'user',
             content: [
-              {
-                type: 'text',
-                text: `Analyze this core sample image. Analysis type: ${analysisType || 'full'}. Return ONLY valid JSON.`
-              },
-              {
-                type: 'image_url',
-                image_url: { url: imageUrl }
-              }
+              { type: 'text', text: `Analyze this core sample image. Analysis type: ${analysisType || 'full'}. Return ONLY valid JSON.` },
+              { type: 'image_url', image_url: { url: imageUrl } }
             ]
           }
         ],
@@ -139,29 +133,30 @@ Return a JSON object with this exact structure:
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('NVIDIA NIM error:', response.status, errorText);
-      
+      console.error('Gemini Vision error:', response.status, errorText);
+
       if (response.status === 401 || response.status === 403) {
         return new Response(
-          JSON.stringify({ error: 'NVIDIA API key is invalid or expired. Please update it.' }),
+          JSON.stringify({ error: 'Lovable API key is invalid or expired. Please update it.' }),
           { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
       if (response.status === 429) {
         return new Response(
-          JSON.stringify({ error: 'NVIDIA API rate limit exceeded. Please try again later.' }),
+          JSON.stringify({ error: 'AI gateway rate limit exceeded. Please try again later.' }),
           { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
-      throw new Error(`NVIDIA NIM error: ${response.status} — ${errorText}`);
+      throw new Error(`Gemini Vision error: ${response.status} — ${errorText}`);
     }
 
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content;
 
     if (!content) {
-      throw new Error('No analysis returned from NVIDIA NIM');
+      throw new Error('No analysis returned from Gemini Vision');
     }
+
 
     // Try to parse as JSON, fallback to raw text
     let parsedResult;
@@ -174,19 +169,20 @@ Return a JSON object with this exact structure:
     }
 
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         analysis: parsedResult,
-        model: VL_MODEL,
+        model: MODEL,
         analysisType: analysisType || 'full',
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
-    console.error('NVIDIA CV analysis error:', error);
+    console.error('Gemini Vision CV analysis error:', error);
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : 'CV analysis failed' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });
+

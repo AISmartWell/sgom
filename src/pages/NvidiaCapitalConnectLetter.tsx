@@ -110,9 +110,8 @@ const NvidiaCapitalConnectLetter = () => {
           </p>
 
           <p>
-            Our platform leverages NVIDIA technologies — including GPU-accelerated inference, computer vision for
-            geological core analysis, and plans for DGX Cloud, TensorRT, and RAPIDS integration — to deliver
-            AI-powered optimization for oil & gas production operations.
+            Our platform leverages NVIDIA technologies — including GPU-accelerated inference for physics simulation and plans for DGX Cloud, TensorRT, and RAPIDS integration — while core and seismic computer vision are powered by Gemini Vision via the Lovable AI Gateway.
+
           </p>
 
           <p>

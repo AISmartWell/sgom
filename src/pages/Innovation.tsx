@@ -36,7 +36,7 @@ const STAGES = [
     n: 3,
     icon: Microscope,
     title: "Core Analysis",
-    body: "NVIDIA NIM (Nemotron Nano 12B v2 VL) computer vision analyzes core photographs in 3 modes — Segmentation (grain/matrix boundaries), Fractures (orientation and density mapping), Mineralogy (composition estimation). Replaces costly laboratory petrographic analysis.",
+    body: "Gemini Vision (via Lovable AI Gateway) analyzes core photographs in 3 modes — Segmentation (grain/matrix boundaries), Fractures (orientation and density mapping), Mineralogy (composition estimation). Replaces costly laboratory petrographic analysis.",
   },
   {
     n: 4,

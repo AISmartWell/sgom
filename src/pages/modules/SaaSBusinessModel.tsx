@@ -129,7 +129,7 @@ const moatItems = [
   },
   {
     title: "SGOM Physics AI Stack · NVIDIA NIM",
-    description: "Predict-Transfer-Reason pipeline powered by NVIDIA DGX H100. Cross-modal fusion of CV, geophysics and economics.",
+    description: "Predict-Transfer-Reason pipeline powered by NVIDIA NIM for physics simulation. Cross-modal fusion of CV, geophysics and economics via Gemini Vision.",
     icon: Cpu,
     stat: "10-100x",
     statLabel: "faster inference",

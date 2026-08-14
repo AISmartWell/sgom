@@ -85,10 +85,11 @@ const TechnicalSpec = () => {
             <div>
               <h4 className="font-semibold text-foreground mb-2">AI / ML</h4>
               <ul className="list-disc pl-5 space-y-1">
-                <li>Google Gemini 2.5 Flash (via Lovable AI) — core analysis, seismic interpretation, report generation</li>
-                <li>NVIDIA NIM (nemotron-nano-12b-v2-vl) — seismic CV analysis (with Gemini fallback)</li>
+                <li>Google Gemini 2.5 Flash (via Lovable AI Gateway) — core analysis, seismic interpretation, report generation</li>
+                <li>Gemini Vision — core CV analysis and seismic CV analysis</li>
                 <li>SGOM Physics Simulator · Powered by NVIDIA NIM — Predict (video forecasting), Transfer (domain adaptation), Reason (physics reasoning)</li>
                 <li>Computer Vision — rock classification, seismic fault/horizon detection</li>
+
                 <li>GPU-accelerated Monte Carlo (importance-sampled tail estimation) — economic risk assessment</li>
                 <li>ML well ranking — multi-criteria scoring</li>
               </ul>
@@ -310,9 +311,9 @@ const TechnicalSpec = () => {
               { name: "fetch-nearby-wells", desc: "Find wells near given coordinates using OCC spatial queries (bounding box).", input: "{ lat, lng, radiusMiles? }", output: "{ wells[] }" },
               { name: "fetch-texas-wells", desc: "Fetch well data from Texas Railroad Commission API.", input: "{ county?, operator? }", output: "{ wells[] }" },
               { name: "analyze-core", desc: "Analyze core images via Gemini AI. Determine lithology, porosity, texture, mineral composition.", input: "{ imageBase64 }", output: "{ analysis: { lithology, porosity, ... } }" },
-              { name: "analyze-core-cv", desc: "Advanced core CV analysis with multi-stage pipeline (edge detection, segmentation, classification).", input: "{ imageBase64, rockType? }", output: "{ analysis, model }" },
+              { name: "analyze-core-cv", desc: "Advanced core CV analysis with Gemini Vision. Multi-stage pipeline (edge detection, segmentation, classification).", input: "{ imageBase64, rockType? }", output: "{ analysis, model }" },
               { name: "analyze-seismic", desc: "Text-based seismic data interpretation via AI.", input: "{ seismicData, wellContext? }", output: "{ interpretation }" },
-              { name: "analyze-seismic-cv", desc: "Computer vision seismic image analysis. NVIDIA NIM (nemotron) with Gemini fallback. Detects faults, horizons, anomalies, fluid contacts.", input: "{ imageBase64, analysisMode, wellContext? }", output: "{ analysis, model }" },
+              { name: "analyze-seismic-cv", desc: "Computer vision seismic image analysis via Gemini Vision. Detects faults, horizons, anomalies, fluid contacts.", input: "{ imageBase64, analysisMode, wellContext? }", output: "{ analysis, model }" },
               { name: "analyze-well-stage", desc: "Run individual pipeline stage analysis for a well (9-stage EOR pipeline). Retry logic: 3× with exponential backoff.", input: "{ wellId, stageNumber, wellData }", output: "{ stageResult }" },
               { name: "rank-wells", desc: "ML-based well ranking. Calculate scores by multiple parameters.", input: "{ wells[], criteria }", output: "{ ranked: [{ id, score, ... }] }" },
               { name: "get-oil-price", desc: "Fetch current WTI oil price for financial calculations.", input: "{}", output: "{ price, currency, date }" },

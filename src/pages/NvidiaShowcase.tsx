@@ -60,11 +60,12 @@ KEY METRICS:
 • 312% projected ROI, 7-8 month payback
 
 NVIDIA TECHNOLOGIES USED:
-• NVIDIA API Catalog — Computer vision for geological core sample analysis (rock classification, porosity estimation, fracture detection)
+• Gemini Vision via Lovable AI Gateway — Computer vision for geological core sample analysis (rock classification, porosity estimation, fracture detection)
 • DGX Cloud (planned) — Custom model training for well log interpretation
 • RAPIDS (planned) — GPU-accelerated processing of seismic datasets
 • NGC Containers (planned) — Pre-trained models for geological image segmentation
 • DLI — Team certification in CUDA, TensorRT, LLM fine-tuning
+
 
 TEAM:
 • Anatoliy Nikouline — CEO & SPT Engineer, Maxxwell Production (10+ years field experience, patent inventor)
@@ -142,7 +143,7 @@ NVIDIA INCEPTION: Official Member`;
     { name: "AI Well Selection", emoji: "🎯", stage: "Stage 4", route: "/dashboard/well-selection", nvidia: true, description: "ML-driven candidate ranking" },
     { name: "Economic Analysis", emoji: "💵", stage: "Stage 5", route: "/dashboard/economic-analysis", nvidia: false, description: "NPV, IRR, ROI calculations" },
     { name: "Geophysical Expertise", emoji: "🔬", stage: "Stage 6", route: "/dashboard/geophysical", nvidia: true, description: "AI well log interpretation" },
-    { name: "Core Analysis (CV)", emoji: "🔬", stage: "Core", route: "/dashboard/core-analysis", nvidia: true, description: "NVIDIA Computer Vision for rock analysis" },
+    { name: "Core Analysis (CV)", emoji: "🔬", stage: "Core", route: "/dashboard/core-analysis", nvidia: true, description: "Gemini Vision for rock analysis" },
     { name: "EOR Optimization", emoji: "🧠", stage: "Stage 8", route: "/dashboard/eor-optimization", nvidia: true, description: "Central hub — all modules aggregated" },
   ];
 
@@ -334,10 +335,10 @@ NVIDIA INCEPTION: Official Member`;
                   <h2 className="text-3xl font-bold">AI Smart Well — SGOM Platform</h2>
                   <p className="text-muted-foreground max-w-2xl mx-auto">
                     AI-powered SaaS platform for Enhanced Oil Recovery optimization.
-                    NVIDIA Inception member leveraging GPU-accelerated computer vision and ML.
+                    NVIDIA Inception member leveraging GPU-accelerated physics inference and ML.
                   </p>
                   <div className="flex justify-center gap-3 flex-wrap pt-2">
-                    {["NVIDIA Inception", "Computer Vision", "Machine Learning", "SaaS B2B", "Oil & Gas"].map((tag) => (
+                    {["NVIDIA Inception", "Gemini Vision", "Machine Learning", "SaaS B2B", "Oil & Gas"].map((tag) => (
                       <Badge key={tag} variant="secondary" className="text-sm px-3 py-1">{tag}</Badge>
                     ))}
                   </div>
