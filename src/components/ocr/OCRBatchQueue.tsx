@@ -242,7 +242,7 @@ export default function OCRBatchQueue({ quality = "auto", onMerged }: Props) {
         </label>
 
         <div className="flex items-center gap-1 text-xs text-muted-foreground">
-          Parallel:
+          Mode:
           {CONCURRENCY_OPTIONS.map((c) => (
             <Button
               key={c}
@@ -251,8 +251,9 @@ export default function OCRBatchQueue({ quality = "auto", onMerged }: Props) {
               className="h-7 px-2"
               disabled={running}
               onClick={() => setConcurrency(c)}
+              title={c === 1 ? "One page at a time (safest for heavy scans)" : `${c} pages in flight`}
             >
-              ×{c}
+              {c === 1 ? "×1 one-by-one" : `×${c}`}
             </Button>
           ))}
         </div>
@@ -263,6 +264,11 @@ export default function OCRBatchQueue({ quality = "auto", onMerged }: Props) {
         </Button>
         {running && (
           <Button variant="outline" onClick={() => { cancelRef.current = true; }}>Stop</Button>
+        )}
+        {!running && failed > 0 && (
+          <Button variant="outline" size="sm" onClick={runQueue}>
+            Retry {failed} failed
+          </Button>
         )}
         <Button
           variant="ghost"
@@ -277,10 +283,12 @@ export default function OCRBatchQueue({ quality = "auto", onMerged }: Props) {
       {jobs.length > 0 && (
         <>
           <Progress value={pct} className="h-2" />
-          <div className="text-xs text-muted-foreground flex gap-4">
-            <span>{done} done</span>
+          <div className="text-xs text-muted-foreground flex flex-wrap gap-4">
+            <span>{done} / {jobs.length} done</span>
             <span>{failed} failed</span>
-            <span>CPU-time sum {(totalMs / 1000).toFixed(1)}s</span>
+            <span>avg {(avgMs / 1000).toFixed(1)}s / page</span>
+            {etaS != null && running && <span>ETA ≈ {etaS}s</span>}
+            {currentPage && <span className="text-primary truncate max-w-[240px]">now: {currentPage}</span>}
           </div>
 
           <div className="space-y-1 max-h-64 overflow-auto">
