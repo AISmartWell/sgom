@@ -122,6 +122,12 @@ const Innovation = () => {
               service. Instead of plugging it (P&A), operators receive a quantitative,
               evidence-backed answer: <em>does this well still have economic life?</em>
             </p>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              The platform is organized as an SPT-first end-to-end cycle:{" "}
+              <strong className="text-foreground">OCR → petrophysics → forecast → SPT Advisor → economics</strong>.
+              Each stage feeds the next inside a single dataset, so a paper log or scanned history
+              can travel all the way to a Restore / Monitor / P&A decision with a full audit trail.
+            </p>
             <div className="grid md:grid-cols-3 gap-3">
               <div className="p-3 rounded-lg bg-background/60 border border-border/50">
                 <div className="flex items-center gap-2 mb-1">

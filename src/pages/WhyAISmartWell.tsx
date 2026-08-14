@@ -3,18 +3,67 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Check, Minus, X, Target, Sparkles, ShieldCheck } from "lucide-react";
+import {
+  ArrowLeft,
+  Check,
+  Minus,
+  X,
+  Target,
+  Sparkles,
+  ShieldCheck,
+  ArrowRight,
+  ScanLine,
+  Microscope,
+  TrendingDown,
+  TrendingUp,
+  DollarSign,
+  Bot,
+} from "lucide-react";
 
 type Level = "full" | "partial" | "none";
 
 interface Row {
   module: string;
   detail: string;
+  cyclePhase?: string;
   aisw: Level;
   cognite: Level;
   petroai: Level;
   novi: Level;
 }
+
+const SPT_CYCLE = [
+  {
+    id: "ocr",
+    label: "OCR & digitization",
+    icon: ScanLine,
+    desc: "Paper logs, core photos, scanned reports → structured LAS/CSV curves.",
+  },
+  {
+    id: "petrophysics",
+    label: "Petrophysics",
+    icon: Microscope,
+    desc: "Archie, Timur, Larionov: Vsh, φe, Sw, net pay, lithology.",
+  },
+  {
+    id: "forecast",
+    label: "Forecast & twin",
+    icon: TrendingDown,
+    desc: "Arps decline, IOIP, Digital Twin, SCADA feedback, GPU physics simulation.",
+  },
+  {
+    id: "advisor",
+    label: "SPT Advisor",
+    icon: Bot,
+    desc: "MCDA ranking, few-shot analogs, Restoration Potential Score.",
+  },
+  {
+    id: "economics",
+    label: "Economics",
+    icon: DollarSign,
+    desc: "NPV, IRR, payback, Monte Carlo P10/P90, Base vs Upside.",
+  },
+];
 
 const VENDORS: { key: keyof Pick<Row, "aisw" | "cognite" | "petroai" | "novi">; label: string; accent?: boolean }[] = [
   { key: "aisw", label: "AI Smart Well", accent: true },
@@ -24,17 +73,21 @@ const VENDORS: { key: keyof Pick<Row, "aisw" | "cognite" | "petroai" | "novi">; 
 ];
 
 const ROWS: Row[] = [
+  // Candidate discovery
   {
     module: "Public registry scanning (TX, OK, KS, NM, CO, ND, WY)",
     detail: "Automated multi-state candidate discovery by oil rate, water cut, GOR, formation.",
+    cyclePhase: "Discovery",
     aisw: "full",
     cognite: "none",
     petroai: "partial",
     novi: "full",
   },
+  // 1. OCR & digitization
   {
     module: "OCR of paper well logs and scanned reports",
     detail: "NVIDIA Vision (NIM VLM) page-by-page queue, curve digitization, formation tops.",
+    cyclePhase: "OCR →",
     aisw: "full",
     cognite: "partial",
     petroai: "none",
@@ -43,38 +96,45 @@ const ROWS: Row[] = [
   {
     module: "Core photo analysis (segmentation, fractures, mineralogy)",
     detail: "Vision model replaces first-pass petrographic screening.",
+    cyclePhase: "OCR →",
     aisw: "full",
     cognite: "none",
     petroai: "none",
     novi: "none",
   },
+  // 2. Petrophysics
   {
     module: "Open-formula petrophysics (Archie, Timur, Larionov)",
     detail: "LAS 2.0 workflow: Vsh, phi-e, Sw, net pay with published citations and DOIs.",
+    cyclePhase: "Petrophysics →",
     aisw: "full",
     cognite: "partial",
     petroai: "partial",
     novi: "partial",
   },
   {
+    module: "Seismic reinterpretation with auditable pattern match",
+    detail: "Few-shot reference cases; output cites reference IDs for regulator review.",
+    cyclePhase: "Petrophysics →",
+    aisw: "full",
+    cognite: "none",
+    petroai: "partial",
+    novi: "none",
+  },
+  // 3. Forecast & twin
+  {
     module: "Decline and reserves (Arps, IOIP, economic limit)",
     detail: "Rate-vs-cumulative reconstruction on fragmented legacy histories.",
+    cyclePhase: "Forecast →",
     aisw: "full",
     cognite: "partial",
     petroai: "full",
     novi: "full",
   },
   {
-    module: "Seismic reinterpretation with auditable pattern match",
-    detail: "Few-shot reference cases; output cites reference IDs for regulator review.",
-    aisw: "full",
-    cognite: "none",
-    petroai: "partial",
-    novi: "none",
-  },
-  {
     module: "Digital Twin with SCADA feedback loop",
     detail: "Sensors to edge gateway to cloud to realtime UI, with EKF/Bayesian auto-calibration.",
+    cyclePhase: "Forecast →",
     aisw: "full",
     cognite: "full",
     petroai: "partial",
@@ -83,22 +143,17 @@ const ROWS: Row[] = [
   {
     module: "Physics simulation on GPU inference",
     detail: "SGOM Physics Simulator on NVIDIA NIM — pressure, saturation and rate evolution.",
+    cyclePhase: "Forecast →",
     aisw: "full",
     cognite: "partial",
     petroai: "partial",
     novi: "none",
   },
-  {
-    module: "Economics: NPV, IRR, payback, Monte Carlo P10/P90",
-    detail: "50,000 multi-threaded trials with tornado sensitivity, Base vs Upside model.",
-    aisw: "full",
-    cognite: "none",
-    petroai: "partial",
-    novi: "partial",
-  },
+  // 4. SPT Advisor
   {
     module: "SPT candidate scoring (Slot Perforation Technology)",
     detail: "MCDA ranking anchored on real SPT field cases used as few-shot benchmarks.",
+    cyclePhase: "SPT Advisor →",
     aisw: "full",
     cognite: "none",
     petroai: "none",
@@ -107,6 +162,7 @@ const ROWS: Row[] = [
   {
     module: "Restoration Potential Score (RPS)",
     detail: "Single 0-100 decision output: Restore / Monitor / P&A with full evidence trail.",
+    cyclePhase: "SPT Advisor →",
     aisw: "full",
     cognite: "none",
     petroai: "none",
@@ -115,8 +171,19 @@ const ROWS: Row[] = [
   {
     module: "Explainable AI advisor over the whole pipeline",
     detail: "Chain-of-thought SPT Advisor citing log features, analogs and decline trends.",
+    cyclePhase: "SPT Advisor →",
     aisw: "full",
     cognite: "partial",
+    petroai: "partial",
+    novi: "partial",
+  },
+  // 5. Economics
+  {
+    module: "Economics: NPV, IRR, payback, Monte Carlo P10/P90",
+    detail: "50,000 multi-threaded trials with tornado sensitivity, Base vs Upside model.",
+    cyclePhase: "Economics",
+    aisw: "full",
+    cognite: "none",
     petroai: "partial",
     novi: "partial",
   },
@@ -141,20 +208,20 @@ const LevelCell = ({ level }: { level: Level }) => {
 
 const OUTCOMES = [
   {
-    title: "One closed SPT cycle",
-    body: "Discovery, digitization, petrophysics, decline, simulation, scoring and economics run inside a single dataset — no export/import handoff between vendors.",
+    title: "OCR → petrophysics → forecast → SPT Advisor → economics",
+    body: "Five connected phases in one dataset. Paper logs become curves, curves become Vsh/φe/Sw, decline and twin become a production forecast, SPT Advisor ranks candidates, and economics closes the decision with NPV/IRR/P10/P90.",
   },
   {
     title: "Legacy-data first",
-    body: "Built for degraded pre-1980s paper logs and fragmented histories, not for fully instrumented modern assets.",
+    body: "Built for degraded pre-1980s paper logs and fragmented histories. NVIDIA Vision OCR, open-formula petrophysics, and few-shot analogs are tuned for data that other platforms discard.",
   },
   {
     title: "Decision, not dashboards",
-    body: "Every module feeds one output: Restoration Potential Score with an auditable evidence trail behind Restore / Monitor / P&A.",
+    body: "Every module feeds one output: Restoration Potential Score with an auditable evidence trail behind Restore / Monitor / P&A. No handoff between vendors, no manual spreadsheet assembly.",
   },
   {
     title: "SPT-specific physics",
-    body: "Slot Perforation Technology (US 8,863,823) parameters are first-class inputs, benchmarked against real field cases.",
+    body: "Slot Perforation Technology (US 8,863,823) parameters are first-class inputs, benchmarked against real field cases such as JTM 1093W. Competing platforms treat refract/restoration as a generic add-on.",
   },
 ];
 
@@ -191,12 +258,46 @@ const WhyAISmartWell = () => {
           </Badge>
           <h1 className="text-4xl font-bold mb-3">Why AI Smart Well vs. alternatives</h1>
           <p className="text-muted-foreground leading-relaxed max-w-3xl">
-            Industrial data platforms and well-analytics vendors each cover part of the restoration
-            workflow. AI Smart Well is built around one specific goal: deciding whether an idle or
-            low-rate well is a viable Slot Perforation Technology candidate. The table compares
-            module coverage for that cycle.
+            AI Smart Well is built around one closed workflow: <strong className="text-foreground">OCR →
+            petrophysics → forecast → SPT Advisor → economics</strong>. Each step feeds the next inside
+            a single dataset, so an idle or low-rate well moves from raw paper/scanned inputs to a
+            Restore / Monitor / P&A decision with an auditable evidence trail.
           </p>
         </header>
+
+        {/* SPT-first end-to-end cycle */}
+        <section aria-labelledby="cycle-heading" className="mb-8">
+          <h2 id="cycle-heading" className="sr-only">
+            SPT-first end-to-end cycle
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            {SPT_CYCLE.map((step, idx) => {
+              const Icon = step.icon;
+              return (
+                <Card
+                  key={step.id}
+                  className={`glass-card border-primary/20 ${idx === SPT_CYCLE.length - 1 ? "" : "lg:relative"}`}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="h-8 w-8 rounded-lg bg-primary/15 text-primary flex items-center justify-center">
+                        <Icon className="h-4 w-4" />
+                      </div>
+                      <span className="text-xs font-semibold text-primary">Step {idx + 1}</span>
+                    </div>
+                    <h3 className="font-semibold text-sm mb-1">{step.label}</h3>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{step.desc}</p>
+                  </CardContent>
+                  {idx < SPT_CYCLE.length - 1 && (
+                    <div className="hidden lg:flex absolute -right-3 top-1/2 -translate-y-1/2 z-10 text-primary">
+                      <ArrowRight className="h-5 w-5" />
+                    </div>
+                  )}
+                </Card>
+              );
+            })}
+          </div>
+        </section>
 
         <Card className="glass-card mb-8">
           <CardHeader className="pb-3">
@@ -230,7 +331,17 @@ const WhyAISmartWell = () => {
                   {ROWS.map((r) => (
                     <tr key={r.module} className="border-b border-border/40 align-top">
                       <th scope="row" className="text-left px-4 py-3 font-medium">
-                        {r.module}
+                        <div className="flex items-start gap-2 flex-wrap">
+                          {r.cyclePhase && (
+                            <Badge
+                              variant="secondary"
+                              className="text-[10px] whitespace-nowrap mt-0.5"
+                            >
+                              {r.cyclePhase}
+                            </Badge>
+                          )}
+                          <span>{r.module}</span>
+                        </div>
                         <span className="block text-xs font-normal text-muted-foreground mt-1">
                           {r.detail}
                         </span>
