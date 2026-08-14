@@ -66,6 +66,7 @@ import CosmosDemo from "./pages/CosmosDemo";
 import CosmosSimulatorPage from "./pages/CosmosSimulator";
 import CosmosSimulatorEmbed from "./pages/CosmosSimulatorEmbed";
 import CosmosRealTest from "./pages/CosmosRealTest";
+import SPTPipelineDemo from "./pages/SPTPipelineDemo";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import FluidPhysicsSimulation from "./pages/FluidPhysicsSimulation";
@@ -194,6 +195,7 @@ const App = () => (
                <Route path="/cosmos-simulator-embed" element={<CosmosSimulatorEmbed />} />
                <Route path="/cosmos-real-test" element={<CosmosRealTest />} />
                <Route path="/fluid-simulation" element={<FluidPhysicsSimulation />} />
+               <Route path="/spt-pipeline-demo" element={<SPTPipelineDemo />} />
                <Route path="/innovation" element={<Innovation />} />
                <Route path="/why-ai-smart-well" element={<WhyAISmartWell />} />
                <Route path="/alberta-petrel" element={<AlbertaPetrel />} />
