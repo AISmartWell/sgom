@@ -170,12 +170,13 @@ async function callGateway(apiKey: string, model: string, dataUrl: string, mode:
   let lastStatus = 502;
 
   for (let attempt = 1; attempt <= 3; attempt++) {
-    const gwRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const gwRes = await fetch(NVIDIA_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Lovable-API-Key": apiKey,
+        "Authorization": `Bearer ${apiKey}`,
       },
+
       body: JSON.stringify({
         model,
         temperature: 0,
