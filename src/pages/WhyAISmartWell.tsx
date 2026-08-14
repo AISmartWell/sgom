@@ -258,7 +258,46 @@ const WhyAISmartWell = () => {
           </Badge>
           <h1 className="text-4xl font-bold mb-3">Why AI Smart Well vs. alternatives</h1>
           <p className="text-muted-foreground leading-relaxed max-w-3xl">
-            AI Smart Well is built around one closed workflow:{
+            AI Smart Well is built around one closed workflow: <strong className="text-foreground">OCR →
+            petrophysics → forecast → SPT Advisor → economics</strong>. Each step feeds the next inside
+            a single dataset, so an idle or low-rate well moves from raw paper/scanned inputs to a
+            Restore / Monitor / P&A decision with an auditable evidence trail.
+          </p>
+        </header>
+
+        {/* SPT-first end-to-end cycle */}
+        <section aria-labelledby="cycle-heading" className="mb-8">
+          <h2 id="cycle-heading" className="sr-only">
+            SPT-first end-to-end cycle
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            {SPT_CYCLE.map((step, idx) => {
+              const Icon = step.icon;
+              return (
+                <Card
+                  key={step.id}
+                  className={`glass-card border-primary/20 ${idx === SPT_CYCLE.length - 1 ? "" : "lg:relative"}`}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="h-8 w-8 rounded-lg bg-primary/15 text-primary flex items-center justify-center">
+                        <Icon className="h-4 w-4" />
+                      </div>
+                      <span className="text-xs font-semibold text-primary">Step {idx + 1}</span>
+                    </div>
+                    <h3 className="font-semibold text-sm mb-1">{step.label}</h3>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{step.desc}</p>
+                  </CardContent>
+                  {idx < SPT_CYCLE.length - 1 && (
+                    <div className="hidden lg:flex absolute -right-3 top-1/2 -translate-y-1/2 z-10 text-primary">
+                      <ArrowRight className="h-5 w-5" />
+                    </div>
+                  )}
+                </Card>
+              );
+            })}
+          </div>
+        </section>
 
         <Card className="glass-card mb-8">
           <CardHeader className="pb-3">
