@@ -96,14 +96,19 @@ export function mergeOcrPages(results: any[]): any {
 
 export default function OCRBatchQueue({ quality = "auto", onMerged }: Props) {
   const [jobs, setJobs] = useState<PageJob[]>([]);
-  const [concurrency, setConcurrency] = useState(3);
+  const [concurrency, setConcurrency] = useState(1);
   const [running, setRunning] = useState(false);
+  const [currentPage, setCurrentPage] = useState<string | null>(null);
   const cancelRef = useRef(false);
 
   const done = jobs.filter((j) => j.status === "done").length;
   const failed = jobs.filter((j) => j.status === "error").length;
   const pct = jobs.length ? Math.round(((done + failed) / jobs.length) * 100) : 0;
   const totalMs = useMemo(() => jobs.reduce((s, j) => s + (j.ms ?? 0), 0), [jobs]);
+  const avgMs = done ? totalMs / done : 0;
+  const etaS = avgMs
+    ? Math.round(((jobs.length - done - failed) * avgMs) / Math.max(1, concurrency) / 1000)
+    : null;
 
   const addFiles = useCallback(async (files: FileList | null) => {
     if (!files?.length) return;
@@ -114,14 +119,16 @@ export default function OCRBatchQueue({ quality = "auto", onMerged }: Props) {
     }
     const next: PageJob[] = [];
     for (const f of imgs.slice(0, MAX_FILES)) {
-      if (f.size > 12 * 1024 * 1024) {
-        toast.error(`${f.name}: >12 MB, downscale first`);
+      if (f.size > 30 * 1024 * 1024) {
+        toast.error(`${f.name}: >30 MB, downscale first`);
         continue;
       }
+      const raw = await readAsDataUrl(f);
+      const dataUrl = await downscaleDataUrl(raw, MAX_EDGE_PX);
       next.push({
         id: `${f.name}-${f.size}-${Math.random().toString(36).slice(2, 8)}`,
         name: f.name,
-        dataUrl: await readAsDataUrl(f),
+        dataUrl,
         status: "queued",
       });
     }
@@ -132,20 +139,23 @@ export default function OCRBatchQueue({ quality = "auto", onMerged }: Props) {
     setJobs((p) => p.map((j) => (j.id === id ? { ...j, ...upd } : j)));
 
   const runQueue = useCallback(async () => {
-    const pending = jobs.filter((j) => j.status === "queued" || j.status === "error");
+    const all = jobs;
+    const pending = all.filter((j) => j.status === "queued" || j.status === "error");
     if (!pending.length) return;
     cancelRef.current = false;
     setRunning(true);
     const started = performance.now();
 
     let cursor = 0;
-    const results: any[] = [];
+    // keep already-recognised pages so partial merges stay complete
+    const results: any[] = all.filter((j) => j.status === "done" && j.result).map((j) => j.result);
 
     const worker = async () => {
       while (!cancelRef.current) {
         const job = pending[cursor++];
         if (!job) return;
         patch(job.id, { status: "running", error: undefined });
+        setCurrentPage(job.name);
         const t0 = performance.now();
         try {
           const { data, error } = await supabase.functions.invoke("ocr-well-log", {
@@ -155,6 +165,8 @@ export default function OCRBatchQueue({ quality = "auto", onMerged }: Props) {
           if (!data?.ok) throw new Error(data?.error || "Recognition failed");
           patch(job.id, { status: "done", ms: performance.now() - t0, result: data.result });
           results.push(data.result);
+          // incremental merge — results appear after every finished page
+          onMerged?.(mergeOcrPages(results), results.length);
         } catch (e: any) {
           patch(job.id, { status: "error", ms: performance.now() - t0, error: e?.message || "OCR failed" });
         }
@@ -163,12 +175,13 @@ export default function OCRBatchQueue({ quality = "auto", onMerged }: Props) {
 
     await Promise.all(Array.from({ length: Math.min(concurrency, pending.length) }, worker));
     setRunning(false);
+    setCurrentPage(null);
 
     const wall = Math.round((performance.now() - started) / 1000);
     if (results.length) {
-      const merged = mergeOcrPages(results);
-      onMerged?.(merged, results.length);
-      toast.success(`${results.length} page(s) recognised in ${wall}s (×${concurrency} parallel)`);
+      toast.success(
+        `${results.length} page(s) merged in ${wall}s (${concurrency === 1 ? "sequential" : `×${concurrency} parallel`})`,
+      );
     } else {
       toast.error("No pages recognised");
     }
