@@ -38,6 +38,29 @@ const readAsDataUrl = (f: File) =>
 
 const uniq = (arr: any[]) => Array.from(new Set(arr.filter((v) => v != null && v !== "")));
 
+/** Longest edge sent to the model — keeps huge scans under the edge-function runtime limit */
+const MAX_EDGE_PX = 2200;
+
+/** Downscale a data URL client-side (no quality loss for text at 2200 px long edge) */
+const downscaleDataUrl = (dataUrl: string, maxEdge: number) =>
+  new Promise<string>((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, maxEdge / Math.max(img.width, img.height));
+      if (scale >= 1) return resolve(dataUrl);
+      const c = document.createElement("canvas");
+      c.width = Math.round(img.width * scale);
+      c.height = Math.round(img.height * scale);
+      const ctx = c.getContext("2d");
+      if (!ctx) return resolve(dataUrl);
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(img, 0, 0, c.width, c.height);
+      resolve(c.toDataURL("image/jpeg", 0.92));
+    };
+    img.onerror = () => resolve(dataUrl);
+    img.src = dataUrl;
+  });
+
 /** Merge per-page OCR payloads into a single document-level result */
 export function mergeOcrPages(results: any[]): any {
   const ok = results.filter(Boolean);
