@@ -85,10 +85,11 @@ const TechnicalSpec = () => {
             <div>
               <h4 className="font-semibold text-foreground mb-2">AI / ML</h4>
               <ul className="list-disc pl-5 space-y-1">
-                <li>Google Gemini 2.5 Flash (via Lovable AI) — core analysis, seismic interpretation, report generation</li>
-                <li>NVIDIA NIM (nemotron-nano-12b-v2-vl) — seismic CV analysis (with Gemini fallback)</li>
+                <li>Google Gemini 2.5 Flash (via Lovable AI Gateway) — core analysis, seismic interpretation, report generation</li>
+                <li>Gemini Vision — core CV analysis and seismic CV analysis</li>
                 <li>SGOM Physics Simulator · Powered by NVIDIA NIM — Predict (video forecasting), Transfer (domain adaptation), Reason (physics reasoning)</li>
                 <li>Computer Vision — rock classification, seismic fault/horizon detection</li>
+
                 <li>GPU-accelerated Monte Carlo (importance-sampled tail estimation) — economic risk assessment</li>
                 <li>ML well ranking — multi-criteria scoring</li>
               </ul>

@@ -27,7 +27,7 @@ const pipelineStages = [
   { emoji: "🚀", stage: 4, title: "SPT Projection", desc: "AI well ranking & inflow performance projection for SPT treatment candidates", path: "/dashboard/spt-projection" },
   { emoji: "💵", stage: 5, title: "Economic Analysis", desc: "ROI calculation, payback period modeling & profit projection per well candidate", path: "/dashboard/economic-analysis" },
   { emoji: "📊", stage: 6, title: "Geophysical Expertise", desc: "Well log interpretation, formation evaluation & pay zone detection with petrophysics", path: "/dashboard/geophysical" },
-  { emoji: "🔬", stage: 7, title: "Core Analysis", desc: "Computer vision rock analysis powered by NVIDIA — porosity, permeability, fractures", path: "/dashboard/core-analysis" },
+  { emoji: "🔬", stage: 7, title: "Core Analysis", desc: "Computer vision rock analysis powered by Gemini Vision — porosity, permeability, fractures", path: "/dashboard/core-analysis" },
   { emoji: "🧠", stage: 8, title: "EOR Optimization", desc: "Final treatment recommendations combining all stages into actionable field reports", path: "/dashboard/eor-optimization" },
 ];
 
