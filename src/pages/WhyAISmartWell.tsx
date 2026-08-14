@@ -16,12 +16,12 @@ interface Row {
   novi: Level;
 }
 
-const VENDORS = [
+const VENDORS: { key: keyof Pick<Row, "aisw" | "cognite" | "petroai" | "novi">; label: string; accent?: boolean }[] = [
   { key: "aisw", label: "AI Smart Well", accent: true },
   { key: "cognite", label: "Cognite" },
   { key: "petroai", label: "Petro.ai" },
   { key: "novi", label: "Novi Labs / Enverus" },
-] as const;
+];
 
 const ROWS: Row[] = [
   {
