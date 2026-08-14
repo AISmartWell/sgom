@@ -73,17 +73,21 @@ const VENDORS: { key: keyof Pick<Row, "aisw" | "cognite" | "petroai" | "novi">; 
 ];
 
 const ROWS: Row[] = [
+  // Candidate discovery
   {
     module: "Public registry scanning (TX, OK, KS, NM, CO, ND, WY)",
     detail: "Automated multi-state candidate discovery by oil rate, water cut, GOR, formation.",
+    cyclePhase: "Discovery",
     aisw: "full",
     cognite: "none",
     petroai: "partial",
     novi: "full",
   },
+  // 1. OCR & digitization
   {
     module: "OCR of paper well logs and scanned reports",
     detail: "NVIDIA Vision (NIM VLM) page-by-page queue, curve digitization, formation tops.",
+    cyclePhase: "OCR →",
     aisw: "full",
     cognite: "partial",
     petroai: "none",
@@ -92,38 +96,45 @@ const ROWS: Row[] = [
   {
     module: "Core photo analysis (segmentation, fractures, mineralogy)",
     detail: "Vision model replaces first-pass petrographic screening.",
+    cyclePhase: "OCR →",
     aisw: "full",
     cognite: "none",
     petroai: "none",
     novi: "none",
   },
+  // 2. Petrophysics
   {
     module: "Open-formula petrophysics (Archie, Timur, Larionov)",
     detail: "LAS 2.0 workflow: Vsh, phi-e, Sw, net pay with published citations and DOIs.",
+    cyclePhase: "Petrophysics →",
     aisw: "full",
     cognite: "partial",
     petroai: "partial",
     novi: "partial",
   },
   {
+    module: "Seismic reinterpretation with auditable pattern match",
+    detail: "Few-shot reference cases; output cites reference IDs for regulator review.",
+    cyclePhase: "Petrophysics →",
+    aisw: "full",
+    cognite: "none",
+    petroai: "partial",
+    novi: "none",
+  },
+  // 3. Forecast & twin
+  {
     module: "Decline and reserves (Arps, IOIP, economic limit)",
     detail: "Rate-vs-cumulative reconstruction on fragmented legacy histories.",
+    cyclePhase: "Forecast →",
     aisw: "full",
     cognite: "partial",
     petroai: "full",
     novi: "full",
   },
   {
-    module: "Seismic reinterpretation with auditable pattern match",
-    detail: "Few-shot reference cases; output cites reference IDs for regulator review.",
-    aisw: "full",
-    cognite: "none",
-    petroai: "partial",
-    novi: "none",
-  },
-  {
     module: "Digital Twin with SCADA feedback loop",
     detail: "Sensors to edge gateway to cloud to realtime UI, with EKF/Bayesian auto-calibration.",
+    cyclePhase: "Forecast →",
     aisw: "full",
     cognite: "full",
     petroai: "partial",
@@ -132,22 +143,17 @@ const ROWS: Row[] = [
   {
     module: "Physics simulation on GPU inference",
     detail: "SGOM Physics Simulator on NVIDIA NIM — pressure, saturation and rate evolution.",
+    cyclePhase: "Forecast →",
     aisw: "full",
     cognite: "partial",
     petroai: "partial",
     novi: "none",
   },
-  {
-    module: "Economics: NPV, IRR, payback, Monte Carlo P10/P90",
-    detail: "50,000 multi-threaded trials with tornado sensitivity, Base vs Upside model.",
-    aisw: "full",
-    cognite: "none",
-    petroai: "partial",
-    novi: "partial",
-  },
+  // 4. SPT Advisor
   {
     module: "SPT candidate scoring (Slot Perforation Technology)",
     detail: "MCDA ranking anchored on real SPT field cases used as few-shot benchmarks.",
+    cyclePhase: "SPT Advisor →",
     aisw: "full",
     cognite: "none",
     petroai: "none",
@@ -156,6 +162,7 @@ const ROWS: Row[] = [
   {
     module: "Restoration Potential Score (RPS)",
     detail: "Single 0-100 decision output: Restore / Monitor / P&A with full evidence trail.",
+    cyclePhase: "SPT Advisor →",
     aisw: "full",
     cognite: "none",
     petroai: "none",
@@ -164,8 +171,19 @@ const ROWS: Row[] = [
   {
     module: "Explainable AI advisor over the whole pipeline",
     detail: "Chain-of-thought SPT Advisor citing log features, analogs and decline trends.",
+    cyclePhase: "SPT Advisor →",
     aisw: "full",
     cognite: "partial",
+    petroai: "partial",
+    novi: "partial",
+  },
+  // 5. Economics
+  {
+    module: "Economics: NPV, IRR, payback, Monte Carlo P10/P90",
+    detail: "50,000 multi-threaded trials with tornado sensitivity, Base vs Upside model.",
+    cyclePhase: "Economics",
+    aisw: "full",
+    cognite: "none",
     petroai: "partial",
     novi: "partial",
   },
