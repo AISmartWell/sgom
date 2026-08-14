@@ -312,6 +312,13 @@ const Dashboard = () => {
       <div className="mt-8 glass-card rounded-xl p-6">
         <h3 className="text-lg font-semibold mb-4">Prototype Workflow</h3>
         <div className="flex flex-wrap gap-4">
+          <a
+            href="/innovation"
+            className="flex items-center gap-2 px-4 py-2 bg-primary/10 hover:bg-primary/20 rounded-lg text-primary text-sm transition-colors"
+          >
+            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+            Innovation
+          </a>
           <div className="flex items-center gap-2 px-4 py-2 bg-success/10 rounded-lg text-success text-sm">
             <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
             Interactive Well Maps — Connected
