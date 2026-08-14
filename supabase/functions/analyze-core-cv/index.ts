@@ -169,19 +169,20 @@ Return a JSON object with this exact structure:
     }
 
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         analysis: parsedResult,
-        model: VL_MODEL,
+        model: MODEL,
         analysisType: analysisType || 'full',
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
-    console.error('NVIDIA CV analysis error:', error);
+    console.error('Gemini Vision CV analysis error:', error);
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : 'CV analysis failed' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });
+
