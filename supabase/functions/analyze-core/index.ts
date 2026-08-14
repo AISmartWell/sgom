@@ -20,10 +20,13 @@ serve(async (req) => {
       );
     }
 
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY is not configured');
+    const NVIDIA_API_KEY = Deno.env.get('NVIDIA_API_KEY');
+    if (!NVIDIA_API_KEY) {
+      throw new Error('NVIDIA_API_KEY is not configured');
     }
+    const NVIDIA_URL = Deno.env.get('NVIDIA_VISION_URL')
+      ?? 'https://integrate.api.nvidia.com/v1/chat/completions';
+    const MODEL = Deno.env.get('NVIDIA_VISION_MODEL') ?? 'nvidia/nemotron-nano-12b-v2-vl';
 
     const systemPrompt = `You are an expert petroleum geologist and petrophysicist specializing in core sample analysis. 
 Analyze the provided core sample image and provide detailed geological interpretation.
@@ -61,14 +64,16 @@ Your analysis MUST include these sections with specific data:
 
 Provide specific numerical values where possible. Be precise and professional.`;
 
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    const response = await fetch(NVIDIA_URL, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Authorization': `Bearer ${NVIDIA_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: MODEL,
+        max_tokens: 2048,
+        temperature: 0.2,
         messages: [
           { role: 'system', content: systemPrompt },
           {
@@ -97,15 +102,15 @@ Provide specific numerical values where possible. Be precise and professional.`;
           { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
-      if (response.status === 402) {
+      if (response.status === 401 || response.status === 403) {
         return new Response(
-          JSON.stringify({ error: 'API credits exhausted. Please add funds.' }),
-          { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          JSON.stringify({ error: 'NVIDIA API key is invalid or expired. Please update it.' }),
+          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
       const errorText = await response.text();
-      console.error('AI Gateway error:', response.status, errorText);
-      throw new Error(`AI Gateway error: ${response.status}`);
+      console.error('NVIDIA Vision error:', response.status, errorText);
+      throw new Error(`NVIDIA Vision error: ${response.status}`);
     }
 
     const data = await response.json();
