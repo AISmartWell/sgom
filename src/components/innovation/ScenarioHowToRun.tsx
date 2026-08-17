@@ -22,7 +22,7 @@ const STEPS = [
     icon: Microscope,
     body: "Compute Vsh, porosity, Sw, net pay, and Timur permeability. Add diagnostics if needed.",
     routes: [
-      { label: "Geophysical Expertise", to: "/dashboard/geophysical-expertise" },
+      { label: "Geophysical Expertise", to: "/dashboard/geophysical" },
     ],
   },
   {
