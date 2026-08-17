@@ -206,10 +206,7 @@ const Innovation = () => {
           </p>
         </div>
         <ScenarioComparison />
-
-
-
-        <Card className="glass-card border-primary/30 mb-6">
+        <ScenarioHowToRun />
           <CardHeader>
             <CardTitle>Open Research Gaps and Fallback Paths</CardTitle>
           </CardHeader>
