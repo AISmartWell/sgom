@@ -19,6 +19,7 @@ import {
   Gauge,
 } from "lucide-react";
 import ScenarioComparison from "@/components/innovation/ScenarioComparison";
+import ScenarioHowToRun from "@/components/innovation/ScenarioHowToRun";
 
 const STAGES = [
   {
@@ -205,9 +206,7 @@ const Innovation = () => {
           </p>
         </div>
         <ScenarioComparison />
-
-
-
+        <ScenarioHowToRun />
         <Card className="glass-card border-primary/30 mb-6">
           <CardHeader>
             <CardTitle>Open Research Gaps and Fallback Paths</CardTitle>
