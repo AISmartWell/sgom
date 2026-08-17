@@ -195,6 +195,18 @@ const Innovation = () => {
           })}
         </div>
 
+        <div className="mb-4">
+          <h2 className="text-2xl font-bold mb-2">Worked Example — Two Wells, One Pipeline</h2>
+          <p className="text-sm text-muted-foreground leading-relaxed max-w-3xl">
+            Both wells run through all nine stages with identical logic. The first is a strong slot
+            perforation candidate; the second is not — and the platform says so explicitly. The
+            diagnostic value does not depend on the answer being "yes".
+          </p>
+        </div>
+        <ScenarioComparison />
+
+
+
         <Card className="glass-card border-primary/30 mb-6">
           <CardHeader>
             <CardTitle>Open Research Gaps and Fallback Paths</CardTitle>
