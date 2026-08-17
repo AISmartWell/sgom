@@ -18,6 +18,7 @@ import {
   CheckCircle2,
   Gauge,
 } from "lucide-react";
+import ScenarioComparison from "@/components/innovation/ScenarioComparison";
 
 const STAGES = [
   {
