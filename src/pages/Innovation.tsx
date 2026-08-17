@@ -19,6 +19,7 @@ import {
   Gauge,
 } from "lucide-react";
 import ScenarioComparison from "@/components/innovation/ScenarioComparison";
+import ScenarioHowToRun from "@/components/innovation/ScenarioHowToRun";
 
 const STAGES = [
   {
