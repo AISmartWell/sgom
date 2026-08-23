@@ -262,7 +262,8 @@ const ReservoirPressureCharts = () => {
                 <YAxis
                   type="number"
                   dataKey="depth"
-                  domain={[6000, 0]}
+                  domain={[0, 6000]}
+                  reversed
                   allowDataOverflow
                   tick={AXIS}
                   stroke={GRID}
