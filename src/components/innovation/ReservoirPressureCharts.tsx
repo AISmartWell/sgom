@@ -263,7 +263,7 @@ const ReservoirPressureCharts = () => {
                 <Tooltip contentStyle={tooltipStyle} />
                 <Legend verticalAlign="top" height={26} wrapperStyle={{ fontSize: 11 }} />
                 <Line dataKey="model" name="Model profile" stroke="#1A9FFF" dot={false} strokeWidth={2.2} />
-                <Line dataKey="rft" name="RFT / DST points" stroke="none" connectNulls={false} dot={{ r: 5, fill: "#4b8f3b", stroke: "#2f5f22" }} legendType="diamond" />
+                <Line dataKey="rft" name="RFT / DST points" stroke="#4b8f3b" strokeWidth={0} connectNulls={false} dot={{ r: 5, fill: "#4b8f3b", stroke: "#2f5f22" }} legendType="diamond" />
               </ComposedChart>
             </ResponsiveContainer>
           </ChartPanel>
