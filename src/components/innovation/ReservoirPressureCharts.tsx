@@ -163,8 +163,7 @@ const ReservoirPressureCharts = () => {
                 <YAxis
                   type="number"
                   dataKey="depth"
-                  domain={[0, "dataMax"]}
-                  reversed
+                  domain={[6000, 0]}
                   tick={AXIS}
                   stroke={GRID}
                   width={52}
@@ -197,8 +196,7 @@ const ReservoirPressureCharts = () => {
                 <YAxis
                   type="number"
                   dataKey="depth"
-                  domain={[0, "dataMax"]}
-                  reversed
+                  domain={[6000, 0]}
                   tick={AXIS}
                   stroke={GRID}
                   width={52}
@@ -256,6 +254,7 @@ const ReservoirPressureCharts = () => {
                 <CartesianGrid stroke={GRID} />
                 <XAxis
                   type="number"
+                  domain={[0, 2800]}
                   tick={AXIS}
                   stroke={GRID}
                   label={{ value: "Pressure, psi", position: "insideBottom", offset: -10, fill: "#64748b", fontSize: 11 }}
@@ -263,8 +262,7 @@ const ReservoirPressureCharts = () => {
                 <YAxis
                   type="number"
                   dataKey="depth"
-                  domain={[0, "dataMax"]}
-                  reversed
+                  domain={[6000, 0]}
                   tick={AXIS}
                   stroke={GRID}
                   width={52}
