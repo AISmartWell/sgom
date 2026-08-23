@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import ScenarioComparison from "@/components/innovation/ScenarioComparison";
 import ScenarioHowToRun from "@/components/innovation/ScenarioHowToRun";
+import ReservoirPressureCharts from "@/components/innovation/ReservoirPressureCharts";
 
 const STAGES = [
   {
@@ -207,6 +208,7 @@ const Innovation = () => {
         </div>
         <ScenarioComparison />
         <ScenarioHowToRun />
+        <ReservoirPressureCharts />
         <Card className="glass-card border-primary/30 mb-6">
           <CardHeader>
             <CardTitle>Open Research Gaps and Fallback Paths</CardTitle>
