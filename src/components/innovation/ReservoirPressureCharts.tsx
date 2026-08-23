@@ -263,7 +263,6 @@ const ReservoirPressureCharts = () => {
                   type="number"
                   dataKey="depth"
                   domain={[6000, 0]}
-                  ticks={[0, 1500, 3000, 4500, 6000]}
                   allowDataOverflow
                   tick={AXIS}
                   stroke={GRID}
