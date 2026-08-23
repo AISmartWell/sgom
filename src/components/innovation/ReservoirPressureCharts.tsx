@@ -5,7 +5,6 @@ import {
   ResponsiveContainer,
   LineChart,
   Line,
-  ScatterChart,
   Scatter,
   XAxis,
   YAxis,
