@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import ScenarioComparison from "@/components/innovation/ScenarioComparison";
 import ScenarioHowToRun from "@/components/innovation/ScenarioHowToRun";
+import ReservoirPressureCharts from "@/components/innovation/ReservoirPressureCharts";
 
 const STAGES = [
   {
