@@ -197,8 +197,9 @@ const App = () => (
                <Route path="/cosmos-real-test" element={<CosmosRealTest />} />
                <Route path="/fluid-simulation" element={<FluidPhysicsSimulation />} />
                <Route path="/spt-pipeline-demo" element={<SPTPipelineDemo />} />
-               <Route path="/innovation" element={<Innovation />} />
-               <Route path="/why-ai-smart-well" element={<WhyAISmartWell />} />
+                <Route path="/innovation" element={<Innovation />} />
+                <Route path="/ai4e2026" element={<AI4E2026 />} />
+                <Route path="/why-ai-smart-well" element={<WhyAISmartWell />} />
                <Route path="/alberta-petrel" element={<AlbertaPetrel />} />
                <Route path="/admin/import" element={<AdminImport />} />
            <Route path="/ocr" element={<OCRWellLogRedirect />} />
