@@ -109,22 +109,24 @@ const ReservoirPressureCharts = () => {
     }));
   }, []);
 
-  const rftData = useMemo(() => {
-    const measured: Record<number, number> = {
-      2100: 985,
-      3300: 1560,
-      4200: 2020,
-      5100: 2410,
-    };
-    return Array.from({ length: 23 }, (_, i) => {
-      const depth = 500 + i * 250;
-      return {
-        depth,
-        model: +(0.465 * depth).toFixed(0),
-        rft: measured[depth] ?? null,
-      };
-    });
-  }, []);
+  const rftData = useMemo(
+    () =>
+      Array.from({ length: 23 }, (_, i) => {
+        const depth = 500 + i * 250;
+        return { depth, model: +(0.465 * depth).toFixed(0) };
+      }),
+    [],
+  );
+
+  const rftPoints = useMemo(
+    () => [
+      { depth: 2100, rft: 985 },
+      { depth: 3300, rft: 1560 },
+      { depth: 4200, rft: 2020 },
+      { depth: 5100, rft: 2410 },
+    ],
+    [],
+  );
 
   return (
     <Card className="glass-card mb-10 border-primary/30">
@@ -150,17 +152,18 @@ const ReservoirPressureCharts = () => {
             note="Requires depth only. Accuracy ±20% — reliability rank 4."
           >
             <ResponsiveContainer width="100%" height="100%" minHeight={260}>
-              <LineChart data={gradientData} margin={{ top: 8, right: 12, bottom: 18, left: 4 }}>
+              <LineChart layout="vertical" data={gradientData} margin={{ top: 8, right: 16, bottom: 18, left: 4 }}>
                 <CartesianGrid stroke={GRID} />
                 <XAxis
                   type="number"
-                  dataKey="brine"
                   tick={AXIS}
                   stroke={GRID}
                   label={{ value: "Pressure, psi", position: "insideBottom", offset: -10, fill: "#64748b", fontSize: 11 }}
                 />
                 <YAxis
+                  type="number"
                   dataKey="depth"
+                  domain={[0, "dataMax"]}
                   reversed
                   tick={AXIS}
                   stroke={GRID}
@@ -168,7 +171,7 @@ const ReservoirPressureCharts = () => {
                   label={{ value: "Depth, ft", angle: -90, position: "insideLeft", fill: "#64748b", fontSize: 11 }}
                 />
                 <Tooltip contentStyle={tooltipStyle} />
-                <Legend wrapperStyle={{ fontSize: 11 }} />
+                <Legend verticalAlign="top" height={26} wrapperStyle={{ fontSize: 11 }} />
                 <Line dataKey="hydrostatic" name="Hydrostatic 0.433" stroke="#94a3b8" strokeDasharray="5 4" dot={false} strokeWidth={1.5} />
                 <Line dataKey="brine" name="Brine 0.465" stroke="#1A9FFF" dot={false} strokeWidth={2.2} />
                 <Line dataKey="overburden" name="Overburden ~1.0" stroke="#0f2b3d" dot={false} strokeWidth={1.6} />
@@ -183,17 +186,18 @@ const ReservoirPressureCharts = () => {
             note="Normal compaction trend fitted on shale points (GR ≥ 75 API). Undercompaction below ~3 800 ft lifts Pp above hydrostatic. Accuracy ±10% — rank 3."
           >
             <ResponsiveContainer width="100%" height="100%" minHeight={260}>
-              <ComposedChart data={eatonData} margin={{ top: 8, right: 12, bottom: 18, left: 4 }}>
+              <ComposedChart layout="vertical" data={eatonData} margin={{ top: 8, right: 16, bottom: 18, left: 4 }}>
                 <CartesianGrid stroke={GRID} />
                 <XAxis
                   type="number"
-                  dataKey="pp"
                   tick={AXIS}
                   stroke={GRID}
                   label={{ value: "Pressure, psi", position: "insideBottom", offset: -10, fill: "#64748b", fontSize: 11 }}
                 />
                 <YAxis
+                  type="number"
                   dataKey="depth"
+                  domain={[0, "dataMax"]}
                   reversed
                   tick={AXIS}
                   stroke={GRID}
@@ -201,7 +205,7 @@ const ReservoirPressureCharts = () => {
                   label={{ value: "Depth, ft", angle: -90, position: "insideLeft", fill: "#64748b", fontSize: 11 }}
                 />
                 <Tooltip contentStyle={tooltipStyle} />
-                <Legend wrapperStyle={{ fontSize: 11 }} />
+                <Legend verticalAlign="top" height={26} wrapperStyle={{ fontSize: 11 }} />
                 <Line dataKey="sv" name="Sv — overburden" stroke="#0f2b3d" dot={false} strokeWidth={1.6} />
                 <Line dataKey="pn" name="Pn — hydrostatic" stroke="#94a3b8" strokeDasharray="5 4" dot={false} strokeWidth={1.5} />
                 <Line dataKey="pp" name="Pp — Eaton" stroke="#d9534f" dot={false} strokeWidth={2.4} />
@@ -234,7 +238,7 @@ const ReservoirPressureCharts = () => {
                   label={{ value: "F, res bbl", angle: -90, position: "insideLeft", fill: "#64748b", fontSize: 11 }}
                 />
                 <Tooltip contentStyle={tooltipStyle} />
-                <Legend wrapperStyle={{ fontSize: 11 }} />
+                <Legend verticalAlign="top" height={26} wrapperStyle={{ fontSize: 11 }} />
                 <Line dataKey="fit" name="Fit F = N·Eo" stroke="#1A9FFF" dot={false} strokeWidth={2.2} />
                 <Scatter dataKey="f" name="Production history" fill="#0f2b3d" />
               </ComposedChart>
@@ -248,17 +252,18 @@ const ReservoirPressureCharts = () => {
             note="Highest-trust anchor points. Accuracy ±1% — rank 1. Reliability order: direct measurements > material balance > Eaton > gradient."
           >
             <ResponsiveContainer width="100%" height="100%" minHeight={260}>
-              <ComposedChart data={rftData} margin={{ top: 8, right: 12, bottom: 18, left: 4 }}>
+              <ComposedChart layout="vertical" data={rftData} margin={{ top: 8, right: 16, bottom: 18, left: 4 }}>
                 <CartesianGrid stroke={GRID} />
                 <XAxis
                   type="number"
-                  dataKey="model"
                   tick={AXIS}
                   stroke={GRID}
                   label={{ value: "Pressure, psi", position: "insideBottom", offset: -10, fill: "#64748b", fontSize: 11 }}
                 />
                 <YAxis
+                  type="number"
                   dataKey="depth"
+                  domain={[0, "dataMax"]}
                   reversed
                   tick={AXIS}
                   stroke={GRID}
@@ -266,9 +271,9 @@ const ReservoirPressureCharts = () => {
                   label={{ value: "Depth, ft", angle: -90, position: "insideLeft", fill: "#64748b", fontSize: 11 }}
                 />
                 <Tooltip contentStyle={tooltipStyle} />
-                <Legend wrapperStyle={{ fontSize: 11 }} />
+                <Legend verticalAlign="top" height={26} wrapperStyle={{ fontSize: 11 }} />
                 <Line dataKey="model" name="Model profile" stroke="#1A9FFF" dot={false} strokeWidth={2.2} />
-                <Scatter dataKey="rft" name="RFT / DST points" fill="#4b8f3b" shape="diamond" />
+                <Scatter data={rftPoints} dataKey="rft" name="RFT / DST points" fill="#4b8f3b" shape="diamond" />
               </ComposedChart>
             </ResponsiveContainer>
           </ChartPanel>
