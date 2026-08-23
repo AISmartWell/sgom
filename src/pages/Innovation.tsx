@@ -297,6 +297,23 @@ const Innovation = () => {
           </CardContent>
         </Card>
 
+        <Card className="glass-card border-accent/30">
+          <CardHeader>
+            <CardTitle>AI4E2026 Networking Theses</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+              Clean, print-ready version for AI4E2026 in Houston: AI Smart Well as
+              <strong className="text-foreground"> verifiable AI for mature-well restoration</strong>.
+              Emphasizes formula-backed recommendations, auditable agent reasoning, and transparent physics.
+            </p>
+            <Button variant="outline" onClick={() => navigate("/ai4e2026")} className="gap-2">
+              Open AI4E2026 theses
+              <ArrowLeft className="w-4 h-4 rotate-180" />
+            </Button>
+          </CardContent>
+        </Card>
+
       </div>
     </div>
   );

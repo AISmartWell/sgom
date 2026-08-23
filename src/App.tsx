@@ -71,6 +71,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import FluidPhysicsSimulation from "./pages/FluidPhysicsSimulation";
 import Innovation from "./pages/Innovation";
+import AI4E2026 from "./pages/AI4E2026";
 import WhyAISmartWell from "./pages/WhyAISmartWell";
 import AlbertaPetrel from "./pages/modules/AlbertaPetrel";
 import AdminImport from "./pages/modules/AdminImport";
@@ -196,8 +197,9 @@ const App = () => (
                <Route path="/cosmos-real-test" element={<CosmosRealTest />} />
                <Route path="/fluid-simulation" element={<FluidPhysicsSimulation />} />
                <Route path="/spt-pipeline-demo" element={<SPTPipelineDemo />} />
-               <Route path="/innovation" element={<Innovation />} />
-               <Route path="/why-ai-smart-well" element={<WhyAISmartWell />} />
+                <Route path="/innovation" element={<Innovation />} />
+                <Route path="/ai4e2026" element={<AI4E2026 />} />
+                <Route path="/why-ai-smart-well" element={<WhyAISmartWell />} />
                <Route path="/alberta-petrel" element={<AlbertaPetrel />} />
                <Route path="/admin/import" element={<AdminImport />} />
            <Route path="/ocr" element={<OCRWellLogRedirect />} />
