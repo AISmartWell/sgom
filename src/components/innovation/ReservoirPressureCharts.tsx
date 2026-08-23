@@ -12,7 +12,6 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  Area,
   ComposedChart,
 } from "recharts";
 
@@ -255,6 +254,7 @@ const ReservoirPressureCharts = () => {
                 <XAxis
                   type="number"
                   domain={[0, 2800]}
+                  allowDataOverflow
                   tick={AXIS}
                   stroke={GRID}
                   label={{ value: "Pressure, psi", position: "insideBottom", offset: -10, fill: "#64748b", fontSize: 11 }}
@@ -263,6 +263,8 @@ const ReservoirPressureCharts = () => {
                   type="number"
                   dataKey="depth"
                   domain={[6000, 0]}
+                  ticks={[0, 1500, 3000, 4500, 6000]}
+                  allowDataOverflow
                   tick={AXIS}
                   stroke={GRID}
                   width={52}
