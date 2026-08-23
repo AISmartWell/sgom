@@ -108,24 +108,17 @@ const ReservoirPressureCharts = () => {
     }));
   }, []);
 
-  const rftData = useMemo(
-    () =>
-      Array.from({ length: 23 }, (_, i) => {
-        const depth = 500 + i * 250;
-        return { depth, model: +(0.465 * depth).toFixed(0) };
-      }),
-    [],
-  );
-
-  const rftPoints = useMemo(
-    () => [
-      { depth: 2100, rft: 985 },
-      { depth: 3300, rft: 1560 },
-      { depth: 4200, rft: 2020 },
-      { depth: 5100, rft: 2410 },
-    ],
-    [],
-  );
+  const rftData = useMemo(() => {
+    const measured: Record<number, number> = { 2100: 985, 3300: 1560, 4200: 2020, 5100: 2410 };
+    return Array.from({ length: 21 }, (_, i) => {
+      const depth = i * 300;
+      return {
+        depth,
+        model: +(0.465 * depth).toFixed(0),
+        rft: measured[depth] ?? null,
+      };
+    });
+  }, []);
 
   return (
     <Card className="glass-card mb-10 border-primary/30">
@@ -254,7 +247,6 @@ const ReservoirPressureCharts = () => {
                 <XAxis
                   type="number"
                   domain={[0, 2800]}
-                  allowDataOverflow
                   tick={AXIS}
                   stroke={GRID}
                   label={{ value: "Pressure, psi", position: "insideBottom", offset: -10, fill: "#64748b", fontSize: 11 }}
@@ -262,9 +254,7 @@ const ReservoirPressureCharts = () => {
                 <YAxis
                   type="number"
                   dataKey="depth"
-                  domain={[0, 6000]}
-                  reversed
-                  allowDataOverflow
+                  domain={[6000, 0]}
                   tick={AXIS}
                   stroke={GRID}
                   width={52}
@@ -273,7 +263,7 @@ const ReservoirPressureCharts = () => {
                 <Tooltip contentStyle={tooltipStyle} />
                 <Legend verticalAlign="top" height={26} wrapperStyle={{ fontSize: 11 }} />
                 <Line dataKey="model" name="Model profile" stroke="#1A9FFF" dot={false} strokeWidth={2.2} />
-                <Scatter data={rftPoints} dataKey="rft" name="RFT / DST points" fill="#4b8f3b" shape="diamond" />
+                <Line dataKey="rft" name="RFT / DST points" stroke="none" connectNulls={false} dot={{ r: 5, fill: "#4b8f3b", stroke: "#2f5f22" }} legendType="diamond" />
               </ComposedChart>
             </ResponsiveContainer>
           </ChartPanel>
