@@ -4,9 +4,18 @@ import { PipelineVideo } from "./PipelineVideo";
 import { WellLogVideo } from "./WellLogVideo";
 import { TeaserVideo } from "./TeaserVideo";
 import { WellLogDemoVideo } from "./WellLogDemoVideo";
+import { InvestorVideo, INVESTOR_DURATION } from "./InvestorVideo";
 
 export const RemotionRoot = () => (
   <>
+    <Composition
+      id="investor-pitch"
+      component={InvestorVideo}
+      durationInFrames={INVESTOR_DURATION}
+      fps={30}
+      width={1920}
+      height={1080}
+    />
     <Composition
       id="teaser"
       component={TeaserVideo}
