@@ -57,6 +57,12 @@ const menuItems = [
     badge: "💡",
   },
   {
+    title: "AI4E2026 Theses",
+    icon: Presentation,
+    href: "/dashboard/ai4e2026",
+    badge: "🎤",
+  },
+  {
     title: "Analysis Reports",
     icon: FileText,
     href: "/dashboard/analysis-reports",
