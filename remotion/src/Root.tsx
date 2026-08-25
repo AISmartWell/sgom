@@ -13,10 +13,32 @@ import { PhysicsScene } from "./scenes/investor/PhysicsScene";
 import { NumbersScene } from "./scenes/investor/NumbersScene";
 import { CloseScene } from "./scenes/investor/CloseScene";
 
+import { SgomVideo, SGOM_DURATION, SGOM_SCENES } from "./SgomVideo";
+
 const d = (i: number) => INVESTOR_SCENES[i].duration;
 
 export const RemotionRoot = () => (
   <>
+    <Composition
+      id="sgom-physics"
+      component={SgomVideo}
+      durationInFrames={SGOM_DURATION}
+      fps={30}
+      width={1920}
+      height={1080}
+    />
+    {SGOM_SCENES.map((s) => (
+      <Composition
+        key={s.id}
+        id={`sgom-${s.id.replace("_", "-")}`}
+        component={s.C}
+        durationInFrames={s.duration}
+        fps={30}
+        width={1920}
+        height={1080}
+      />
+    ))}
+
     <Composition
       id="investor-pitch"
       component={InvestorVideo}
