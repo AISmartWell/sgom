@@ -6,6 +6,7 @@ import { HookScene } from "./scenes/investor/HookScene";
 import { PipelineScene } from "./scenes/investor/PipelineScene";
 import { UIScene } from "./scenes/investor/UIScene";
 import { RPSScene } from "./scenes/investor/RPSScene";
+import { PhysicsScene } from "./scenes/investor/PhysicsScene";
 import { NumbersScene } from "./scenes/investor/NumbersScene";
 import { CloseScene } from "./scenes/investor/CloseScene";
 
@@ -14,12 +15,13 @@ export const INVESTOR_SCENES = [
   { id: "02_solution", duration: 360 },
   { id: "03_ocr", duration: 369 },
   { id: "04_solver", duration: 354 },
-  { id: "05_rps", duration: 375 },
-  { id: "06_advisor", duration: 330 },
-  { id: "07_twin", duration: 291 },
-  { id: "08_econ", duration: 390 },
-  { id: "09_numbers", duration: 399 },
-  { id: "10_close", duration: 315 },
+  { id: "05_physics", duration: 330 },
+  { id: "06_rps", duration: 375 },
+  { id: "07_advisor", duration: 330 },
+  { id: "08_twin", duration: 291 },
+  { id: "09_econ", duration: 390 },
+  { id: "10_numbers", duration: 399 },
+  { id: "11_close", duration: 315 },
 ] as const;
 
 export const TRANSITION = 12;
@@ -74,13 +76,20 @@ export const InvestorVideo: React.FC = () => {
           timing={linearTiming({ durationInFrames: TRANSITION })}
         />
         <TransitionSeries.Sequence durationInFrames={d(4)}>
-          <RPSScene />
+          <PhysicsScene />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition
           presentation={fade()}
           timing={linearTiming({ durationInFrames: TRANSITION })}
         />
         <TransitionSeries.Sequence durationInFrames={d(5)}>
+          <RPSScene />
+        </TransitionSeries.Sequence>
+        <TransitionSeries.Transition
+          presentation={fade()}
+          timing={linearTiming({ durationInFrames: TRANSITION })}
+        />
+        <TransitionSeries.Sequence durationInFrames={d(6)}>
           <UIScene
             clip="advisor"
             startAt={8}
@@ -94,7 +103,7 @@ export const InvestorVideo: React.FC = () => {
           presentation={fade()}
           timing={linearTiming({ durationInFrames: TRANSITION })}
         />
-        <TransitionSeries.Sequence durationInFrames={d(6)}>
+        <TransitionSeries.Sequence durationInFrames={d(7)}>
           <UIScene
             clip="twin"
             startAt={8}
@@ -108,7 +117,7 @@ export const InvestorVideo: React.FC = () => {
           presentation={fade()}
           timing={linearTiming({ durationInFrames: TRANSITION })}
         />
-        <TransitionSeries.Sequence durationInFrames={d(7)}>
+        <TransitionSeries.Sequence durationInFrames={d(8)}>
           <UIScene
             clip="econ"
             startAt={8}
@@ -122,14 +131,14 @@ export const InvestorVideo: React.FC = () => {
           presentation={fade()}
           timing={linearTiming({ durationInFrames: TRANSITION })}
         />
-        <TransitionSeries.Sequence durationInFrames={d(8)}>
+        <TransitionSeries.Sequence durationInFrames={d(9)}>
           <NumbersScene />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition
           presentation={fade()}
           timing={linearTiming({ durationInFrames: TRANSITION })}
         />
-        <TransitionSeries.Sequence durationInFrames={d(9)}>
+        <TransitionSeries.Sequence durationInFrames={d(10)}>
           <CloseScene />
         </TransitionSeries.Sequence>
       </TransitionSeries>
