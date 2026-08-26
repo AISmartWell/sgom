@@ -51,6 +51,12 @@ const menuItems = [
     href: "/dashboard",
   },
   {
+    title: "SGOM Task Map",
+    icon: Map,
+    href: "/dashboard/sgom-task-map",
+    badge: "Overview",
+  },
+  {
     title: "Innovation",
     icon: Sparkles,
     href: "/innovation",
