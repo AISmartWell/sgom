@@ -202,6 +202,8 @@ const App = () => (
                 <Route path="/ai4e2026" element={<AI4E2026 />} />
                 <Route path="/dashboard/ai4e2026" element={<AI4E2026 />} />
                 <Route path="/why-ai-smart-well" element={<WhyAISmartWell />} />
+                <Route path="/sgom-task-map" element={<SGOMTaskMap />} />
+                <Route path="/dashboard/sgom-task-map" element={<SGOMTaskMap />} />
                <Route path="/alberta-petrel" element={<AlbertaPetrel />} />
                <Route path="/admin/import" element={<AdminImport />} />
            <Route path="/ocr" element={<OCRWellLogRedirect />} />
