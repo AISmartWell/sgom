@@ -177,6 +177,23 @@ const MODULES: ModuleIO[] = [
     icon: Gauge,
   },
   {
+    stage: "Stage 4+",
+    module: "Bayesian DCA Monitor (probabilistic forecasting)",
+    route: "/dashboard/bayesian-dca",
+    inputs: [
+      "Arps prior (qi, Di, b) from Stage 4",
+      "Streaming production / SCADA rates",
+      "Uncertainty σ-factor",
+    ],
+    outputs: [
+      "Posterior forecast with P10/P50/P90 band",
+      "Live forecast-vs-actual deviation & MAPE accuracy",
+      "Updated decline parameters for the twin",
+    ],
+    consumers: "Stage 7 Economics, RPS scoring, Digital Twin",
+    icon: Brain,
+  },
+  {
     stage: "Cross-cutting",
     module: "Digital Twin & Feedback Loop",
     route: "/dashboard/digital-twin",
