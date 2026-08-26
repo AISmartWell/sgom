@@ -73,6 +73,7 @@ import FluidPhysicsSimulation from "./pages/FluidPhysicsSimulation";
 import Innovation from "./pages/Innovation";
 import AI4E2026 from "./pages/AI4E2026";
 import WhyAISmartWell from "./pages/WhyAISmartWell";
+import SGOMTaskMap from "./pages/SGOMTaskMap";
 import AlbertaPetrel from "./pages/modules/AlbertaPetrel";
 import AdminImport from "./pages/modules/AdminImport";
 import BayesianDCA from "./pages/modules/BayesianDCA";
@@ -201,6 +202,8 @@ const App = () => (
                 <Route path="/ai4e2026" element={<AI4E2026 />} />
                 <Route path="/dashboard/ai4e2026" element={<AI4E2026 />} />
                 <Route path="/why-ai-smart-well" element={<WhyAISmartWell />} />
+                <Route path="/sgom-task-map" element={<SGOMTaskMap />} />
+                <Route path="/dashboard/sgom-task-map" element={<SGOMTaskMap />} />
                <Route path="/alberta-petrel" element={<AlbertaPetrel />} />
                <Route path="/admin/import" element={<AdminImport />} />
            <Route path="/ocr" element={<OCRWellLogRedirect />} />
