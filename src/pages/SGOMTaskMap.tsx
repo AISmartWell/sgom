@@ -52,6 +52,13 @@ const TASKS: Task[] = [
     icon: Activity,
   },
   {
+    id: "bayes",
+    title: "Bayesian forecasting",
+    problem:
+      "A single deterministic decline fit gives no confidence interval and cannot absorb new production data.",
+    icon: Brain,
+  },
+  {
     id: "rank",
     title: "Rank restoration candidates",
     problem: "Operators need a defensible order of wells, not a black-box score.",
