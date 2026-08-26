@@ -113,6 +113,7 @@ const App = () => (
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/dashboard" element={<DashboardLayout />}>
             <Route index element={<Dashboard />} />
+            <Route path="sgom-task-map" element={<SGOMTaskMap />} />
             <Route path="data-collection" element={<DataCollection />} />
             <Route path="geological-analysis" element={<GeologicalAnalysis />} />
             <Route path="well-selection" element={<WellSelection />} />
@@ -203,7 +204,6 @@ const App = () => (
                 <Route path="/dashboard/ai4e2026" element={<AI4E2026 />} />
                 <Route path="/why-ai-smart-well" element={<WhyAISmartWell />} />
                 <Route path="/sgom-task-map" element={<SGOMTaskMap />} />
-                <Route path="/dashboard/sgom-task-map" element={<SGOMTaskMap />} />
                <Route path="/alberta-petrel" element={<AlbertaPetrel />} />
                <Route path="/admin/import" element={<AdminImport />} />
            <Route path="/ocr" element={<OCRWellLogRedirect />} />
