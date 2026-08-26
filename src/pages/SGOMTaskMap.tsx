@@ -226,7 +226,7 @@ const FLOW = [
   "Registry & documents",
   "OCR / digitization",
   "Petrophysics & pressure",
-  "Forecast & RPS ranking",
+  "Bayesian forecast & RPS ranking",
   "Economics & decision",
   "Digital Twin feedback",
 ];
