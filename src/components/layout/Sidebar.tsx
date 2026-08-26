@@ -141,6 +141,12 @@ const menuItems = [
     badge: "Stage 4.5",
   },
   {
+    title: "PVT Laboratory Guide",
+    icon: Gauge,
+    href: "/dashboard/pvt-guide",
+    badge: "Stage 4.5",
+  },
+  {
     title: "SPT Projection",
     icon: TrendingUp,
     href: "/dashboard/spt-projection",
