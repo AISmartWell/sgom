@@ -73,6 +73,7 @@ import FluidPhysicsSimulation from "./pages/FluidPhysicsSimulation";
 import Innovation from "./pages/Innovation";
 import AI4E2026 from "./pages/AI4E2026";
 import WhyAISmartWell from "./pages/WhyAISmartWell";
+import SGOMTaskMap from "./pages/SGOMTaskMap";
 import AlbertaPetrel from "./pages/modules/AlbertaPetrel";
 import AdminImport from "./pages/modules/AdminImport";
 import BayesianDCA from "./pages/modules/BayesianDCA";
