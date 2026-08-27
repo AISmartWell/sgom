@@ -18,6 +18,7 @@ import { estimatePorePressure, calibrateEatonExponent, type PoreLogPoint } from 
 import { pvtSnapshot } from "@/lib/pvt";
 import { havlenaOdehOil, type OilMBPoint } from "@/lib/material-balance";
 import { ScatterChart, Scatter, ZAxis } from "recharts";
+import PressureEstimatorDemo from "@/components/reservoir-pressure/PressureEstimatorDemo";
 
 type CalibPoint = {
   id: string;
@@ -435,6 +436,9 @@ export default function ReservoirPressure() {
           {saving ? "Saving…" : "Save estimate"}
         </Button>
       </div>
+
+      {/* Guided demo of the estimation pipeline */}
+      <PressureEstimatorDemo />
 
       {/* Well selector */}
       <Card>
