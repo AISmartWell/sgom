@@ -436,6 +436,9 @@ export default function ReservoirPressure() {
         </Button>
       </div>
 
+      {/* Guided demo of the estimation pipeline */}
+      <PressureEstimatorDemo />
+
       {/* Well selector */}
       <Card>
         <CardHeader><CardTitle className="text-sm">Select well</CardTitle></CardHeader>
