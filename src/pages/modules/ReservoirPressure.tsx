@@ -18,6 +18,7 @@ import { estimatePorePressure, calibrateEatonExponent, type PoreLogPoint } from 
 import { pvtSnapshot } from "@/lib/pvt";
 import { havlenaOdehOil, type OilMBPoint } from "@/lib/material-balance";
 import { ScatterChart, Scatter, ZAxis } from "recharts";
+import PressureEstimatorDemo from "@/components/reservoir-pressure/PressureEstimatorDemo";
 
 type CalibPoint = {
   id: string;
