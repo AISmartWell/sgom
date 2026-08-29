@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Target, Play, ArrowLeft, Loader2 } from "lucide-react";
+import { Target, Play, ArrowLeft, Loader2, Database, RefreshCw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useWellRanking } from "@/hooks/useWellRanking";
 import WellFilters from "@/components/well-selection/WellFilters";
@@ -10,7 +10,7 @@ import RankingSummary from "@/components/well-selection/RankingSummary";
 
 const WellSelection = () => {
   const navigate = useNavigate();
-  const { isAnalyzing, result, filters, runAnalysis, updateFilters, getWellData } = useWellRanking();
+  const { isAnalyzing, isLoadingWells, dataSource, wells, result, filters, runAnalysis, updateFilters, reloadWells } = useWellRanking();
 
   return (
     <div className="p-8">
@@ -39,7 +39,17 @@ const WellSelection = () => {
             <Target className="mr-1 h-3 w-3" />
             AI-Powered
           </Badge>
-          <Button onClick={runAnalysis} disabled={isAnalyzing}>
+          <Badge
+            variant="outline"
+            className={dataSource === "company" ? "text-success border-success/40" : "text-warning border-warning/40"}
+          >
+            <Database className="mr-1 h-3 w-3" />
+            {dataSource === "company" ? `Company registry · ${wells.length} wells` : "Demo dataset"}
+          </Badge>
+          <Button variant="outline" size="icon" onClick={reloadWells} disabled={isLoadingWells || isAnalyzing} aria-label="Reload wells">
+            <RefreshCw className={`h-4 w-4 ${isLoadingWells ? "animate-spin" : ""}`} />
+          </Button>
+          <Button onClick={runAnalysis} disabled={isAnalyzing || isLoadingWells}>
             {isAnalyzing ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -58,11 +68,12 @@ const WellSelection = () => {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Main Content */}
         <div className="lg:col-span-3 space-y-6">
-          <WellMap rankings={result?.rankings || null} region={filters.region} />
+          <WellMap rankings={result?.rankings || null} region={filters.region} wells={wells} />
           <WellRankingTable
             rankings={result?.rankings || null}
-            wells={getWellData()}
-            isLoading={isAnalyzing}
+            wells={wells}
+            isLoading={isAnalyzing || isLoadingWells}
+            dataSource={dataSource}
           />
         </div>
 
