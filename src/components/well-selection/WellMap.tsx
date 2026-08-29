@@ -3,11 +3,12 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { MapPin } from "lucide-react";
-import { WellRanking } from "@/hooks/useWellRanking";
+import { WellRanking, WellData } from "@/hooks/useWellRanking";
 
 interface WellMapProps {
   rankings: WellRanking[] | null;
   region: string;
+  wells: WellData[];
 }
 
 const REGION_CENTERS: Record<string, { center: [number, number]; zoom: number; label: string }> = {
@@ -59,7 +60,7 @@ const getPotentialColor = (potential?: string): string => {
   }
 };
 
-const WellMap = ({ rankings, region }: WellMapProps) => {
+const WellMap = ({ rankings, region, wells }: WellMapProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
 
@@ -72,7 +73,15 @@ const WellMap = ({ rankings, region }: WellMapProps) => {
     }
 
     const regionConfig = REGION_CENTERS[region] || REGION_CENTERS.Oklahoma;
-    const coords = WELL_COORDS[region] || WELL_COORDS.Oklahoma;
+    const fallbackCoords = WELL_COORDS[region] || WELL_COORDS.Oklahoma;
+    const points = wells
+      .map((w) => {
+        const fb = fallbackCoords[w.id];
+        const lat = typeof w.latitude === "number" ? w.latitude : fb?.[0];
+        const lng = typeof w.longitude === "number" ? w.longitude : fb?.[1];
+        return lat != null && lng != null ? { well: w, lat, lng } : null;
+      })
+      .filter(Boolean) as { well: WellData; lat: number; lng: number }[];
 
     const map = L.map(mapRef.current, { scrollWheelZoom: true, zoomControl: true });
     mapInstanceRef.current = map;
@@ -101,8 +110,8 @@ const WellMap = ({ rankings, region }: WellMapProps) => {
 
     // Add well markers
     const markers: L.CircleMarker[] = [];
-    Object.entries(coords).forEach(([wellId, [lat, lng]]) => {
-      const ranking = rankings?.find((r) => r.wellId === wellId);
+    points.forEach(({ well, lat, lng }) => {
+      const ranking = rankings?.find((r) => r.wellId === well.id);
       const color = getPotentialColor(ranking?.potential);
       const radius = ranking?.potential === "high" ? 10 : ranking?.potential === "medium" ? 8 : 6;
 
@@ -116,15 +125,19 @@ const WellMap = ({ rankings, region }: WellMapProps) => {
       }).addTo(map);
 
       marker.bindPopup(`
-        <div style="font-family:system-ui;min-width:160px;">
-          <div style="font-weight:700;font-size:13px;margin-bottom:4px;">${wellId}</div>
+        <div style="font-family:system-ui;min-width:170px;">
+          <div style="font-weight:700;font-size:13px;margin-bottom:4px;">${well.name}</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:11px;">
+            <span style="color:#888;">Oil rate:</span>
+            <span style="font-weight:600;">${well.currentProduction} BPD</span>
+            <span style="color:#888;">Water cut:</span>
+            <span style="font-weight:600;">${well.waterCut}%</span>
             <span style="color:#888;">Potential:</span>
             <span style="font-weight:600;color:${color};">${ranking?.potential?.toUpperCase() || "N/A"}</span>
             <span style="color:#888;">Score:</span>
-            <span style="font-weight:600;">${ranking?.score?.toFixed(1) ?? "—"}</span>
+            <span style="font-weight:600;">${ranking?.score?.toFixed(1) ?? "\u2014"}</span>
           </div>
-          ${ranking?.recommendation ? `<div style="font-size:10px;color:#aaa;margin-top:6px;border-top:1px solid #333;padding-top:4px;">${ranking.recommendation.slice(0, 80)}…</div>` : ""}
+          ${ranking?.recommendation ? `<div style="font-size:10px;color:#aaa;margin-top:6px;border-top:1px solid #333;padding-top:4px;">${ranking.recommendation.slice(0, 80)}\u2026</div>` : ""}
         </div>
       `);
 
@@ -143,7 +156,7 @@ const WellMap = ({ rankings, region }: WellMapProps) => {
         mapInstanceRef.current = null;
       }
     };
-  }, [rankings, region]);
+  }, [rankings, region, wells]);
 
   return (
     <Card className="glass-card">
