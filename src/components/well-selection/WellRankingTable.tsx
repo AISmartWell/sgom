@@ -3,15 +3,16 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { TrendingUp, TrendingDown, Minus, Info, Loader2 } from "lucide-react";
-import { WellRanking, WellData } from "@/hooks/useWellRanking";
+import { WellRanking, WellData, WellDataSource } from "@/hooks/useWellRanking";
 
 interface WellRankingTableProps {
   rankings: WellRanking[] | null;
   wells: WellData[];
   isLoading: boolean;
+  dataSource?: WellDataSource;
 }
 
-const WellRankingTable = ({ rankings, wells, isLoading }: WellRankingTableProps) => {
+const WellRankingTable = ({ rankings, wells, isLoading, dataSource = "demo" }: WellRankingTableProps) => {
   const getPotentialBadge = (potential: string) => {
     switch (potential) {
       case "high":
@@ -55,9 +56,16 @@ const WellRankingTable = ({ rankings, wells, isLoading }: WellRankingTableProps)
         <CardTitle className="flex items-center gap-2">
           AI Ranking Results
           {isLoading && <Loader2 className="h-4 w-4 animate-spin text-primary" />}
+          <Badge
+            variant="outline"
+            className={dataSource === "company" ? "text-success border-success/30" : "text-warning border-warning/30"}
+          >
+            {dataSource === "company" ? "REAL DATA" : "DEMO DATA"}
+          </Badge>
         </CardTitle>
         <CardDescription>
           {rankings ? "Wells sorted by SPT treatment potential" : "Click 'Run AI Selection' to analyze wells"}
+          {dataSource === "demo" && " — company registry is empty, showing the demo dataset"}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -88,7 +96,7 @@ const WellRankingTable = ({ rankings, wells, isLoading }: WellRankingTableProps)
                 const well = getWellData(ranking.wellId);
                 return (
                   <tr key={ranking.wellId} className="border-b border-border/50 hover:bg-muted/30">
-                    <td className="py-3 px-4 font-mono text-sm">{ranking.wellId}</td>
+                    <td className="py-3 px-4 font-mono text-xs">{well?.apiNumber || ranking.wellId.slice(0, 8)}</td>
                     <td className="py-3 px-4 font-medium">{well?.name || ranking.wellId}</td>
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-2">
