@@ -8,7 +8,7 @@ const corsHeaders = {
 const NVIDIA_URL = Deno.env.get('NVIDIA_VISION_URL')
   ?? 'https://integrate.api.nvidia.com/v1/chat/completions';
 // NVIDIA NIM vision-language model (NVIDIA Vision)
-const MODEL = Deno.env.get('NVIDIA_VISION_MODEL') ?? 'nvidia/nemotron-nano-12b-v2-vl';
+const MODEL = Deno.env.get('NVIDIA_VISION_MODEL') ?? 'meta/llama-3.2-90b-vision-instruct';
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
