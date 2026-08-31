@@ -45,7 +45,7 @@ Deno.serve(async (req) => {
         voice,
         response_format: "mp3",
         instructions:
-          "You are Maria, a warm, confident female AI guide for AI Smart Well. Speak naturally, clearly, with slight enthusiasm.",
+          "You are Maria, a warm, confident female AI guide for the SGOM platform. Speak naturally, clearly, with slight enthusiasm.",
       }),
       signal: req.signal,
     });
