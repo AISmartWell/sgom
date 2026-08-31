@@ -16,9 +16,9 @@ const NVIDIA_URL = Deno.env.get('COSMOS_API_URL')
 //   COSMOS_MODEL_PREDICT   → override for post-SPT forecasting
 //   COSMOS_MODEL_TRANSFER  → override for synthetic log generation
 //   COSMOS_MODEL_PING      → override for health-check
-// Falls back to Meta Llama 3.3 70B (best hosted reasoning model on the NVIDIA
-// API Catalog) since nvidia/cosmos-reason1-7b is deprecated on the hosted API.
-const DEFAULT_MODEL = Deno.env.get('COSMOS_MODEL') ?? 'meta/llama-3.3-70b-instruct';
+// Falls back to NVIDIA Nemotron 3 Super 120B (current hosted reasoning model;
+// meta/llama-3.3-70b-instruct reached end-of-life on the hosted API 2026-08-26).
+const DEFAULT_MODEL = Deno.env.get('COSMOS_MODEL') ?? 'nvidia/nemotron-3-super-120b-a12b';
 const MODEL_BY_MODE: Record<string, string> = {
   reason:   Deno.env.get('COSMOS_MODEL_REASON')   ?? DEFAULT_MODEL,
   predict:  Deno.env.get('COSMOS_MODEL_PREDICT')  ?? DEFAULT_MODEL,
