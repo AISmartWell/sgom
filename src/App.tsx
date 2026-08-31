@@ -168,6 +168,7 @@ const App = () => (
               <Route path="ingest-diagnostics" element={<IngestRestorationDiagnostics />} />
               <Route path="spt-advisor" element={<SPTAdvisor />} />
               <Route path="spt-demo" element={<SPTDemo />} />
+              <Route path="brawner-expertise-demo" element={<BrawnerExpertiseDemo />} />
               <Route path="spt-benchmark" element={<SPTBenchmarkPool />} />
               <Route path="autonomous-scan" element={<AutonomousScan />} />
               <Route path="ai-guide" element={<AIGuide />} />
