@@ -171,6 +171,7 @@ async function findExistingWell(
   }
 
   if (wellName) {
+    // Exact-ish match first
     const { data } = await supabase
       .from("wells")
       .select("id, well_name, api_number, formation, total_depth")
@@ -181,7 +182,31 @@ async function findExistingWell(
       .maybeSingle();
 
     if (data) return data;
+
+    // Fuzzy fallback: ignore spaces/punctuation/case ("Brawner10-15" === "BRAWNER 10-15")
+    const norm = (v: string) => v.toLowerCase().replace(/[^a-z0-9]/g, "");
+    const target = norm(wellName);
+    const tokens = wellName.toLowerCase().match(/[a-z]+|\d+/g) || [];
+    const firstWord = tokens.find((t) => /[a-z]/.test(t)) || tokens[0];
+
+    if (firstWord) {
+      const { data: candidates } = await supabase
+        .from("wells")
+        .select("id, well_name, api_number, formation, total_depth")
+        .eq("company_id", companyId)
+        .ilike("well_name", `%${firstWord}%`)
+        .order("updated_at", { ascending: false })
+        .limit(50);
+
+      const match = (candidates || []).find((w: { well_name: string | null }) => {
+        const candidate = norm(w.well_name || "");
+        return candidate === target || candidate.includes(target) || target.includes(candidate);
+      });
+
+      if (match) return match;
+    }
   }
+
 
   return null;
 }
