@@ -26,7 +26,7 @@ serve(async (req) => {
     }
     const NVIDIA_URL = Deno.env.get('NVIDIA_VISION_URL')
       ?? 'https://integrate.api.nvidia.com/v1/chat/completions';
-    const MODEL = Deno.env.get('NVIDIA_VISION_MODEL') ?? 'nvidia/nemotron-nano-12b-v2-vl';
+    const MODEL = Deno.env.get('NVIDIA_VISION_MODEL') ?? 'meta/llama-3.2-90b-vision-instruct';
 
     const systemPrompt = `You are an expert petroleum geologist and petrophysicist specializing in core sample analysis. 
 Analyze the provided core sample image and provide detailed geological interpretation.

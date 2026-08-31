@@ -9,8 +9,16 @@ const corsHeaders = {
 
 const NVIDIA_URL = Deno.env.get("NVIDIA_BASE_URL")
   ?? "https://integrate.api.nvidia.com/v1/chat/completions";
-const FAST_MODEL = Deno.env.get("NVIDIA_VISION_MODEL") ?? "nvidia/nemotron-nano-12b-v2-vl";
-const DEEP_MODEL = Deno.env.get("NVIDIA_VISION_DEEP_MODEL") ?? FAST_MODEL;
+const FAST_MODEL = Deno.env.get("NVIDIA_VISION_MODEL") ?? "meta/llama-3.2-11b-vision-instruct";
+const DEEP_MODEL = Deno.env.get("NVIDIA_VISION_DEEP_MODEL") ?? "meta/llama-3.2-11b-vision-instruct";
+// Fallback chain used when a hosted model is retired (410 Gone) or unavailable (404).
+const MODEL_CHAIN = Array.from(new Set([
+  FAST_MODEL,
+  DEEP_MODEL,
+  "meta/llama-3.2-90b-vision-instruct",
+  "meta/llama-3.2-11b-vision-instruct",
+  "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
+]));
 
 
 const SYSTEM = `You are an expert petroleum well-log OCR engine and petrophysicist.
@@ -169,47 +177,100 @@ async function callGateway(apiKey: string, model: string, dataUrl: string, mode:
   let lastBody = "";
   let lastStatus = 502;
 
-  for (let attempt = 1; attempt <= 3; attempt++) {
-    const gwRes = await fetch(NVIDIA_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`,
-      },
+  const chain = Array.from(new Set([model, ...MODEL_CHAIN]));
 
+  for (const candidate of chain) {
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      const gwRes = await fetch(NVIDIA_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${apiKey}`,
+        },
+
+        body: JSON.stringify({
+          model: candidate,
+          temperature: 0,
+          max_tokens: 2048,
+          messages: [
+            { role: "system", content: `${SYSTEM}\n\nSchema:\n${SCHEMA_HINT}` },
+            {
+              role: "user",
+              content: [
+                { type: "text", text: userInstruction },
+                { type: "image_url", image_url: { url: dataUrl } },
+              ],
+            },
+          ],
+        }),
+      });
+
+      if (gwRes.ok) {
+        const json = await gwRes.json();
+        const content: string = json?.choices?.[0]?.message?.content ?? "{}";
+        const parsed = parseJsonObject(content);
+        parsed._served_by = candidate;
+        return parsed;
+      }
+
+      lastStatus = gwRes.status;
+      lastBody = await gwRes.text();
+      // Model retired / not found / rejected payload -> try the next model in the chain.
+      if ([400, 404, 410, 422].includes(gwRes.status)) break;
+      if (gwRes.status !== 429 && gwRes.status < 500) break;
+      if (attempt < 3) await wait(500 * attempt * attempt);
+    }
+    if (![400, 404, 410, 422, 429, 500, 502, 503, 504].includes(lastStatus)) break;
+    if ([401, 403].includes(lastStatus)) break;
+  }
+
+
+  throw new Response(JSON.stringify({ error: "NVIDIA Vision error", status: lastStatus, body: lastBody }), {
+    status: lastStatus === 429 || lastStatus === 402 ? lastStatus : 502,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
+
+// Structured-JSON fallback: vision-capable model on the Lovable AI gateway.
+// Used when the NVIDIA vision pass returns prose instead of the required JSON.
+async function callStructuredFallback(dataUrl: string, mode: "fast" | "deep" | "digitize") {
+  const key = Deno.env.get("LOVABLE_API_KEY");
+  if (!key) return null;
+  const instruction = mode === "digitize"
+    ? "DIGITIZE mode. Extract all visible text and sample the curves along depth (20-40 rows) into log_readings."
+    : "Recognise this scanned well log. Extract every visible text token, header labels, curve tracks, tops and perforations.";
+  try {
+    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Lovable-API-Key": key },
       body: JSON.stringify({
-        model,
+        model: "google/gemini-3.7-flash",
         temperature: 0,
-        max_tokens: 2048,
+        response_format: { type: "json_object" },
         messages: [
           { role: "system", content: `${SYSTEM}\n\nSchema:\n${SCHEMA_HINT}` },
           {
             role: "user",
             content: [
-              { type: "text", text: userInstruction },
+              { type: "text", text: `${instruction} Return STRICT JSON per schema.` },
               { type: "image_url", image_url: { url: dataUrl } },
             ],
           },
         ],
       }),
     });
-
-    if (gwRes.ok) {
-      const json = await gwRes.json();
-      const content: string = json?.choices?.[0]?.message?.content ?? "{}";
-      return parseJsonObject(content);
+    if (!res.ok) {
+      console.error("structured fallback failed", res.status, await res.text());
+      return null;
     }
-
-    lastStatus = gwRes.status;
-    lastBody = await gwRes.text();
-    if (gwRes.status !== 429 && gwRes.status < 500) break;
-    if (attempt < 3) await wait(500 * attempt * attempt);
+    const json = await res.json();
+    const parsed = parseJsonObject(json?.choices?.[0]?.message?.content ?? "{}");
+    parsed._served_by = "google/gemini-3.7-flash";
+    return parsed;
+  } catch (e) {
+    console.error("structured fallback threw", e);
+    return null;
   }
-
-  throw new Response(JSON.stringify({ error: "NVIDIA Vision error", status: lastStatus, body: lastBody }), {
-    status: lastStatus === 429 || lastStatus === 402 ? lastStatus : 502,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
-  });
 }
 
 Deno.serve(async (req) => {
@@ -227,48 +288,56 @@ Deno.serve(async (req) => {
       return jsonResponse({ error: "NVIDIA_API_KEY missing" }, 500);
     }
 
-    if (quality === "digitize") {
-      const deep = normalizeResult(
-        await callGateway(apiKey, DEEP_MODEL, dataUrl, "digitize"),
-        DEEP_MODEL,
-        false,
-        true,
-      );
-      return jsonResponse({
-        ok: true,
-        result: deep,
-        model: DEEP_MODEL,
-        fallbackUsed: false,
-        digitized: true,
-        extractionScore: extractionScore(deep),
-      });
+    const mode: "fast" | "deep" | "digitize" =
+      quality === "digitize" ? "digitize" : quality === "deep" ? "deep" : "fast";
+    const keepReadings = mode === "digitize";
+    const primaryModel = mode === "fast" ? FAST_MODEL : DEEP_MODEL;
+
+    let raw: Record<string, unknown> | null = null;
+    let usedModel = primaryModel;
+    let fallbackUsed = false;
+
+    try {
+      raw = await callGateway(apiKey, primaryModel, dataUrl, mode);
+      usedModel = String(raw?._served_by ?? primaryModel);
+    } catch (e) {
+      if (!(e instanceof Response)) throw e;
+      console.error("NVIDIA vision pass failed", await e.clone().text());
+      raw = null;
     }
 
-    const firstModel = quality === "deep" ? DEEP_MODEL : FAST_MODEL;
-    const firstMode: "fast" | "deep" | "digitize" = quality === "deep" ? "deep" : "fast";
-    const first = normalizeResult(await callGateway(apiKey, firstModel, dataUrl, firstMode), firstModel, false);
-    const firstScore = extractionScore(first);
+    let result = raw ? normalizeResult(raw, usedModel, false, keepReadings) : null;
 
-    if (quality !== "fast" && firstModel === FAST_MODEL && firstScore < 6) {
-      const deep = normalizeResult(await callGateway(apiKey, DEEP_MODEL, dataUrl, "deep"), DEEP_MODEL, true);
-      return jsonResponse({
-        ok: true,
-        result: deep,
-        model: DEEP_MODEL,
-        fallbackUsed: true,
-        extractionScore: extractionScore(deep),
-      });
+    // If NVIDIA returned prose / weak extraction, re-run through the structured fallback.
+    const needsReadings = keepReadings &&
+      (!Array.isArray(result?.log_readings) || (result!.log_readings as unknown[]).length === 0);
+    if (!result || (result as any).parse_error || extractionScore(result) < 6 || needsReadings) {
+      const alt = await callStructuredFallback(dataUrl, mode);
+      if (alt) {
+        const altResult = normalizeResult(alt, String(alt._served_by), true, keepReadings);
+        if (!result || extractionScore(altResult) > extractionScore(result)) {
+          result = altResult;
+          usedModel = String(alt._served_by);
+          fallbackUsed = true;
+        }
+      }
+    }
+
+    if (!result) {
+      return jsonResponse({ error: "OCR failed — vision models unavailable" }, 502);
     }
 
     return jsonResponse({
       ok: true,
-      result: first,
-      model: firstModel,
-      fallbackUsed: false,
-      extractionScore: firstScore,
+      result,
+      model: usedModel,
+      fallbackUsed,
+      digitized: keepReadings,
+      extractionScore: extractionScore(result),
     });
   } catch (e) {
     if (e instanceof Response) return e;
     return jsonResponse({ error: String(e) }, 500);
   }
 });
+
