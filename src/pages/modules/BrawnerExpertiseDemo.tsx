@@ -250,7 +250,7 @@ export default function BrawnerExpertiseDemo() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
             {REPORT_STATS.map((s) => (
               <div key={s.label} className="rounded-lg border border-border bg-muted/20 p-3">
                 <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{s.label}</p>
