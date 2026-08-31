@@ -81,13 +81,14 @@ const REPORT_STATS = [
   { label: "Net Pay",     value: "52",    unit: "ft", color: "text-emerald-400" },
   { label: "Gross Pay",   value: "52",    unit: "ft", color: "text-primary" },
   { label: "N/G Ratio",   value: "100",   unit: "%",  color: "text-emerald-400" },
+  { label: "Missed Pay",  value: "42",    unit: "ft", color: "text-rose-400" },
   { label: "Shale (cap)", value: "117",   unit: "ft", color: "text-rose-400" },
   { label: "Clean Sand",  value: "42",    unit: "ft", color: "text-amber-400" },
   { label: "Total Depth", value: "5,225", unit: "ft", color: "text-sky-400" },
 ];
 
 const REPORT_INTERVALS = [
-  { name: "Clean Sand",  thickness: "42 ft",  dot: "bg-amber-400" },
+  { name: "Clean Sand (MISSED — never perforated)", thickness: "42 ft",  dot: "bg-rose-400" },
   { name: "Silty Sand",  thickness: "10 ft",  dot: "bg-yellow-600" },
   { name: "Shale (seal)",thickness: "117 ft", dot: "bg-rose-400" },
   { name: "Logged interval", thickness: "12 zones", dot: "bg-sky-400" },
@@ -95,8 +96,9 @@ const REPORT_INTERVALS = [
 
 const REPORT_RECOMMENDATIONS = [
   "Net pay confirmed across the upper sand package — no reservoir quality downgrade required.",
+  "42 ft of pay flagged as MISSED: the clean sand interval carries no perforations — bypassed oil confirmed.",
   "Overlying shale provides an effective seal for a staged treatment.",
-  "Existing perforation avoided; fresh intervals available for SPT placement.",
+  "Missed interval is the primary SPT target — slot perforation can access bypassed reserves without new drilling.",
   "Candidate promoted to Stage 9 (EOR Optimization) with high confidence.",
 ];
 
@@ -248,7 +250,7 @@ export default function BrawnerExpertiseDemo() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
             {REPORT_STATS.map((s) => (
               <div key={s.label} className="rounded-lg border border-border bg-muted/20 p-3">
                 <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{s.label}</p>
