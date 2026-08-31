@@ -321,7 +321,7 @@ const DataSecurity = () => {
 
       {/* Footer */}
       <div className="text-center text-xs text-muted-foreground py-4 border-t border-border/30">
-        <p>Confidential — AI Smart Well, Inc. | edward@aismartwell.com | www.aismartwell.com</p>
+        <p>Confidential — AI Smart Well Inc. | edward@aismartwell.com | www.aismartwell.com</p>
       </div>
     </div>
   );

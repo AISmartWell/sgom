@@ -266,7 +266,7 @@ export default function DigitalTwin() {
         <div className="px-5 py-4 border-b border-border/50 flex items-center justify-between flex-wrap gap-3">
           <div>
             <div className="text-[10px] tracking-[0.14em] text-muted-foreground uppercase">
-              AI Smart Well Platform · Digital Twin
+              SGOM Platform · Digital Twin
             </div>
             <div className="text-[15px] font-medium mt-0.5">
               Anadarko Basin · 8 wells monitored
@@ -951,7 +951,7 @@ export default function DigitalTwin() {
                 }}>
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-emerald-400 text-sm">✓</span>
-                  <span className="text-[12px] font-medium text-emerald-400">AI Smart Well Recommendation</span>
+                  <span className="text-[12px] font-medium text-emerald-400">SGOM Recommendation</span>
                 </div>
                 <div className="text-[12px] leading-relaxed">
                   <span className="text-muted-foreground">Proceed with </span>

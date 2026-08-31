@@ -187,7 +187,7 @@ const droneTiers = [
   },
   {
     name: "Full Site Digital Twin",
-    desc: "3D orthomosaic + AI Smart Well subsurface model + fusion score",
+    desc: "3D orthomosaic + SGOM subsurface model + fusion score",
     price: "$3,200",
     unit: "/well",
     target: "State agencies, PE firms",
@@ -233,13 +233,13 @@ const HeroSection = () => {
               AI-Powered Geological Analysis
             </div>
             <h1 className="text-4xl md:text-6xl font-bold leading-tight tracking-tight">
-              <span className="text-primary">AI Smart Well</span><br />
+              <span className="text-primary">SGOM</span><br />
               <span className="text-foreground">SaaS Business Model</span>
             </h1>
             <p className="text-lg text-muted-foreground max-w-md leading-relaxed">
               Hybrid Pricing: Subscription + Per-Well Analysis. AI-driven geological insights that scale with your operations.
             </p>
-            <p className="text-xs text-muted-foreground">AI Smart Well, Inc. | Confidential</p>
+            <p className="text-xs text-muted-foreground">AI Smart Well Inc. | Confidential</p>
           </div>
           <div className="hidden lg:flex flex-col items-center justify-center gap-8">
             <div className="w-32 h-32 rounded-2xl bg-secondary flex items-center justify-center border border-border">
@@ -483,7 +483,7 @@ const CompetitiveMoatSection = () => {
         </div>
         <h2 className="text-3xl md:text-4xl font-bold">Competitive Moat</h2>
         <p className="text-muted-foreground text-lg max-w-2xl">
-          Six interconnected barriers make the AI Smart Well platform difficult to replicate and expensive to displace once deployed.
+          Six interconnected barriers make the SGOM platform difficult to replicate and expensive to displace once deployed.
         </p>
       </div>
 
@@ -619,7 +619,7 @@ const DroneComparisonSection = () => {
         </div>
         <h2 className="text-3xl md:text-4xl font-bold">Drone Competitive Comparison</h2>
         <p className="text-muted-foreground text-lg max-w-2xl">
-          How AI Smart Well + Drone stacks up against traditional consultants and our base subsurface-only platform.
+          How SGOM + Drone stacks up against traditional consultants and our base subsurface-only platform.
         </p>
       </div>
 
@@ -630,8 +630,8 @@ const DroneComparisonSection = () => {
               <tr className="text-left text-xs uppercase tracking-wider text-muted-foreground">
                 <th className="py-3 px-4">Capability</th>
                 <th className="py-3 px-4">Traditional Consultants</th>
-                <th className="py-3 px-4">AI Smart Well (Pre-Drone)</th>
-                <th className="py-3 px-4 text-primary">AI Smart Well + Drone</th>
+                <th className="py-3 px-4">SGOM (Pre-Drone)</th>
+                <th className="py-3 px-4 text-primary">SGOM + Drone</th>
               </tr>
             </thead>
             <tbody>

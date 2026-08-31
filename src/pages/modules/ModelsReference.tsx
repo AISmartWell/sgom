@@ -326,7 +326,7 @@ export default function ModelsReference() {
               AI Model Catalog
             </h1>
             <p className="text-sm text-muted-foreground">
-              All LLMs available on the AI Smart Well platform
+              All LLMs available on the SGOM platform
             </p>
           </div>
         </div>

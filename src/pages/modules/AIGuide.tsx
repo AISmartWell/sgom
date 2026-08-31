@@ -31,7 +31,7 @@ import { MariaAvatar } from "@/components/ai-guide/MariaAvatar";
 const SUGGESTED_QUESTIONS = [
   "What is SGOM?",
   "How does the MCDA scoring work?",
-  "What makes AI Smart Well different from competitors?",
+  "What makes SGOM different from competitors?",
   "Which wells has SGOM been tested on?",
   "What is the market opportunity?",
   "How does the SPT technology work?",
@@ -417,7 +417,7 @@ const AIGuide = () => {
                 </Badge>
               </div>
               <p className="text-xs text-muted-foreground">
-                AI Smart Well · Powered by NVIDIA Nemotron
+                SGOM · Powered by NVIDIA Nemotron
               </p>
             </div>
           </div>
@@ -503,7 +503,7 @@ const AIGuide = () => {
                     id: "welcome",
                     role: "assistant",
                     content:
-                      "Hello! I'm Maria, your AI guide to SGOM — AI Smart Well's platform for automated well restoration assessment. What would you like to know about our technology?",
+                      "Hello! I'm Maria, your AI guide to SGOM — SGOM's platform for automated well restoration assessment. What would you like to know about our technology?",
                   }}
                   onSpeak={(text) => speak("welcome", text)}
                   isSpeaking={speakingId === "welcome"}
@@ -597,7 +597,7 @@ const AIGuide = () => {
             </Button>
           </div>
           <p className="max-w-3xl mx-auto text-[11px] text-muted-foreground mt-3 text-center">
-            AI Smart Well, Inc. · SGOM Platform · Powered by{" "}
+            AI Smart Well Inc. · SGOM Platform · Powered by{" "}
             <span className="text-[hsl(140_80%_60%)]">NVIDIA Nemotron</span>
             {activeThread && <span className="opacity-60"> · {activeThread.title}</span>}
           </p>

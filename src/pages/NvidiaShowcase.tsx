@@ -37,14 +37,14 @@ const NvidiaShowcase = () => {
     toast.success(`${label} copied to clipboard`);
   };
 
-  const productProfile = `AI Smart Well (SGOM Platform)
+  const productProfile = `SGOM (SGOM Platform)
 
 Industry: Oil & Gas / Energy Technology
 Product Type: SaaS Platform (B2B)
 Stage: MVP Development (Phase 1)
 
 DESCRIPTION:
-AI Smart Well is an AI-powered SaaS platform for optimizing Enhanced Oil Recovery (EOR) using patented Slot Perforation Technology (SPT, US Patent 8,863,823). The platform combines computer vision, machine learning, and geological analysis to automate well selection, production forecasting, and treatment optimization.
+SGOM is an AI-powered SaaS platform for optimizing Enhanced Oil Recovery (EOR) using patented Slot Perforation Technology (SPT, US Patent 8,863,823). The platform combines computer vision, machine learning, and geological analysis to automate well selection, production forecasting, and treatment optimization.
 
 PROBLEM:
 Oil & gas operators spend weeks manually analyzing well data, geological reports, and production histories to identify candidates for production enhancement. This process is error-prone, expensive, and often results in suboptimal well selection.
@@ -82,7 +82,7 @@ NVIDIA INCEPTION: Official Member`;
       time: "0:00–0:15",
       scene: "Opening",
       action: "Landing page (/) — Logo animation, hero section with 'AI-Powered Well Optimization'",
-      narration: "AI Smart Well is an NVIDIA Inception member company developing an AI-powered SaaS platform for the oil and gas industry.",
+      narration: "SGOM is an NVIDIA Inception member company developing an AI-powered SaaS platform for the oil and gas industry.",
       route: "/",
     },
     {
@@ -332,7 +332,7 @@ NVIDIA INCEPTION: Official Member`;
               <CardContent className="py-8">
                 <div className="text-center space-y-4">
                   <img src={nvidiaInceptionBadge} alt="NVIDIA Inception" className="h-16 mx-auto object-contain" />
-                  <h2 className="text-3xl font-bold">AI Smart Well — SGOM Platform</h2>
+                  <h2 className="text-3xl font-bold">SGOM — SGOM Platform</h2>
                   <p className="text-muted-foreground max-w-2xl mx-auto">
                     AI-powered SaaS platform for Enhanced Oil Recovery optimization.
                     NVIDIA Inception member leveraging GPU-accelerated physics inference and ML.
@@ -398,19 +398,19 @@ NVIDIA INCEPTION: Official Member`;
                     {
                       name: "Usman Pervaiz",
                       role: "Software Developer · BS CS",
-                      company: "AI Smart Well",
+                      company: "SGOM",
                       detail: "Full-stack & AI/ML architecture. Add as CTO/Technical Lead.",
                     },
                     {
                       name: "Edward Rubinstein",
                       role: "CEO · Co-Founder · Strategy & Partnerships",
-                      company: "AI Smart Well",
+                      company: "SGOM",
                       detail: "Strategic planning, investor relations, partnership development. Drives business growth and market expansion. Add as Co-Founder.",
                     },
                     {
                       name: "Natalia Zaruchevskaya",
                       role: "Co-Founder · Business Development",
-                      company: "AI Smart Well",
+                      company: "SGOM",
                       detail: "Business development, partnerships, client relations.",
                     },
                   ].map((member) => (

@@ -148,7 +148,7 @@ import nvidiaLogoBw from "@/assets/nvidia-logo-bw.png";
            </CardHeader>
            <CardContent className="space-y-4">
              <p className="text-lg">
-             <strong>AI Smart Well</strong> is an NVIDIA Inception member company developing an AI-powered platform 
+             <strong>SGOM</strong> is an NVIDIA Inception member company developing an AI-powered platform 
              for optimizing Enhanced Oil Recovery (EOR) using Slot Perforation Technology (SPT). We leverage 
              computer vision and GPU-accelerated models to automate geological analysis and well selection, 
              reducing decision time from weeks to minutes.

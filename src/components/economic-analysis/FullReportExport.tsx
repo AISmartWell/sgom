@@ -42,7 +42,7 @@ export function useFullReportExport() {
       pdf.text("Full Report", pageW / 2, pageH / 2 - 5, { align: "center" });
       pdf.setFontSize(12);
       pdf.setFont("helvetica", "normal");
-      pdf.text("AI Smart Well Platform", pageW / 2, pageH / 2 + 20, { align: "center" });
+      pdf.text("SGOM Platform", pageW / 2, pageH / 2 + 20, { align: "center" });
       pdf.setFontSize(10);
       const dateStr = new Date().toLocaleDateString("en-US", {
         year: "numeric", month: "long", day: "numeric",
@@ -129,7 +129,7 @@ export function useFullReportExport() {
         pdf.setFontSize(7);
         pdf.setTextColor(128, 128, 128);
         pdf.text(`Page ${i - 1} of ${totalPages - 1}`, pageW - margin - 22, pageH - 6);
-        pdf.text("AI Smart Well — Confidential", margin, pageH - 6);
+        pdf.text("SGOM — Confidential", margin, pageH - 6);
       }
 
       pdf.save("Economic_Analysis_Full_Report.pdf");

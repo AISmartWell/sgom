@@ -182,7 +182,7 @@ const MVPScope = () => {
           </Link>
           <div>
             <h1 className="text-xl font-bold">MVP Scope & Roadmap</h1>
-            <p className="text-sm text-muted-foreground">AI Smart Well SGOM — Module Priority Map</p>
+            <p className="text-sm text-muted-foreground">SGOM SGOM — Module Priority Map</p>
           </div>
         </div>
       </header>

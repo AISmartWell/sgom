@@ -8,10 +8,10 @@ const projectRef = import.meta.env.VITE_SUPABASE_PROJECT_ID ?? "project-ref-unse
 
 export default defineMcp({
   name: "ai-smart-well-mcp",
-  title: "AI Smart Well",
+  title: "SGOM",
   version: "0.1.0",
   instructions:
-    "Tools for the AI Smart Well oil & gas analytics platform. Query wells, alerts, and the knowledge base (9-stage pipeline, SPT patent US 8,863,823, geology, petrophysics, EOR). All queries are scoped to the signed-in user's company via RLS.",
+    "Tools for the SGOM oil & gas analytics platform. Query wells, alerts, and the knowledge base (9-stage pipeline, SPT patent US 8,863,823, geology, petrophysics, EOR). All queries are scoped to the signed-in user's company via RLS.",
   auth: auth.oauth.issuer({
     issuer: `https://${projectRef}.supabase.co/auth/v1`,
     acceptedAudiences: "authenticated",

@@ -241,7 +241,7 @@ const SGOMTaskMap = () => {
     const prevDesc = meta?.getAttribute("content") ?? "";
     meta?.setAttribute(
       "content",
-      "Complete map of the tasks SGOM solves and the inputs, outputs and consumers of every AI Smart Well module.",
+      "Complete map of the tasks SGOM solves and the inputs, outputs and consumers of every SGOM module.",
     );
     return () => {
       document.title = prevTitle;

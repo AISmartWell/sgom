@@ -102,7 +102,7 @@ export default function SPTDemo() {
 
   const exportSummary = () => {
     const lines = [
-      `AI Smart Well — SPT pipeline summary`,
+      `SGOM — SPT pipeline summary`,
       `Well: ${well.name}${well.api ? ` (API ${well.api})` : ""}`,
       `Formation: ${well.formation ?? "n/a"} · Depth: ${well.depthFt} ft · Net pay: ${well.netPayFt} ft`,
       ``,

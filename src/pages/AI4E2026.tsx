@@ -24,7 +24,7 @@ const stageIcons = [FileText, Microscope, TrendingUp, Bot, DollarSign];
 
 const content = {
   en: {
-    docTitle: "AI Smart Well — AI4E2026 Networking Theses",
+    docTitle: "SGOM — AI4E2026 Networking Theses",
     back: "Back to Innovation",
     badge: "AI4E2026 · Houston, TX · November 3–4, 2026",
     subtitle: "Verifiable AI for Mature-Well Restoration",
@@ -39,7 +39,7 @@ const content = {
     s1p1: "Mature fields hold large volumes of bypassed pay, but most historical data is still on paper or fragmented across state registries. Operators need a way to digitize, interpret, and rank candidates without trusting a black box.",
     s1p2: (
       <>
-        <strong>AI Smart Well</strong> turns legacy logs, completion reports, and production histories into ranked restoration candidates
+        <strong>SGOM</strong> turns legacy logs, completion reports, and production histories into ranked restoration candidates
         with an auditable evidence trail.
       </>
     ),
@@ -108,7 +108,7 @@ const content = {
     toggle: "Русская версия",
   },
   ru: {
-    docTitle: "AI Smart Well — тезисы для AI4E2026",
+    docTitle: "SGOM — тезисы для AI4E2026",
     back: "Назад в Innovation",
     badge: "AI4E2026 · Хьюстон, Техас · 3–4 ноября 2026",
     subtitle: "Проверяемый ИИ для восстановления зрелых скважин",
@@ -123,7 +123,7 @@ const content = {
     s1p1: "В зрелых месторождениях остаются большие объёмы пропущенных продуктивных интервалов (bypassed pay), но большая часть исторических данных до сих пор существует на бумаге или разбросана по государственным реестрам. Операторам нужен способ оцифровать, интерпретировать и ранжировать кандидатов, не доверяясь «чёрному ящику».",
     s1p2: (
       <>
-        <strong>AI Smart Well</strong> превращает старые каротажки, отчёты о заканчивании и историю добычи в ранжированный список кандидатов
+        <strong>SGOM</strong> превращает старые каротажки, отчёты о заканчивании и историю добычи в ранжированный список кандидатов
         на восстановление с прослеживаемой доказательной базой.
       </>
     ),
@@ -225,7 +225,7 @@ const AI4E2026 = () => {
           <Badge variant="outline" className="mb-4 text-primary border-primary/30">
             {t.badge}
           </Badge>
-          <h1 className="text-3xl md:text-5xl font-bold tracking-tight mb-4">AI Smart Well</h1>
+          <h1 className="text-3xl md:text-5xl font-bold tracking-tight mb-4">SGOM</h1>
           <p className="text-xl md:text-2xl text-muted-foreground">{t.subtitle}</p>
         </header>
 

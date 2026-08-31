@@ -96,7 +96,7 @@ const Innovation = () => {
           </Badge>
           <h1 className="text-4xl font-bold mb-3">Innovation and Technical Merit</h1>
           <p className="text-muted-foreground leading-relaxed">
-            AI Smart Well is a research platform organized as a 9-stage analysis pipeline for
+            SGOM is a research platform organized as a 9-stage analysis pipeline for
             legacy well data. The engineering scaffolding — ingest, petrophysics, decline, scoring —
             exists to support experiments; the scientific core is <em>unsolved</em>. Predictive
             accuracy on degraded pre-1980s logs, cross-region generalization, and calibrated
@@ -305,7 +305,7 @@ const Innovation = () => {
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-              Clean, print-ready version for AI4E2026 in Houston: AI Smart Well as
+              Clean, print-ready version for AI4E2026 in Houston: SGOM as
               <strong className="text-foreground"> verifiable AI for mature-well restoration</strong>.
               Emphasizes formula-backed recommendations, auditable agent reasoning, and transparent physics.
             </p>

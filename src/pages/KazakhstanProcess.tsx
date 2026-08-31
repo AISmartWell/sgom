@@ -236,7 +236,7 @@ export default function KazakhstanProcess() {
             <div>
               <h1 className="text-lg font-bold tracking-tight flex items-center gap-2">
                 <Cpu className="w-5 h-5 text-primary" />
-                AI Smart Well — Казахстан
+                SGOM — Казахстан
               </h1>
               <p className="text-xs text-muted-foreground">
                 Полный цикл AI-анализа скважин

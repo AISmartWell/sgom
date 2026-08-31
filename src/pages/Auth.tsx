@@ -104,7 +104,7 @@ const Auth = () => {
                 <Droplets className="h-8 w-8 text-primary" />
               </div>
               <h1 className="text-4xl font-bold text-foreground">
-                AI Smart Well
+                SGOM
               </h1>
             </div>
             
@@ -146,7 +146,7 @@ const Auth = () => {
           <CardHeader className="space-y-1 text-center">
             <div className="lg:hidden flex items-center justify-center gap-2 mb-4">
               <Droplets className="h-8 w-8 text-primary" />
-              <span className="text-2xl font-bold">AI Smart Well</span>
+              <span className="text-2xl font-bold">SGOM</span>
             </div>
             <CardTitle className="text-2xl">SGOM Platform</CardTitle>
             <CardDescription>

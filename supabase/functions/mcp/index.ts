@@ -115,8 +115,8 @@ function clientForUser3(ctx) {
 }
 var search_knowledge_default = defineTool3({
   name: "search_knowledge",
-  title: "Search AI Smart Well knowledge base",
-  description: "Full-text search across the AI Smart Well knowledge base (9-stage pipeline, SPT, geology, petrophysics, economics).",
+  title: "Search SGOM knowledge base",
+  description: "Full-text search across the SGOM knowledge base (9-stage pipeline, SPT, geology, petrophysics, economics).",
   inputSchema: {
     query: z3.string().min(1).describe("Natural-language search query."),
     limit: z3.number().int().positive().max(20).optional().describe("Max results (default 8).")
@@ -180,9 +180,9 @@ var list_alerts_default = defineTool4({
 var projectRef = "rmfhcushsxkbgjnbawbs";
 var mcp_default = defineMcp({
   name: "ai-smart-well-mcp",
-  title: "AI Smart Well",
+  title: "SGOM",
   version: "0.1.0",
-  instructions: "Tools for the AI Smart Well oil & gas analytics platform. Query wells, alerts, and the knowledge base (9-stage pipeline, SPT patent US 8,863,823, geology, petrophysics, EOR). All queries are scoped to the signed-in user's company via RLS.",
+  instructions: "Tools for the SGOM oil & gas analytics platform. Query wells, alerts, and the knowledge base (9-stage pipeline, SPT patent US 8,863,823, geology, petrophysics, EOR). All queries are scoped to the signed-in user's company via RLS.",
   auth: auth.oauth.issuer({
     issuer: `https://${projectRef}.supabase.co/auth/v1`,
     acceptedAudiences: "authenticated"

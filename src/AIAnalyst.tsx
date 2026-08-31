@@ -40,11 +40,11 @@ interface UploadedFile {
 
 const AI_ANALYST_CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/spt-chat`;
 
-const SYSTEM_PROMPT = `You are AI Smart Well, an expert geological analyst for the AI Smart Well platform.
+const SYSTEM_PROMPT = `You are SGOM, an expert geological analyst for the SGOM platform.
 You analyze oil well data, interpret geological information, and assess the restoration potential of abandoned wells.
 
 Platform context:
-- AI Smart Well — 9-module AI platform using computer vision and machine learning
+- SGOM — 9-module AI platform using computer vision and machine learning
 - Partnership with Maxxwell Production, Slot Perforation Technology (US Patent #8,863,823)
 - Production uplift with SPT: 75%+
 - Analysis cost: $6K vs $50–200K via traditional methods (90% savings)
@@ -254,11 +254,11 @@ function OverviewTab() {
   );
 }
 
-// ─── AI Smart Well Analysis Tab ───────────────────────────────────────────────
+// ─── SGOM Analysis Tab ───────────────────────────────────────────────
 
 function AnalysisTab() {
   const [messages, setMessages] = useState<Message[]>([
-    { role: "assistant", content: "👋 Hello! I'm your AI Smart Well geological analyst. Ask me about well candidates, log interpretation, restoration potential, or Slot Perforation Technology. How can I help?" },
+    { role: "assistant", content: "👋 Hello! I'm your SGOM geological analyst. Ask me about well candidates, log interpretation, restoration potential, or Slot Perforation Technology. How can I help?" },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -284,7 +284,7 @@ function AnalysisTab() {
       const reply = await callClaude(newMsgs, SYSTEM_PROMPT);
       setMessages([...newMsgs, { role: "assistant", content: reply }]);
     } catch {
-      setMessages([...newMsgs, { role: "assistant", content: "⚠️ Connection error to AI Smart Well." }]);
+      setMessages([...newMsgs, { role: "assistant", content: "⚠️ Connection error to SGOM." }]);
     }
     setLoading(false);
   }
@@ -292,7 +292,7 @@ function AnalysisTab() {
   return (
     <div className="flex flex-col gap-4 h-full">
       <div>
-        <h3 className="text-lg font-semibold text-white">AI Smart Well Analyst</h3>
+        <h3 className="text-lg font-semibold text-white">SGOM Analyst</h3>
         <p className="text-sm text-slate-500">AI-powered geological well analysis in real time</p>
       </div>
 
@@ -400,8 +400,8 @@ function UploadTab() {
     try {
       const text = await f.file.text().catch(() => null);
       const prompt = text
-        ? `Analyze the following well data from file "${f.name}":\n\n${text.slice(0, 3000)}\n\nProvide a concise professional analysis: data type, quality, key parameters, and AI Smart Well recommendations.`
-        : `File "${f.name}" (${f.size}) uploaded for analysis. Describe what such files typically contain and how AI Smart Well processes them.`;
+        ? `Analyze the following well data from file "${f.name}":\n\n${text.slice(0, 3000)}\n\nProvide a concise professional analysis: data type, quality, key parameters, and SGOM recommendations.`
+        : `File "${f.name}" (${f.size}) uploaded for analysis. Describe what such files typically contain and how SGOM processes them.`;
       const result = await callClaude([{ role: "user", content: prompt }], SYSTEM_PROMPT);
       setFiles((prev) => prev.map((x, i) => i === idx ? { ...x, status: "done", result } : x));
     } catch {
@@ -495,7 +495,7 @@ function InvestorTab() {
     try {
       const reply = await callClaude([{
         role: "user",
-        content: "Write a compelling 3–4 paragraph investment pitch summary for AI Smart Well / SGOM. Include: $2.4M Seed round, $32B TAM, 90% cost savings, 75%+ SPT production uplift, NVIDIA Inception membership. Tone: confident and professional, targeting energy investors at EIC / NGP Energy level.",
+        content: "Write a compelling 3–4 paragraph investment pitch summary for SGOM / SGOM. Include: $2.4M Seed round, $32B TAM, 90% cost savings, 75%+ SPT production uplift, NVIDIA Inception membership. Tone: confident and professional, targeting energy investors at EIC / NGP Energy level.",
       }], SYSTEM_PROMPT);
       setPitch(reply);
     } catch { setPitch("Generation error."); }
@@ -683,7 +683,7 @@ const AIAnalyst = () => {
       <div className="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div>
-            <div className="text-[11px] font-bold uppercase tracking-[0.15em] text-amber-500">AI Smart Well</div>
+            <div className="text-[11px] font-bold uppercase tracking-[0.15em] text-amber-500">SGOM</div>
             <div className="text-xl font-extrabold tracking-tight">Analytics Platform</div>
           </div>
           <div className="flex items-center gap-2 text-xs text-slate-500">

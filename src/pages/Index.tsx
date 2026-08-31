@@ -120,7 +120,7 @@ const Index = () => {
             <div className="h-11 w-11 rounded-xl bg-primary/20 flex items-center justify-center animate-glow-pulse">
               <Droplets className="h-6 w-6 text-primary" />
             </div>
-            <span className="text-xl font-bold tracking-tight">AI Smart Well</span>
+            <span className="text-xl font-bold tracking-tight">SGOM</span>
             <img
               src={nvidiaInceptionBadgeBw}
               alt="NVIDIA Inception Program"
@@ -342,7 +342,7 @@ const Index = () => {
         <div className="relative max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <span className="text-primary font-semibold text-sm tracking-widest uppercase">Our Advantage</span>
-            <h2 className="text-4xl md:text-5xl font-bold mt-3 mb-4">Why AI Smart Well?</h2>
+            <h2 className="text-4xl md:text-5xl font-bold mt-3 mb-4">Why SGOM?</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
               We combine patented downhole technology with cutting-edge AI to unlock production potential that traditional methods miss.
             </p>
@@ -377,7 +377,7 @@ const Index = () => {
             <span className="text-primary font-semibold text-sm tracking-widest uppercase">Technology Partner</span>
             <h2 className="text-4xl md:text-5xl font-bold mt-3 mb-4">Maxxwell Production</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-              Decades of field experience combined with patented downhole technology — the foundation behind AI Smart Well's analytical engine
+              Decades of field experience combined with patented downhole technology — the foundation behind SGOM's analytical engine
             </p>
           </div>
 
@@ -499,10 +499,10 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Droplets className="h-5 w-5 text-primary" />
-            <span className="font-semibold">AI Smart Well</span>
+            <span className="font-semibold">SGOM</span>
           </div>
           <p className="text-sm text-muted-foreground">
-            © 2026 AI Smart Well & Maxxwell Production. All rights reserved.
+            © 2026 SGOM & Maxxwell Production. All rights reserved.
           </p>
         </div>
       </footer>

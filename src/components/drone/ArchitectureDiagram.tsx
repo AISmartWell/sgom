@@ -39,7 +39,7 @@ const NODES: NodeDef[] = [
   { id: "dji", kind: "source", x: 40, y: 90, w: 280, h: 60, title: "DJI Matrice 300 RTK", sub: "RGB + Thermal · GeoTIFF", tip: "Quadcopter drone with Zenmuse H20T sensor. Captures RGB and thermal imagery + GPS metadata at 3 altitudes (49 / 98 / 197 ft).", color: "#76b900" },
   { id: "pergam", kind: "source", x: 40, y: 175, w: 280, h: 60, title: "Pergam Methane Mini", sub: "CH₂ / CH₄ · CSV", tip: "Tunable diode laser absorption spectrometer mounted on the drone. Outputs concentration time series in CSV.", color: "#76b900" },
   { id: "lidar", kind: "source", x: 40, y: 260, w: 280, h: 60, title: "LiDAR Sensor", sub: ".LAS Point Cloud", tip: "High-density structural scan of the well pad and surrounding terrain.", color: "#76b900" },
-  { id: "wireline", kind: "source", x: 40, y: 345, w: 280, h: 60, title: "Wireline Logs", sub: "GR / RES / NEU / DEN", tip: "Existing downhole logs already curated by the AI Smart Well platform.", color: "#76b900" },
+  { id: "wireline", kind: "source", x: 40, y: 345, w: 280, h: 60, title: "Wireline Logs", sub: "GR / RES / NEU / DEN", tip: "Existing downhole logs already curated by the SGOM platform.", color: "#76b900" },
   { id: "prod", kind: "source", x: 40, y: 430, w: 280, h: 60, title: "Production History", sub: "Oil · Gas · Water · BHP", tip: "Monthly volumes and bottom-hole pressure from the production_history table.", color: "#76b900" },
   { id: "faa", kind: "source", x: 40, y: 515, w: 280, h: 60, title: "FAA LAANC", sub: "Airspace authorization", tip: "Low Altitude Authorization & Notification Capability — automated FAA Part 107 airspace clearance.", color: "#76b900" },
   { id: "operator", kind: "source", x: 40, y: 600, w: 280, h: 60, title: "Operator Records", sub: "API · Permit · Plug status", tip: "State registry data: 10-digit API number, permit history, current plug status.", color: "#76b900" },
@@ -57,7 +57,7 @@ const NODES: NodeDef[] = [
 
   // Core — row 3
   { id: "econ", kind: "core", x: 380, y: 380, w: 220, h: 56, badge: "STAGE 6 · ECON", title: "Cost Offset Engine", sub: "Walkdown vs. Drone", tip: "Stage 6 economics. Compares $4,200/well traditional walkdown against $800/well drone survey. Feeds operator dashboard.", color: "#1A9FFF" },
-  { id: "viz", kind: "core", x: 620, y: 380, w: 220, h: 56, badge: "STAGE 7 · VIZ", title: "Orthomosaic + Thermal", sub: "Dashboard layers", tip: "Stage 7 visualization. Renders 3D orthomosaic, thermal overlay, and the geological model in the AI Smart Well dashboard.", color: "#1A9FFF" },
+  { id: "viz", kind: "core", x: 620, y: 380, w: 220, h: 56, badge: "STAGE 7 · VIZ", title: "Orthomosaic + Thermal", sub: "Dashboard layers", tip: "Stage 7 visualization. Renders 3D orthomosaic, thermal overlay, and the geological model in the SGOM dashboard.", color: "#1A9FFF" },
 
   // Core — row 4
   { id: "planner", kind: "core", x: 380, y: 460, w: 220, h: 56, title: "Boustrophedon · MAVLink", badge: "FLIGHT PLANNER", sub: "Coverage + orbital", tip: "Autonomous waypoint planner. Coverage path planning (boustrophedon) for grid scan + orbital path for vertical structure inspection. Exports MAVLink .plan file.", color: "#1A9FFF" },
@@ -72,7 +72,7 @@ const NODES: NodeDef[] = [
   // Outputs
   { id: "score", kind: "output", x: 900, y: 90, w: 260, h: 60, title: "Composite Well Score", sub: "0–1 · bankable signal", tip: "Final scalar consumed by operators, regulators, and PE due diligence pipelines.", color: "#f28c00" },
   { id: "epa", kind: "output", x: 900, y: 175, w: 260, h: 60, title: "EPA Subpart W Report", sub: "Methane plume export", tip: "Auto-generated report package complying with EPA Subpart W methane reporting (effective 2025).", color: "#f28c00" },
-  { id: "twin", kind: "output", x: 900, y: 260, w: 260, h: 60, title: "Full Site Digital Twin", sub: "3D model + score · $3,200/well", tip: "Premium tier output: 3D orthomosaic + AI Smart Well subsurface model + composite score, sold to state agencies and PE firms.", color: "#f28c00" },
+  { id: "twin", kind: "output", x: 900, y: 260, w: 260, h: 60, title: "Full Site Digital Twin", sub: "3D model + score · $3,200/well", tip: "Premium tier output: 3D orthomosaic + SGOM subsurface model + composite score, sold to state agencies and PE firms.", color: "#f28c00" },
   { id: "opdash", kind: "output", x: 900, y: 345, w: 260, h: 60, title: "Operator Dashboard", sub: "Web UI · Alerts", tip: "Live operator-facing UI with cost offset analytics and alert routing.", color: "#1A9FFF" },
   { id: "regulator", kind: "output", x: 900, y: 430, w: 260, h: 60, title: "Regulator Portal", sub: "DOI · State submission", tip: "Submission package for DOI Orphaned Wells Program ($4.7B IIJA allocation) and state regulators.", color: "#1A9FFF" },
   { id: "pe", kind: "output", x: 900, y: 515, w: 260, h: 60, title: "PE Due Diligence", sub: "Pre-acquisition pack", tip: "Due-diligence dossier for private equity firms acquiring distressed well portfolios.", color: "#1A9FFF" },
