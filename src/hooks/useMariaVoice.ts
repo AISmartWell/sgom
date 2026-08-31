@@ -51,7 +51,7 @@ export function useMariaVoice() {
             apikey: SUPABASE_PUBLISHABLE_KEY,
             Authorization: `Bearer ${session?.access_token ?? SUPABASE_PUBLISHABLE_KEY}`,
           },
-          body: JSON.stringify({ text, voice: "shimmer" }),
+          body: JSON.stringify({ text, voice: "nova" }),
           signal: controller.signal,
         });
         if (!resp.ok) throw new Error(`TTS ${resp.status}`);

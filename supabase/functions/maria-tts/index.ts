@@ -10,7 +10,7 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { text, voice = "shimmer" } = await req.json();
+    const { text, voice = "nova" } = await req.json();
     if (!text || typeof text !== "string") {
       return new Response(JSON.stringify({ error: "text required" }), {
         status: 400,
@@ -45,7 +45,7 @@ Deno.serve(async (req) => {
         voice,
         response_format: "mp3",
         instructions:
-          "You are Maria, a warm, confident female AI guide for the SGOM platform. Speak naturally, clearly, with slight enthusiasm.",
+          "You are Maria, a warm and confident WOMAN — an expert female AI guide for the SGOM platform. Speak with a clearly feminine, natural female voice: soft, warm timbre, higher pitch, friendly and professional. Never sound masculine or robotic. Speak clearly, at a measured pace, with slight enthusiasm.",
       }),
       signal: req.signal,
     });
