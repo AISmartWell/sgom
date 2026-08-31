@@ -10,10 +10,10 @@ const corsHeaders = {
 const NVIDIA_URL = "https://integrate.api.nvidia.com/v1/chat/completions";
 const LOVABLE_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
 // Tried in order — older Nemotron builds reach end-of-life (410) periodically.
+// Current as of 2026-08-31 (verified live via cosmos-inference ping).
 const NVIDIA_MODELS = [
-  "nvidia/llama-3.3-nemotron-super-49b-v1.5",
-  "nvidia/nvidia-nemotron-nano-9b-v2",
-  "meta/llama-3.3-70b-instruct",
+  "nvidia/nemotron-3-super-120b-a12b",
+  "nvidia/nemotron-3.5-lightning-30b-a3b",
 ];
 const FALLBACK_MODEL = "google/gemini-3.7-flash";
 
