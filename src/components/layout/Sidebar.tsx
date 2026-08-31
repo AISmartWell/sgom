@@ -382,6 +382,12 @@ const menuItems = [
     badge: "▶️",
   },
   {
+    title: "Brawner 10-15 Expertise Demo",
+    icon: Zap,
+    href: "/dashboard/brawner-expertise-demo",
+    badge: "🛰️",
+  },
+  {
     title: "Autonomous Registry Scan",
     icon: Radar,
     href: "/dashboard/autonomous-scan",
