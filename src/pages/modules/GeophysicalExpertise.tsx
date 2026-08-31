@@ -3351,7 +3351,7 @@ const GeophysicalExpertise = () => {
                             {interpretation.intervals.filter((i) => i.isNetPay).map((i, idx) => (
                               <li key={idx} className="flex items-center justify-between gap-3">
                                 <span className="font-mono text-xs">
-                                  {i.topDepth.toFixed(0)}–{i.bottomDepth.toFixed(0)} ft
+                                  {i.top.toFixed(0)}–{i.bottom.toFixed(0)} ft
                                 </span>
                                 <span className="text-xs text-muted-foreground">
                                   {i.thickness.toFixed(0)} ft · φ {i.avgPor.toFixed(1)}% · {i.fluidType}
