@@ -190,7 +190,7 @@ export default function AramcoPilot() {
           <AlertTriangle className="h-5 w-5 text-amber-400 flex-shrink-0 mt-0.5" />
           <p>
             <span className="font-semibold text-amber-300">Analysis-only scope.</span>{" "}
-            AI Smart Well delivers screening, ranking and economic forecasts. Field operations, perforation design and
+            SGOM delivers screening, ranking and economic forecasts. Field operations, perforation design and
             stimulation are the responsibility of the operator. All results reconciled against client data and labeled
             <Badge variant="outline" className="text-[10px] mx-1">REAL</Badge> /
             <Badge variant="outline" className="text-[10px] mx-1">DERIVED</Badge> /
@@ -565,7 +565,7 @@ export default function AramcoPilot() {
             <CardHeader><CardTitle className="text-sm flex items-center gap-2"><Gauge className="h-4 w-4 text-primary"/>Data Reconciliation — AI vs Aramco</CardTitle></CardHeader>
             <CardContent>
               <Table>
-                <TableHeader><TableRow><TableHead>Metric</TableHead><TableHead>AI Smart Well</TableHead><TableHead>Aramco Reference</TableHead><TableHead>Δ</TableHead><TableHead>Status</TableHead></TableRow></TableHeader>
+                <TableHeader><TableRow><TableHead>Metric</TableHead><TableHead>SGOM</TableHead><TableHead>Aramco Reference</TableHead><TableHead>Δ</TableHead><TableHead>Status</TableHead></TableRow></TableHeader>
                 <TableBody>
                   {RECONCILIATION.map((r) => (
                     <TableRow key={r.metric}>
@@ -1313,7 +1313,7 @@ export default function AramcoPilot() {
       </Tabs>
 
       <p className="text-center text-xs text-muted-foreground">
-        AI Smart Well · SGOM Platform © 2026 · Pilot Brief for Saudi Aramco · Confidential
+        SGOM · SGOM Platform © 2026 · Pilot Brief for Saudi Aramco · Confidential
       </p>
     </div>
   );

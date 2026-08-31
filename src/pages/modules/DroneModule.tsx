@@ -33,7 +33,7 @@ const STAGES = [
 const TIERS = [
   { name: "Drone Survey Add-on", desc: "Autonomous flight plan + data processing", price: "$800/well", target: "Operators, regulators" },
   { name: "Environmental Compliance Pack", desc: "Methane plume report + EPA Subpart W data", price: "$1,500/well", target: "DOI, EPA programs" },
-  { name: "Full Site Digital Twin", desc: "3D orthomosaic + AI Smart Well subsurface model + fusion score", price: "$3,200/well", target: "State agencies, PE firms" },
+  { name: "Full Site Digital Twin", desc: "3D orthomosaic + SGOM subsurface model + fusion score", price: "$3,200/well", target: "State agencies, PE firms" },
   { name: "Ongoing Monitoring (IoT)", desc: "Quarterly drone rescan + anomaly alert subscription", price: "$200/well/mo", target: "All segments" },
 ];
 
@@ -91,7 +91,7 @@ const DroneModule = () => {
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground leading-relaxed space-y-3">
             <p>
-              AI Smart Well currently delivers subsurface intelligence — well logs, production
+              SGOM currently delivers subsurface intelligence — well logs, production
               history, and geological formations to identify restoration candidates. The Drone
               Inspection Module extends our analytical depth to the surface, creating a complete
               above-ground + below-ground assessment pipeline.
@@ -190,7 +190,7 @@ const DroneModule = () => {
                   <thead className="border-b border-border bg-card/40">
                     <tr className="text-left text-xs uppercase tracking-wider text-muted-foreground">
                       <th className="py-3 px-4 w-20">Stage</th>
-                      <th className="py-3 px-4">Existing AI Smart Well Module</th>
+                      <th className="py-3 px-4">Existing SGOM Module</th>
                       <th className="py-3 px-4">Drone Module Integration</th>
                     </tr>
                   </thead>
@@ -346,8 +346,8 @@ const DroneModule = () => {
                     <tr>
                       <th className="py-3 px-4 text-left">Capability</th>
                       <th className="py-3 px-4 text-left">Traditional Consultants</th>
-                      <th className="py-3 px-4 text-left">AI Smart Well (Pre-Drone)</th>
-                      <th className="py-3 px-4 text-left">AI Smart Well + Drone</th>
+                      <th className="py-3 px-4 text-left">SGOM (Pre-Drone)</th>
+                      <th className="py-3 px-4 text-left">SGOM + Drone</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -384,15 +384,15 @@ const DroneModule = () => {
             {[
               {
                 icon: Wind,
-                text: "AI Smart Well is the only AI platform that tells you not just whether a well is worth restoring — but whether you can safely access it, and whether it's leaking methane right now.",
+                text: "SGOM is the only AI platform that tells you not just whether a well is worth restoring — but whether you can safely access it, and whether it's leaking methane right now.",
               },
               {
                 icon: DollarSign,
-                text: "Drone surveys cost $4,200 per well manually. AI Smart Well generates the same output automatically as part of the standard $800 well assessment.",
+                text: "Drone surveys cost $4,200 per well manually. SGOM generates the same output automatically as part of the standard $800 well assessment.",
               },
               {
                 icon: Activity,
-                text: "With 500,000 orphaned wells and $4.7B in federal funding, AI Smart Well + Drone becomes the mandated workflow — not an optional upgrade.",
+                text: "With 500,000 orphaned wells and $4.7B in federal funding, SGOM + Drone becomes the mandated workflow — not an optional upgrade.",
               },
             ].map((q, i) => {
               const Icon = q.icon;
@@ -415,7 +415,7 @@ const DroneModule = () => {
             <div className="text-sm text-muted-foreground">
               Source spec: <span className="text-foreground font-medium">SGOM_Drone_Module.docx</span> —
               NSF SBIR Phase I justification, module architecture, and investor pitch (May 2026).
-              Branding normalized to AI Smart Well per project standards.
+              Branding normalized to SGOM per project standards.
             </div>
           </CardContent>
         </Card>

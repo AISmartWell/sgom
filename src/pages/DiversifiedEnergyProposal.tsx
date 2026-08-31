@@ -93,7 +93,7 @@ const DiversifiedEnergyProposal = () => {
             Pilot Partnership Proposal for Diversified Energy Company
           </p>
           <p className="text-sm mt-2" style={{ color: "#6b7280" }}>Date: {today}</p>
-          <p className="text-sm" style={{ color: "#6b7280" }}>From: AI Smart Well, Inc. (SGOM Platform)</p>
+          <p className="text-sm" style={{ color: "#6b7280" }}>From: AI Smart Well Inc. (SGOM Platform)</p>
         </div>
 
         <hr className="mb-8 border-gray-200" />
@@ -110,7 +110,7 @@ const DiversifiedEnergyProposal = () => {
           <p>Dear Diversified Energy Team,</p>
 
           <p>
-            We are writing to propose a <strong>no-cost pilot project</strong> to demonstrate how AI Smart Well's
+            We are writing to propose a <strong>no-cost pilot project</strong> to demonstrate how SGOM's
             SGOM platform can optimize well performance and reduce operational costs across your extensive
             portfolio of <strong>~70,000 natural gas wells</strong> in the Appalachian and Central regions.
           </p>
@@ -270,12 +270,12 @@ const DiversifiedEnergyProposal = () => {
           </div>
         </div>
 
-        {/* About AI Smart Well */}
+        {/* About SGOM */}
         <div className="mb-8 rounded-xl border border-gray-200 p-6" style={{ background: "#ffffff" }}>
-          <h2 className="text-lg font-bold mb-3" style={{ color: "#1a1a2e" }}>About AI Smart Well</h2>
+          <h2 className="text-lg font-bold mb-3" style={{ color: "#1a1a2e" }}>About SGOM</h2>
           <div className="space-y-2 text-sm" style={{ color: "#374151" }}>
             <p>
-              <strong>AI Smart Well, Inc.</strong> develops the SGOM platform — an AI-powered SaaS solution
+              <strong>AI Smart Well Inc.</strong> develops the SGOM platform — an AI-powered SaaS solution
               for oil & gas operators that automates geological analysis, well selection, and production optimization.
             </p>
             <div className="flex flex-wrap gap-2 mt-3">
@@ -329,14 +329,14 @@ const DiversifiedEnergyProposal = () => {
         {/* Closing */}
         <div className="mb-8 text-sm" style={{ color: "#374151" }}>
           <p className="leading-relaxed">
-            We believe the combination of Diversified Energy's unmatched well portfolio and AI Smart Well's
+            We believe the combination of Diversified Energy's unmatched well portfolio and SGOM's
             GPU-accelerated analytics platform represents a compelling opportunity to unlock significant
             value from mature assets. We would welcome the opportunity to discuss this proposal further.
           </p>
           <p className="mt-6 font-medium">Best regards,</p>
           <p className="font-bold mt-1" style={{ color: "#1a1a2e" }}>Edward Rubinstein</p>
           <p className="text-xs" style={{ color: "#6b7280" }}>CEO · Co-Founder</p>
-          <p className="text-xs" style={{ color: "#6b7280" }}>AI Smart Well, Inc. — SGOM Platform</p>
+          <p className="text-xs" style={{ color: "#6b7280" }}>AI Smart Well Inc. — SGOM Platform</p>
           <p className="text-xs" style={{ color: "#6b7280" }}>NVIDIA Inception Member</p>
         </div>
 

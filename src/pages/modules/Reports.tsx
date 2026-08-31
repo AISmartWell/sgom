@@ -59,7 +59,7 @@ const Reports = () => {
       date: "Updated Dec 2024",
     },
     {
-      name: "AI Smart Well.pdf",
+      name: "SGOM.pdf",
       description: "Complete platform documentation",
       date: "Updated Jan 2025",
     },

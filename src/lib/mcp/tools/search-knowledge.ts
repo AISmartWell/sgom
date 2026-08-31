@@ -15,9 +15,9 @@ function clientForUser(ctx: ToolContext) {
 
 export default defineTool({
   name: "search_knowledge",
-  title: "Search AI Smart Well knowledge base",
+  title: "Search SGOM knowledge base",
   description:
-    "Full-text search across the AI Smart Well knowledge base (9-stage pipeline, SPT, geology, petrophysics, economics).",
+    "Full-text search across the SGOM knowledge base (9-stage pipeline, SPT, geology, petrophysics, economics).",
   inputSchema: {
     query: z.string().min(1).describe("Natural-language search query."),
     limit: z.number().int().positive().max(20).optional().describe("Max results (default 8)."),

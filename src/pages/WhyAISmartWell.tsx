@@ -66,7 +66,7 @@ const SPT_CYCLE = [
 ];
 
 const VENDORS: { key: keyof Pick<Row, "aisw" | "cognite" | "petroai" | "novi">; label: string; accent?: boolean }[] = [
-  { key: "aisw", label: "AI Smart Well", accent: true },
+  { key: "aisw", label: "SGOM", accent: true },
   { key: "cognite", label: "Cognite" },
   { key: "petroai", label: "Petro.ai" },
   { key: "novi", label: "Novi Labs / Enverus" },
@@ -230,12 +230,12 @@ const WhyAISmartWell = () => {
 
   useEffect(() => {
     const prevTitle = document.title;
-    document.title = "Why AI Smart Well vs. alternatives | Module comparison";
+    document.title = "Why SGOM vs. alternatives | Module comparison";
     const meta = document.querySelector('meta[name="description"]');
     const prevDesc = meta?.getAttribute("content") ?? "";
     meta?.setAttribute(
       "content",
-      "Module-by-module comparison of AI Smart Well against Cognite, Petro.ai and Novi Labs for the end-to-end SPT restoration cycle.",
+      "Module-by-module comparison of SGOM against Cognite, Petro.ai and Novi Labs for the end-to-end SPT restoration cycle.",
     );
     return () => {
       document.title = prevTitle;
@@ -256,9 +256,9 @@ const WhyAISmartWell = () => {
             <Sparkles className="mr-1 h-3 w-3" />
             Competitive positioning
           </Badge>
-          <h1 className="text-4xl font-bold mb-3">Why AI Smart Well vs. alternatives</h1>
+          <h1 className="text-4xl font-bold mb-3">Why SGOM vs. alternatives</h1>
           <p className="text-muted-foreground leading-relaxed max-w-3xl">
-            AI Smart Well is built around one closed workflow: <strong className="text-foreground">OCR →
+            SGOM is built around one closed workflow: <strong className="text-foreground">OCR →
             petrophysics → forecast → SPT Advisor → economics</strong>. Each step feeds the next inside
             a single dataset, so an idle or low-rate well moves from raw paper/scanned inputs to a
             Restore / Monitor / P&A decision with an auditable evidence trail. While SPT is the primary
@@ -309,7 +309,7 @@ const WhyAISmartWell = () => {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <caption className="sr-only">
-                  Comparison of platform modules across AI Smart Well and alternative vendors
+                  Comparison of platform modules across SGOM and alternative vendors
                 </caption>
                 <thead>
                   <tr className="border-b border-border/60">
@@ -410,7 +410,7 @@ const WhyAISmartWell = () => {
             <p>
               Cognite is stronger for enterprise-wide Industrial DataOps across large instrumented
               assets. Enverus/Novi Labs are stronger for basin-scale unconventional analytics and
-              market data. AI Smart Well does not replace those systems — it interoperates through
+              market data. SGOM does not replace those systems — it interoperates through
               open formats (LAS, DLIS, CSV, OSDU-aligned exports).
             </p>
             <p>

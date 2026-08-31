@@ -35,7 +35,7 @@ const TechnicalSpec = () => {
               <FileText className="h-8 w-8 text-primary" />
               Technical Specification
             </h1>
-            <p className="text-muted-foreground mt-1">AI Smart Well Platform — Developer Specification</p>
+            <p className="text-muted-foreground mt-1">SGOM Platform — Developer Specification</p>
           </div>
           <Badge className="ml-auto text-xs" variant="outline">v4.2 — May 2026</Badge>
         </div>
@@ -44,7 +44,7 @@ const TechnicalSpec = () => {
 
         {/* 1. Project Overview */}
         <Section icon={Globe} title="1. Project Overview">
-          <p><strong>Name:</strong> AI Smart Well (AI Smart Well Inc. — USA)</p>
+          <p><strong>Name:</strong> SGOM (AI Smart Well Inc. — USA)</p>
           <p><strong>Purpose:</strong> Multi-tenant research platform for AI-assisted oil &amp; gas analytics. 9-stage well analysis pipeline, production optimization, geological modeling, financial planning, and Enhanced Oil Recovery (EOR) using patented SPT (Slot Perforation Technology, US Patent 8,863,823).</p>
           <p><strong>Research status:</strong> The pipeline is an experimental harness, not a validated product. Predictive components (formation attribution, missing-curve reconstruction, RPS scoring) have not been confirmed on blind hold-out data; accuracy, coverage and bias targets remain open research questions (see §13).</p>
 
@@ -565,7 +565,7 @@ const TechnicalSpec = () => {
         </Section>
 
         <div className="text-center text-xs text-muted-foreground pb-8">
-          AI Smart Well Platform — Technical Specification v4.2 — May 2026
+          SGOM Platform — Technical Specification v4.2 — May 2026
         </div>
       </div>
     </div>

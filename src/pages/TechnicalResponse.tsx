@@ -121,7 +121,7 @@ const TechnicalResponse = () => {
             Technical Response
           </h1>
           <p className="text-lg font-medium" style={{ color: "#374151" }}>
-            AI Smart Well — SGOM Platform · Product Team Response
+            SGOM — SGOM Platform · Product Team Response
           </p>
           <p className="text-sm mt-1 font-medium" style={{ color: "#6b7280" }}>
             Date: {new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}

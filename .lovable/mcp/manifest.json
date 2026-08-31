@@ -13,7 +13,7 @@
     "server": {
       "name": "ai-smart-well-mcp",
       "version": "0.1.0",
-      "title": "AI Smart Well"
+      "title": "SGOM"
     },
     "tools": [
       {
@@ -81,8 +81,8 @@
       },
       {
         "name": "search_knowledge",
-        "title": "Search AI Smart Well knowledge base",
-        "description": "Full-text search across the AI Smart Well knowledge base (9-stage pipeline, SPT, geology, petrophysics, economics).",
+        "title": "Search SGOM knowledge base",
+        "description": "Full-text search across the SGOM knowledge base (9-stage pipeline, SPT, geology, petrophysics, economics).",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,

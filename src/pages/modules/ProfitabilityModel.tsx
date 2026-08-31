@@ -162,7 +162,7 @@ export default function ProfitabilityModel() {
             <Badge variant="outline" className="border-primary/40 text-primary">Finance</Badge>
             <Badge variant="secondary">P&amp;L 2026–2030</Badge>
           </div>
-          <h1 className="mt-2 text-2xl font-semibold">Combined Profitability Model — AI Smart Well + Maxxwell Production</h1>
+          <h1 className="mt-2 text-2xl font-semibold">Combined Profitability Model — SGOM + Maxxwell Production</h1>
           <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
             Two revenue engines: SGOM software (SaaS) and SPT well restoration &amp; production. Switch between the
             original workbook (<em>upside</em>) and the corrected <em>base case</em> that adds Arps decline, royalty,

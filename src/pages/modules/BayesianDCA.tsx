@@ -114,7 +114,7 @@ export default function BayesianDCA() {
             Bayesian Production Monitor
           </h1>
           <p className="text-muted-foreground mt-1">
-            Real-time Arps decline curve forecast with uncertainty bands · AI Smart Well Platform
+            Real-time Arps decline curve forecast with uncertainty bands · SGOM Platform
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -227,7 +227,7 @@ export default function BayesianDCA() {
       </Card>
 
       <p className="text-xs text-muted-foreground text-center">
-        AI Smart Well, Inc. © 2026 · Bayesian DCA · Demo Mode (deterministic seeded noise)
+        AI Smart Well Inc. © 2026 · Bayesian DCA · Demo Mode (deterministic seeded noise)
       </p>
     </div>
   );

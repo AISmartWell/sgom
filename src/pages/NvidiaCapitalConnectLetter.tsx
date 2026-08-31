@@ -87,7 +87,7 @@ const NvidiaCapitalConnectLetter = () => {
             Capital Connect Access Request
           </h1>
           <p className="text-lg font-medium" style={{ color: "#374151" }}>
-            SGOM Platform — AI Smart Well · VC Exposure Application
+            SGOM Platform — SGOM · VC Exposure Application
           </p>
           <p className="text-sm mt-2" style={{ color: "#6b7280" }}>Date: {today}</p>
         </div>
@@ -106,7 +106,7 @@ const NvidiaCapitalConnectLetter = () => {
 
           <p>
             We are writing to formally request activation of the <strong>Inception Capital Connect (ICC)</strong> benefit
-            for <strong>SGOM Platform (AI Smart Well)</strong>, an active member of the NVIDIA Inception program.
+            for <strong>SGOM Platform (SGOM)</strong>, an active member of the NVIDIA Inception program.
           </p>
 
           <p>
@@ -213,7 +213,7 @@ const NvidiaCapitalConnectLetter = () => {
           <p className="mt-6 font-medium">Best regards,</p>
           <p className="font-bold mt-1" style={{ color: "#1a1a2e" }}>Edward Rubinstein</p>
           <p className="text-xs" style={{ color: "#6b7280" }}>CEO · Co-Founder</p>
-          <p className="text-xs" style={{ color: "#6b7280" }}>SGOM Platform — AI Smart Well</p>
+          <p className="text-xs" style={{ color: "#6b7280" }}>SGOM Platform — SGOM</p>
           <p className="text-xs" style={{ color: "#6b7280" }}>NVIDIA Inception Member</p>
         </div>
 

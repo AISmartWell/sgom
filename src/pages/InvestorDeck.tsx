@@ -514,7 +514,7 @@ const InvestorDeck = () => {
           <thead>
             <tr className="bg-muted/50">
               <th className="text-left p-3 font-medium"></th>
-              <th className="text-center p-3 font-bold text-primary">AI Smart Well</th>
+              <th className="text-center p-3 font-bold text-primary">SGOM</th>
               <th className="text-center p-3 font-medium text-muted-foreground">Legacy Software</th>
               <th className="text-center p-3 font-medium text-muted-foreground">Big Oil In-House</th>
             </tr>
@@ -681,7 +681,7 @@ const InvestorDeck = () => {
             ER
           </div>
           <h3 className="text-base font-semibold">Edward Rubinstein</h3>
-          <p className="text-xs text-primary mb-1">CEO · Co-Founder · Strategy & Partnerships · AI Smart Well</p>
+          <p className="text-xs text-primary mb-1">CEO · Co-Founder · Strategy & Partnerships · SGOM</p>
           <p className="text-xs text-muted-foreground">Strategic planning, investor relations, partnership development. Drives business growth and market expansion.</p>
         </div>
         <div className="p-5 rounded-xl bg-card border border-border">
@@ -689,7 +689,7 @@ const InvestorDeck = () => {
             NZ
           </div>
           <h3 className="text-base font-semibold">Natalia Zaruchevskaya</h3>
-          <p className="text-xs text-primary mb-1">Co-Founder · Business Development · AI Smart Well</p>
+          <p className="text-xs text-primary mb-1">Co-Founder · Business Development · SGOM</p>
           <p className="text-xs text-muted-foreground">Business development, partnerships, client relations.</p>
         </div>
         <div className="p-5 rounded-xl bg-card border border-border">

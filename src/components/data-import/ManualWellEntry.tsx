@@ -77,7 +77,7 @@ export const ManualWellEntry = ({ companyId, onImportComplete }: ManualWellEntry
     const newCompanyId = createUuid();
     const { error: companyError } = await supabase
       .from("companies")
-      .insert({ id: newCompanyId, name: "AI Smart Well" });
+      .insert({ id: newCompanyId, name: "SGOM" });
 
     if (companyError) throw companyError;
 

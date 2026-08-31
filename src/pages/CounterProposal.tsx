@@ -73,7 +73,7 @@ const CounterProposal = () => {
           <Badge className="mb-3 bg-blue-100 text-blue-700 border-blue-200 font-semibold">CONFIDENTIAL</Badge>
           <h1 className="text-3xl md:text-4xl font-extrabold mb-2" style={{ color: "#1a1a2e" }}>Counter-Proposal</h1>
           <p className="text-lg font-medium" style={{ color: "#374151" }}>
-            AI Smart Well — SGOM Platform · Development Agreement
+            SGOM — SGOM Platform · Development Agreement
           </p>
           <p className="text-sm mt-1 font-medium" style={{ color: "#6b7280" }}>
             Date: {new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}

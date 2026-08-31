@@ -114,9 +114,9 @@ export default function OAuthConsent() {
             <ShieldCheck className="h-5 w-5" />
             <span className="text-xs uppercase tracking-wider">Agent integration</span>
           </div>
-          <CardTitle className="mt-2">Connect {clientName} to AI Smart Well</CardTitle>
+          <CardTitle className="mt-2">Connect {clientName} to SGOM</CardTitle>
           <CardDescription>
-            This lets {clientName} call AI Smart Well tools as you
+            This lets {clientName} call SGOM tools as you
             {userEmail ? ` (${userEmail})` : ""}.
           </CardDescription>
         </CardHeader>
@@ -125,7 +125,7 @@ export default function OAuthConsent() {
             The client will be able to list wells, read alerts, and search the knowledge base, scoped to your
             company by row-level security.
           </p>
-          <p>This does not bypass AI Smart Well permissions or backend policies.</p>
+          <p>This does not bypass SGOM permissions or backend policies.</p>
         </CardContent>
         <CardFooter className="flex gap-2 justify-end">
           <Button variant="ghost" disabled={busy} onClick={() => decide(false)}>

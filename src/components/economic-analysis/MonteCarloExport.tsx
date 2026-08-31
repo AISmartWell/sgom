@@ -36,7 +36,7 @@ export function useMonteCarloExport() {
       pdf.text("Monte Carlo Simulation Report", margin, 18);
       pdf.setFontSize(9);
       pdf.setFont("helvetica", "normal");
-      pdf.text(`AI Smart Well — Generated ${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}`, margin, 28);
+      pdf.text(`SGOM — Generated ${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}`, margin, 28);
       pdf.setTextColor(0, 0, 0);
 
       let yPos = 45;
@@ -87,7 +87,7 @@ export function useMonteCarloExport() {
         pdf.setFontSize(7);
         pdf.setTextColor(128, 128, 128);
         pdf.text(`Page ${i} of ${totalPages}`, pageW - margin - 20, pageH - 8);
-        pdf.text("AI Smart Well — Confidential", margin, pageH - 8);
+        pdf.text("SGOM — Confidential", margin, pageH - 8);
       }
 
       pdf.save("Monte_Carlo_Report.pdf");

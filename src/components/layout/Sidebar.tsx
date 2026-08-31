@@ -455,7 +455,7 @@ const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
           {!collapsed && (
             <div>
               <h1 className="text-lg font-bold text-sidebar-foreground">
-                AI Smart Well
+                SGOM
               </h1>
               <p className="text-xs text-muted-foreground">AI-Powered Analytics</p>
             </div>

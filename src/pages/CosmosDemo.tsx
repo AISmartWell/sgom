@@ -31,7 +31,7 @@ const CosmosDemo = () => {
               <Sparkles className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h1 className="text-lg font-bold leading-tight">AI Smart Well</h1>
+              <h1 className="text-lg font-bold leading-tight">SGOM</h1>
               <p className="text-xs text-muted-foreground">SGOM Physics Simulator Demo · Powered by NVIDIA NIM</p>
             </div>
           </div>
@@ -158,7 +158,7 @@ const CosmosDemo = () => {
         <section className="text-center py-8 space-y-4">
           <h3 className="text-2xl font-bold">Ready to Optimize Your Wells?</h3>
           <p className="text-muted-foreground max-w-xl mx-auto">
-            AI Smart Well combines SGOM Physics Simulator · Powered by NVIDIA NIM, GPU-accelerated analytics, and Maxxwell Production's patented SPT technology.
+            SGOM combines SGOM Physics Simulator · Powered by NVIDIA NIM, GPU-accelerated analytics, and Maxxwell Production's patented SPT technology.
           </p>
           <div className="flex items-center justify-center gap-3">
             <Button size="lg" asChild>

@@ -171,7 +171,7 @@ export default function WellLiveDashboard() {
           <div style={{ fontFamily: "'DM Mono',monospace", fontSize: 10, color: "#4a9eff", background: "#0a2040", padding: "3px 9px", borderRadius: 4, border: "1px solid #1e4080" }}>AI SMART WELL</div>
           <div>
             <div style={{ fontSize: 15, fontWeight: 700, color: "#e8f0ff" }}>Well Production Monitor</div>
-            <div style={{ fontSize: 10, color: "#3a6080", fontFamily: "'DM Mono',monospace" }}>AI Smart Well, Inc. — Real-Time Analytics</div>
+            <div style={{ fontSize: 10, color: "#3a6080", fontFamily: "'DM Mono',monospace" }}>AI Smart Well Inc. — Real-Time Analytics</div>
           </div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
@@ -370,7 +370,7 @@ export default function WellLiveDashboard() {
         </div>
 
         <div style={{ textAlign: "center", marginTop: 16, fontSize: 9, color: "#1e3a5f", fontFamily: "monospace" }}>
-          AI Smart Well, Inc. — Platform © 2026 · Demo mode (simulated data)
+          AI Smart Well Inc. — Platform © 2026 · Demo mode (simulated data)
         </div>
       </div>
     </div>

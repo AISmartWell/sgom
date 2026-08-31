@@ -255,7 +255,7 @@ const Dashboard = () => {
           Welcome{userName ? `, ${userName}` : ""}! 👋
         </h1>
         <p className="text-muted-foreground">
-          AI Smart Well — Maxxwell Production
+          SGOM — Maxxwell Production
         </p>
       </div>
 

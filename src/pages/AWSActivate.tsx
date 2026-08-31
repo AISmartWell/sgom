@@ -122,7 +122,7 @@ const AWSActivate = () => {
   ];
 
   const applicationText = {
-     companyDescription: `AI Smart Well is an AI-powered Enhanced Oil Recovery (EOR) optimization platform leveraging Slot Perforation Technology (SPT). We automate geological analysis and well selection using computer vision and machine learning, reducing field engineer decision time from weeks to minutes.
+     companyDescription: `SGOM is an AI-powered Enhanced Oil Recovery (EOR) optimization platform leveraging Slot Perforation Technology (SPT). We automate geological analysis and well selection using computer vision and machine learning, reducing field engineer decision time from weeks to minutes.
 
 We are an official member of the NVIDIA Inception Program and DOE SBIR Phase I grant applicant ($275,000). Our founding team has 15+ years in oil & gas operations combined with deep AI/ML expertise.`,
 
@@ -130,7 +130,7 @@ We are an official member of the NVIDIA Inception Program and DOE SBIR Phase I g
 
 Currently, 80% of EOR decisions are made without AI assistance, leading to suboptimal well selection and leaving $3.2B/year in recoverable oil value untapped in the U.S. alone.`,
 
-    solution: `AI Smart Well's platform ingests well logs, core sample imagery, production history, and seismic data to automatically:
+    solution: `SGOM's platform ingests well logs, core sample imagery, production history, and seismic data to automatically:
 1. Score and rank wells by SPT treatment potential (AI Well Ranking Engine)
 2. Analyze core sample photography via computer vision (Core Analysis Module)
 3. Calculate optimal SPT parameters per geological formation (SPT Parameters Engine)
@@ -182,7 +182,7 @@ Phase 3 — Scale (Months 13-18): $25,000
               </div>
               <div>
                 <h1 className="text-2xl font-bold">AWS Activate Application</h1>
-                <p className="text-muted-foreground">$100,000 Cloud Credits Request — AI Smart Well MVP</p>
+                <p className="text-muted-foreground">$100,000 Cloud Credits Request — SGOM MVP</p>
               </div>
             </div>
             <div className="flex items-center gap-3">

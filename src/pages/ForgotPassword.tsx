@@ -41,7 +41,7 @@ const ForgotPassword = () => {
         <CardHeader className="space-y-1 text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Droplets className="h-8 w-8 text-primary" />
-            <span className="text-2xl font-bold">AI Smart Well</span>
+            <span className="text-2xl font-bold">SGOM</span>
           </div>
           <CardTitle className="text-2xl">Reset Password</CardTitle>
           <CardDescription>

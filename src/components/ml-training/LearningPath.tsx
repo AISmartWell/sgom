@@ -63,7 +63,7 @@ const COURSES: Course[] = [
     price: "Free",
     level: "Core",
     url: "https://fullstackdeeplearning.com",
-    description: "Lectures from OpenAI, Tesla, Weights & Biases engineers. Closest to AI Smart Well stack.",
+    description: "Lectures from OpenAI, Tesla, Weights & Biases engineers. Closest to SGOM stack.",
     tags: ["Production ML", "LLMs", "Infrastructure"],
   },
   {
@@ -208,7 +208,7 @@ const LearningPath = () => {
                 Learning Path: ML Pipeline Engineer
               </CardTitle>
               <CardDescription className="mt-2 max-w-2xl">
-                Curated 6–8 month roadmap to design and operate the AI Smart Well 9-stage ML pipeline.
+                Curated 6–8 month roadmap to design and operate the SGOM 9-stage ML pipeline.
                 Track your progress through foundational, core, and stack-specific courses.
               </CardDescription>
             </div>
@@ -336,7 +336,7 @@ const LearningPath = () => {
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
             <Database className="h-4 w-4 text-primary" />
-            How courses map to AI Smart Well stack
+            How courses map to SGOM stack
           </CardTitle>
         </CardHeader>
         <CardContent>

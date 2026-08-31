@@ -1,5 +1,5 @@
 /**
- * AI Smart Well + Maxxwell Production — combined profitability model.
+ * SGOM + Maxxwell Production — combined profitability model.
  *
  * Two cases:
  *  - "upside"  : the original workbook logic (flat 30 bbl/d, no royalty/severance,
