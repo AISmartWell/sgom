@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import {
   Satellite, FolderOpen, Microscope, TrendingUp, Waves, Rocket,
-  DollarSign, BarChart3, Brain, Play, Pause, RotateCcw, CheckCircle2, ScanText, Lock,
+  DollarSign, BarChart3, Brain, Play, Pause, RotateCcw, CheckCircle2, ScanText, Lock, FileBarChart,
 } from "lucide-react";
 import satelliteView from "@/assets/satellite-field-view.jpg";
 import paperLog from "@/assets/demo-paper-well-log.jpg";
