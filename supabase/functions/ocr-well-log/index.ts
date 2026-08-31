@@ -315,7 +315,10 @@ Deno.serve(async (req) => {
       const alt = await callStructuredFallback(dataUrl, mode);
       if (alt) {
         const altResult = normalizeResult(alt, String(alt._served_by), true, keepReadings);
-        if (!result || extractionScore(altResult) > extractionScore(result)) {
+        const altReadings = Array.isArray(altResult.log_readings) ? (altResult.log_readings as unknown[]).length : 0;
+        const curReadings = Array.isArray(result?.log_readings) ? (result!.log_readings as unknown[]).length : 0;
+        const readingsWin = keepReadings && altReadings > curReadings;
+        if (!result || readingsWin || extractionScore(altResult) > extractionScore(result)) {
           result = altResult;
           usedModel = String(alt._served_by);
           fallbackUsed = true;
