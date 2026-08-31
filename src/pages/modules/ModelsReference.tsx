@@ -247,7 +247,7 @@ const MODELS: ModelCard[] = [
     providerLabel: "OpenAI TTS",
     providerColor: "hsl(190 100% 50%)",
     description:
-      "Text-to-speech via OpenAI. Supports SSE streaming and full response_format set. Voice: shimmer (female). Powers Maria's voice.",
+      "Text-to-speech via OpenAI. Supports SSE streaming and full response_format set. Voice: nova (female). Powers Maria's voice.",
     bestFor: ["Voice synthesis", "Streaming audio", "Narration"],
     useCases: [
       "Maria voice responses",
@@ -547,7 +547,7 @@ export default function ModelsReference() {
             {
               task: "Voice Synthesis (Maria)",
               model: "openai/gpt-4o-mini-tts",
-              why: "High-quality streaming TTS with female voice (shimmer).",
+              why: "High-quality streaming TTS with female voice (nova).",
             },
             {
               task: "Hardest Problems",
