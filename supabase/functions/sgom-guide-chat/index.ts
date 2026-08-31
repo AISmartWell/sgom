@@ -8,7 +8,14 @@ const corsHeaders = {
 };
 
 const NVIDIA_URL = "https://integrate.api.nvidia.com/v1/chat/completions";
-const NEMOTRON_MODEL = "nvidia/llama-3.3-nemotron-super-49b-v1";
+const LOVABLE_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
+// Tried in order — older Nemotron builds reach end-of-life (410) periodically.
+const NVIDIA_MODELS = [
+  "nvidia/llama-3.3-nemotron-super-49b-v1.5",
+  "nvidia/nvidia-nemotron-nano-9b-v2",
+  "meta/llama-3.3-70b-instruct",
+];
+const FALLBACK_MODEL = "google/gemini-3.7-flash";
 
 const SYSTEM_PROMPT = `You are Maria, the AI guide for the SGOM platform (developed by AI Smart Well Inc.), powered by NVIDIA Nemotron. Always answer in English, in a clear, friendly, expert tone.
 
