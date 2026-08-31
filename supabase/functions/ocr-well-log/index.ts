@@ -310,7 +310,7 @@ Deno.serve(async (req) => {
 
     // If NVIDIA returned prose / weak extraction, re-run through the structured fallback.
     const needsReadings = keepReadings &&
-      (!Array.isArray(result?.log_readings) || (result!.log_readings as unknown[]).length === 0);
+      (!Array.isArray(result?.log_readings) || (result!.log_readings as unknown[]).length < 10);
     if (!result || (result as any).parse_error || extractionScore(result) < 6 || needsReadings) {
       const alt = await callStructuredFallback(dataUrl, mode);
       if (alt) {
