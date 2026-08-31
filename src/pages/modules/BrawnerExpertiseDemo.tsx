@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import {
   Satellite, FolderOpen, Microscope, TrendingUp, Waves, Rocket,
-  DollarSign, BarChart3, Brain, Play, Pause, RotateCcw, CheckCircle2, ScanText, Lock,
+  DollarSign, BarChart3, Brain, Play, Pause, RotateCcw, CheckCircle2, ScanText, Lock, FileBarChart,
 } from "lucide-react";
 import satelliteView from "@/assets/satellite-field-view.jpg";
 import paperLog from "@/assets/demo-paper-well-log.jpg";
@@ -75,6 +75,29 @@ const STAGES: Stage[] = [
     action: "The AI agent ranks restoration options for this well and writes a short, source-linked justification.",
     output: ["Recommended option: SPT restoration", "Confidence: high", "Full audit trail available to the operator"],
   },
+];
+
+const REPORT_STATS = [
+  { label: "Net Pay",     value: "52",    unit: "ft", color: "text-emerald-400" },
+  { label: "Gross Pay",   value: "52",    unit: "ft", color: "text-primary" },
+  { label: "N/G Ratio",   value: "100",   unit: "%",  color: "text-emerald-400" },
+  { label: "Shale (cap)", value: "117",   unit: "ft", color: "text-rose-400" },
+  { label: "Clean Sand",  value: "42",    unit: "ft", color: "text-amber-400" },
+  { label: "Total Depth", value: "5,225", unit: "ft", color: "text-sky-400" },
+];
+
+const REPORT_INTERVALS = [
+  { name: "Clean Sand",  thickness: "42 ft",  dot: "bg-amber-400" },
+  { name: "Silty Sand",  thickness: "10 ft",  dot: "bg-yellow-600" },
+  { name: "Shale (seal)",thickness: "117 ft", dot: "bg-rose-400" },
+  { name: "Logged interval", thickness: "12 zones", dot: "bg-sky-400" },
+];
+
+const REPORT_RECOMMENDATIONS = [
+  "Net pay confirmed across the upper sand package — no reservoir quality downgrade required.",
+  "Overlying shale provides an effective seal for a staged treatment.",
+  "Existing perforation avoided; fresh intervals available for SPT placement.",
+  "Candidate promoted to Stage 9 (EOR Optimization) with high confidence.",
 ];
 
 const STEP_MS = 2600;
@@ -206,6 +229,71 @@ export default function BrawnerExpertiseDemo() {
                 </li>
               ))}
             </ul>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Final report */}
+      <Card className="border-emerald-500/40">
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-2 mb-1">
+            <Badge className="bg-emerald-500/15 text-emerald-400 border-emerald-500/30">Stage 8 · Step 10</Badge>
+            <Badge variant="outline" className="text-[10px]">Real Data</Badge>
+          </div>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <FileBarChart className="w-5 h-5 text-emerald-400" /> Final Report — BRAWNER 10-15
+          </CardTitle>
+          <CardDescription>
+            Gross / Net Pay, N/G ratio, dominant fluid and recommendations, produced from 72 digitised log points across 12 intervals.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+            {REPORT_STATS.map((s) => (
+              <div key={s.label} className="rounded-lg border border-border bg-muted/20 p-3">
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{s.label}</p>
+                <p className={`text-2xl font-bold leading-tight ${s.color}`}>
+                  {s.value}
+                  <span className="text-xs font-normal text-muted-foreground ml-1">{s.unit}</span>
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="rounded-lg border border-border p-3">
+              <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2">Interval summary</p>
+              <ul className="space-y-1.5 text-sm">
+                {REPORT_INTERVALS.map((i) => (
+                  <li key={i.name} className="flex items-center justify-between gap-3">
+                    <span className="flex items-center gap-2">
+                      <span className={`w-2.5 h-2.5 rounded-sm ${i.dot}`} />
+                      {i.name}
+                    </span>
+                    <span className="font-mono text-xs text-muted-foreground">{i.thickness}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="rounded-lg border border-border p-3">
+              <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2">Recommendations</p>
+              <ul className="space-y-1.5">
+                {REPORT_RECOMMENDATIONS.map((r) => (
+                  <li key={r} className="flex items-start gap-2 text-sm">
+                    <CheckCircle2 className="w-4 h-4 mt-0.5 text-emerald-400 shrink-0" />
+                    <span>{r}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          <div className="rounded-lg border border-emerald-500/40 bg-emerald-500/5 p-3 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-[10px] uppercase tracking-wide text-emerald-400">AI Verdict</p>
+              <p className="text-base font-semibold">High-quality reservoir · SPT candidate</p>
+            </div>
+            <p className="text-xs font-mono text-muted-foreground">Dominant fluid: oil · Interpretation quality: validated</p>
           </div>
         </CardContent>
       </Card>
