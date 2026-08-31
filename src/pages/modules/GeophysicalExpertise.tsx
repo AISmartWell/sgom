@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { ComposedChart, Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, Legend } from "recharts";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -3307,6 +3307,86 @@ const GeophysicalExpertise = () => {
         <TabsContent value="report" className="mt-0">
           {selectedWell ? (
             <div className="space-y-4">
+              {interpretation && (
+                <Card className="border-success/40">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Badge variant="outline" className="text-[10px]">Step 10</Badge>
+                      <Badge variant="outline" className="text-[10px]">Real Data</Badge>
+                    </div>
+                    <CardTitle className="text-lg">
+                      Final Report — {selectedWell.well_name || "Unknown Well"}
+                    </CardTitle>
+                    <CardDescription>
+                      Gross / Net Pay, N/G ratio, dominant fluid and recommendations from {interpretation.intervals.length} interpreted intervals.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-5">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                      {[
+                        { label: "Gross Pay", value: `${interpretation.grossPay}`, unit: "ft" },
+                        { label: "Net Pay", value: `${interpretation.netPay}`, unit: "ft" },
+                        { label: "N/G Ratio", value: `${interpretation.netToGross}`, unit: "%" },
+                        { label: "Avg Porosity", value: `${interpretation.avgPorosity.toFixed(1)}`, unit: "%" },
+                        { label: "Avg Sw", value: `${interpretation.avgSw.toFixed(1)}`, unit: "%" },
+                        { label: "Missed Pay", value: `${interpretation.totalMissedPay}`, unit: "ft" },
+                      ].map((s) => (
+                        <div key={s.label} className="rounded-lg border border-border bg-muted/20 p-3">
+                          <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{s.label}</p>
+                          <p className="text-2xl font-bold leading-tight">
+                            {s.value}
+                            <span className="text-xs font-normal text-muted-foreground ml-1">{s.unit}</span>
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="rounded-lg border border-border p-3">
+                        <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2">Net pay intervals</p>
+                        {interpretation.intervals.filter((i) => i.isNetPay).length === 0 ? (
+                          <p className="text-sm text-muted-foreground">No intervals passed the pay cutoffs.</p>
+                        ) : (
+                          <ul className="space-y-1.5 text-sm max-h-56 overflow-auto pr-1">
+                            {interpretation.intervals.filter((i) => i.isNetPay).map((i, idx) => (
+                              <li key={idx} className="flex items-center justify-between gap-3">
+                                <span className="font-mono text-xs">
+                                  {i.top.toFixed(0)}–{i.bottom.toFixed(0)} ft
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                  {i.thickness.toFixed(0)} ft · φ {i.avgPor.toFixed(1)}% · {i.fluidType}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                      <div className="rounded-lg border border-border p-3">
+                        <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2">Recommendations</p>
+                        <ul className="space-y-1.5 text-sm">
+                          {[
+                            interpretation.netToGross >= 60
+                              ? "High net-to-gross — reservoir quality supports a staged completion."
+                              : "Moderate net-to-gross — restrict treatment to the best-quality intervals.",
+                            interpretation.totalMissedPay > 0
+                              ? `${interpretation.totalMissedPay} ft of bypassed pay identified outside existing perforations.`
+                              : "No bypassed pay detected against existing perforations.",
+                            interpretation.dominantFluid === "oil"
+                              ? "Dominant fluid: oil — promote to SPT / EOR screening."
+                              : `Dominant fluid: ${interpretation.dominantFluid} — verify saturation before treatment.`,
+                            "Cutoffs applied: φ > 8%, Sw < 60%, Vsh < 40%.",
+                          ].map((r) => (
+                            <li key={r} className="flex items-start gap-2">
+                              <CheckCircle2 className="w-4 h-4 mt-0.5 text-success shrink-0" />
+                              <span>{r}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
               <EnhancedWellLog
                 wellId={selectedWell.id}
                 wellName={selectedWell.well_name || "Unknown Well"}
