@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import EnhancedWellLog from "@/components/well-log/EnhancedWellLog";
 import {
   Satellite, FolderOpen, Microscope, TrendingUp, Waves, Rocket,
   DollarSign, BarChart3, Brain, Play, Pause, RotateCcw, CheckCircle2, ScanText, Lock, FileBarChart,
@@ -103,6 +104,7 @@ const REPORT_RECOMMENDATIONS = [
 ];
 
 const STEP_MS = 2600;
+const BRAWNER_WELL_ID = "e688229c-cb05-4ee8-be8b-d4953e55060b";
 
 export default function BrawnerExpertiseDemo() {
   const [active, setActive] = useState(0);
@@ -232,6 +234,32 @@ export default function BrawnerExpertiseDemo() {
               ))}
             </ul>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Real digitised log with bypassed-pay interpretation */}
+      <Card className="border-rose-500/40">
+        <CardHeader className="pb-3">
+          <div className="flex flex-wrap items-center gap-2 mb-1">
+            <Badge className="bg-orange-500/15 text-orange-400 border-orange-500/30">Stage 8 · Raw Curves</Badge>
+            <Badge variant="outline" className="text-[10px]">72 Real Log Points</Badge>
+            <Badge className="bg-rose-500/15 text-rose-400 border-rose-500/30">Bypassed Pay Detection</Badge>
+          </div>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <BarChart3 className="w-5 h-5 text-orange-400" /> BRAWNER 10-15 — Composite Well Log
+          </CardTitle>
+          <CardDescription>
+            Digitised paper-log curves with fluid, perforation and correlation tracks. Red MISSED intervals identify net pay outside existing perforations.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <EnhancedWellLog
+            wellId={BRAWNER_WELL_ID}
+            wellName="BRAWNER 10-15"
+            formation="ARBUCKLE"
+            totalDepth={5225}
+            defaultExpanded
+          />
         </CardContent>
       </Card>
 
