@@ -13,12 +13,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Loader2, Brain, Wrench, CheckCircle2, AlertTriangle, Sparkles, ClipboardCheck, PlusCircle, Database } from "lucide-react";
+import { Loader2, Brain, Wrench, CheckCircle2, AlertTriangle, Sparkles, ClipboardCheck, PlusCircle, Database, ClipboardList, Target } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import MCDAWeightsPanel from "@/components/spt-advisor/MCDAWeightsPanel";
 import { ManualWellEntry } from "@/components/data-import/ManualWellEntry";
 import OCRQuickIngest from "@/components/spt-advisor/OCRQuickIngest";
+import WellRegistry from "@/components/spt-advisor/WellRegistry";
+import ForecastPanel, { summarizeForecast, type ForecastResult } from "@/components/spt-advisor/ForecastPanel";
+
 
 type TraceItem =
   | { step: number; kind: "tool"; name: string; args: any; ms: number; error: string | null; result_preview: string; result_full?: any }
