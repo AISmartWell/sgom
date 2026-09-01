@@ -10,6 +10,27 @@ import {
 } from "lucide-react";
 import satelliteView from "@/assets/satellite-field-view.jpg";
 import paperLog from "@/assets/demo-paper-well-log.jpg";
+import stage1Img from "@/assets/stage-1-field-scanning.jpg.asset.json";
+import stage2Img from "@/assets/stage-2-data-classification.jpg.asset.json";
+import stage3Img from "@/assets/stage-3-core-analysis.jpg.asset.json";
+import stage4Img from "@/assets/stage-4-cumulative.jpg.asset.json";
+import stage5Img from "@/assets/stage-5-seismic.jpg.asset.json";
+import stage6Img from "@/assets/stage-6-spt.jpg.asset.json";
+import stage7Img from "@/assets/stage-7-economics.jpg.asset.json";
+import stage8Img from "@/assets/stage-8-geophysics.jpg.asset.json";
+import stage9Img from "@/assets/stage-9-eor.jpg.asset.json";
+
+const STAGE_IMAGES = [
+  { url: stage1Img.url, alt: "Aerial satellite view of an oil field with pumpjacks and lease pads" },
+  { url: stage2Img.url, alt: "Aged 1982 paper well log sheet being digitised on a desk" },
+  { url: stage3Img.url, alt: "Rock core samples in a laboratory core box" },
+  { url: stage4Img.url, alt: "Oil pumpjack silhouette at sunset" },
+  { url: stage5Img.url, alt: "Geologist interpreting a colourful seismic section on a large screen" },
+  { url: stage6Img.url, alt: "Cutaway render of slot perforations in a wellbore casing" },
+  { url: stage7Img.url, alt: "Economics desk with cash-flow charts and calculators" },
+  { url: stage8Img.url, alt: "Petrophysicist analysing well log curves on dual monitors" },
+  { url: stage9Img.url, alt: "Modern oil and gas control room with a large dashboard wall" },
+];
 
 type Stage = {
   num: number;
