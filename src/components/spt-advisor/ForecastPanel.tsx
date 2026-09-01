@@ -62,8 +62,8 @@ export default function ForecastPanel({ forecast, wellName }: { forecast: Foreca
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <Metric label="Rate now (baseline)" value={`${s.q0_baseline ?? "—"} BOPD`} />
           <Metric label="Rate after SPT (P50)" value={`${s.q0_spt} BOPD`} accent />
-          <Metric label="Cum P50, 
- 24 mo" value={`${s.cum_p50_bbl.toLocaleString()} bbl`} />
+          <Metric label={`Cum P50 · ${s.months} mo`} value={`${s.cum_p50_bbl.toLocaleString()} bbl`} />
+
           <Metric label="Incremental uplift" value={`+${s.uplift_bbl.toLocaleString()} bbl`} accent />
         </div>
 
