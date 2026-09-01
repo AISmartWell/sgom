@@ -231,12 +231,28 @@ export default function BrawnerExpertiseDemo() {
       </Card>
 
       {/* Active stage detail */}
-      <Card className="border-primary/40">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
+      <Card className="border-primary/40 overflow-hidden">
+        <div className="relative h-56 md:h-72">
+          {STAGE_IMAGES.map((img, i) => (
+            <img
+              key={img.url}
+              src={img.url}
+              alt={img.alt}
+              loading="lazy"
+              width={1344}
+              height={768}
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
+                i === active ? "opacity-100" : "opacity-0"
+              }`}
+            />
+          ))}
+          <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent" />
+          <div className="absolute bottom-3 left-4 flex items-center gap-2">
             <Icon className={`w-5 h-5 ${stage.color}`} />
-            Stage {stage.num} · {stage.title}
-          </CardTitle>
+            <span className="text-sm font-semibold drop-shadow">Stage {stage.num} · {stage.title}</span>
+          </div>
+        </div>
+        <CardHeader>
           <CardDescription>{stage.action}</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-3">
