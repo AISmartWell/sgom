@@ -13,12 +13,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Loader2, Brain, Wrench, CheckCircle2, AlertTriangle, Sparkles, ClipboardCheck, PlusCircle, Database } from "lucide-react";
+import { Loader2, Brain, Wrench, CheckCircle2, AlertTriangle, Sparkles, ClipboardCheck, PlusCircle, Database, ClipboardList, Target } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import MCDAWeightsPanel from "@/components/spt-advisor/MCDAWeightsPanel";
 import { ManualWellEntry } from "@/components/data-import/ManualWellEntry";
 import OCRQuickIngest from "@/components/spt-advisor/OCRQuickIngest";
+import WellRegistry from "@/components/spt-advisor/WellRegistry";
+import ForecastPanel, { summarizeForecast, type ForecastResult } from "@/components/spt-advisor/ForecastPanel";
+
 
 type TraceItem =
   | { step: number; kind: "tool"; name: string; args: any; ms: number; error: string | null; result_preview: string; result_full?: any }
@@ -43,6 +46,7 @@ export default function SPTAdvisor() {
   const [approving, setApproving] = useState(false);
   const [approvedId, setApprovedId] = useState<string | null>(null);
   const [addOpen, setAddOpen] = useState(false);
+  const [registryKey, setRegistryKey] = useState(0);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -62,6 +66,7 @@ export default function SPTAdvisor() {
       const forecast = (resp.trace.find((t: any) => t.kind === "tool" && t.name === "forecast_well") as any)?.result_full;
       const enrich = (resp.trace.find((t: any) => t.kind === "tool" && t.name === "enrich_well_metadata") as any)?.result_full;
       const adjusted = enrich?.confidence?.adjusted ?? a.recommended_well.confidence ?? null;
+      const summary = summarizeForecast(forecast as ForecastResult);
 
       const { data: { user } } = await supabase.auth.getUser();
       const { data: uc } = await supabase
@@ -73,7 +78,7 @@ export default function SPTAdvisor() {
       if (!uc?.company_id) throw new Error("No company assigned to user");
 
       const spt_depth = enrich?.filled?.total_depth ?? null;
-      const p50 = forecast?.p50_qoil ?? forecast?.scenarios?.p50?.qoil ?? null;
+      const p50 = summary?.q0_spt ?? forecast?.p50_qoil ?? forecast?.scenarios?.p50?.qoil ?? null;
 
       const { data, error } = await supabase
         .from("well_restorations")
@@ -83,6 +88,7 @@ export default function SPTAdvisor() {
           source: "spt-advisor",
           spt_depth_ft: spt_depth,
           predicted_qoil: p50,
+          predicted_cum: summary?.cum_p50_bbl ?? null,
           arps_b_used: forecast?.arps_b ?? 0.5,
           arps_di_used: forecast?.arps_di ?? 0.00018,
           spt_multiplier_used: forecast?.spt_multiplier ?? 1.45,
@@ -98,6 +104,8 @@ export default function SPTAdvisor() {
             alternatives: a.alternatives,
             enrichment: a.enrichment,
             ood_flag: a.ood_flag,
+            forecast: summary ?? null,
+            forecast_curves: forecast ?? null,
             question,
           },
           created_by: user?.id ?? null,
@@ -114,12 +122,13 @@ export default function SPTAdvisor() {
     }
   };
 
-  const run = async () => {
+  const run = async (overrideQuestion?: string) => {
+    const q = overrideQuestion ?? question;
     setLoading(true); setResp(null); setMs(null); setApprovedId(null);
     const t0 = Date.now();
     try {
       const { data, error } = await supabase.functions.invoke("spt-advisor", {
-        body: { question, company_id: companyId.trim() || undefined },
+        body: { question: q, company_id: companyId.trim() || undefined },
       });
       setMs(Date.now() - t0);
       if (error) throw error;
@@ -132,7 +141,15 @@ export default function SPTAdvisor() {
     } finally { setLoading(false); }
   };
 
+  const runBrawner = () => {
+    const q = "Evaluate the well BRAWNER 10-15 for SPT treatment. Call get_well_context, forecast_well (24 months), ood_check and enrich_well_metadata on it, then recommend it (or reject it) with a 24-month production forecast, P10/P50/P90 cumulative volumes and expected uplift in bbl.";
+    setQuestion(q);
+    run(q);
+  };
+
   const a = resp?.answer;
+  const forecastResult = (resp?.trace?.find((t: any) => t.kind === "tool" && t.name === "forecast_well") as any)?.result_full as ForecastResult | undefined;
+
 
   return (
     <div className="container mx-auto py-6 space-y-6">
@@ -146,14 +163,23 @@ export default function SPTAdvisor() {
         </div>
         <div className="flex flex-col gap-2 sm:flex-row lg:w-auto">
           <Button size="lg" variant="outline" asChild>
+            <Link to="/dashboard/spt-work-orders">
+              <ClipboardList className="w-4 h-4 mr-2" /> Work orders
+            </Link>
+          </Button>
+          <Button size="lg" variant="outline" asChild>
             <Link to="/dashboard/spt-benchmark">
               <Database className="w-4 h-4 mr-2" /> Benchmark pool
             </Link>
+          </Button>
+          <Button size="lg" variant="secondary" onClick={runBrawner} disabled={loading}>
+            <Target className="w-4 h-4 mr-2" /> Run on Brawner 10-15
           </Button>
           <Button size="lg" className="w-full lg:w-auto" onClick={() => setAddOpen(true)}>
             <PlusCircle className="w-4 h-4 mr-2" /> Add well
           </Button>
         </div>
+
       </div>
 
       <p className="text-sm text-muted-foreground max-w-3xl">
@@ -193,7 +219,11 @@ export default function SPTAdvisor() {
         </CardContent>
       </Card>
 
-      <OCRQuickIngest companyId={companyId} onWellCreated={() => { /* well added */ }} />
+      <OCRQuickIngest companyId={companyId} onWellCreated={() => setRegistryKey((k) => k + 1)} />
+
+      <WellRegistry companyId={companyId || null} refreshKey={registryKey} />
+
+
 
 
       <Card>
@@ -212,10 +242,14 @@ export default function SPTAdvisor() {
               onChange={(e) => setCompanyId(e.target.value)}
               className="flex-1 px-3 py-2 text-sm bg-background border border-border rounded-md font-mono"
             />
-            <Button onClick={run} disabled={loading}>
+            <Button onClick={() => run()} disabled={loading}>
               {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Brain className="w-4 h-4 mr-2" />}
               Run advisor
             </Button>
+            <Button variant="secondary" onClick={runBrawner} disabled={loading}>
+              <Target className="w-4 h-4 mr-2" /> Brawner 10-15
+            </Button>
+
             <Button variant="outline" onClick={() => setAddOpen(true)}>
               <PlusCircle className="w-4 h-4 mr-2" /> Add well
             </Button>
@@ -348,20 +382,32 @@ export default function SPTAdvisor() {
               );
             })()}
 
-            <div className="pt-3 mt-2 border-t border-border flex items-center justify-between gap-3">
+            {forecastResult && (
+              <ForecastPanel forecast={forecastResult} wellName={a.recommended_well?.name} />
+            )}
+
+            <div className="pt-3 mt-2 border-t border-border flex flex-wrap items-center justify-between gap-3">
               <div className="text-xs text-muted-foreground">
                 {approvedId
-                  ? <>Saved as planned work order <span className="font-mono">{approvedId.slice(0, 8)}</span> in <code>well_restorations</code>.</>
-                  : <>Approve to persist this recommendation as a <span className="font-mono">planned</span> record with the adjusted confidence.</>}
+                  ? <>Saved as planned work order <span className="font-mono">{approvedId.slice(0, 8)}</span> with its forecast in the work order registry.</>
+                  : <>Approve to persist this recommendation — forecast (P10/P50/P90, uplift), date and status go to the work order registry.</>}
               </div>
-              <Button onClick={approve} disabled={approving || !!approvedId} size="sm">
-                {approving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <ClipboardCheck className="w-4 h-4 mr-2" />}
-                {approvedId ? "Approved" : "Approve & create work order"}
-              </Button>
+              <div className="flex gap-2">
+                <Button onClick={approve} disabled={approving || !!approvedId} size="sm">
+                  {approving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <ClipboardCheck className="w-4 h-4 mr-2" />}
+                  {approvedId ? "Approved" : "Approve & create work order"}
+                </Button>
+                <Button size="sm" variant="outline" asChild>
+                  <Link to="/dashboard/spt-work-orders">
+                    <ClipboardList className="w-4 h-4 mr-2" /> Open registry
+                  </Link>
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
       )}
+
 
       {resp && (
         <Card>

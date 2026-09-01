@@ -376,6 +376,12 @@ const menuItems = [
     badge: "🤖",
   },
   {
+    title: "SPT Work Orders",
+    icon: Bot,
+    href: "/dashboard/spt-work-orders",
+    badge: "📋",
+  },
+  {
     title: "SPT End-to-End Demo",
     icon: Zap,
     href: "/dashboard/spt-demo",

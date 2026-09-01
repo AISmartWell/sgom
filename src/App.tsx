@@ -85,6 +85,7 @@ import SPTAdvisor from "./pages/modules/SPTAdvisor";
 import SPTDemo from "./pages/modules/SPTDemo";
 import BrawnerExpertiseDemo from "./pages/modules/BrawnerExpertiseDemo";
 import SPTBenchmarkPool from "./pages/modules/SPTBenchmarkPool";
+import SPTWorkOrders from "./pages/modules/SPTWorkOrders";
 import AutonomousScan from "./pages/modules/AutonomousScan";
 import AIGuide from "./pages/modules/AIGuide";
 import ModelsReference from "./pages/modules/ModelsReference";
@@ -170,6 +171,7 @@ const App = () => (
               <Route path="spt-demo" element={<SPTDemo />} />
               <Route path="brawner-expertise-demo" element={<BrawnerExpertiseDemo />} />
               <Route path="spt-benchmark" element={<SPTBenchmarkPool />} />
+              <Route path="spt-work-orders" element={<SPTWorkOrders />} />
               <Route path="autonomous-scan" element={<AutonomousScan />} />
               <Route path="ai-guide" element={<AIGuide />} />
               <Route path="models-reference" element={<ModelsReference />} />
