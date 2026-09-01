@@ -242,10 +242,14 @@ export default function SPTAdvisor() {
               onChange={(e) => setCompanyId(e.target.value)}
               className="flex-1 px-3 py-2 text-sm bg-background border border-border rounded-md font-mono"
             />
-            <Button onClick={run} disabled={loading}>
+            <Button onClick={() => run()} disabled={loading}>
               {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Brain className="w-4 h-4 mr-2" />}
               Run advisor
             </Button>
+            <Button variant="secondary" onClick={runBrawner} disabled={loading}>
+              <Target className="w-4 h-4 mr-2" /> Brawner 10-15
+            </Button>
+
             <Button variant="outline" onClick={() => setAddOpen(true)}>
               <PlusCircle className="w-4 h-4 mr-2" /> Add well
             </Button>
