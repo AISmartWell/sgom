@@ -319,6 +319,18 @@ const TOOLS = [
   {
     type: "function",
     function: {
+      name: "find_well",
+      description: "Resolve a well UUID by well name or API number. ALWAYS use this before get_well_context when the user names a well; never invent a UUID.",
+      parameters: {
+        type: "object",
+        properties: { query: { type: "string" }, company_id: { type: "string" } },
+        required: ["query"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
       name: "get_well_context",
       description: "Full context for one well: header, last 36 months production, perforations.",
       parameters: {
@@ -372,6 +384,7 @@ const TOOLS = [
 async function dispatchTool(name: string, args: any) {
   switch (name) {
     case "list_wells": return await tool_list_wells(args);
+    case "find_well": return await tool_find_well(args);
     case "rank_wells_for_spt": return await tool_rank_wells_for_spt(args);
     case "get_well_context": return await tool_get_well_context(args);
     case "forecast_well": return await tool_forecast_well(args);
@@ -484,7 +497,7 @@ Deno.serve(async (req) => {
         // Full result for enrichment is returned to UI (so we can show attempts/cascade trace);
         // other tools keep the truncated preview to limit payload size.
         const traceEntry: any = { step, kind: "tool", name, args, ms, error, result_preview: JSON.stringify(result).slice(0, 400) };
-        if (name === "enrich_well_metadata") traceEntry.result_full = result;
+        if (name === "enrich_well_metadata" || name === "forecast_well" || name === "find_well") traceEntry.result_full = result;
         trace.push(traceEntry);
 
         messages.push({
