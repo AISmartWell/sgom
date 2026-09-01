@@ -35,6 +35,16 @@ async function tool_list_wells(args: { company_id?: string; limit?: number }) {
   return { count: wells.length, wells };
 }
 
+// Resolve a well UUID from a human name or API number. Never guess an id.
+async function tool_find_well(args: { query: string; company_id?: string }) {
+  const q = (args.query ?? "").trim();
+  let sel = sb.from("wells").select("id,well_name,api_number,formation,total_depth,production_oil,water_cut,status,county,state").limit(10);
+  if (args.company_id) sel = sel.eq("company_id", args.company_id);
+  const { data } = await sel.or(`well_name.ilike.%${q}%,api_number.ilike.%${q}%`);
+  const matches = (data ?? []).map((w: any) => ({ ...w, name: w.well_name, depth: w.total_depth }));
+  return { query: q, count: matches.length, matches };
+}
+
 async function tool_get_well_context(args: { well_id: string }) {
   const [w, prod, perf] = await Promise.all([
     sb.from("wells").select("*").eq("id", args.well_id).maybeSingle(),
@@ -309,6 +319,18 @@ const TOOLS = [
   {
     type: "function",
     function: {
+      name: "find_well",
+      description: "Resolve a well UUID by well name or API number. ALWAYS use this before get_well_context when the user names a well; never invent a UUID.",
+      parameters: {
+        type: "object",
+        properties: { query: { type: "string" }, company_id: { type: "string" } },
+        required: ["query"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
       name: "get_well_context",
       description: "Full context for one well: header, last 36 months production, perforations.",
       parameters: {
@@ -362,6 +384,7 @@ const TOOLS = [
 async function dispatchTool(name: string, args: any) {
   switch (name) {
     case "list_wells": return await tool_list_wells(args);
+    case "find_well": return await tool_find_well(args);
     case "rank_wells_for_spt": return await tool_rank_wells_for_spt(args);
     case "get_well_context": return await tool_get_well_context(args);
     case "forecast_well": return await tool_forecast_well(args);
@@ -374,6 +397,7 @@ async function dispatchTool(name: string, args: any) {
 const SYSTEM_PROMPT = `You are SPT Advisor — an autonomous reservoir engineering agent for Slot Perforation Technology (SPT, US 8,863,823).
 
 Goals each turn:
+0. If the user names a specific well (by name or API number), call find_well FIRST to resolve its real UUID. NEVER invent or guess a well id — if find_well returns no match, say so instead of proceeding.
 1. Use rank_wells_for_spt to shortlist candidates from the company's wells.
 2. Use get_well_context + forecast_well on the top 1–2 wells.
 3. If the inspected well has null formation, total_depth, or no perforations, call enrich_well_metadata to recover them from formation_codes / neighbour wells, and USE its "confidence.adjusted" value as the final confidence (do not invent your own).
@@ -474,7 +498,7 @@ Deno.serve(async (req) => {
         // Full result for enrichment is returned to UI (so we can show attempts/cascade trace);
         // other tools keep the truncated preview to limit payload size.
         const traceEntry: any = { step, kind: "tool", name, args, ms, error, result_preview: JSON.stringify(result).slice(0, 400) };
-        if (name === "enrich_well_metadata") traceEntry.result_full = result;
+        if (name === "enrich_well_metadata" || name === "forecast_well" || name === "find_well") traceEntry.result_full = result;
         trace.push(traceEntry);
 
         messages.push({

@@ -141,8 +141,18 @@ export default function SPTAdvisor() {
     } finally { setLoading(false); }
   };
 
-  const runBrawner = () => {
-    const q = "Evaluate the well BRAWNER 10-15 for SPT treatment. Call get_well_context, forecast_well (24 months), ood_check and enrich_well_metadata on it, then recommend it (or reject it) with a 24-month production forecast, P10/P50/P90 cumulative volumes and expected uplift in bbl.";
+  const runBrawner = async () => {
+    // Resolve the real UUID first — the agent must never guess a well id.
+    const { data } = await supabase
+      .from("wells")
+      .select("id,well_name")
+      .ilike("well_name", "%BRAWNER 10-15%")
+      .limit(1)
+      .maybeSingle();
+    const idLine = data?.id
+      ? `Its well_id is ${data.id} — use exactly this id in every tool call.`
+      : "First call find_well with query \"BRAWNER 10-15\" to resolve its well_id.";
+    const q = `Evaluate the well BRAWNER 10-15 for SPT treatment. ${idLine} Call get_well_context, forecast_well (24 months), ood_check and enrich_well_metadata on it, then recommend it (or reject it) with a 24-month production forecast, P10/P50/P90 cumulative volumes and expected uplift in bbl.`;
     setQuestion(q);
     run(q);
   };
