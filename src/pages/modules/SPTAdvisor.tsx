@@ -382,20 +382,32 @@ export default function SPTAdvisor() {
               );
             })()}
 
-            <div className="pt-3 mt-2 border-t border-border flex items-center justify-between gap-3">
+            {forecastResult && (
+              <ForecastPanel forecast={forecastResult} wellName={a.recommended_well?.name} />
+            )}
+
+            <div className="pt-3 mt-2 border-t border-border flex flex-wrap items-center justify-between gap-3">
               <div className="text-xs text-muted-foreground">
                 {approvedId
-                  ? <>Saved as planned work order <span className="font-mono">{approvedId.slice(0, 8)}</span> in <code>well_restorations</code>.</>
-                  : <>Approve to persist this recommendation as a <span className="font-mono">planned</span> record with the adjusted confidence.</>}
+                  ? <>Saved as planned work order <span className="font-mono">{approvedId.slice(0, 8)}</span> with its forecast in the work order registry.</>
+                  : <>Approve to persist this recommendation — forecast (P10/P50/P90, uplift), date and status go to the work order registry.</>}
               </div>
-              <Button onClick={approve} disabled={approving || !!approvedId} size="sm">
-                {approving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <ClipboardCheck className="w-4 h-4 mr-2" />}
-                {approvedId ? "Approved" : "Approve & create work order"}
-              </Button>
+              <div className="flex gap-2">
+                <Button onClick={approve} disabled={approving || !!approvedId} size="sm">
+                  {approving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <ClipboardCheck className="w-4 h-4 mr-2" />}
+                  {approvedId ? "Approved" : "Approve & create work order"}
+                </Button>
+                <Button size="sm" variant="outline" asChild>
+                  <Link to="/dashboard/spt-work-orders">
+                    <ClipboardList className="w-4 h-4 mr-2" /> Open registry
+                  </Link>
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
       )}
+
 
       {resp && (
         <Card>
