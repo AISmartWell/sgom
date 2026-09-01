@@ -46,6 +46,7 @@ export default function SPTAdvisor() {
   const [approving, setApproving] = useState(false);
   const [approvedId, setApprovedId] = useState<string | null>(null);
   const [addOpen, setAddOpen] = useState(false);
+  const [registryKey, setRegistryKey] = useState(0);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -65,6 +66,7 @@ export default function SPTAdvisor() {
       const forecast = (resp.trace.find((t: any) => t.kind === "tool" && t.name === "forecast_well") as any)?.result_full;
       const enrich = (resp.trace.find((t: any) => t.kind === "tool" && t.name === "enrich_well_metadata") as any)?.result_full;
       const adjusted = enrich?.confidence?.adjusted ?? a.recommended_well.confidence ?? null;
+      const summary = summarizeForecast(forecast as ForecastResult);
 
       const { data: { user } } = await supabase.auth.getUser();
       const { data: uc } = await supabase
@@ -76,7 +78,7 @@ export default function SPTAdvisor() {
       if (!uc?.company_id) throw new Error("No company assigned to user");
 
       const spt_depth = enrich?.filled?.total_depth ?? null;
-      const p50 = forecast?.p50_qoil ?? forecast?.scenarios?.p50?.qoil ?? null;
+      const p50 = summary?.q0_spt ?? forecast?.p50_qoil ?? forecast?.scenarios?.p50?.qoil ?? null;
 
       const { data, error } = await supabase
         .from("well_restorations")
@@ -86,6 +88,7 @@ export default function SPTAdvisor() {
           source: "spt-advisor",
           spt_depth_ft: spt_depth,
           predicted_qoil: p50,
+          predicted_cum: summary?.cum_p50_bbl ?? null,
           arps_b_used: forecast?.arps_b ?? 0.5,
           arps_di_used: forecast?.arps_di ?? 0.00018,
           spt_multiplier_used: forecast?.spt_multiplier ?? 1.45,
@@ -101,6 +104,8 @@ export default function SPTAdvisor() {
             alternatives: a.alternatives,
             enrichment: a.enrichment,
             ood_flag: a.ood_flag,
+            forecast: summary ?? null,
+            forecast_curves: forecast ?? null,
             question,
           },
           created_by: user?.id ?? null,
@@ -117,12 +122,13 @@ export default function SPTAdvisor() {
     }
   };
 
-  const run = async () => {
+  const run = async (overrideQuestion?: string) => {
+    const q = overrideQuestion ?? question;
     setLoading(true); setResp(null); setMs(null); setApprovedId(null);
     const t0 = Date.now();
     try {
       const { data, error } = await supabase.functions.invoke("spt-advisor", {
-        body: { question, company_id: companyId.trim() || undefined },
+        body: { question: q, company_id: companyId.trim() || undefined },
       });
       setMs(Date.now() - t0);
       if (error) throw error;
@@ -135,7 +141,15 @@ export default function SPTAdvisor() {
     } finally { setLoading(false); }
   };
 
+  const runBrawner = () => {
+    const q = "Evaluate the well BRAWNER 10-15 for SPT treatment. Call get_well_context, forecast_well (24 months), ood_check and enrich_well_metadata on it, then recommend it (or reject it) with a 24-month production forecast, P10/P50/P90 cumulative volumes and expected uplift in bbl.";
+    setQuestion(q);
+    run(q);
+  };
+
   const a = resp?.answer;
+  const forecastResult = (resp?.trace?.find((t: any) => t.kind === "tool" && t.name === "forecast_well") as any)?.result_full as ForecastResult | undefined;
+
 
   return (
     <div className="container mx-auto py-6 space-y-6">
