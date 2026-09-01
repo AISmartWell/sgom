@@ -163,14 +163,23 @@ export default function SPTAdvisor() {
         </div>
         <div className="flex flex-col gap-2 sm:flex-row lg:w-auto">
           <Button size="lg" variant="outline" asChild>
+            <Link to="/dashboard/spt-work-orders">
+              <ClipboardList className="w-4 h-4 mr-2" /> Work orders
+            </Link>
+          </Button>
+          <Button size="lg" variant="outline" asChild>
             <Link to="/dashboard/spt-benchmark">
               <Database className="w-4 h-4 mr-2" /> Benchmark pool
             </Link>
+          </Button>
+          <Button size="lg" variant="secondary" onClick={runBrawner} disabled={loading}>
+            <Target className="w-4 h-4 mr-2" /> Run on Brawner 10-15
           </Button>
           <Button size="lg" className="w-full lg:w-auto" onClick={() => setAddOpen(true)}>
             <PlusCircle className="w-4 h-4 mr-2" /> Add well
           </Button>
         </div>
+
       </div>
 
       <p className="text-sm text-muted-foreground max-w-3xl">
