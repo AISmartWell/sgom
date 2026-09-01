@@ -219,7 +219,11 @@ export default function SPTAdvisor() {
         </CardContent>
       </Card>
 
-      <OCRQuickIngest companyId={companyId} onWellCreated={() => { /* well added */ }} />
+      <OCRQuickIngest companyId={companyId} onWellCreated={() => setRegistryKey((k) => k + 1)} />
+
+      <WellRegistry companyId={companyId || null} refreshKey={registryKey} />
+
+
 
 
       <Card>
