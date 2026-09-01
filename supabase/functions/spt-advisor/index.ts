@@ -35,6 +35,16 @@ async function tool_list_wells(args: { company_id?: string; limit?: number }) {
   return { count: wells.length, wells };
 }
 
+// Resolve a well UUID from a human name or API number. Never guess an id.
+async function tool_find_well(args: { query: string; company_id?: string }) {
+  const q = (args.query ?? "").trim();
+  let sel = sb.from("wells").select("id,well_name,api_number,formation,total_depth,production_oil,water_cut,status,county,state").limit(10);
+  if (args.company_id) sel = sel.eq("company_id", args.company_id);
+  const { data } = await sel.or(`well_name.ilike.%${q}%,api_number.ilike.%${q}%`);
+  const matches = (data ?? []).map((w: any) => ({ ...w, name: w.well_name, depth: w.total_depth }));
+  return { query: q, count: matches.length, matches };
+}
+
 async function tool_get_well_context(args: { well_id: string }) {
   const [w, prod, perf] = await Promise.all([
     sb.from("wells").select("*").eq("id", args.well_id).maybeSingle(),
