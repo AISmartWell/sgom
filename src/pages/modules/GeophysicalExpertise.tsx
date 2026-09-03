@@ -9,9 +9,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ArrowLeft, Activity, Eye, Zap, FileText, Layers, Droplets, BarChart3, Target, Calculator, Search, Play, RefreshCw, Plus, Loader2, CheckCircle2, Upload, ZoomIn, ZoomOut, RotateCcw, AlertTriangle, ShieldCheck, Info, Download, FileImage, FileCode2, FileSpreadsheet } from "lucide-react";
+import { ArrowLeft, Activity, Eye, Zap, FileText, Layers, Droplets, BarChart3, Target, Calculator, Search, Play, RefreshCw, Plus, Loader2, CheckCircle2, Upload, ZoomIn, ZoomOut, RotateCcw, AlertTriangle, ShieldCheck, Info, Download, FileImage, FileCode2, FileSpreadsheet, Bot } from "lucide-react";
 import { AddWellDialog } from "@/components/shared/AddWellDialog";
 import { LASUploadPanel } from "@/components/geophysical/LASUploadPanel";
+import GeophysicsAgentPanel from "@/components/geophysical/GeophysicsAgentPanel";
 import { toast } from "sonner";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import EnhancedWellLog from "@/components/well-log/EnhancedWellLog";
@@ -2722,6 +2723,7 @@ const GeophysicalExpertise = () => {
   const [searching, setSearching] = useState(false);
   const [batchMode, setBatchMode] = useState(false);
   const [showDiagnostics, setShowDiagnostics] = useState(false);
+  const [agentRunId, setAgentRunId] = useState(0);
   const [wellLookupDiag, setWellLookupDiag] = useState<{
     wellId?: string;
     httpStatus?: number | null;
