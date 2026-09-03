@@ -1,0 +1,168 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+};
+
+const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY")!;
+
+/**
+ * SGOM Geophysical AI Agent (Stage 8).
+ *
+ * Pattern: deterministic petrophysical engine runs on the client (the "tools"),
+ * this function is the reasoning core. It receives the computed Stage 8 results
+ * (lithology, Vshale, porosity, Archie Sw, Timur permeability, Ko Ko fluid
+ * classification, net pay) and produces a structured expert conclusion:
+ * per-step findings + overall reservoir assessment + SPT candidacy note.
+ */
+
+const SYSTEM_PROMPT = `You are the SGOM Geophysical AI Agent — a senior petrophysicist AI that autonomously interprets well logs (Stage 8 of the SGOM 9-stage pipeline).
+
+You receive the OUTPUT of a deterministic petrophysical engine that has already executed the full Stage 8 pipeline:
+1. Lithology segmentation from GR (API cutoffs: ≤45 sand, 45–75 silt, >75 shale)
+2. Vshale (Larionov 1969 / linear GR method, GRclean=45, GRshale=75 API)
+3. Effective porosity (density–neutron, DEN-NPHI)
+4. Water saturation (Archie 1942)
+5. Permeability (Timur: k = 0.136·φ^4.4/Swirr²)
+6. Fluid classification (Ko Ko rules) and net pay flags
+
+Your job: reason over these computed results like a human expert and return a JSON object with this EXACT shape:
+{
+  "steps": [
+    { "key": "lithology" | "vshale" | "porosity" | "archie" | "timur" | "fluid",
+      "title": "short step title",
+      "finding": "1-2 sentences citing concrete numbers from the input",
+      "assessment": "positive" | "neutral" | "negative" }
+  ],
+  "overall": {
+    "verdict": "2-3 sentence expert summary of the reservoir quality",
+    "reservoir_rating": "excellent" | "good" | "fair" | "poor",
+    "net_pay_comment": "1 sentence about net pay vs gross and missed pay",
+    "spt_candidacy": "1-2 sentences: is this well a candidate for SPT (Slot Perforation Technology) treatment and why, referencing perm/porosity/Sw numbers",
+    "risks": ["1-3 short risk items"],
+    "confidence": 0.0-1.0
+  }
+}
+
+Rules:
+- Cite ONLY numbers present in the input. Never invent data.
+- If data quality is poor (few points, missing density/neutron), say so and lower confidence.
+- Keep language professional, concise, engineering-grade.
+- SPT candidacy logic: low permeability (fair/poor/tight Timur class) + decent porosity + hydrocarbon saturation = strong SPT candidate; already-excellent perm = weak case.`;
+
+async function callLLM(payload: unknown): Promise<string> {
+  const body = {
+    model: "openai/gpt-5.2",
+    messages: [
+      { role: "system", content: SYSTEM_PROMPT },
+      {
+        role: "user",
+        content:
+          "Interpret this Stage 8 pipeline output and return the JSON conclusion.\n\n" +
+          JSON.stringify(payload),
+      },
+    ],
+    response_format: { type: "json_object" },
+  };
+
+  // Retry 3x with exponential backoff on 429/5xx only
+  let lastErr: Error | null = null;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const content = data.choices?.[0]?.message?.content;
+      if (!content) throw new Error("Empty LLM response");
+      return content as string;
+    }
+    const t = await res.text();
+    lastErr = new Error(`LLM ${res.status}: ${t.slice(0, 300)}`);
+    if (res.status === 429 || res.status >= 500) {
+      await new Promise((r) => setTimeout(r, 800 * 2 ** attempt));
+      continue;
+    }
+    throw lastErr; // 400/401/402/403 — terminal
+  }
+  throw lastErr ?? new Error("LLM failed after retries");
+}
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  try {
+    const { well_id, well, interpretation, intervals, log_stats } = await req.json();
+    if (!well_id || !interpretation) {
+      return new Response(JSON.stringify({ error: "well_id and interpretation are required" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Fetch the authoritative well row for context (service role, read-only)
+    let wellRow: Record<string, unknown> | null = null;
+    try {
+      const sb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+      const { data } = await sb
+        .from("wells")
+        .select("well_name, api_number, operator, state, county, formation, total_depth, status, water_cut, production_oil")
+        .eq("id", well_id)
+        .maybeSingle();
+      wellRow = data;
+    } catch { /* non-fatal */ }
+
+    const agentInput = {
+      well: wellRow ?? well ?? null,
+      log_stats: log_stats ?? null,
+      interpretation_summary: {
+        gross_pay_ft: interpretation.grossPay,
+        net_pay_ft: interpretation.netPay,
+        net_to_gross_pct: interpretation.netToGross,
+        missed_pay_ft: interpretation.totalMissedPay,
+        avg_porosity_pct: interpretation.avgPorosity,
+        avg_sw_pct: interpretation.avgSw,
+        dominant_fluid: interpretation.dominantFluid,
+        interval_count: interpretation.intervals?.length ?? 0,
+      },
+      // Cap intervals payload: top 12 by thickness, compact fields
+      intervals: (Array.isArray(intervals) ? intervals : [])
+        .slice(0, 12)
+        .map((i: Record<string, unknown>) => ({
+          top: i.top, bottom: i.bottom, thickness: i.thickness,
+          avgGR: i.avgGR, avgPor: i.avgPor, avgSw: i.avgSw, avgRes: i.avgRes,
+          vshale: i.vshale, fluidType: i.fluidType,
+          isReservoir: i.isReservoir, isNetPay: i.isNetPay,
+          timurPermMd: i.timurPermMd, permClass: i.permClass,
+        })),
+    };
+
+    const raw = await callLLM(agentInput);
+    let conclusion: unknown;
+    try {
+      conclusion = JSON.parse(raw);
+    } catch {
+      const m = raw.match(/\{[\s\S]*\}/);
+      if (!m) throw new Error("LLM returned non-JSON conclusion");
+      conclusion = JSON.parse(m[0]);
+    }
+
+    return new Response(
+      JSON.stringify({ ok: true, agent: "geophysics-agent", model: "openai/gpt-5.2", conclusion }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    );
+  } catch (e) {
+    return new Response(JSON.stringify({ error: (e as Error).message }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+});

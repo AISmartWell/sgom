@@ -9,9 +9,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ArrowLeft, Activity, Eye, Zap, FileText, Layers, Droplets, BarChart3, Target, Calculator, Search, Play, RefreshCw, Plus, Loader2, CheckCircle2, Upload, ZoomIn, ZoomOut, RotateCcw, AlertTriangle, ShieldCheck, Info, Download, FileImage, FileCode2, FileSpreadsheet } from "lucide-react";
+import { ArrowLeft, Activity, Eye, Zap, FileText, Layers, Droplets, BarChart3, Target, Calculator, Search, Play, RefreshCw, Plus, Loader2, CheckCircle2, Upload, ZoomIn, ZoomOut, RotateCcw, AlertTriangle, ShieldCheck, Info, Download, FileImage, FileCode2, FileSpreadsheet, Bot } from "lucide-react";
 import { AddWellDialog } from "@/components/shared/AddWellDialog";
 import { LASUploadPanel } from "@/components/geophysical/LASUploadPanel";
+import GeophysicsAgentPanel from "@/components/geophysical/GeophysicsAgentPanel";
 import { toast } from "sonner";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import EnhancedWellLog from "@/components/well-log/EnhancedWellLog";
@@ -2722,6 +2723,7 @@ const GeophysicalExpertise = () => {
   const [searching, setSearching] = useState(false);
   const [batchMode, setBatchMode] = useState(false);
   const [showDiagnostics, setShowDiagnostics] = useState(false);
+  const [agentRunId, setAgentRunId] = useState(0);
   const [wellLookupDiag, setWellLookupDiag] = useState<{
     wellId?: string;
     httpStatus?: number | null;
@@ -2885,6 +2887,21 @@ const GeophysicalExpertise = () => {
         </div>
         <div className="flex items-center gap-2">
           <Button
+            size="sm"
+            onClick={() => {
+              if (!interpretation || petroData.length < 3) {
+                toast.error("Select a well with log data first");
+                return;
+              }
+              setAgentRunId((v) => v + 1);
+            }}
+            className="gap-1.5"
+            disabled={logsLoading}
+          >
+            <Bot className="h-3.5 w-3.5" />
+            Run AI Agent
+          </Button>
+          <Button
             variant={showDiagnostics ? "default" : "outline"}
             size="sm"
             onClick={() => setShowDiagnostics((v) => !v)}
@@ -2899,6 +2916,19 @@ const GeophysicalExpertise = () => {
           </Badge>
         </div>
       </div>
+
+      {/* Autonomous AI Agent (Stage 8) */}
+      {agentRunId > 0 && (
+        <div className="mb-6">
+          <GeophysicsAgentPanel
+            key={agentRunId}
+            well={selectedWell}
+            petroData={petroData}
+            interpretation={interpretation}
+            onClose={() => setAgentRunId(0)}
+          />
+        </div>
+      )}
 
       {/* Diagnostics Panel */}
       {showDiagnostics && (
