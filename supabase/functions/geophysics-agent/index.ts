@@ -210,7 +210,7 @@ serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ ok: true, agent: "geophysics-agent", model: "openai/gpt-5.2", conclusion }),
+      JSON.stringify({ ok: true, agent: "geophysics-agent", model, provider, conclusion }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (e) {
