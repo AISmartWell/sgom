@@ -270,6 +270,51 @@ export type Database = {
         }
         Relationships: []
       }
+      geophysics_agent_runs: {
+        Row: {
+          api_number: string | null
+          conclusion: Json
+          confidence: number | null
+          created_at: string
+          formation: string | null
+          id: string
+          log_stats: Json | null
+          model: string | null
+          reservoir_rating: string | null
+          user_id: string
+          well_id: string | null
+          well_name: string | null
+        }
+        Insert: {
+          api_number?: string | null
+          conclusion: Json
+          confidence?: number | null
+          created_at?: string
+          formation?: string | null
+          id?: string
+          log_stats?: Json | null
+          model?: string | null
+          reservoir_rating?: string | null
+          user_id?: string
+          well_id?: string | null
+          well_name?: string | null
+        }
+        Update: {
+          api_number?: string | null
+          conclusion?: Json
+          confidence?: number | null
+          created_at?: string
+          formation?: string | null
+          id?: string
+          log_stats?: Json | null
+          model?: string | null
+          reservoir_rating?: string | null
+          user_id?: string
+          well_id?: string | null
+          well_name?: string | null
+        }
+        Relationships: []
+      }
       model_parameters: {
         Row: {
           arps_b: number

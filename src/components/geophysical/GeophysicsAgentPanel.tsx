@@ -66,10 +66,14 @@ interface Props {
   well: WellLite | null;
   petroData: PetroPoint[];
   interpretation: InterpretationSummary | null;
-  onClose: () => void;
+  onClose?: () => void;
+  /** Persist the run into the agent run history table */
+  persist?: boolean;
+  onSaved?: () => void;
+  headerExtra?: React.ReactNode;
 }
 
-const GeophysicsAgentPanel = ({ well, petroData, interpretation, onClose }: Props) => {
+const GeophysicsAgentPanel = ({ well, petroData, interpretation, onClose, persist = false, onSaved, headerExtra }: Props) => {
   const [phase, setPhase] = useState<"running" | "done" | "error">("running");
   const [stepIdx, setStepIdx] = useState(0);
   const [conclusion, setConclusion] = useState<AgentConclusion | null>(null);
@@ -116,9 +120,29 @@ const GeophysicsAgentPanel = ({ well, petroData, interpretation, onClose }: Prop
         });
         if (fnError) throw new Error(fnError.message);
         if (data?.error) throw new Error(data.error);
-        setConclusion(data.conclusion as AgentConclusion);
+        const conc = data.conclusion as AgentConclusion;
+        setConclusion(conc);
         setStepIdx(PIPELINE_STEPS.length - 1);
         setPhase("done");
+
+        if (persist) {
+          const { error: insErr } = await supabase.from("geophysics_agent_runs").insert({
+            well_id: well.id,
+            well_name: well.well_name,
+            api_number: well.api_number,
+            formation: well.formation,
+            reservoir_rating: conc.overall?.reservoir_rating ?? null,
+            confidence: conc.overall?.confidence ?? null,
+            conclusion: conc as any,
+            log_stats: logStats as any,
+            model: data.model ?? null,
+          });
+          if (insErr) {
+            toast.error(`Run not saved to history: ${insErr.message}`);
+          } else {
+            onSaved?.();
+          }
+        }
       } catch (e) {
         setError((e as Error).message);
         setPhase("error");
@@ -145,9 +169,14 @@ const GeophysicsAgentPanel = ({ well, petroData, interpretation, onClose }: Prop
               STAGE 8 · AUTONOMOUS
             </Badge>
           </CardTitle>
+          <div className="flex items-center gap-2">
+          {headerExtra}
+          {onClose && (
           <Button variant="ghost" size="icon" onClick={onClose}>
             <X className="h-4 w-4" />
           </Button>
+          )}
+          </div>
         </div>
         <p className="text-xs text-muted-foreground font-mono">
           {well?.well_name ?? "—"} {well?.api_number ? `· API ${well.api_number}` : ""} {well?.formation ? `· ${well.formation}` : ""}

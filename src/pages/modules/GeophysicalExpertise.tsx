@@ -2902,6 +2902,17 @@ const GeophysicalExpertise = () => {
             Run AI Agent
           </Button>
           <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5"
+            onClick={() =>
+              navigate(selectedWell ? `/dashboard/geophysics-agent?wellId=${selectedWell.id}` : "/dashboard/geophysics-agent")
+            }
+          >
+            <Bot className="h-3.5 w-3.5" />
+            Full screen + history
+          </Button>
+          <Button
             variant={showDiagnostics ? "default" : "outline"}
             size="sm"
             onClick={() => setShowDiagnostics((v) => !v)}
