@@ -7,7 +7,13 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY")!;
+const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+const NVIDIA_API_KEY = Deno.env.get("NVIDIA_API_KEY");
+
+// Primary: NVIDIA NIM (nemotron-3-super-120b-a12b). Fallback: Lovable AI Gateway (openai/gpt-5.2).
+// NVIDIA hosted models EOL fast — if the NIM call fails for any reason we fall back automatically.
+const NIM_MODEL = "nvidia/nemotron-3-super-120b-a12b";
+const FALLBACK_MODEL = "openai/gpt-5.2";
 
 /**
  * SGOM Geophysical AI Agent (Stage 8).
