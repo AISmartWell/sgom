@@ -104,17 +104,28 @@ async function callProvider(p: Provider, payload: unknown): Promise<string> {
     max_tokens: 2048,
   };
 
-  // Retry 3x with exponential backoff on 429/5xx only
+  // Retry 2x with exponential backoff on 429/5xx only; hard per-attempt timeout
   let lastErr: Error | null = null;
-  for (let attempt = 0; attempt < 3; attempt++) {
-    const res = await fetch(p.url, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${p.apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    });
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const ctrl = new AbortController();
+    const to = setTimeout(() => ctrl.abort(), 45_000);
+    let res: Response;
+    try {
+      res = await fetch(p.url, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${p.apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+        signal: ctrl.signal,
+      });
+    } catch (e) {
+      lastErr = new Error(`${p.name} network/timeout: ${(e as Error).message}`);
+      continue;
+    } finally {
+      clearTimeout(to);
+    }
     if (res.ok) {
       const data = await res.json();
       const content = data.choices?.[0]?.message?.content;
