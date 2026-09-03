@@ -66,10 +66,14 @@ interface Props {
   well: WellLite | null;
   petroData: PetroPoint[];
   interpretation: InterpretationSummary | null;
-  onClose: () => void;
+  onClose?: () => void;
+  /** Persist the run into the agent run history table */
+  persist?: boolean;
+  onSaved?: () => void;
+  headerExtra?: React.ReactNode;
 }
 
-const GeophysicsAgentPanel = ({ well, petroData, interpretation, onClose }: Props) => {
+const GeophysicsAgentPanel = ({ well, petroData, interpretation, onClose, persist = false, onSaved, headerExtra }: Props) => {
   const [phase, setPhase] = useState<"running" | "done" | "error">("running");
   const [stepIdx, setStepIdx] = useState(0);
   const [conclusion, setConclusion] = useState<AgentConclusion | null>(null);
