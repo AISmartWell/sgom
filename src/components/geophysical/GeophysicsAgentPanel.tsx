@@ -169,6 +169,9 @@ const GeophysicsAgentPanel = ({ well, petroData, interpretation, onClose, persis
               STAGE 8 · AUTONOMOUS
             </Badge>
           </CardTitle>
+          <div className="flex items-center gap-2">
+          {headerExtra}
+          {onClose && (
           <Button variant="ghost" size="icon" onClick={onClose}>
             <X className="h-4 w-4" />
           </Button>
