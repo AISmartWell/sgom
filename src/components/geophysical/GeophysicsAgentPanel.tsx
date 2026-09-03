@@ -175,6 +175,8 @@ const GeophysicsAgentPanel = ({ well, petroData, interpretation, onClose, persis
           <Button variant="ghost" size="icon" onClick={onClose}>
             <X className="h-4 w-4" />
           </Button>
+          )}
+          </div>
         </div>
         <p className="text-xs text-muted-foreground font-mono">
           {well?.well_name ?? "—"} {well?.api_number ? `· API ${well.api_number}` : ""} {well?.formation ? `· ${well.formation}` : ""}
