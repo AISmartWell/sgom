@@ -165,6 +165,12 @@ const menuItems = [
     badge: "Stage 6",
   },
   {
+    title: "Geophysical AI Agent",
+    icon: Bot,
+    href: "/dashboard/geophysics-agent",
+    badge: "🤖",
+  },
+  {
     title: "EOR Optimization",
     icon: Brain,
     href: "/dashboard/eor-optimization",

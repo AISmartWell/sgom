@@ -24,6 +24,7 @@ import LiveWellCardDemo from "./pages/modules/LiveWellCardDemo";
 import WellLiveDashboard from "./pages/modules/WellLiveDashboard";
 import EOROptimization from "./pages/modules/EOROptimization";
   import MLTraining from "./pages/modules/MLTraining";
+import GeophysicsAgent from "./pages/modules/GeophysicsAgent";
 import GeophysicalExpertise from "./pages/modules/GeophysicalExpertise";
 import FieldScanning from "./pages/modules/FieldScanning";
 import DataClassification from "./pages/modules/DataClassification";
@@ -136,6 +137,7 @@ const App = () => (
             <Route path="eor-optimization" element={<EOROptimization />} />
              <Route path="ml-training" element={<MLTraining />} />
              <Route path="geophysical" element={<GeophysicalExpertise />} />
+             <Route path="geophysics-agent" element={<GeophysicsAgent />} />
              <Route path="field-scanning" element={<FieldScanning />} />
              <Route path="data-classification" element={<DataClassification />} />
              <Route path="ocr" element={<OCRWellLog />} />
