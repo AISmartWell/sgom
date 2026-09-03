@@ -241,15 +241,8 @@ serve(async (req) => {
         })),
     };
 
-    const { text: raw, model, provider } = await callLLM(agentInput);
-    let conclusion: unknown;
-    try {
-      conclusion = JSON.parse(raw);
-    } catch {
-      const m = raw.match(/\{[\s\S]*\}/);
-      if (!m) throw new Error("LLM returned non-JSON conclusion");
-      conclusion = JSON.parse(m[0]);
-    }
+    const { conclusion, model, provider } = await callLLM(agentInput);
+
 
     return new Response(
       JSON.stringify({ ok: true, agent: "geophysics-agent", model, provider, conclusion }),
