@@ -77,8 +77,19 @@ const DashboardLayout = () => {
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
       />
-      <main className="flex-1 overflow-auto">
-        <Outlet />
+      <main className="relative flex-1 overflow-auto">
+        {/* Ambient cinematic backdrop */}
+        <div
+          aria-hidden
+          className="pointer-events-none fixed inset-0 opacity-[0.35]"
+          style={{
+            background:
+              "radial-gradient(900px 420px at 78% -8%, hsl(var(--primary) / 0.10), transparent 60%), radial-gradient(700px 380px at 8% 105%, hsl(var(--primary-glow) / 0.08), transparent 62%)",
+          }}
+        />
+        <div className="relative">
+          <Outlet />
+        </div>
       </main>
       <SPTChatWidget />
     </div>
