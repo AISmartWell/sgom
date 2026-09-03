@@ -118,7 +118,18 @@ const GeophysicsAgentPanel = ({ well, petroData, interpretation, onClose, persis
             log_stats: logStats,
           },
         });
-        if (fnError) throw new Error(fnError.message);
+        if (fnError) {
+          let detail = fnError.message;
+          try {
+            const ctx = (fnError as any).context;
+            if (ctx && typeof ctx.text === "function") {
+              const body = await ctx.text();
+              const parsed = JSON.parse(body);
+              if (parsed?.error) detail = parsed.error;
+            }
+          } catch { /* keep original message */ }
+          throw new Error(detail);
+        }
         if (data?.error) throw new Error(data.error);
         const conc = data.conclusion as AgentConclusion;
         setConclusion(conc);
