@@ -199,7 +199,7 @@ serve(async (req) => {
         })),
     };
 
-    const raw = await callLLM(agentInput);
+    const { text: raw, model, provider } = await callLLM(agentInput);
     let conclusion: unknown;
     try {
       conclusion = JSON.parse(raw);
