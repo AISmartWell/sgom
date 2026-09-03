@@ -2887,6 +2887,21 @@ const GeophysicalExpertise = () => {
         </div>
         <div className="flex items-center gap-2">
           <Button
+            size="sm"
+            onClick={() => {
+              if (!interpretation || petroData.length < 3) {
+                toast.error("Select a well with log data first");
+                return;
+              }
+              setAgentRunId((v) => v + 1);
+            }}
+            className="gap-1.5"
+            disabled={logsLoading}
+          >
+            <Bot className="h-3.5 w-3.5" />
+            Run AI Agent
+          </Button>
+          <Button
             variant={showDiagnostics ? "default" : "outline"}
             size="sm"
             onClick={() => setShowDiagnostics((v) => !v)}
@@ -2901,6 +2916,19 @@ const GeophysicalExpertise = () => {
           </Badge>
         </div>
       </div>
+
+      {/* Autonomous AI Agent (Stage 8) */}
+      {agentRunId > 0 && (
+        <div className="mb-6">
+          <GeophysicsAgentPanel
+            key={agentRunId}
+            well={selectedWell}
+            petroData={petroData}
+            interpretation={interpretation}
+            onClose={() => setAgentRunId(0)}
+          />
+        </div>
+      )}
 
       {/* Diagnostics Panel */}
       {showDiagnostics && (
