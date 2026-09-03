@@ -461,15 +461,15 @@ const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
       {/* Logo */}
       <div className="flex items-center justify-between p-4 border-b border-sidebar-border">
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-xl bg-primary/20 flex items-center justify-center glow-primary">
-            <Droplets className="h-6 w-6 text-primary" />
+          <div className="h-9 w-9 rounded-sm bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center glow-primary">
+            <Droplets className="h-5 w-5 text-primary-foreground" />
           </div>
           {!collapsed && (
             <div>
-              <h1 className="text-lg font-bold text-sidebar-foreground">
-                SGOM
+              <h1 className="font-mono text-sm font-semibold tracking-[0.18em] text-foreground">
+                SGOM / SPT
               </h1>
-              <p className="text-xs text-muted-foreground">AI-Powered Analytics</p>
+              <p className="tech-label mt-0.5">AI-Powered Analytics</p>
             </div>
           )}
         </div>
@@ -489,7 +489,8 @@ const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
 
       {/* Navigation */}
       <ScrollArea className="flex-1 py-4">
-        <nav className="space-y-1 px-3">
+        {!collapsed && <div className="tech-label px-5 pb-3">Navigation</div>}
+        <nav className="space-y-0.5 px-3">
           {visibleItems.map((item) => (
             <NavLink
               key={item.href}
@@ -497,17 +498,17 @@ const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
               end={item.href === "/dashboard"}
               className={({ isActive }) =>
                 cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group",
+                  "flex items-center gap-3 px-3 py-2 rounded-sm border-l-2 transition-all duration-200 group",
                   isActive
-                    ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-lg"
-                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-transparent text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                 )
               }
             >
-              <item.icon className="h-5 w-5 flex-shrink-0" />
+              <item.icon className="h-4 w-4 flex-shrink-0" />
               {!collapsed && (
                 <>
-                  <span className="flex-1 text-sm font-medium">{item.title}</span>
+                  <span className="flex-1 text-[13px] font-medium tracking-tight">{item.title}</span>
                   {item.badge && (
                     <span className="text-xs">{item.badge}</span>
                   )}
@@ -519,7 +520,8 @@ const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
       </ScrollArea>
 
       {/* Logout */}
-      <div className="p-3 border-t border-sidebar-border">
+      <div className="p-3 border-t border-sidebar-border space-y-2">
+        {!collapsed && <div className="tech-label px-2">System v2.4.0 · Stable</div>}
         <Button
           variant="ghost"
           className={cn(
