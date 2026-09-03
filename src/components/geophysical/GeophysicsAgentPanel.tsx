@@ -120,9 +120,29 @@ const GeophysicsAgentPanel = ({ well, petroData, interpretation, onClose, persis
         });
         if (fnError) throw new Error(fnError.message);
         if (data?.error) throw new Error(data.error);
-        setConclusion(data.conclusion as AgentConclusion);
+        const conc = data.conclusion as AgentConclusion;
+        setConclusion(conc);
         setStepIdx(PIPELINE_STEPS.length - 1);
         setPhase("done");
+
+        if (persist) {
+          const { error: insErr } = await supabase.from("geophysics_agent_runs").insert({
+            well_id: well.id,
+            well_name: well.well_name,
+            api_number: well.api_number,
+            formation: well.formation,
+            reservoir_rating: conc.overall?.reservoir_rating ?? null,
+            confidence: conc.overall?.confidence ?? null,
+            conclusion: conc as any,
+            log_stats: logStats as any,
+            model: data.model ?? null,
+          });
+          if (insErr) {
+            toast.error(`Run not saved to history: ${insErr.message}`);
+          } else {
+            onSaved?.();
+          }
+        }
       } catch (e) {
         setError((e as Error).message);
         setPhase("error");
