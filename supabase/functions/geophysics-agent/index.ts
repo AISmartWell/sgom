@@ -143,8 +143,36 @@ async function callProvider(p: Provider, payload: unknown): Promise<string> {
   throw lastErr ?? new Error(`${p.name} failed after retries`);
 }
 
+/** Robustly extract a JSON object from raw LLM text (fences, <think>, comments, trailing commas). */
+function parseConclusion(raw: string): Record<string, unknown> {
+  let t = String(raw ?? "");
+  t = t.replace(/<think>[\s\S]*?<\/think>/gi, "");
+  t = t.replace(/```(?:json)?/gi, "");
+  const start = t.indexOf("{");
+  const end = t.lastIndexOf("}");
+  if (start === -1 || end === -1 || end <= start) throw new Error("LLM returned non-JSON conclusion");
+  let body = t.slice(start, end + 1);
+
+  const attempts = [
+    body,
+    // strip // and /* */ comments
+    body.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"])\/\/.*$/gm, "$1"),
+  ].map((s) => s.replace(/,\s*([}\]])/g, "$1").trim());
+
+  let lastErr: Error | null = null;
+  for (const a of attempts) {
+    try {
+      const parsed = JSON.parse(a);
+      if (parsed && typeof parsed === "object") return parsed as Record<string, unknown>;
+    } catch (e) {
+      lastErr = e as Error;
+    }
+  }
+  throw new Error(`Malformed JSON from model: ${lastErr?.message ?? "unknown"}`);
+}
+
 /** Try providers in order: NVIDIA NIM first, then Lovable AI Gateway fallback. */
-async function callLLM(payload: unknown): Promise<{ text: string; model: string; provider: string }> {
+async function callLLM(payload: unknown): Promise<{ conclusion: Record<string, unknown>; model: string; provider: string }> {
   const list = providers();
   if (list.length === 0) throw new Error("No LLM provider configured (NVIDIA_API_KEY / LOVABLE_API_KEY missing)");
 
@@ -152,14 +180,17 @@ async function callLLM(payload: unknown): Promise<{ text: string; model: string;
   for (const p of list) {
     try {
       const text = await callProvider(p, payload);
-      return { text, model: p.model, provider: p.name };
+      const conclusion = parseConclusion(text);
+      if (!conclusion.overall) throw new Error("Conclusion missing 'overall' section");
+      return { conclusion, model: p.model, provider: p.name };
     } catch (e) {
-      errors.push((e as Error).message);
+      errors.push(`${p.name}: ${(e as Error).message}`);
       // fall through to next provider
     }
   }
   throw new Error(`All providers failed: ${errors.join(" | ")}`);
 }
+
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -210,15 +241,8 @@ serve(async (req) => {
         })),
     };
 
-    const { text: raw, model, provider } = await callLLM(agentInput);
-    let conclusion: unknown;
-    try {
-      conclusion = JSON.parse(raw);
-    } catch {
-      const m = raw.match(/\{[\s\S]*\}/);
-      if (!m) throw new Error("LLM returned non-JSON conclusion");
-      conclusion = JSON.parse(m[0]);
-    }
+    const { conclusion, model, provider } = await callLLM(agentInput);
+
 
     return new Response(
       JSON.stringify({ ok: true, agent: "geophysics-agent", model, provider, conclusion }),
