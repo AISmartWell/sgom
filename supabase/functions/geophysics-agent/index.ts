@@ -7,7 +7,13 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY")!;
+const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+const NVIDIA_API_KEY = Deno.env.get("NVIDIA_API_KEY");
+
+// Primary: NVIDIA NIM (nemotron-3-super-120b-a12b). Fallback: Lovable AI Gateway (openai/gpt-5.2).
+// NVIDIA hosted models EOL fast — if the NIM call fails for any reason we fall back automatically.
+const NIM_MODEL = "nvidia/nemotron-3-super-120b-a12b";
+const FALLBACK_MODEL = "openai/gpt-5.2";
 
 /**
  * SGOM Geophysical AI Agent (Stage 8).
@@ -53,9 +59,37 @@ Rules:
 - Keep language professional, concise, engineering-grade.
 - SPT candidacy logic: low permeability (fair/poor/tight Timur class) + decent porosity + hydrocarbon saturation = strong SPT candidate; already-excellent perm = weak case.`;
 
-async function callLLM(payload: unknown): Promise<string> {
+interface Provider {
+  name: string;
+  url: string;
+  model: string;
+  apiKey: string;
+}
+
+function providers(): Provider[] {
+  const list: Provider[] = [];
+  if (NVIDIA_API_KEY) {
+    list.push({
+      name: "NVIDIA NIM",
+      url: "https://integrate.api.nvidia.com/v1/chat/completions",
+      model: NIM_MODEL,
+      apiKey: NVIDIA_API_KEY,
+    });
+  }
+  if (LOVABLE_API_KEY) {
+    list.push({
+      name: "Lovable AI Gateway",
+      url: "https://ai.gateway.lovable.dev/v1/chat/completions",
+      model: FALLBACK_MODEL,
+      apiKey: LOVABLE_API_KEY,
+    });
+  }
+  return list;
+}
+
+async function callProvider(p: Provider, payload: unknown): Promise<string> {
   const body = {
-    model: "openai/gpt-5.2",
+    model: p.model,
     messages: [
       { role: "system", content: SYSTEM_PROMPT },
       {
@@ -66,15 +100,17 @@ async function callLLM(payload: unknown): Promise<string> {
       },
     ],
     response_format: { type: "json_object" },
+    temperature: 0.2,
+    max_tokens: 2048,
   };
 
   // Retry 3x with exponential backoff on 429/5xx only
   let lastErr: Error | null = null;
   for (let attempt = 0; attempt < 3; attempt++) {
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const res = await fetch(p.url, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        Authorization: `Bearer ${p.apiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(body),
@@ -82,18 +118,36 @@ async function callLLM(payload: unknown): Promise<string> {
     if (res.ok) {
       const data = await res.json();
       const content = data.choices?.[0]?.message?.content;
-      if (!content) throw new Error("Empty LLM response");
+      if (!content) throw new Error(`Empty response from ${p.name}`);
       return content as string;
     }
     const t = await res.text();
-    lastErr = new Error(`LLM ${res.status}: ${t.slice(0, 300)}`);
+    lastErr = new Error(`${p.name} ${res.status}: ${t.slice(0, 300)}`);
     if (res.status === 429 || res.status >= 500) {
       await new Promise((r) => setTimeout(r, 800 * 2 ** attempt));
       continue;
     }
-    throw lastErr; // 400/401/402/403 — terminal
+    throw lastErr; // 400/401/402/403 — terminal for this provider
   }
-  throw lastErr ?? new Error("LLM failed after retries");
+  throw lastErr ?? new Error(`${p.name} failed after retries`);
+}
+
+/** Try providers in order: NVIDIA NIM first, then Lovable AI Gateway fallback. */
+async function callLLM(payload: unknown): Promise<{ text: string; model: string; provider: string }> {
+  const list = providers();
+  if (list.length === 0) throw new Error("No LLM provider configured (NVIDIA_API_KEY / LOVABLE_API_KEY missing)");
+
+  const errors: string[] = [];
+  for (const p of list) {
+    try {
+      const text = await callProvider(p, payload);
+      return { text, model: p.model, provider: p.name };
+    } catch (e) {
+      errors.push((e as Error).message);
+      // fall through to next provider
+    }
+  }
+  throw new Error(`All providers failed: ${errors.join(" | ")}`);
 }
 
 serve(async (req) => {
