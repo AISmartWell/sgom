@@ -2905,6 +2905,22 @@ const GeophysicalExpertise = () => {
             variant="outline"
             size="sm"
             className="gap-1.5"
+            onClick={() => {
+              if (!interpretation || petroData.length < 3) {
+                toast.error("Select a well with log data first");
+                return;
+              }
+              setCompareRunId((v) => v + 1);
+            }}
+            disabled={logsLoading}
+          >
+            <GitCompare className="h-3.5 w-3.5" />
+            Agent vs Human
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5"
             onClick={() =>
               navigate(selectedWell ? `/dashboard/geophysics-agent?wellId=${selectedWell.id}` : "/dashboard/geophysics-agent")
             }
@@ -2912,6 +2928,7 @@ const GeophysicalExpertise = () => {
             <Bot className="h-3.5 w-3.5" />
             Full screen + history
           </Button>
+
           <Button
             variant={showDiagnostics ? "default" : "outline"}
             size="sm"
