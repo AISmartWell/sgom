@@ -120,7 +120,7 @@ const Index = () => {
             <div className="h-11 w-11 rounded-xl bg-primary/20 flex items-center justify-center animate-glow-pulse">
               <Droplets className="h-6 w-6 text-primary" />
             </div>
-            <span className="text-xl font-bold tracking-tight">SGOM</span>
+            <span className="font-display text-xl font-bold tracking-tight">SGOM</span>
             <img
               src={nvidiaInceptionBadgeBw}
               alt="NVIDIA Inception Program"
@@ -154,7 +154,7 @@ const Index = () => {
               </span>
             </div>
 
-            <h1 className="text-5xl sm:text-6xl md:text-8xl font-extrabold mb-8 leading-[0.95] tracking-tight animate-fade-up-delay-1">
+            <h1 className="font-display text-5xl sm:text-6xl md:text-8xl font-extrabold mb-8 leading-[0.95] tracking-tight animate-fade-up-delay-1">
               <span className="gradient-text">Innovative Solutions</span>
               <br />
               <span className="text-foreground">for Oil Production</span>
@@ -186,7 +186,7 @@ const Index = () => {
                   <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
                     <stat.icon className={`h-5 w-5 ${stat.color}`} />
                   </div>
-                  <p className={`text-2xl md:text-3xl font-bold mb-1 ${stat.color}`}>{stat.value}</p>
+                  <p className={`font-display text-2xl md:text-3xl font-bold mb-1 ${stat.color}`}>{stat.value}</p>
                   <p className="text-xs text-muted-foreground tracking-wide uppercase">{stat.label}</p>
                 </div>
               ))}
@@ -210,8 +210,8 @@ const Index = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-background via-primary/[0.03] to-background" />
         <div className="relative max-w-7xl mx-auto">
           <div className="text-center mb-12">
-            <span className="text-primary font-semibold text-sm tracking-widest uppercase">Physics-Aware Visualization</span>
-            <h2 className="text-4xl md:text-5xl font-bold mt-3 mb-4">Reservoir Fluid Dynamics</h2>
+            <span className="text-primary font-mono text-xs font-medium tracking-[0.25em] uppercase">Physics-Aware Visualization</span>
+            <h2 className="font-display text-4xl md:text-5xl font-bold mt-3 mb-4">Reservoir Fluid Dynamics</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
               AI-generated simulations of wellbore fluid behavior — from SPT treatment injection to production restoration
             </p>
@@ -232,7 +232,7 @@ const Index = () => {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
               </div>
               <div className="absolute bottom-0 left-0 right-0 p-6">
-                <h3 className="text-lg font-bold text-white">Completion Visualization</h3>
+                <h3 className="font-display text-lg font-bold text-white">Completion Visualization</h3>
                 <p className="text-sm text-white/60 mt-1">Cinematic cross-section of horizontal wellbore through geological formations</p>
               </div>
             </div>
@@ -254,7 +254,7 @@ const Index = () => {
                 <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-primary/20 text-primary border border-primary/30 mb-2">
                   9-Stage Pipeline
                 </span>
-                <h3 className="text-lg font-bold text-white">Core Analysis Engine</h3>
+                <h3 className="font-display text-lg font-bold text-white">Core Analysis Engine</h3>
                 <p className="text-sm text-white/60 mt-1">End-to-end automated well screening — from satellite field scanning to EOR recommendations</p>
               </div>
             </div>
@@ -267,8 +267,8 @@ const Index = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/[0.02] to-transparent" />
         <div className="relative max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <span className="text-primary font-semibold text-sm tracking-widest uppercase">9-Stage AI Pipeline</span>
-            <h2 className="text-4xl md:text-5xl font-bold mt-3 mb-4">Core Analysis Engine</h2>
+            <span className="text-primary font-mono text-xs font-medium tracking-[0.25em] uppercase">9-Stage AI Pipeline</span>
+            <h2 className="font-display text-4xl md:text-5xl font-bold mt-3 mb-4">Core Analysis Engine</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
               End-to-end automated well screening — from satellite field scanning to final EOR treatment recommendations
             </p>
@@ -285,7 +285,7 @@ const Index = () => {
                 <div className="relative z-10">
                   <div className="flex items-center gap-3 mb-4">
                     <span className="text-3xl group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300">{stage.emoji}</span>
-                    <span className="text-xs font-bold text-primary/60 bg-primary/10 px-2 py-0.5 rounded-full">Stage {stage.stage}</span>
+                    <span className="font-display text-xs font-bold text-primary/60 bg-primary/10 px-2 py-0.5 rounded-full">Stage {stage.stage}</span>
                   </div>
                   <h3 className="text-base font-bold mb-2 group-hover:text-primary transition-colors duration-300">{stage.title}</h3>
                   <p className="text-xs text-muted-foreground leading-relaxed">{stage.desc}</p>
@@ -305,8 +305,8 @@ const Index = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-accent/[0.02] to-transparent" />
         <div className="relative max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <span className="text-primary font-semibold text-sm tracking-widest uppercase">Platform Modules</span>
-            <h2 className="text-4xl md:text-5xl font-bold mt-3 mb-4">Extended Capabilities</h2>
+            <span className="text-primary font-mono text-xs font-medium tracking-[0.25em] uppercase">Platform Modules</span>
+            <h2 className="font-display text-4xl md:text-5xl font-bold mt-3 mb-4">Extended Capabilities</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
               Specialized tools for data management, geological modeling, financial planning & operational automation
             </p>
@@ -322,7 +322,7 @@ const Index = () => {
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/0 via-primary/0 to-primary/0 group-hover:from-primary/5 group-hover:via-transparent group-hover:to-primary-glow/5 transition-all duration-500 pointer-events-none" />
                 <div className="relative z-10">
                   <span className="text-4xl mb-5 block group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300 origin-left">{feature.emoji}</span>
-                  <h3 className="text-lg font-bold mb-2 group-hover:text-primary transition-colors duration-300">{feature.title}</h3>
+                  <h3 className="font-display text-lg font-bold mb-2 group-hover:text-primary transition-colors duration-300">{feature.title}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">{feature.desc}</p>
                   <div className="mt-4 flex items-center text-primary/40 text-xs font-medium group-hover:text-primary transition-all duration-300">
                     <span className="group-hover:mr-1 transition-all duration-300">Explore module</span>
@@ -341,8 +341,8 @@ const Index = () => {
 
         <div className="relative max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <span className="text-primary font-semibold text-sm tracking-widest uppercase">Our Advantage</span>
-            <h2 className="text-4xl md:text-5xl font-bold mt-3 mb-4">Why SGOM?</h2>
+            <span className="text-primary font-mono text-xs font-medium tracking-[0.25em] uppercase">Our Advantage</span>
+            <h2 className="font-display text-4xl md:text-5xl font-bold mt-3 mb-4">Why SGOM?</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
               We combine patented downhole technology with cutting-edge AI to unlock production potential that traditional methods miss.
             </p>
@@ -358,7 +358,7 @@ const Index = () => {
                       <item.icon className={`h-7 w-7 ${c.text}`} />
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold mb-2">{item.title}</h3>
+                      <h3 className="font-display text-lg font-bold mb-2">{item.title}</h3>
                       <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
                     </div>
                   </div>
@@ -374,8 +374,8 @@ const Index = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/[0.02] to-transparent" />
         <div className="relative max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <span className="text-primary font-semibold text-sm tracking-widest uppercase">Technology Partner</span>
-            <h2 className="text-4xl md:text-5xl font-bold mt-3 mb-4">Maxxwell Production</h2>
+            <span className="text-primary font-mono text-xs font-medium tracking-[0.25em] uppercase">Technology Partner</span>
+            <h2 className="font-display text-4xl md:text-5xl font-bold mt-3 mb-4">Maxxwell Production</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
               Decades of field experience combined with patented downhole technology — the foundation behind SGOM's analytical engine
             </p>
@@ -387,7 +387,7 @@ const Index = () => {
               <div className="h-14 w-14 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
                 <Award className="h-7 w-7 text-primary" />
               </div>
-              <h3 className="text-lg font-bold mb-2">US Patent 8,863,823</h3>
+              <h3 className="font-display text-lg font-bold mb-2">US Patent 8,863,823</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 Slot Perforation Technology (SPT) — 5–10× inflow increase. No competing platform integrates patented completion technology
               </p>
@@ -396,7 +396,7 @@ const Index = () => {
               <div className="h-14 w-14 rounded-xl bg-accent/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
                 <Globe className="h-7 w-7 text-accent" />
               </div>
-              <h3 className="text-lg font-bold mb-2">7-State Coverage</h3>
+              <h3 className="font-display text-lg font-bold mb-2">7-State Coverage</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 Direct API access to well registries across TX, OK, KS, NM, CO, ND, WY. 200+ pre-calibrated formation property ranges
               </p>
@@ -405,7 +405,7 @@ const Index = () => {
               <div className="h-14 w-14 rounded-xl bg-success/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
                 <Users className="h-7 w-7 text-success" />
               </div>
-              <h3 className="text-lg font-bold mb-2">Expert Team</h3>
+              <h3 className="font-display text-lg font-bold mb-2">Expert Team</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 Led by Anatoliy Nikouline (CEO), with deep expertise in petroleum engineering, reservoir stimulation & EOR technologies
               </p>
@@ -423,7 +423,7 @@ const Index = () => {
               <div key={i} className="glass-card rounded-xl p-5 border-border/30">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="h-1.5 w-1.5 rounded-full bg-primary" />
-                  <h4 className="text-sm font-bold">{item.label}</h4>
+                  <h4 className="text-sm font-bold font-display">{item.label}</h4>
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
               </div>
@@ -433,7 +433,7 @@ const Index = () => {
           {/* Target Market */}
           <div className="grid grid-cols-1 gap-5">
             <div className="glass-card rounded-2xl p-8 border-primary/10">
-              <h3 className="text-xl font-bold mb-4">Target Market</h3>
+              <h3 className="font-display text-xl font-bold mb-4">Target Market</h3>
               <div className="space-y-4 mb-6">
                 {[
                   "Independent operators managing 50–5,000+ wells",
@@ -446,7 +446,7 @@ const Index = () => {
                   </div>
                 ))}
               </div>
-              <h4 className="text-sm font-bold mb-3">Revenue Projection</h4>
+              <h4 className="text-sm font-bold font-display mb-3">Revenue Projection</h4>
               <div className="space-y-2">
                 {[
                   { year: "Year 1", clients: "15 clients", arr: "$1.1M ARR" },
@@ -470,7 +470,7 @@ const Index = () => {
           <div className="glass-card rounded-3xl p-12 md:p-16 border-primary/10 relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary-glow/5" />
             <div className="relative z-10">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to Optimize Your Wells?</h2>
+              <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">Ready to Optimize Your Wells?</h2>
               <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
                 Join operators who are already using AI to identify hidden production potential and maximize ROI.
               </p>
