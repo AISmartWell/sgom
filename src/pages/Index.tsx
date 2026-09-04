@@ -120,7 +120,7 @@ const Index = () => {
             <div className="h-11 w-11 rounded-xl bg-primary/20 flex items-center justify-center animate-glow-pulse">
               <Droplets className="h-6 w-6 text-primary" />
             </div>
-            <span className="font-display text-xl font-bold tracking-tight">SGOM</span>
+            <span className="font-display text-xl font-light tracking-wide uppercase">SGOM</span>
             <img
               src={nvidiaInceptionBadgeBw}
               alt="NVIDIA Inception Program"
@@ -154,7 +154,7 @@ const Index = () => {
               </span>
             </div>
 
-            <h1 className="font-display text-5xl sm:text-6xl md:text-8xl font-extrabold mb-8 leading-[0.95] tracking-tight animate-fade-up-delay-1">
+            <h1 className="font-display text-5xl sm:text-6xl md:text-8xl font-light mb-8 leading-[1.05] tracking-tight animate-fade-up-delay-1">
               <span className="gradient-text">Innovative Solutions</span>
               <br />
               <span className="text-foreground">for Oil Production</span>
@@ -211,7 +211,7 @@ const Index = () => {
         <div className="relative max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <span className="text-primary font-mono text-xs font-medium tracking-[0.25em] uppercase">Physics-Aware Visualization</span>
-            <h2 className="font-display text-4xl md:text-5xl font-bold mt-3 mb-4">Reservoir Fluid Dynamics</h2>
+            <h2 className="font-display text-4xl md:text-5xl font-light tracking-tight mt-3 mb-4">Reservoir Fluid Dynamics</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
               AI-generated simulations of wellbore fluid behavior — from SPT treatment injection to production restoration
             </p>
@@ -268,7 +268,7 @@ const Index = () => {
         <div className="relative max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <span className="text-primary font-mono text-xs font-medium tracking-[0.25em] uppercase">9-Stage AI Pipeline</span>
-            <h2 className="font-display text-4xl md:text-5xl font-bold mt-3 mb-4">Core Analysis Engine</h2>
+            <h2 className="font-display text-4xl md:text-5xl font-light tracking-tight mt-3 mb-4">Core Analysis Engine</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
               End-to-end automated well screening — from satellite field scanning to final EOR treatment recommendations
             </p>
@@ -306,7 +306,7 @@ const Index = () => {
         <div className="relative max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <span className="text-primary font-mono text-xs font-medium tracking-[0.25em] uppercase">Platform Modules</span>
-            <h2 className="font-display text-4xl md:text-5xl font-bold mt-3 mb-4">Extended Capabilities</h2>
+            <h2 className="font-display text-4xl md:text-5xl font-light tracking-tight mt-3 mb-4">Extended Capabilities</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
               Specialized tools for data management, geological modeling, financial planning & operational automation
             </p>
@@ -342,7 +342,7 @@ const Index = () => {
         <div className="relative max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <span className="text-primary font-mono text-xs font-medium tracking-[0.25em] uppercase">Our Advantage</span>
-            <h2 className="font-display text-4xl md:text-5xl font-bold mt-3 mb-4">Why SGOM?</h2>
+            <h2 className="font-display text-4xl md:text-5xl font-light tracking-tight mt-3 mb-4">Why SGOM?</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
               We combine patented downhole technology with cutting-edge AI to unlock production potential that traditional methods miss.
             </p>
@@ -375,7 +375,7 @@ const Index = () => {
         <div className="relative max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <span className="text-primary font-mono text-xs font-medium tracking-[0.25em] uppercase">Technology Partner</span>
-            <h2 className="font-display text-4xl md:text-5xl font-bold mt-3 mb-4">Maxxwell Production</h2>
+            <h2 className="font-display text-4xl md:text-5xl font-light tracking-tight mt-3 mb-4">Maxxwell Production</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
               Decades of field experience combined with patented downhole technology — the foundation behind SGOM's analytical engine
             </p>
@@ -470,7 +470,7 @@ const Index = () => {
           <div className="glass-card rounded-3xl p-12 md:p-16 border-primary/10 relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary-glow/5" />
             <div className="relative z-10">
-              <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">Ready to Optimize Your Wells?</h2>
+              <h2 className="font-display text-3xl md:text-4xl font-light tracking-tight mb-4">Ready to Optimize Your Wells?</h2>
               <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
                 Join operators who are already using AI to identify hidden production potential and maximize ROI.
               </p>
