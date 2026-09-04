@@ -160,17 +160,17 @@ const Index = () => {
               <span className="text-foreground">for Oil Production</span>
             </h1>
 
-            <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed animate-fade-up-delay-2">
+            <p className="text-lg md:text-xl font-light text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed animate-fade-up-delay-2">
               AI-powered platform for identifying optimal well locations, boosting production,
               cutting costs, and improving decision-making accuracy in oil & gas industry.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-up-delay-3">
-              <Button size="lg" onClick={() => navigate("/auth")} className="glow-primary text-base px-8 py-6">
+              <Button size="lg" onClick={() => navigate("/auth")} className="glow-primary text-sm px-10 py-6 uppercase tracking-[0.2em] font-medium">
                 Get Started
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Button size="lg" variant="outline" onClick={() => navigate("/dashboard/simulation")} className="text-base px-8 py-6 border-border/60 hover:border-primary/40 hover:bg-primary/5">
+              <Button size="lg" variant="outline" onClick={() => navigate("/dashboard/simulation")} className="text-sm px-10 py-6 uppercase tracking-[0.2em] font-medium border-border/60 hover:border-primary/40 hover:bg-primary/5">
                 Learn More
               </Button>
             </div>
