@@ -9,10 +9,11 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ArrowLeft, Activity, Eye, Zap, FileText, Layers, Droplets, BarChart3, Target, Calculator, Search, Play, RefreshCw, Plus, Loader2, CheckCircle2, Upload, ZoomIn, ZoomOut, RotateCcw, AlertTriangle, ShieldCheck, Info, Download, FileImage, FileCode2, FileSpreadsheet, Bot } from "lucide-react";
+import { ArrowLeft, Activity, Eye, Zap, FileText, Layers, Droplets, BarChart3, Target, Calculator, Search, Play, RefreshCw, Plus, Loader2, CheckCircle2, Upload, ZoomIn, ZoomOut, RotateCcw, AlertTriangle, ShieldCheck, Info, Download, FileImage, FileCode2, FileSpreadsheet, Bot, GitCompare } from "lucide-react";
 import { AddWellDialog } from "@/components/shared/AddWellDialog";
 import { LASUploadPanel } from "@/components/geophysical/LASUploadPanel";
 import GeophysicsAgentPanel from "@/components/geophysical/GeophysicsAgentPanel";
+import AgentHumanComparison from "@/components/geophysical/AgentHumanComparison";
 import { toast } from "sonner";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import EnhancedWellLog from "@/components/well-log/EnhancedWellLog";
@@ -2724,6 +2725,7 @@ const GeophysicalExpertise = () => {
   const [batchMode, setBatchMode] = useState(false);
   const [showDiagnostics, setShowDiagnostics] = useState(false);
   const [agentRunId, setAgentRunId] = useState(0);
+  const [compareRunId, setCompareRunId] = useState(0);
   const [wellLookupDiag, setWellLookupDiag] = useState<{
     wellId?: string;
     httpStatus?: number | null;
@@ -2905,6 +2907,22 @@ const GeophysicalExpertise = () => {
             variant="outline"
             size="sm"
             className="gap-1.5"
+            onClick={() => {
+              if (!interpretation || petroData.length < 3) {
+                toast.error("Select a well with log data first");
+                return;
+              }
+              setCompareRunId((v) => v + 1);
+            }}
+            disabled={logsLoading}
+          >
+            <GitCompare className="h-3.5 w-3.5" />
+            Agent vs Human
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5"
             onClick={() =>
               navigate(selectedWell ? `/dashboard/geophysics-agent?wellId=${selectedWell.id}` : "/dashboard/geophysics-agent")
             }
@@ -2912,6 +2930,7 @@ const GeophysicalExpertise = () => {
             <Bot className="h-3.5 w-3.5" />
             Full screen + history
           </Button>
+
           <Button
             variant={showDiagnostics ? "default" : "outline"}
             size="sm"
@@ -2937,6 +2956,19 @@ const GeophysicalExpertise = () => {
             petroData={petroData}
             interpretation={interpretation}
             onClose={() => setAgentRunId(0)}
+          />
+        </div>
+      )}
+
+      {/* Agent vs Human comparison (Stage 8 QA) */}
+      {compareRunId > 0 && (
+        <div className="mb-6">
+          <AgentHumanComparison
+            key={`cmp-${compareRunId}`}
+            well={selectedWell}
+            petroData={petroData}
+            interpretation={interpretation}
+            onClose={() => setCompareRunId(0)}
           />
         </div>
       )}
