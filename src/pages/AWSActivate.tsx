@@ -163,7 +163,7 @@ Phase 3 — Scale (Months 13-18): $25,000
 • DOE SBIR Phase I: Application in progress ($275,000 grant)
 • Pilot Partner: Maxxwell Production Data (Texas, USA) — 4 wells
 • Technology: $565,000 in non-dilutive cloud credits secured (NVIDIA, Google, Microsoft)
-• Fundraising: Pre-Seed/Seed round $2.39M (NVIDIA Capital Connect pipeline)`,
+• Fundraising: Pre-Seed/Seed round $4M (NVIDIA Capital Connect pipeline)`,
   };
 
   return (
