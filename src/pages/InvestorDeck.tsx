@@ -137,7 +137,7 @@ const InvestorDeck = () => {
       </p>
       <div className="grid grid-cols-4 gap-4 mb-8 max-w-2xl w-full">
         {[
-          { value: "$2.39M", label: "Investment" },
+          { value: "$4M", label: "Investment" },
           { value: "35-38%", label: "Year 1 EBITDA" },
           { value: "<1.5 yrs", label: "Payback" },
           { value: "90%+", label: "AI Accuracy" },
@@ -599,19 +599,19 @@ const InvestorDeck = () => {
     <div key="budget" className={`${slideClass} bg-background`}>
       <div className="flex items-center gap-3 mb-6">
         <DollarSign className="h-8 w-8 text-primary" />
-        <h2 className="text-3xl md:text-4xl font-bold">Investment Budget: $2,387,840</h2>
+        <h2 className="text-3xl md:text-4xl font-bold">Investment Budget: $4,000,000</h2>
       </div>
       <div className="grid md:grid-cols-2 gap-8">
         <div>
           <h3 className="font-semibold mb-4">Allocation</h3>
           <div className="space-y-3">
             {[
-              { pct: "48%", label: "SPT Operations (4 wells)", value: "$1,157,840", color: "bg-primary" },
-              { pct: "25%", label: "AI Platform (SGOM)", value: "$600,000", color: "bg-accent" },
-              { pct: "13%", label: "Team & Operations", value: "$300,000", color: "bg-success" },
-              { pct: "6%", label: "SGOM Data & Analysis", value: "$150,000", color: "bg-warning" },
-              { pct: "5%", label: "Sales, Legal & Other", value: "$130,000", color: "bg-muted-foreground" },
-              { pct: "2%", label: "Working Capital", value: "$50,000", color: "bg-border" },
+              { pct: "48%", label: "SPT Operations (4 wells)", value: "$1,920,000", color: "bg-primary" },
+              { pct: "25%", label: "AI Platform (SGOM)", value: "$1,000,000", color: "bg-accent" },
+              { pct: "13%", label: "Team & Operations", value: "$520,000", color: "bg-success" },
+              { pct: "6%", label: "SGOM Data & Analysis", value: "$240,000", color: "bg-warning" },
+              { pct: "5%", label: "Sales, Legal & Other", value: "$200,000", color: "bg-muted-foreground" },
+              { pct: "3%", label: "Working Capital", value: "$120,000", color: "bg-border" },
             ].map((f) => (
               <div key={f.label} className="flex items-center gap-3">
                 <div className={`h-7 w-12 rounded-md ${f.color} flex items-center justify-center text-xs font-bold text-white`}>{f.pct}</div>
@@ -624,14 +624,14 @@ const InvestorDeck = () => {
           </div>
         </div>
         <div>
-          <h3 className="font-semibold mb-4">SPT Operations Breakdown ($1.16M)</h3>
+          <h3 className="font-semibold mb-4">SPT Operations Breakdown ($1.92M)</h3>
           <div className="space-y-2 text-sm">
             {[
-              { label: "Well Purchase", value: "$440K" },
-              { label: "SPT Organizer", value: "$126K" },
-              { label: "Wellsite Supervision", value: "$74K" },
-              { label: "Third Parties", value: "$357K" },
-              { label: "Field Crew", value: "$160K" },
+              { label: "Well Purchase", value: "$730K" },
+              { label: "SPT Organizer", value: "$209K" },
+              { label: "Wellsite Supervision", value: "$123K" },
+              { label: "Third Parties", value: "$592K" },
+              { label: "Field Crew", value: "$266K" },
             ].map((i) => (
               <div key={i.label} className="flex justify-between p-2 rounded-lg bg-muted/30">
                 <span className="text-muted-foreground">{i.label}</span>
@@ -656,7 +656,7 @@ const InvestorDeck = () => {
           { icon: TrendingUp, title: "Two Revenue Streams", desc: "Analysis fees (recurring) + Production (long-term)" },
           { icon: Shield, title: "Patent Protection", desc: "SPT technology protected in US (US8863823), no competition in Americas" },
           { icon: BarChart3, title: "High Margins", desc: "40-42% Year 1, growing to 55%+ Year 2" },
-          { icon: Lightbulb, title: "Reasonable Entry Point", desc: "$2.39M pilot proves model before larger commitment" },
+          { icon: Lightbulb, title: "Reasonable Entry Point", desc: "$4M pilot proves model before larger commitment" },
         ].map((item) => (
           <div key={item.title} className="p-5 rounded-xl bg-card border border-border flex items-start gap-4">
             <item.icon className="h-6 w-6 text-primary shrink-0 mt-0.5" />

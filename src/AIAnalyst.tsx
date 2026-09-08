@@ -125,7 +125,7 @@ const INVESTOR_SLIDES = [
     title: "Funding Round",
     icon: "🚀",
     points: [
-      "Seed round: $2.4M",
+      "Seed round: $4M",
       "Working prototype: all 9 modules active",
       "NVIDIA Inception Program — active member",
       "Target investors: EIC, NGP Energy, SAEV",
@@ -495,7 +495,7 @@ function InvestorTab() {
     try {
       const reply = await callClaude([{
         role: "user",
-        content: "Write a compelling 3–4 paragraph investment pitch summary for SGOM / SGOM. Include: $2.4M Seed round, $32B TAM, 90% cost savings, 75%+ SPT production uplift, NVIDIA Inception membership. Tone: confident and professional, targeting energy investors at EIC / NGP Energy level.",
+        content: "Write a compelling 3–4 paragraph investment pitch summary for SGOM / SGOM. Include: $4M Seed round, $32B TAM, 90% cost savings, 75%+ SPT production uplift, NVIDIA Inception membership. Tone: confident and professional, targeting energy investors at EIC / NGP Energy level.",
       }], SYSTEM_PROMPT);
       setPitch(reply);
     } catch { setPitch("Generation error."); }

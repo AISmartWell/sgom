@@ -103,7 +103,7 @@ const CounterProposal = () => {
               <div className="p-4 rounded-lg border border-gray-200" style={{ background: "#ffffff" }}>
                 <p className="text-sm font-medium" style={{ color: "#6b7280" }}>Implied Total Value</p>
                 <p className="text-2xl font-bold text-red-600">~$637,500+</p>
-                <p className="text-xs font-medium" style={{ color: "#6b7280" }}>at $2.39M Pre-Seed valuation</p>
+                <p className="text-xs font-medium" style={{ color: "#6b7280" }}>at $4M Pre-Seed valuation</p>
               </div>
             </div>
             <div className="space-y-2 text-sm font-medium" style={{ color: "#374151" }}>
