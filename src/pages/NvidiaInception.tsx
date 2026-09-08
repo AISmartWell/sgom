@@ -486,7 +486,7 @@ import nvidiaLogoBw from "@/assets/nvidia-logo-bw.png";
                 {[
                   { step: "Update Product Profile", detail: "Company description, metrics, NVIDIA tech usage", done: true },
                   { step: "Upload Pitch Deck (PDF)", detail: "Export 15-slide deck from /investor-deck", done: false },
-                  { step: "Set Funding Stage", detail: "Select 'Pre-Seed / Seed' — target $2.39M", done: false },
+                  { step: "Set Funding Stage", detail: "Select 'Pre-Seed / Seed' — target $4M", done: false },
                   { step: "Request Benefit in Portal", detail: "Click 'Request Benefit' on Capital Connect page", done: false },
                   { step: "Add Key Metrics", detail: "15K+ wells, 94% accuracy, 312% ROI, $3.2B SAM", done: true },
                   { step: "Select Workloads", detail: "Data Science, Edge Computing, Agentic AI, MLOps", done: true },
@@ -511,7 +511,7 @@ import nvidiaLogoBw from "@/assets/nvidia-logo-bw.png";
               <h4 className="font-semibold text-sm mb-3">Key Numbers for VC Profile</h4>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {[
-                  { label: "Raise Target", value: "$2.39M", sub: "Pre-Seed / Seed" },
+                  { label: "Raise Target", value: "$4M", sub: "Pre-Seed / Seed" },
                   { label: "SAM", value: "$3.2B", sub: "Serviceable Market" },
                   { label: "Year 1 EBITDA", value: "35-38%", sub: "Hybrid SaaS + Production" },
                   { label: "Payback", value: "7-8 mo", sub: "312% ROI" },

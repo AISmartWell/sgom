@@ -363,7 +363,7 @@ Phase 3 — Scale (Months 13-18): $25,000
               <CardContent className="space-y-3">
                 {[
                   { item: "VC/Accelerator backed or referred", status: true, note: "NVIDIA Inception Program member (can refer)" },
-                  { item: "Early-stage startup (Series B or earlier)", status: true, note: "Pre-Seed stage, raising $2.39M" },
+                  { item: "Early-stage startup (Series B or earlier)", status: true, note: "Pre-Seed stage, raising $4M" },
                   { item: "Working product / MVP", status: true, note: "Live MVP at sgom.lovable.app — 19 modules" },
                   { item: "Not previously received AWS Activate $100K tier", status: true, note: "First AWS Activate application" },
                   { item: "Less than $10M in funding raised", status: true, note: "No funding raised yet (pre-seed)" },

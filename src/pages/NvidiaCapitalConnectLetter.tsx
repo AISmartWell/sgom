@@ -115,7 +115,7 @@ const NvidiaCapitalConnectLetter = () => {
           </p>
 
           <p>
-            We are currently raising a <strong>Pre-Seed / Seed round of $2.39M</strong> and would greatly benefit from
+            We are currently raising a <strong>Pre-Seed / Seed round of $4M</strong> and would greatly benefit from
             exposure to the global network of venture capital firms participating in the ICC program.
           </p>
         </div>
@@ -128,7 +128,7 @@ const NvidiaCapitalConnectLetter = () => {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {[
-              { icon: DollarSign, label: "Funding Target", value: "$2.39M Pre-Seed / Seed" },
+              { icon: DollarSign, label: "Funding Target", value: "$4M Pre-Seed / Seed" },
               { icon: TrendingUp, label: "Projected ROI", value: "312% within 24 months" },
               { icon: TrendingUp, label: "Year 1 EBITDA", value: "35–38% margin" },
               { icon: Users, label: "SAM (Serviceable Market)", value: "$3.2B" },
