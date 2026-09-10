@@ -57,6 +57,12 @@ const menuItems = [
     badge: "Overview",
   },
   {
+    title: "AI Agents",
+    icon: Bot,
+    href: "/dashboard/ai-agents",
+    badge: "🤖",
+  },
+  {
     title: "Innovation",
     icon: Sparkles,
     href: "/innovation",
