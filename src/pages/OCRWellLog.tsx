@@ -206,6 +206,17 @@ const OCRWellLog = () => {
       </div>
 
       <div className="mb-6">
+        <SampleArchiveStage8Demo
+          onLoadIntoUploader={(dataUrl, name) => {
+            setPreview(dataUrl);
+            setFileName(name);
+            setResult(null);
+            setPipelineOut(null);
+          }}
+        />
+      </div>
+
+      <div className="mb-6">
         <OCRBatchQueue
           quality="auto"
           onMerged={(merged, pages) => {
