@@ -13,6 +13,7 @@ import { FormationAttribution } from "@/components/ocr/FormationAttribution";
 import { FormationComparison } from "@/components/ocr/FormationComparison";
 import { OCRRecognizedFields } from "@/components/ocr/OCRRecognizedFields";
 import OCRBatchQueue from "@/components/ocr/OCRBatchQueue";
+import SampleArchiveStage8Demo from "@/components/ocr/SampleArchiveStage8Demo";
 import { GitCompare, Camera } from "lucide-react";
 
 type OcrResult = {
@@ -203,6 +204,17 @@ const OCRWellLog = () => {
             Open in Geophysical Expertise <ArrowRight className="ml-2 h-3 w-3" />
           </Button>
         </div>
+      </div>
+
+      <div className="mb-6">
+        <SampleArchiveStage8Demo
+          onLoadIntoUploader={(dataUrl, name) => {
+            setPreview(dataUrl);
+            setFileName(name);
+            setResult(null);
+            setPipelineOut(null);
+          }}
+        />
       </div>
 
       <div className="mb-6">
