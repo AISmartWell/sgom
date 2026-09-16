@@ -13,6 +13,7 @@ import { FormationAttribution } from "@/components/ocr/FormationAttribution";
 import { FormationComparison } from "@/components/ocr/FormationComparison";
 import { OCRRecognizedFields } from "@/components/ocr/OCRRecognizedFields";
 import OCRBatchQueue from "@/components/ocr/OCRBatchQueue";
+import SampleArchiveStage8Demo from "@/components/ocr/SampleArchiveStage8Demo";
 import { GitCompare, Camera } from "lucide-react";
 
 type OcrResult = {
