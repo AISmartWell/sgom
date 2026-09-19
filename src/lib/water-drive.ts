@@ -207,7 +207,12 @@ export function evaluateWaterDrive(
     model,
     G,
     slope: reg ? reg.slope : NaN,
-    r2: Math.max(0, 1 - cv * cv * Gi.length), // consistency of the unit-slope solution
+    r2: (() => {
+      const meanF = series.reduce((a, b) => a + b.F, 0) / series.length;
+      const ssTot = series.reduce((a, b) => a + (b.F - meanF) ** 2, 0);
+      const ssRes = series.reduce((a, b) => a + (b.F - (G * b.Eg + b.We)) ** 2, 0);
+      return ssTot > 0 ? 1 - ssRes / ssTot : 0;
+    })(),
     cv,
     We_last: last.We,
     wdi: last.F > 0 ? last.We / last.F : 0,
@@ -240,7 +245,7 @@ export function fitWaterDrive(
   const consider = (params: FetkovichParams | CarterTracyParams) => {
     const res = evaluateWaterDrive(sorted, model, params, T_R, Bw);
     if (!res || !isFinite(res.G) || res.G <= 0) return;
-    const obj = (res.slope - 1) ** 2 + (1 - Math.max(res.r2, 0));
+    const obj = res.cv;
     if (obj < bestObj) { bestObj = obj; best = res; }
   };
 
