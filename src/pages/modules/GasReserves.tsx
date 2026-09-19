@@ -149,6 +149,7 @@ export default function GasReserves() {
         <TabsList className="font-mono">
           <TabsTrigger value="volumetric">Volumetric (P/Z)</TabsTrigger>
           <TabsTrigger value="waterdrive">Water drive (Fetkovich / Carter–Tracy)</TabsTrigger>
+          <TabsTrigger value="dynamics">Reservoir dynamics forecast</TabsTrigger>
         </TabsList>
 
         <TabsContent value="volumetric" className="m-0">
