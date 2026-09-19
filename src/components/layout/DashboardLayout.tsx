@@ -109,7 +109,8 @@ const DashboardLayout = () => {
               "radial-gradient(900px 420px at 78% -8%, hsl(var(--primary) / 0.10), transparent 60%), radial-gradient(700px 380px at 8% 105%, hsl(var(--primary-glow) / 0.08), transparent 62%)",
           }}
         />
-        <div className="relative">
+        {isReadOnly && role && <ReadOnlyBanner role={role} locked={lockInputs} />}
+        <div className={lockInputs ? "relative readonly-scope" : "relative"}>
           <Outlet />
         </div>
       </main>
