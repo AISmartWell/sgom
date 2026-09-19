@@ -18,11 +18,12 @@ export interface WDRow { t: string; P: string; Gp: string; Z: string; Wp: string
 
 export const WD_DEMO: WDRow[] = [
   { t: "0",    P: "3200", Gp: "0.00", Z: "0.885", Wp: "0" },
-  { t: "365",  P: "3105", Gp: "0.85", Z: "0.872", Wp: "12" },
-  { t: "730",  P: "2990", Gp: "1.80", Z: "0.861", Wp: "34" },
-  { t: "1095", P: "2870", Gp: "2.75", Z: "0.853", Wp: "68" },
-  { t: "1460", P: "2745", Gp: "3.70", Z: "0.849", Wp: "115" },
-  { t: "1825", P: "2620", Gp: "4.55", Z: "0.848", Wp: "172" },
+  { t: "365",  P: "2900", Gp: "0.90", Z: "0.874", Wp: "0" },
+  { t: "730",  P: "2688", Gp: "1.80", Z: "0.868", Wp: "2" },
+  { t: "1095", P: "2450", Gp: "2.70", Z: "0.862", Wp: "6" },
+  { t: "1460", P: "2196", Gp: "3.60", Z: "0.857", Wp: "14" },
+  { t: "1825", P: "1918", Gp: "4.50", Z: "0.853", Wp: "28" },
+  { t: "2190", P: "1603", Gp: "5.40", Z: "0.852", Wp: "50" },
 ];
 
 const fmt = (v: number, d = 2) =>
@@ -242,7 +243,7 @@ export default function WaterDrivePanel({ volumetricOGIP }: { volumetricOGIP?: n
                 {result ? fmt(result.slope, 3) : "—"}
               </div>
               <p className="mt-1 text-[11px] font-mono text-muted-foreground">
-                target 1.000 {result ? `· R² ${fmt(result.r2, 4)}` : ""}
+                target 1.000 {result ? `· R² ${fmt(result.r2, 4)} · spread ${fmt(result.cv * 100, 1)} %` : ""}
               </p>
             </CardContent>
           </Card>
