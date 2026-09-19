@@ -121,6 +121,7 @@ const App = () => (
             <Route index element={<Dashboard />} />
           <Route path="sgom-task-map" element={<SGOMTaskMap />} />
           <Route path="ai-agents" element={<AIAgents />} />
+          <Route path="user-roles" element={<UserRoles />} />
             <Route path="data-collection" element={<DataCollection />} />
             <Route path="geological-analysis" element={<GeologicalAnalysis />} />
             <Route path="well-selection" element={<WellSelection />} />
