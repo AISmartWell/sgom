@@ -144,6 +144,7 @@ const GeophysicsAgentPanel = ({ well, petroData, interpretation, onClose, persis
         }
         if (data?.error) throw new Error(data.error);
         const conc = data.conclusion as AgentConclusion;
+        setEvidence((data.evidence as AgentEvidence) ?? null);
         setConclusion(conc);
         setStepIdx(PIPELINE_STEPS.length - 1);
         setPhase("done");
