@@ -234,22 +234,135 @@ async function tool_rank_wells_for_spt(args: { company_id?: string; top_n?: numb
   return { ranked };
 }
 
+// ---- Learning layer: real registry outcomes calibrate the forecast ----
+// Sources, in priority order:
+//   1. model_parameters — EKF-calibrated arps_b / arps_di / spt_multiplier (well → formation → global)
+//   2. well_restorations — actual vs predicted results of real SPT work orders
+type Calib = {
+  b: number;
+  di: number;
+  uplift: number;
+  spread_low: number;
+  spread_high: number;
+  scope: string;
+  sample_count: number;
+  outcomes_used: number;
+  mape: number | null;
+  confidence: number;
+  source: "calibrated" | "outcomes" | "default";
+  notes: string[];
+};
+
+async function loadForecastCalibration(well: any): Promise<Calib> {
+  const notes: string[] = [];
+  const calib: Calib = {
+    b: 0.5, di: 0.08, uplift: 1.30, spread_low: 0.75, spread_high: 1.20,
+    scope: "global:default", sample_count: 0, outcomes_used: 0, mape: null,
+    confidence: 0.3, source: "default",
+    notes,
+  };
+
+  // 1. Calibrated model parameters (well → formation → global)
+  const scopes: Array<[string, string]> = [];
+  if (well?.id) scopes.push(["well", String(well.id)]);
+  if (well?.formation) scopes.push(["formation", String(well.formation)]);
+  scopes.push(["global", "default"]);
+
+  for (const [scope_type, scope_key] of scopes) {
+    const { data } = await sb.from("model_parameters").select("*")
+      .eq("scope_type", scope_type).eq("scope_key", scope_key).maybeSingle();
+    if (data) {
+      calib.b = Number(data.arps_b ?? calib.b);
+      calib.di = Number(data.arps_di ?? calib.di);
+      calib.uplift = Number(data.spt_multiplier ?? calib.uplift);
+      calib.scope = `${scope_type}:${scope_key}`;
+      calib.sample_count = Number(data.sample_count ?? 0);
+      calib.confidence = Number(data.confidence ?? calib.confidence);
+      calib.source = "calibrated";
+      // Uncertainty band widens when the learned parameter variance is high
+      const std = Math.sqrt(Math.max(Number(data.spt_multiplier_variance ?? 0.05), 1e-4));
+      const rel = Math.min(Math.max(std / Math.max(calib.uplift, 0.1), 0.05), 0.4);
+      calib.spread_low = Number((1 - rel * 1.5).toFixed(3));
+      calib.spread_high = Number((1 + rel * 1.2).toFixed(3));
+      notes.push(`Parameters learned at scope ${calib.scope} from ${calib.sample_count} calibrated samples.`);
+      break;
+    }
+  }
+
+  // 2. Real work-order outcomes from the registry
+  let q = sb.from("well_restorations")
+    .select("well_id,company_id,predicted_qoil,actual_qoil,predicted_cum,actual_cum,spt_multiplier_used,arps_b_used,arps_di_used,restoration_date")
+    .not("actual_qoil", "is", null)
+    .order("restoration_date", { ascending: false })
+    .limit(200);
+  if (well?.company_id) q = q.eq("company_id", well.company_id);
+  const { data: outcomes } = await q;
+
+  const rows = (outcomes ?? []).filter((r: any) =>
+    Number(r.actual_qoil) > 0 && Number(r.predicted_qoil) > 0);
+
+  if (rows.length >= 3) {
+    // Bias correction: how far real production ran versus what the model predicted
+    const ratios = rows.map((r: any) => Number(r.actual_qoil) / Number(r.predicted_qoil));
+    ratios.sort((a, b) => a - b);
+    const median = ratios[Math.floor(ratios.length / 2)];
+    const p10 = ratios[Math.floor(ratios.length * 0.1)];
+    const p90 = ratios[Math.min(ratios.length - 1, Math.floor(ratios.length * 0.9))];
+    const errs = rows.map((r: any) =>
+      Math.abs(Number(r.actual_qoil) - Number(r.predicted_qoil)) / Number(r.actual_qoil));
+    const mape = errs.reduce((a, b) => a + b, 0) / errs.length;
+
+    // Shrink the correction toward 1 when we have few outcomes (empirical Bayes style)
+    const wgt = Math.min(rows.length / 12, 1);
+    const correction = 1 + (median - 1) * wgt;
+    calib.uplift = Number((calib.uplift * correction).toFixed(3));
+    calib.spread_low = Number(Math.min(calib.spread_low, Math.max(p10 / Math.max(median, 0.1), 0.4)).toFixed(3));
+    calib.spread_high = Number(Math.max(calib.spread_high, Math.min(p90 / Math.max(median, 0.1), 2.2)).toFixed(3));
+    calib.outcomes_used = rows.length;
+    calib.mape = Number((mape * 100).toFixed(1));
+    calib.confidence = Number(Math.min(0.95, Math.max(calib.confidence, 0.35 + wgt * 0.5 * (1 - Math.min(mape, 0.6)))).toFixed(2));
+    if (calib.source === "default") calib.source = "outcomes";
+    notes.push(
+      `Corrected against ${rows.length} completed SPT work orders in the registry ` +
+      `(median actual/predicted ${median.toFixed(2)}, historical MAPE ${(mape * 100).toFixed(1)}%).`
+    );
+  } else {
+    notes.push(`Only ${rows.length} completed work orders with measured results — outcome correction not applied yet.`);
+  }
+
+  // Mean-rate-based decline learned from the same outcomes when cumulative data exists
+  const cumRows = rows.filter((r: any) => Number(r.actual_cum) > 0 && Number(r.predicted_cum) > 0);
+  if (cumRows.length >= 3) {
+    const cumRatio = cumRows.reduce((a: number, r: any) =>
+      a + Number(r.actual_cum) / Number(r.predicted_cum), 0) / cumRows.length;
+    // Cumulative shortfall means decline is steeper than modelled, and vice versa
+    const adj = Math.min(Math.max(1 / Math.max(cumRatio, 0.3), 0.6), 1.8);
+    calib.di = Number(Math.min(Math.max(calib.di * adj, 0.01), 0.35).toFixed(4));
+    notes.push(`Decline rate tuned on ${cumRows.length} measured cumulative outcomes (Di → ${calib.di}).`);
+  }
+
+  return calib;
+}
+
 async function tool_forecast_well(args: { well_id: string; months?: number }) {
-  // Lightweight Arps decline forecast P10/P50/P90
+  // Arps decline forecast, calibrated on the operator's real SPT work orders
   const ctx = await tool_get_well_context({ well_id: args.well_id });
   const q0 = ctx.well?.production_oil ?? 50;
   const months = args.months ?? 24;
-  const Di = 0.08; // monthly nominal decline
-  const b = 0.5;
+  const cal = await loadForecastCalibration(ctx.well);
+  const { b, di } = cal;
+
   const baseline: number[] = [];
   for (let t = 1; t <= months; t++) {
-    const q = q0 / Math.pow(1 + b * Di * t, 1 / b);
+    const q = q0 / Math.pow(1 + b * di * t, 1 / b);
     baseline.push(Number(q.toFixed(2)));
   }
-  // SPT uplift assumption: +30% step + slower decline
-  const sptCase = baseline.map((q, i) => Number((q * (1.30 - i * 0.005)).toFixed(2)));
-  const p10 = sptCase.map((q) => Number((q * 0.75).toFixed(2)));
-  const p90 = sptCase.map((q) => Number((q * 1.20).toFixed(2)));
+  // Learned SPT uplift, decaying over the treatment life
+  const fade = 0.005;
+  const sptCase = baseline.map((q, i) =>
+    Number((q * Math.max(1, cal.uplift - i * fade)).toFixed(2)));
+  const p10 = sptCase.map((q) => Number((q * cal.spread_low).toFixed(2)));
+  const p90 = sptCase.map((q) => Number((q * cal.spread_high).toFixed(2)));
   return {
     well_id: args.well_id,
     baseline_no_treatment: baseline,
@@ -257,6 +370,18 @@ async function tool_forecast_well(args: { well_id: string; months?: number }) {
     spt_p50: sptCase,
     spt_p90: p90,
     cumulative_uplift_bbl: Math.round(sptCase.reduce((a, b) => a + b, 0) - baseline.reduce((a, b) => a + b, 0)) * 30,
+    calibration: {
+      source: cal.source,
+      scope: cal.scope,
+      arps_b: cal.b,
+      arps_di: cal.di,
+      spt_multiplier: cal.uplift,
+      sample_count: cal.sample_count,
+      outcomes_used: cal.outcomes_used,
+      historical_mape_pct: cal.mape,
+      confidence: cal.confidence,
+      notes: cal.notes,
+    },
   };
 }
 
