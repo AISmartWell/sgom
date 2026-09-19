@@ -9,6 +9,8 @@ import {
   ResponsiveContainer, ReferenceDot,
 } from "recharts";
 import { pOverZGas, type GasMBPoint } from "@/lib/material-balance";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import WaterDrivePanel from "@/components/gas/WaterDrivePanel";
 
 interface Row { P: string; Gp: string; Z: string }
 
