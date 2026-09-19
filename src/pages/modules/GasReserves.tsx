@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Flame, Plus, Trash2, Info } from "lucide-react";
+import { Flame, Plus, Trash2, Info, Bot } from "lucide-react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   ResponsiveContainer, ReferenceDot,
@@ -270,6 +270,39 @@ export default function GasReserves() {
                 </ResponsiveContainer>
               </div>
             </CardContent>
+          </Card>
+
+          <Card className="border-primary/30">
+            <CardHeader>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Bot className="h-4 w-4 text-primary" /> Gas Reserves Agent
+                  </CardTitle>
+                  <CardDescription>
+                    Runs the P/Z material-balance calculation and issues an engineering verdict.
+                    Numbers come from the deterministic solver — the agent only interprets them.
+                  </CardDescription>
+                </div>
+                <Button size="sm" onClick={runAgent} disabled={!result}>Run agent</Button>
+              </div>
+            </CardHeader>
+            {verdict && (
+              <CardContent className="space-y-3">
+                <div className="flex flex-wrap gap-2">
+                  <Badge className="font-mono">{verdict.grade}</Badge>
+                  <Badge variant="secondary" className="font-mono">{verdict.drive}</Badge>
+                  <Badge variant="outline" className="font-mono">Confidence: {verdict.confidence}</Badge>
+                </div>
+                <ul className="space-y-1 text-sm text-muted-foreground list-disc pl-5">
+                  {verdict.findings.map((f, i) => <li key={i}>{f}</li>)}
+                </ul>
+                <div className="rounded-md border border-primary/30 bg-primary/5 p-3 text-sm">
+                  <span className="font-mono text-xs uppercase tracking-widest text-primary">Recommendation</span>
+                  <p className="mt-1">{verdict.recommendation}</p>
+                </div>
+              </CardContent>
+            )}
           </Card>
 
           <Card>

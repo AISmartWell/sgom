@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Bot, Brain, Radar, FileText, Sparkles, ArrowRight, Cpu, ShieldCheck, ScanEye,
+  Bot, Brain, Radar, FileText, Sparkles, ArrowRight, Cpu, ShieldCheck, ScanEye, Flame,
 } from "lucide-react";
 
 const agents = [
@@ -50,6 +50,15 @@ const agents = [
     href: "/dashboard/ocr",
     icon: FileText,
     badge: "Vision",
+    status: "Live",
+  },
+  {
+    title: "Gas Reserves Agent (P/Z)",
+    description:
+      "Runs the P/Z material-balance solver on measured pressure, cumulative gas and Z-factor: extrapolates OGIP, remaining gas and recovery factor, diagnoses the drive mechanism from straight-line quality, and issues a verdict with recommendation.",
+    href: "/dashboard/gas-reserves",
+    icon: Flame,
+    badge: "Reserves",
     status: "Live",
   },
   {
