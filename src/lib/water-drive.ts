@@ -57,6 +57,8 @@ export interface WaterDriveResult {
   /** slope of F/Eg vs We/Eg — should be ≈ 1 for a correct aquifer model */
   slope: number;
   r2: number;
+  /** coefficient of variation of the per-point OGIP — 0 = perfect aquifer match */
+  cv: number;
   /** cumulative water influx at the last point, reservoir bbl */
   We_last: number;
   /** water-drive index We / F at the last point (0 = volumetric, 1 = full support) */
