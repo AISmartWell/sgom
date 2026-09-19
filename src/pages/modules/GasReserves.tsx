@@ -145,6 +145,13 @@ export default function GasReserves() {
         <Badge variant="outline" className="ml-auto font-mono">Stage 4 · Gas</Badge>
       </div>
 
+      <Tabs defaultValue="volumetric" className="space-y-6">
+        <TabsList className="font-mono">
+          <TabsTrigger value="volumetric">Volumetric (P/Z)</TabsTrigger>
+          <TabsTrigger value="waterdrive">Water drive (Fetkovich / Carter–Tracy)</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="volumetric" className="m-0">
       <div className="grid gap-6 lg:grid-cols-5">
         {/* Input table */}
         <Card className="lg:col-span-2">
