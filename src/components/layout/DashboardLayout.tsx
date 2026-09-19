@@ -4,14 +4,32 @@ import { supabase } from "@/integrations/supabase/client";
 import Sidebar from "./Sidebar";
 import SPTChatWidget from "@/components/chat/SPTChatWidget";
 import { Loader2, ShieldAlert } from "lucide-react";
-import { useUserRole, INVESTOR_ALLOWED_ROUTES } from "@/hooks/useUserRole";
+import { useUserRole, INVESTOR_ALLOWED_ROUTES, ADMIN_ONLY_ROUTES } from "@/hooks/useUserRole";
+import ReadOnlyBanner from "./ReadOnlyBanner";
+
+// Screens where data is created or uploaded — locked for read-only roles
+const DATA_ENTRY_ROUTES = [
+  "/dashboard/ocr",
+  "/dashboard/ocr-well-log",
+  "/dashboard/ocr-paper-log",
+  "/dashboard/ocr-formation-demo",
+  "/dashboard/data-import",
+  "/dashboard/data-collection",
+  "/dashboard/production-history",
+  "/dashboard/document-vault",
+  "/dashboard/admin-import",
+  "/dashboard/automation",
+  "/dashboard/autonomous-scan",
+  "/dashboard/ml-training",
+  "/dashboard/user-roles",
+];
 
 const DashboardLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const { isInvestor, loading: roleLoading } = useUserRole();
+  const { role, isInvestor, isAdmin, isReadOnly, loading: roleLoading } = useUserRole();
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
