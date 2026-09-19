@@ -35,6 +35,17 @@ interface AgentConclusion {
   };
 }
 
+interface AgentEvidence {
+  evidence_grade: string;
+  log_provenance: string;
+  log_points: number;
+  core_samples: number;
+  core_lab_analyses: number;
+  perforations: number;
+  production: { months: number; cum_oil_bbl: number | null; water_cut_pct: number | null } | null;
+  analogs: number;
+}
+
 // Local deterministic pipeline steps the agent "walks through" before reasoning
 const PIPELINE_STEPS = [
   { key: "lithology", label: "Lithology segmentation (GR cutoffs)" },
