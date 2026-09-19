@@ -167,7 +167,48 @@ function extractionScore(result: Record<string, unknown>) {
   return strings + depthScore + arrayScore + rawScore;
 }
 
-async function callGateway(apiKey: string, model: string, dataUrl: string, mode: "fast" | "deep" | "digitize") {
+// Builds a few-shot calibration block from operator-verified real scans stored in the platform.
+async function loadCalibration(companyId?: string | null, docType?: string | null): Promise<string> {
+  const url = Deno.env.get("SUPABASE_URL");
+  const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!url || !key) return "";
+  try {
+    const params = new URLSearchParams({
+      select: "label,doc_type,verified,curve_hints,notes,company_id",
+      is_active: "eq.true",
+      order: "created_at.desc",
+      limit: "8",
+    });
+    if (docType) params.set("doc_type", `eq.${docType}`);
+    const res = await fetch(`${url}/rest/v1/ocr_training_examples?${params.toString()}`, {
+      headers: { apikey: key, Authorization: `Bearer ${key}` },
+    });
+    if (!res.ok) return "";
+    const rows = await res.json() as Array<Record<string, unknown>>;
+    const scoped = companyId
+      ? rows.filter((r) => !r.company_id || r.company_id === companyId)
+      : rows;
+    if (!scoped.length) return "";
+    const blocks = scoped.slice(0, 6).map((r, i) => {
+      const verified = JSON.stringify(r.verified ?? {}).slice(0, 1400);
+      const hints = Array.isArray(r.curve_hints) ? (r.curve_hints as string[]).join(", ") : "";
+      return `Example ${i + 1} — ${String(r.label ?? "scan")} (${String(r.doc_type ?? "well_log")})
+Operator-verified ground truth: ${verified}
+Curve/track conventions on this vintage: ${hints || "n/a"}
+Reviewer notes: ${String(r.notes ?? "n/a").slice(0, 400)}`;
+    });
+    return `\n\nCALIBRATION — verified readings from this operator's own archive.
+These are real, human-verified extractions from scans of the same vintage, service companies and
+formations. Use them to learn label conventions, scale ranges, formation naming and header layout.
+Match their naming and unit conventions. Never copy their numbers into a new scan — read the new image.
+${blocks.join("\n\n")}`;
+  } catch (e) {
+    console.error("calibration load failed", e);
+    return "";
+  }
+}
+
+async function callGateway(apiKey: string, model: string, dataUrl: string, mode: "fast" | "deep" | "digitize", calibration = "") {
   const userInstruction = mode === "digitize"
     ? "DIGITIZE mode. Return every visible text token, header/footer labels, curve-track labels AND sample the visible curves along depth (20-40 evenly spaced rows) into log_readings with numeric values per curve (leave a cell null if unreadable). Return JSON per schema."
     : mode === "deep"
