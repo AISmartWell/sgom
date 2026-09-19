@@ -77,6 +77,7 @@ const GeophysicsAgentPanel = ({ well, petroData, interpretation, onClose, persis
   const [phase, setPhase] = useState<"running" | "done" | "error">("running");
   const [stepIdx, setStepIdx] = useState(0);
   const [conclusion, setConclusion] = useState<AgentConclusion | null>(null);
+  const [evidence, setEvidence] = useState<AgentEvidence | null>(null);
   const [error, setError] = useState<string | null>(null);
   const startedRef = useRef(false);
 
