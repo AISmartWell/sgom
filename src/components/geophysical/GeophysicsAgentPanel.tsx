@@ -35,6 +35,17 @@ interface AgentConclusion {
   };
 }
 
+interface AgentEvidence {
+  evidence_grade: string;
+  log_provenance: string;
+  log_points: number;
+  core_samples: number;
+  core_lab_analyses: number;
+  perforations: number;
+  production: { months: number; cum_oil_bbl: number | null; water_cut_pct: number | null } | null;
+  analogs: number;
+}
+
 // Local deterministic pipeline steps the agent "walks through" before reasoning
 const PIPELINE_STEPS = [
   { key: "lithology", label: "Lithology segmentation (GR cutoffs)" },
@@ -77,6 +88,7 @@ const GeophysicsAgentPanel = ({ well, petroData, interpretation, onClose, persis
   const [phase, setPhase] = useState<"running" | "done" | "error">("running");
   const [stepIdx, setStepIdx] = useState(0);
   const [conclusion, setConclusion] = useState<AgentConclusion | null>(null);
+  const [evidence, setEvidence] = useState<AgentEvidence | null>(null);
   const [error, setError] = useState<string | null>(null);
   const startedRef = useRef(false);
 
@@ -132,6 +144,7 @@ const GeophysicsAgentPanel = ({ well, petroData, interpretation, onClose, persis
         }
         if (data?.error) throw new Error(data.error);
         const conc = data.conclusion as AgentConclusion;
+        setEvidence((data.evidence as AgentEvidence) ?? null);
         setConclusion(conc);
         setStepIdx(PIPELINE_STEPS.length - 1);
         setPhase("done");
@@ -224,6 +237,49 @@ const GeophysicsAgentPanel = ({ well, petroData, interpretation, onClose, persis
 
         {phase === "done" && conclusion && (
           <div className="space-y-4 animate-in fade-in duration-500">
+            {/* Real-data grounding */}
+            {evidence && (
+              <div className="border border-border/60 rounded-md p-3 bg-background/40 space-y-2">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <span className="text-xs font-mono text-muted-foreground">FIELD EVIDENCE</span>
+                  <Badge
+                    variant="outline"
+                    className={
+                      evidence.log_provenance === "REAL"
+                        ? "text-emerald-400 border-emerald-500/50"
+                        : "text-amber-400 border-amber-500/50"
+                    }
+                  >
+                    {evidence.evidence_grade}
+                  </Badge>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                  <div>
+                    <div className="text-muted-foreground">Log points</div>
+                    <div className="font-mono">{evidence.log_points}</div>
+                  </div>
+                  <div>
+                    <div className="text-muted-foreground">Core samples</div>
+                    <div className="font-mono">{evidence.core_samples + evidence.core_lab_analyses}</div>
+                  </div>
+                  <div>
+                    <div className="text-muted-foreground">Perforations</div>
+                    <div className="font-mono">{evidence.perforations}</div>
+                  </div>
+                  <div>
+                    <div className="text-muted-foreground">Analog wells</div>
+                    <div className="font-mono">{evidence.analogs}</div>
+                  </div>
+                </div>
+                {evidence.production && evidence.production.months > 0 && (
+                  <div className="text-xs text-muted-foreground font-mono">
+                    Production: {evidence.production.months} mo · cum oil {evidence.production.cum_oil_bbl ?? "—"} bbl ·
+                    water cut {evidence.production.water_cut_pct ?? "—"}%
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Per-step findings */}
             <div className="grid gap-2">
               {conclusion.steps?.map((s) => (
