@@ -11,6 +11,7 @@ import {
 import { pOverZGas, type GasMBPoint } from "@/lib/material-balance";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import WaterDrivePanel from "@/components/gas/WaterDrivePanel";
+import ReservoirDynamicsAgent from "@/components/gas/ReservoirDynamicsAgent";
 
 interface Row { P: string; Gp: string; Z: string }
 
