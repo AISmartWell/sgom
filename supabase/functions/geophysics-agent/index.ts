@@ -317,6 +317,7 @@ serve(async (req) => {
     const agentInput = {
       well: wellRow ?? well ?? null,
       log_stats: log_stats ?? null,
+      field_evidence: fieldEvidence,
       interpretation_summary: {
         gross_pay_ft: interpretation.grossPay,
         net_pay_ft: interpretation.netPay,
