@@ -340,6 +340,10 @@ export default function GasReserves() {
         <TabsContent value="waterdrive" className="m-0">
           <WaterDrivePanel volumetricOGIP={stats?.G ?? null} />
         </TabsContent>
+
+        <TabsContent value="dynamics" className="m-0">
+          <ReservoirDynamicsAgent />
+        </TabsContent>
       </Tabs>
     </div>
   );
