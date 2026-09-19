@@ -8,6 +8,13 @@
       "when": 1789786879254,
       "tag": "0000_create_ocr_training_examples",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1789862180058,
+      "tag": "0001_add_team_roles",
+      "breakpoints": true
     }
   ]
 }

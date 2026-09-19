@@ -448,6 +448,13 @@ const menuItems = [
     href: "/dashboard/ocr-formation-demo",
     badge: "🎯",
   },
+  {
+    title: "Team & Roles",
+    icon: Settings,
+    href: "/dashboard/user-roles",
+    badge: "Admin",
+    adminOnly: true,
+  },
 
 ];
 
@@ -458,11 +465,13 @@ interface SidebarProps {
 
 const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
   const navigate = useNavigate();
-  const { isInvestor } = useUserRole();
+  const { isInvestor, isAdmin, role } = useUserRole();
 
-  const visibleItems = isInvestor
-    ? menuItems.filter((item) => INVESTOR_SIDEBAR_ITEMS.has(item.href))
-    : menuItems;
+  const visibleItems = (
+    isInvestor
+      ? menuItems.filter((item) => INVESTOR_SIDEBAR_ITEMS.has(item.href))
+      : menuItems
+  ).filter((item) => !("adminOnly" in item && item.adminOnly) || isAdmin);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();

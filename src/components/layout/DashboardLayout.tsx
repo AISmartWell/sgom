@@ -4,14 +4,32 @@ import { supabase } from "@/integrations/supabase/client";
 import Sidebar from "./Sidebar";
 import SPTChatWidget from "@/components/chat/SPTChatWidget";
 import { Loader2, ShieldAlert } from "lucide-react";
-import { useUserRole, INVESTOR_ALLOWED_ROUTES } from "@/hooks/useUserRole";
+import { useUserRole, INVESTOR_ALLOWED_ROUTES, ADMIN_ONLY_ROUTES } from "@/hooks/useUserRole";
+import ReadOnlyBanner from "./ReadOnlyBanner";
+
+// Screens where data is created or uploaded — locked for read-only roles
+const DATA_ENTRY_ROUTES = [
+  "/dashboard/ocr",
+  "/dashboard/ocr-well-log",
+  "/dashboard/ocr-paper-log",
+  "/dashboard/ocr-formation-demo",
+  "/dashboard/data-import",
+  "/dashboard/data-collection",
+  "/dashboard/production-history",
+  "/dashboard/document-vault",
+  "/dashboard/admin-import",
+  "/dashboard/automation",
+  "/dashboard/autonomous-scan",
+  "/dashboard/ml-training",
+  "/dashboard/user-roles",
+];
 
 const DashboardLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const { isInvestor, loading: roleLoading } = useUserRole();
+  const { role, isInvestor, isAdmin, isReadOnly, loading: roleLoading } = useUserRole();
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -46,9 +64,13 @@ const DashboardLayout = () => {
 
   // Check if investor is accessing a restricted route
   const currentPath = location.pathname;
-  const isAllowed = !isInvestor || INVESTOR_ALLOWED_ROUTES.some(
+  const investorAllowed = !isInvestor || INVESTOR_ALLOWED_ROUTES.some(
     (route) => currentPath === route || (route === "/dashboard" && currentPath === "/dashboard")
   );
+  const adminAllowed = isAdmin || !ADMIN_ONLY_ROUTES.includes(currentPath);
+  const isAllowed = investorAllowed && adminAllowed;
+  const isDataEntryScreen = DATA_ENTRY_ROUTES.includes(currentPath);
+  const lockInputs = isReadOnly && isDataEntryScreen;
 
   if (!isAllowed) {
     return (
@@ -87,7 +109,8 @@ const DashboardLayout = () => {
               "radial-gradient(900px 420px at 78% -8%, hsl(var(--primary) / 0.10), transparent 60%), radial-gradient(700px 380px at 8% 105%, hsl(var(--primary-glow) / 0.08), transparent 62%)",
           }}
         />
-        <div className="relative">
+        {isReadOnly && role && <ReadOnlyBanner role={role} locked={lockInputs} />}
+        <div className={lockInputs ? "relative readonly-scope" : "relative"}>
           <Outlet />
         </div>
       </main>

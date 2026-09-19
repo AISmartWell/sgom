@@ -26,6 +26,7 @@ import EOROptimization from "./pages/modules/EOROptimization";
   import MLTraining from "./pages/modules/MLTraining";
 import GeophysicsAgent from "./pages/modules/GeophysicsAgent";
 import AIAgents from "./pages/AIAgents";
+import UserRoles from "./pages/modules/UserRoles";
 import GeophysicalExpertise from "./pages/modules/GeophysicalExpertise";
 import FieldScanning from "./pages/modules/FieldScanning";
 import DataClassification from "./pages/modules/DataClassification";
@@ -121,6 +122,7 @@ const App = () => (
             <Route index element={<Dashboard />} />
           <Route path="sgom-task-map" element={<SGOMTaskMap />} />
           <Route path="ai-agents" element={<AIAgents />} />
+          <Route path="user-roles" element={<UserRoles />} />
             <Route path="data-collection" element={<DataCollection />} />
             <Route path="geological-analysis" element={<GeologicalAnalysis />} />
             <Route path="well-selection" element={<WellSelection />} />
