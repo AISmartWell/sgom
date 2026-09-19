@@ -26,6 +26,7 @@ import EOROptimization from "./pages/modules/EOROptimization";
   import MLTraining from "./pages/modules/MLTraining";
 import GeophysicsAgent from "./pages/modules/GeophysicsAgent";
 import AIAgents from "./pages/AIAgents";
+import UserRoles from "./pages/modules/UserRoles";
 import GeophysicalExpertise from "./pages/modules/GeophysicalExpertise";
 import FieldScanning from "./pages/modules/FieldScanning";
 import DataClassification from "./pages/modules/DataClassification";
