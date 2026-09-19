@@ -234,7 +234,7 @@ async function callGateway(apiKey: string, model: string, dataUrl: string, mode:
           temperature: 0,
           max_tokens: 2048,
           messages: [
-            { role: "system", content: `${SYSTEM}\n\nSchema:\n${SCHEMA_HINT}` },
+            { role: "system", content: `${SYSTEM}\n\nSchema:\n${SCHEMA_HINT}${calibration}` },
             {
               role: "user",
               content: [
@@ -274,7 +274,7 @@ async function callGateway(apiKey: string, model: string, dataUrl: string, mode:
 
 // Structured-JSON fallback: vision-capable model on the Lovable AI gateway.
 // Used when the NVIDIA vision pass returns prose instead of the required JSON.
-async function callStructuredFallback(dataUrl: string, mode: "fast" | "deep" | "digitize") {
+async function callStructuredFallback(dataUrl: string, mode: "fast" | "deep" | "digitize", calibration = "") {
   const key = Deno.env.get("LOVABLE_API_KEY");
   if (!key) return null;
   const instruction = mode === "digitize"
@@ -289,7 +289,7 @@ async function callStructuredFallback(dataUrl: string, mode: "fast" | "deep" | "
         temperature: 0,
         response_format: { type: "json_object" },
         messages: [
-          { role: "system", content: `${SYSTEM}\n\nSchema:\n${SCHEMA_HINT}` },
+          { role: "system", content: `${SYSTEM}\n\nSchema:\n${SCHEMA_HINT}${calibration}` },
           {
             role: "user",
             content: [
@@ -318,7 +318,7 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { image, mime = "image/png", quality = "auto" } = await req.json();
+    const { image, mime = "image/png", quality = "auto", companyId = null, docType = null } = await req.json();
     if (!image || typeof image !== "string") {
       return jsonResponse({ error: "Missing 'image' (base64 or data URL)" }, 400);
     }
@@ -334,12 +334,14 @@ Deno.serve(async (req) => {
     const keepReadings = mode === "digitize";
     const primaryModel = mode === "fast" ? FAST_MODEL : DEEP_MODEL;
 
+    const calibration = await loadCalibration(companyId, docType);
+
     let raw: Record<string, unknown> | null = null;
     let usedModel = primaryModel;
     let fallbackUsed = false;
 
     try {
-      raw = await callGateway(apiKey, primaryModel, dataUrl, mode);
+      raw = await callGateway(apiKey, primaryModel, dataUrl, mode, calibration);
       usedModel = String(raw?._served_by ?? primaryModel);
     } catch (e) {
       if (!(e instanceof Response)) throw e;
@@ -353,7 +355,7 @@ Deno.serve(async (req) => {
     const needsReadings = keepReadings &&
       (!Array.isArray(result?.log_readings) || (result!.log_readings as unknown[]).length < 10);
     if (!result || (result as any).parse_error || extractionScore(result) < 6 || needsReadings) {
-      const alt = await callStructuredFallback(dataUrl, mode);
+      const alt = await callStructuredFallback(dataUrl, mode, calibration);
       if (alt) {
         const altResult = normalizeResult(alt, String(alt._served_by), true, keepReadings);
         const altReadings = Array.isArray(altResult.log_readings) ? (altResult.log_readings as unknown[]).length : 0;
@@ -377,6 +379,7 @@ Deno.serve(async (req) => {
       model: usedModel,
       fallbackUsed,
       digitized: keepReadings,
+      calibrated: calibration.length > 0,
       extractionScore: extractionScore(result),
     });
   } catch (e) {
