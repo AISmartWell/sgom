@@ -189,15 +189,24 @@ export function evaluateWaterDrive(
   }
   if (series.length < 3) return null;
 
-  const reg = regress(xs, ys);
-  if (!reg || reg.intercept <= 0) return null;
+  // Unit-slope (physically constrained) solution: G_i = (F_i - We_i)/Eg_i.
+  // The correct aquifer model makes every G_i identical.
+  const Gi = series.map(s => (s.F - s.We) / s.Eg);
+  if (Gi.some(g => !isFinite(g) || g <= 0)) return null;
+  const G = Gi.reduce((a, b) => a + b, 0) / Gi.length;
+  const sd = Math.sqrt(Gi.reduce((a, b) => a + (b - G) ** 2, 0) / Gi.length);
+  const cv = G > 0 ? sd / G : Infinity;
 
+  // Free regression is kept purely as a diagnostic (slope should come out ~1).
+  const reg = regress(xs, ys);
   const last = series[series.length - 1];
+
   return {
     model,
-    G: reg.intercept,
-    slope: reg.slope,
-    r2: reg.r2,
+    G,
+    slope: reg ? reg.slope : NaN,
+    r2: Math.max(0, 1 - cv * cv * Gi.length), // consistency of the unit-slope solution
+    cv,
     We_last: last.We,
     wdi: last.F > 0 ? last.We / last.F : 0,
     params,
@@ -206,8 +215,9 @@ export function evaluateWaterDrive(
 }
 
 /**
- * Grid-search the aquifer parameters that make the Havlena–Odeh gas plot
- * linear with unit slope. Objective = (slope − 1)² + (1 − R²).
+ * Grid-search the aquifer parameters that make every point return the same
+ * OGIP on the unit-slope Havlena-Odeh line. Objective = coefficient of
+ * variation of the per-point G_i.
  */
 export function fitWaterDrive(
   pts: WaterDrivePoint[],
