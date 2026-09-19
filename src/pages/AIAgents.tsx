@@ -62,6 +62,15 @@ const agents = [
     status: "Live",
   },
   {
+    title: "Reservoir Dynamics Agent",
+    description:
+      "Couples the fitted aquifer model with the gas material balance and back-pressure deliverability to forward-solve pressure, gas and water rates: EUR, remaining reserves, water production, years to the economic limit and water-encroachment risk.",
+    href: "/dashboard/gas-reserves",
+    icon: Activity,
+    badge: "Forecast",
+    status: "Live",
+  },
+  {
     title: "AI Analyst",
     description:
       "Cross-module analyst: explains results, compares wells and answers ad-hoc questions about the analysis pipeline.",
