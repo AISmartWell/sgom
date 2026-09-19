@@ -13,6 +13,7 @@ import { FormationAttribution } from "@/components/ocr/FormationAttribution";
 import { FormationComparison } from "@/components/ocr/FormationComparison";
 import { OCRRecognizedFields } from "@/components/ocr/OCRRecognizedFields";
 import OCRBatchQueue from "@/components/ocr/OCRBatchQueue";
+import OCRTrainingPanel from "@/components/ocr/OCRTrainingPanel";
 import SampleArchiveStage8Demo from "@/components/ocr/SampleArchiveStage8Demo";
 import { GitCompare, Camera } from "lucide-react";
 
@@ -469,6 +470,10 @@ const OCRWellLog = () => {
           <OCRRecognizedFields result={result as any} />
         </div>
       )}
+
+      <div className="mt-6">
+        <OCRTrainingPanel result={result} fileName={fileName} />
+      </div>
 
       {result && (
         <div className="mt-6">
