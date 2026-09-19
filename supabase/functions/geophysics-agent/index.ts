@@ -200,6 +200,91 @@ async function callLLM(payload: unknown): Promise<{ conclusion: Record<string, u
 }
 
 
+type SB = ReturnType<typeof createClient>;
+
+const num = (v: unknown) => (typeof v === "number" && isFinite(v) ? v : null);
+const avg = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null);
+
+/**
+ * Field evidence: REAL measured data for this well and its field.
+ * Real logs (provenance), core samples + core lab descriptions, perforations,
+ * actual production history and analog wells of the same formation.
+ */
+async function loadFieldEvidence(sb: SB, wellId: string, wellRow: Record<string, unknown> | null) {
+  const apiNumber = (wellRow?.api_number as string | null) ?? null;
+  const formation = (wellRow?.formation as string | null) ?? null;
+
+  const [logsRes, coreRes, coreAnRes, perfRes, prodRes, analogRes] = await Promise.all([
+    sb.from("well_logs").select("source, measured_depth, porosity, water_saturation, gamma_ray").eq("well_id", wellId).limit(2000),
+    sb.from("core_images").select("depth_from, depth_to, rock_type, formation, description, source").eq("well_id", wellId).limit(40),
+    apiNumber
+      ? sb.from("core_analyses").select("sample_name, rock_type, analysis, created_at").order("created_at", { ascending: false }).limit(6)
+      : Promise.resolve({ data: [] as Record<string, unknown>[] }),
+    sb.from("well_perforations").select("depth_from, depth_to, status, date_perforated").eq("well_id", wellId).limit(40),
+    sb.from("production_history").select("production_month, oil_bbl, water_bbl, gas_mcf").eq("well_id", wellId)
+      .order("production_month", { ascending: false }).limit(24),
+    formation
+      ? sb.from("geophysics_agent_runs").select("well_name, reservoir_rating, confidence, formation")
+          .eq("formation", formation).neq("well_id", wellId).order("created_at", { ascending: false }).limit(8)
+      : Promise.resolve({ data: [] as Record<string, unknown>[] }),
+  ]);
+
+  const logs = (logsRes as { data?: Record<string, unknown>[] }).data ?? [];
+  const sources = Array.from(new Set(logs.map((l) => String(l.source ?? "unknown"))));
+  const realCount = logs.filter((l) => !/synthetic|generated|demo/i.test(String(l.source ?? ""))).length;
+  const provenance = logs.length === 0 ? "NO_DB_LOGS" : realCount > 0 ? "REAL" : "SYNTHETIC";
+
+  const cores = (coreRes as { data?: Record<string, unknown>[] }).data ?? [];
+  const coreAnalyses = ((coreAnRes as { data?: Record<string, unknown>[] }).data ?? []).map((c) => ({
+    sample: c.sample_name,
+    rock_type: c.rock_type,
+    lab_notes: String(c.analysis ?? "").slice(0, 600),
+  }));
+
+  const perfs = ((perfRes as { data?: Record<string, unknown>[] }).data ?? []).map((p) => ({
+    from_ft: num(p.depth_from), to_ft: num(p.depth_to), status: p.status, date: p.date_perforated,
+  }));
+
+  const prod = (prodRes as { data?: Record<string, unknown>[] }).data ?? [];
+  const oil = prod.map((p) => num(p.oil_bbl)).filter((v): v is number => v != null);
+  const water = prod.map((p) => num(p.water_bbl)).filter((v): v is number => v != null);
+  const totalOil = oil.reduce((a, b) => a + b, 0);
+  const totalWater = water.reduce((a, b) => a + b, 0);
+
+  const analogs = ((analogRes as { data?: Record<string, unknown>[] }).data ?? []).map((a) => ({
+    well: a.well_name, rating: a.reservoir_rating, confidence: a.confidence,
+  }));
+
+  return {
+    log_provenance: provenance,
+    log_sources: sources,
+    log_points_in_db: logs.length,
+    measured_avg_porosity_pct: avg(logs.map((l) => num(l.porosity)).filter((v): v is number => v != null)),
+    measured_avg_sw_pct: avg(logs.map((l) => num(l.water_saturation)).filter((v): v is number => v != null)),
+    core_samples: cores.map((c) => ({
+      depth_from_ft: num(c.depth_from), depth_to_ft: num(c.depth_to),
+      rock_type: c.rock_type, formation: c.formation,
+      description: String(c.description ?? "").slice(0, 300), source: c.source,
+    })),
+    core_lab_analyses: coreAnalyses,
+    perforations: perfs,
+    production_history: {
+      months: prod.length,
+      cum_oil_bbl: prod.length ? Math.round(totalOil) : null,
+      cum_water_bbl: prod.length ? Math.round(totalWater) : null,
+      water_cut_pct: totalOil + totalWater > 0 ? Math.round((totalWater / (totalOil + totalWater)) * 1000) / 10 : null,
+      last_month: prod[0]?.production_month ?? null,
+    },
+    analog_wells_same_formation: analogs,
+    evidence_grade:
+      provenance === "REAL" && (cores.length > 0 || coreAnalyses.length > 0)
+        ? "MEASURED (real logs + core)"
+        : provenance === "REAL"
+          ? "MEASURED (real logs, no core)"
+          : "MODEL-BASED (no real logs in database)",
+  };
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -212,8 +297,9 @@ serve(async (req) => {
       });
     }
 
-    // Fetch the authoritative well row for context (service role, read-only)
+    // Fetch the authoritative well row + real field evidence (service role, read-only)
     let wellRow: Record<string, unknown> | null = null;
+    let fieldEvidence: Record<string, unknown> | null = null;
     try {
       const sb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
       const { data } = await sb
@@ -222,7 +308,11 @@ serve(async (req) => {
         .eq("id", well_id)
         .maybeSingle();
       wellRow = data;
+      try {
+        fieldEvidence = await loadFieldEvidence(sb, well_id, wellRow);
+      } catch { /* non-fatal */ }
     } catch { /* non-fatal */ }
+
 
     const agentInput = {
       well: wellRow ?? well ?? null,
