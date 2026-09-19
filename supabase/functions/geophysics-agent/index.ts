@@ -57,7 +57,15 @@ Rules:
 - Cite ONLY numbers present in the input. Never invent data.
 - If data quality is poor (few points, missing density/neutron), say so and lower confidence.
 - Keep language professional, concise, engineering-grade.
-- SPT candidacy logic: low permeability (fair/poor/tight Timur class) + decent porosity + hydrocarbon saturation = strong SPT candidate; already-excellent perm = weak case.`;
+- SPT candidacy logic: low permeability (fair/poor/tight Timur class) + decent porosity + hydrocarbon saturation = strong SPT candidate; already-excellent perm = weak case.
+
+GROUNDING (when a FIELD EVIDENCE block is supplied):
+- FIELD EVIDENCE contains REAL measured data for this well and its field: log provenance (real vs synthetic curves), core samples and core descriptions, perforated intervals, actual production/water-cut history and analog wells of the same formation previously interpreted by this agent.
+- Treat the core data as ground truth for lithology and rock quality: if the log-derived lithology or porosity contradicts the core rock type/description, say it explicitly in the relevant step and lower confidence.
+- Cross-check net pay against the perforated intervals: pay that is NOT perforated is missed pay and strengthens the SPT case; perforated intervals with poor log quality weaken it.
+- Cross-check the fluid conclusion against actual production and water cut. A dominant-oil verdict on a well producing mostly water must be flagged as a risk.
+- Use analog wells only to position this well relative to the field (better/typical/worse), never to copy their numbers.
+- If the log provenance is SYNTHETIC or no core is available, state that the conclusion is model-based, not measurement-based, and cap confidence at 0.55.`;
 
 interface Provider {
   name: string;
