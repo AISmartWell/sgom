@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Bot, Brain, Radar, FileText, Sparkles, ArrowRight, Cpu, ShieldCheck, ScanEye, Flame,
+  Bot, Brain, Radar, FileText, Sparkles, ArrowRight, Cpu, ShieldCheck, ScanEye, Flame, Activity,
 } from "lucide-react";
 
 const agents = [
