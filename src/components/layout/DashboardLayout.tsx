@@ -64,9 +64,13 @@ const DashboardLayout = () => {
 
   // Check if investor is accessing a restricted route
   const currentPath = location.pathname;
-  const isAllowed = !isInvestor || INVESTOR_ALLOWED_ROUTES.some(
+  const investorAllowed = !isInvestor || INVESTOR_ALLOWED_ROUTES.some(
     (route) => currentPath === route || (route === "/dashboard" && currentPath === "/dashboard")
   );
+  const adminAllowed = isAdmin || !ADMIN_ONLY_ROUTES.includes(currentPath);
+  const isAllowed = investorAllowed && adminAllowed;
+  const isDataEntryScreen = DATA_ENTRY_ROUTES.includes(currentPath);
+  const lockInputs = isReadOnly && isDataEntryScreen;
 
   if (!isAllowed) {
     return (
