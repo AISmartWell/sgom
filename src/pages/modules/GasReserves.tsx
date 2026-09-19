@@ -73,6 +73,63 @@ export default function GasReserves() {
     return { G, lastGp, remaining, rf, recoverableToAb };
   }, [result, abandonPz]);
 
+  const [verdict, setVerdict] = useState<null | {
+    grade: string;
+    drive: string;
+    confidence: string;
+    findings: string[];
+    recommendation: string;
+  }>(null);
+
+  const runAgent = () => {
+    if (!result || !stats) { setVerdict(null); return; }
+    const findings: string[] = [];
+    const rfPct = stats.rf * 100;
+    const remBscf = stats.remaining / 1e9;
+
+    findings.push(
+      `OGIP extrapolated from the P/Z straight line: ${fmt(stats.G / 1e9)} Bscf (Pi/Zi = ${fmt(result.Pi_over_Zi, 1)} psia).`,
+    );
+    findings.push(
+      `Produced to date ${fmt(stats.lastGp / 1e9)} Bscf — recovery factor ${fmt(rfPct, 1)} %, remaining ${fmt(remBscf)} Bscf.`,
+    );
+
+    const drive =
+      result.r2 >= 0.97 ? "Volumetric depletion drive" :
+      result.r2 >= 0.90 ? "Mostly volumetric, minor pressure support" :
+      "Non-linear trend — likely water drive / aquifer influx";
+    findings.push(
+      `Straight-line quality R² = ${fmt(result.r2, 4)} → ${drive.toLowerCase()}.`,
+    );
+    if (result.r2 < 0.90) {
+      findings.push("With aquifer support the volumetric OGIP from this plot is underestimated; confirm with a water-influx model.");
+    }
+
+    if (stats.recoverableToAb != null) {
+      findings.push(
+        `At the specified abandonment P/Z (${abandonPz} psia) a further ${fmt(stats.recoverableToAb / 1e9)} Bscf is technically recoverable.`,
+      );
+    }
+
+    const grade =
+      remBscf > 2 && rfPct < 55 ? "HIGH remaining potential" :
+      remBscf > 0.5 ? "MODERATE remaining potential" :
+      "LOW — near depletion";
+
+    const recommendation =
+      remBscf > 2 && rfPct < 55
+        ? "Significant gas remains in place. Prioritise for compression / recompletion review and run SPT screening on the pay intervals."
+        : remBscf > 0.5
+        ? "Moderate remaining volume. Evaluate wellhead compression and deliquification before major intervention spend."
+        : "Reservoir is close to depletion. Economic limit review and abandonment planning recommended.";
+
+    const confidence =
+      result.r2 >= 0.97 && result.points.length >= 5 ? "High" :
+      result.r2 >= 0.90 ? "Medium" : "Low";
+
+    setVerdict({ grade, drive, confidence, findings, recommendation });
+  };
+
   return (
     <div className="space-y-6 p-6">
       <div className="flex items-center gap-3">
