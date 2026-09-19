@@ -386,6 +386,45 @@ export type Database = {
           },
         ]
       }
+      ocr_training_examples: {
+        Row: {
+          company_id: string | null
+          created_at: string
+          curve_hints: string[]
+          doc_type: string
+          id: string
+          is_active: boolean
+          label: string
+          notes: string | null
+          user_id: string
+          verified: Json
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string
+          curve_hints?: string[]
+          doc_type?: string
+          id?: string
+          is_active?: boolean
+          label: string
+          notes?: string | null
+          user_id?: string
+          verified: Json
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string
+          curve_hints?: string[]
+          doc_type?: string
+          id?: string
+          is_active?: boolean
+          label?: string
+          notes?: string | null
+          user_id?: string
+          verified?: Json
+        }
+        Relationships: []
+      }
       production_history: {
         Row: {
           company_id: string
