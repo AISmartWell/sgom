@@ -153,6 +153,12 @@ const menuItems = [
     badge: "Stage 4.5",
   },
   {
+    title: "Gas Reserves (P/Z)",
+    icon: Flame,
+    href: "/dashboard/gas-reserves",
+    badge: "Stage 4",
+  },
+  {
     title: "SPT Projection",
     icon: TrendingUp,
     href: "/dashboard/spt-projection",

@@ -93,6 +93,7 @@ import AIGuide from "./pages/modules/AIGuide";
 import ModelsReference from "./pages/modules/ModelsReference";
 import DocumentVault from "./pages/modules/DocumentVault";
 import ReservoirPressure from "./pages/modules/ReservoirPressure";
+import GasReserves from "./pages/modules/GasReserves";
 import PVTGuide from "./pages/modules/PVTGuide";
 import NotFound from "./pages/NotFound";
 import OAuthConsent from "./pages/OAuthConsent";
@@ -181,6 +182,7 @@ const App = () => (
               <Route path="models-reference" element={<ModelsReference />} />
               <Route path="document-vault" element={<DocumentVault />} />
               <Route path="reservoir-pressure" element={<ReservoirPressure />} />
+              <Route path="gas-reserves" element={<GasReserves />} />
               <Route path="pvt-guide" element={<PVTGuide />} />
 
            </Route>
