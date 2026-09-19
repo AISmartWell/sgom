@@ -19,6 +19,18 @@ export interface ForecastResult {
   spt_p50: number[];
   spt_p90: number[];
   cumulative_uplift_bbl: number;
+  calibration?: {
+    source?: "calibrated" | "outcomes" | "default";
+    scope?: string;
+    arps_b?: number;
+    arps_di?: number;
+    spt_multiplier?: number;
+    sample_count?: number;
+    outcomes_used?: number;
+    historical_mape_pct?: number | null;
+    confidence?: number;
+    notes?: string[];
+  };
 }
 
 export function summarizeForecast(f: ForecastResult | null | undefined) {
@@ -39,6 +51,7 @@ export function summarizeForecast(f: ForecastResult | null | undefined) {
 
 export default function ForecastPanel({ forecast, wellName }: { forecast: ForecastResult; wellName?: string }) {
   const s = summarizeForecast(forecast);
+  const cal = forecast.calibration;
   if (!s) return null;
 
   const data = forecast.spt_p50.map((q, i) => ({
@@ -56,6 +69,20 @@ export default function ForecastPanel({ forecast, wellName }: { forecast: Foreca
           <TrendingUp className="w-5 h-5 text-primary" /> Production forecast
           {wellName && <Badge variant="outline">{wellName}</Badge>}
           <Badge className="bg-primary/20 text-primary border-primary/30">Arps + SPT uplift · {s.months} mo</Badge>
+          {cal && (
+            <Badge
+              variant="outline"
+              className={
+                cal.source === "default"
+                  ? "border-muted-foreground/40 text-muted-foreground"
+                  : "border-emerald-500/40 text-emerald-400"
+              }
+            >
+              {cal.source === "default"
+                ? "Uncalibrated baseline"
+                : `Learned on ${cal.outcomes_used ?? 0} real work orders`}
+            </Badge>
+          )}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -72,6 +99,30 @@ export default function ForecastPanel({ forecast, wellName }: { forecast: Foreca
           <Metric label="P50 cumulative" value={`${s.cum_p50_bbl.toLocaleString()} bbl`} />
           <Metric label="P90 cumulative" value={`${s.cum_p90_bbl.toLocaleString()} bbl`} />
         </div>
+
+        {cal && cal.source !== "default" && (
+          <div className="rounded-md border border-emerald-500/25 bg-emerald-500/5 p-3 space-y-2">
+            <div className="text-xs font-medium text-emerald-400">
+              Forecast calibrated on registry outcomes
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-[11px] font-mono">
+              <CalStat label="Scope" value={cal.scope ?? "—"} />
+              <CalStat label="SPT multiplier" value={cal.spt_multiplier?.toFixed(3) ?? "—"} />
+              <CalStat label="Decline Di" value={cal.arps_di?.toFixed(4) ?? "—"} />
+              <CalStat
+                label="Historical MAPE"
+                value={cal.historical_mape_pct != null ? `${cal.historical_mape_pct}%` : "n/a"}
+              />
+            </div>
+            {cal.notes?.length ? (
+              <ul className="text-[11px] text-muted-foreground list-disc pl-4 space-y-0.5">
+                {cal.notes.map((n, i) => (
+                  <li key={i}>{n}</li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
+        )}
 
         <div className="h-[280px] w-full" style={{ minHeight: 280 }}>
           <ResponsiveContainer width="100%" height="100%">
@@ -92,6 +143,15 @@ export default function ForecastPanel({ forecast, wellName }: { forecast: Foreca
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+function CalStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <div className="text-muted-foreground">{label}</div>
+      <div className="text-foreground">{value}</div>
+    </div>
   );
 }
 
