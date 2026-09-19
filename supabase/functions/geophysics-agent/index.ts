@@ -344,7 +344,26 @@ serve(async (req) => {
 
 
     return new Response(
-      JSON.stringify({ ok: true, agent: "geophysics-agent", model, provider, conclusion }),
+      JSON.stringify({
+        ok: true,
+        agent: "geophysics-agent",
+        model,
+        provider,
+        conclusion,
+        grounded: !!fieldEvidence,
+        evidence: fieldEvidence
+          ? {
+              evidence_grade: fieldEvidence.evidence_grade,
+              log_provenance: fieldEvidence.log_provenance,
+              log_points: fieldEvidence.log_points_in_db,
+              core_samples: (fieldEvidence.core_samples as unknown[] | undefined)?.length ?? 0,
+              core_lab_analyses: (fieldEvidence.core_lab_analyses as unknown[] | undefined)?.length ?? 0,
+              perforations: (fieldEvidence.perforations as unknown[] | undefined)?.length ?? 0,
+              production: fieldEvidence.production_history,
+              analogs: (fieldEvidence.analog_wells_same_formation as unknown[] | undefined)?.length ?? 0,
+            }
+          : null,
+      }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (e) {
