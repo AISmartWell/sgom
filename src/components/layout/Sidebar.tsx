@@ -448,6 +448,13 @@ const menuItems = [
     href: "/dashboard/ocr-formation-demo",
     badge: "🎯",
   },
+  {
+    title: "Team & Roles",
+    icon: Settings,
+    href: "/dashboard/user-roles",
+    badge: "Admin",
+    adminOnly: true,
+  },
 
 ];
 
