@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Bot, Brain, Radar, FileText, Sparkles, ArrowRight, Cpu, ShieldCheck, ScanEye, Flame,
+  Bot, Brain, Radar, FileText, Sparkles, ArrowRight, Cpu, ShieldCheck, ScanEye, Flame, Activity,
 } from "lucide-react";
 
 const agents = [
@@ -59,6 +59,15 @@ const agents = [
     href: "/dashboard/gas-reserves",
     icon: Flame,
     badge: "Reserves",
+    status: "Live",
+  },
+  {
+    title: "Reservoir Dynamics Agent",
+    description:
+      "Couples the fitted aquifer model with the gas material balance and back-pressure deliverability to forward-solve pressure, gas and water rates: EUR, remaining reserves, water production, years to the economic limit and water-encroachment risk.",
+    href: "/dashboard/gas-reserves",
+    icon: Activity,
+    badge: "Forecast",
     status: "Live",
   },
   {

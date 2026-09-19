@@ -11,6 +11,7 @@ import {
 import { pOverZGas, type GasMBPoint } from "@/lib/material-balance";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import WaterDrivePanel from "@/components/gas/WaterDrivePanel";
+import ReservoirDynamicsAgent from "@/components/gas/ReservoirDynamicsAgent";
 
 interface Row { P: string; Gp: string; Z: string }
 
@@ -149,6 +150,7 @@ export default function GasReserves() {
         <TabsList className="font-mono">
           <TabsTrigger value="volumetric">Volumetric (P/Z)</TabsTrigger>
           <TabsTrigger value="waterdrive">Water drive (Fetkovich / Carter–Tracy)</TabsTrigger>
+          <TabsTrigger value="dynamics">Reservoir dynamics forecast</TabsTrigger>
         </TabsList>
 
         <TabsContent value="volumetric" className="m-0">
@@ -338,6 +340,10 @@ export default function GasReserves() {
 
         <TabsContent value="waterdrive" className="m-0">
           <WaterDrivePanel volumetricOGIP={stats?.G ?? null} />
+        </TabsContent>
+
+        <TabsContent value="dynamics" className="m-0">
+          <ReservoirDynamicsAgent />
         </TabsContent>
       </Tabs>
     </div>
