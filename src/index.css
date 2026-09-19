@@ -276,3 +276,23 @@
   animation: slide-in-from-left 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+
+/* Read-only role scope: block data entry controls, keep navigation usable */
+.readonly-scope input,
+.readonly-scope textarea,
+.readonly-scope select,
+.readonly-scope button:not([data-readonly-allow]),
+.readonly-scope [role="combobox"],
+.readonly-scope [role="switch"],
+.readonly-scope [role="checkbox"],
+.readonly-scope [contenteditable="true"] {
+  pointer-events: none;
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.readonly-scope a,
+.readonly-scope [data-readonly-allow] {
+  pointer-events: auto;
+  opacity: 1;
+}
