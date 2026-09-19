@@ -103,7 +103,8 @@ async function callProvider(p: Provider, payload: unknown): Promise<string> {
       {
         role: "user",
         content:
-          "Interpret this Stage 8 pipeline output and return the JSON conclusion.\n\n" +
+          "Interpret this Stage 8 pipeline output and return the JSON conclusion. " +
+          "The `field_evidence` key is the FIELD EVIDENCE block (real logs, core, perforations, production, analogs) — ground your conclusion in it.\n\n" +
           JSON.stringify(payload),
       },
     ],
