@@ -334,6 +334,12 @@ export default function GasReserves() {
           </Card>
         </div>
       </div>
+        </TabsContent>
+
+        <TabsContent value="waterdrive" className="m-0">
+          <WaterDrivePanel volumetricOGIP={stats?.G ?? null} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
