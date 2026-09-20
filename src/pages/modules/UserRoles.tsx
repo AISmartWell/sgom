@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, ShieldAlert, Users } from "lucide-react";
+import RoleFlowDemo from "@/components/roles/RoleFlowDemo";
 import { toast } from "sonner";
 
 interface DirectoryUser {
@@ -101,6 +102,8 @@ const UserRoles = () => {
           </Card>
         ))}
       </div>
+
+      <RoleFlowDemo />
 
       <Card className="glass-card">
         <CardHeader>

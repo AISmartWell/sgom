@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -83,9 +83,8 @@ const RoleFlowDemo = () => {
         <CardContent>
           <div className="grid gap-3 lg:grid-cols-[1fr_auto_1fr_auto_1fr] items-stretch">
             {STAGES.map((stage, i) => (
-              <>
+              <Fragment key={stage.key}>
                 <div
-                  key={stage.key}
                   className="rounded-sm border border-border/60 bg-background/40 p-4 space-y-3"
                 >
                   <div className="flex items-center gap-2">
@@ -107,11 +106,11 @@ const RoleFlowDemo = () => {
                   </ul>
                 </div>
                 {i < STAGES.length - 1 && (
-                  <div key={`${stage.key}-arrow`} className="hidden lg:flex items-center justify-center">
+                  <div className="hidden lg:flex items-center justify-center">
                     <ArrowRight className="h-5 w-5 text-primary/60" />
                   </div>
                 )}
-              </>
+              </Fragment>
             ))}
           </div>
 
