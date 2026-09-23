@@ -42,6 +42,7 @@ import {
   Plane,
   Cpu,
   Gauge,
+  FileCheck2,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -62,6 +63,12 @@ const menuItems = [
     icon: Bot,
     href: "/dashboard/ai-agents",
     badge: "🤖",
+  },
+  {
+    title: "Conclusions & Forecasts",
+    icon: FileCheck2,
+    href: "/dashboard/conclusions",
+    badge: "📋",
   },
   {
     title: "Innovation",
