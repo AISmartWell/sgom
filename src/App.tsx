@@ -86,6 +86,7 @@ import OCRWellLog from "./pages/OCRWellLog";
 import OCRFormationDemo from "./pages/modules/OCRFormationDemo";
 import IngestRestorationDiagnostics from "./pages/modules/IngestRestorationDiagnostics";
 import SPTAdvisor from "./pages/modules/SPTAdvisor";
+import LeaseAnalysis from "./pages/modules/LeaseAnalysis";
 import SPTDemo from "./pages/modules/SPTDemo";
 import BrawnerExpertiseDemo from "./pages/modules/BrawnerExpertiseDemo";
 import SPTBenchmarkPool from "./pages/modules/SPTBenchmarkPool";
@@ -177,6 +178,7 @@ const App = () => (
               <Route path="aramco-pilot" element={<AramcoPilot />} />
               <Route path="ingest-diagnostics" element={<IngestRestorationDiagnostics />} />
               <Route path="spt-advisor" element={<SPTAdvisor />} />
+              <Route path="lease-analysis" element={<LeaseAnalysis />} />
               <Route path="spt-demo" element={<SPTDemo />} />
               <Route path="brawner-expertise-demo" element={<BrawnerExpertiseDemo />} />
               <Route path="spt-benchmark" element={<SPTBenchmarkPool />} />
