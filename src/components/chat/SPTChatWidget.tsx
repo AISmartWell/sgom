@@ -30,8 +30,10 @@ const SPTChatWidget = () => {
 
   // Auto-scroll
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    const root = scrollRef.current;
+    if (root) {
+      const viewport = root.querySelector<HTMLElement>("[data-radix-scroll-area-viewport]") ?? root;
+      viewport.scrollTop = viewport.scrollHeight;
     }
   }, [messages]);
 
