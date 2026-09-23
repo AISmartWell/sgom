@@ -65,6 +65,12 @@ const menuItems = [
     badge: "🤖",
   },
   {
+    title: "Lease Analysis",
+    icon: FileCheck2,
+    href: "/dashboard/lease-analysis",
+    badge: "🛢️",
+  },
+  {
     title: "Conclusions & Forecasts",
     icon: FileCheck2,
     href: "/dashboard/conclusions",
