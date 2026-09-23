@@ -544,6 +544,7 @@ Rules:
 - If forecast P10 < baseline cumulative, mark as risky and propose an alternative.
 - Never recommend a well you didn't inspect via get_well_context.
 - Keep multi-step tool usage focused: typically 4–6 tool calls total.
+- TIE RULE: if the top candidates have the same score (within 3 points) AND indistinguishable inputs (same production, water cut, forecast), DO NOT pretend one is better. Set "tie": true, list all tied wells in "tied_wells": [{"id","name","score"}], put the first one in recommended_well only as a placeholder, and in reasoning say explicitly that the data cannot distinguish them and which data (per-well logs, perforation records, per-well tests) would break the tie. Otherwise set "tie": false.
 - Calibrate every score against the labeled benchmark below and name the anchor you used.
 
 ${SPT_BENCHMARK_PROMPT}`;
@@ -642,6 +643,23 @@ Deno.serve(async (req) => {
       if (!answer) {
         const m2 = final.match(/\{[\s\S]*\}/);
         if (m2) { try { answer = JSON.parse(m2[0]); } catch { /* */ } }
+      }
+    }
+
+    // Deterministic tie check — never let list order decide the winner.
+    if (answer?.recommended_well) {
+      const top = Number(answer.recommended_well.score) || 0;
+      const tied = (answer.alternatives ?? []).filter((a: any) => Math.abs((Number(a.score) || 0) - top) <= 3);
+      if (tied.length > 0 || answer.tie === true) {
+        answer.tie = true;
+        if (!Array.isArray(answer.tied_wells) || answer.tied_wells.length === 0) {
+          answer.tied_wells = [
+            { id: answer.recommended_well.id, name: answer.recommended_well.name, score: top },
+            ...tied.map((a: any) => ({ id: a.id, name: a.name, score: a.score })),
+          ];
+        }
+      } else {
+        answer.tie = false;
       }
     }
 

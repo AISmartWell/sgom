@@ -274,7 +274,7 @@ export default function SPTAdvisor() {
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               <span className="flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-primary" /> Recommendation
+                <CheckCircle2 className="w-5 h-5 text-primary" /> {a.tie ? "Equal candidates — no single winner" : "Recommendation"}
               </span>
               {a.ood_flag && (
                 <Badge variant="destructive" className="gap-1"><AlertTriangle className="w-3 h-3" /> OOD</Badge>
@@ -282,6 +282,15 @@ export default function SPTAdvisor() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            {a.tie && (
+              <div className="p-3 rounded-md border border-warning/40 bg-warning/10 text-sm space-y-1">
+                <div className="font-semibold text-warning flex items-center gap-2"><AlertTriangle className="w-4 h-4" /> Data cannot distinguish these wells</div>
+                <div className="text-muted-foreground">
+                  {(a.tied_wells ?? []).map((w: any) => `${w.name} (${w.score})`).join(" · ")}
+                </div>
+                <div className="text-xs text-muted-foreground">The first well is shown only as a placeholder. Add per-well logs, perforation records or per-well tests to identify a real favorite.</div>
+              </div>
+            )}
             <div className="grid grid-cols-3 gap-3">
               <div className="p-3 rounded-md bg-muted/40">
                 <div className="text-xs text-muted-foreground">Well</div>
