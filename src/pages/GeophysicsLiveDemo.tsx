@@ -233,7 +233,7 @@ export default function GeophysicsLiveDemo() {
                         <td className={`py-1 pr-2 ${isBypassed(iv) ? "text-warning" : iv.isNetPay ? "text-success" : "text-muted-foreground"}`}>
                           {isBypassed(iv) ? "BYPASSED" : iv.isNetPay ? "PAY" : isWater(iv) ? "WATER" : "SHALE"}
                         </td>
-                        <td className="py-1 pr-2 text-right">{iv.avgPorosity.toFixed(1)}</td>
+                        <td className="py-1 pr-2 text-right">{iv.avgPor.toFixed(1)}</td>
                         <td className="py-1 pr-2 text-right">{iv.avgSw.toFixed(0)}</td>
                         <td className="py-1 text-right">{iv.avgRes.toFixed(1)}</td>
                       </tr>
