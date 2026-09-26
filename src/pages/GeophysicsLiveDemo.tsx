@@ -128,6 +128,32 @@ export default function GeophysicsLiveDemo() {
 
   const Phase = PHASES[phaseIdx];
 
+  if (!unlocked) {
+    return (
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center px-6">
+        <div className="w-full max-w-sm border border-border/60 rounded-xl bg-card/60 p-8 text-center">
+          <div className="mx-auto mb-4 w-12 h-12 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center">
+            <Lock className="w-5 h-5 text-primary" />
+          </div>
+          <h1 className="text-lg font-semibold tracking-tight">Private demo</h1>
+          <p className="mt-2 text-sm text-muted-foreground">This Brawner 10-15 demonstration is shared by access code only. Enter the code you received.</p>
+          <input
+            type="password"
+            value={code}
+            autoFocus
+            placeholder="Access code"
+            onChange={(e) => { setCode(e.target.value); setGateError(false); }}
+            onKeyDown={(e) => e.key === "Enter" && tryUnlock()}
+            className="mt-5 w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-center tracking-widest outline-none focus:border-primary"
+          />
+          {gateError && <p className="mt-2 text-xs text-destructive">Wrong code — please try again.</p>}
+          <Button className="mt-4 w-full" onClick={tryUnlock}>Unlock demo</Button>
+          <p className="mt-4 text-[11px] text-muted-foreground">SGOM · AI Smart Well Inc.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="border-b border-border/60 px-6 py-4 flex flex-wrap items-center justify-between gap-3">
