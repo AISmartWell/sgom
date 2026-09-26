@@ -6,6 +6,7 @@ import html2canvas from "html2canvas";
 import { useWellLogs, WellLogPoint } from "@/hooks/useWellLogs";
 import { useWellPerforations, PerforationInterval } from "@/hooks/useWellPerforations";
 import { interpretWellLog, fluidColor, fluidEmoji, type PetroPoint, type InterpretationSummary } from "@/lib/petrophysics";
+import { assessBypassedPay } from "@/lib/bypassed-pay";
 import WellLogInterpretation from "./WellLogInterpretation";
 
 /* ── Interpolation ── */
@@ -145,18 +146,9 @@ interface EnhancedWellLogProps {
 
 const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, totalDepth, showInterpretationByDefault = false }: EnhancedWellLogProps) => {
   const { data: rawLogs, isLoading, hasRealData } = useWellLogs(wellId);
-  const { data: perforations, hasData: hasPerfs } = useWellPerforations(wellId);
-  // Generate synthetic perforations when no real data exists
-  const perfIntervals = useMemo<PerforationInterval[]>(() => {
-    if (hasPerfs) return perforations;
-    // Synthetic: create 2-3 perforation intervals near pay zones
-    const depth = totalDepth ?? 3500;
-    const synth: PerforationInterval[] = [
-      { id: "s1", depth_from: Math.round(depth * 0.48), depth_to: Math.round(depth * 0.52), shots_per_foot: 4, hole_diameter: 0.42, phasing: 120, date_perforated: null, status: "open", notes: null },
-      { id: "s2", depth_from: Math.round(depth * 0.58), depth_to: Math.round(depth * 0.61), shots_per_foot: 6, hole_diameter: 0.38, phasing: 60, date_perforated: null, status: "open", notes: null },
-    ];
-    return synth;
-  }, [hasPerfs, perforations, totalDepth]);
+  const { data: perforations } = useWellPerforations(wellId);
+  // Only real perforation records — never synthetic (they caused false MISSED flags).
+  const perfIntervals = perforations;
   const [expanded, setExpanded] = useState(defaultExpanded);
   const [zoomFactor, setZoomFactor] = useState(2);
   const [scrollOffset, setScrollOffset] = useState(0);
@@ -261,15 +253,14 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
     }));
   }, [formation, allData, totalDepth]);
 
-  // Missed/bypassed zones — pay zones with no perforation overlap
-  const missedZones = useMemo(() => {
-    return payZones.filter(pz => {
-      const hasPerf = perfIntervals.some(p =>
-        p.depth_from < pz.bottom && p.depth_to > pz.top
-      );
-      return !hasPerf;
-    });
-  }, [payZones, perfIntervals]);
+  // Missed/bypassed zones — shared logic with recommendations (no contradiction possible)
+  const logTop = allData.length ? allData[0].depth : 0;
+  const logBottom = allData.length ? allData[allData.length - 1].depth : 0;
+  const perfAssessment = useMemo(
+    () => assessBypassedPay(payZones, perfIntervals, logTop, logBottom),
+    [payZones, perfIntervals, logTop, logBottom]
+  );
+  const missedZones = perfAssessment.missed;
 
   // Has NPHI/RHOB
   const hasDenNphi = useMemo(() => allData.some(p => p.rhob !== null || p.nphi !== null), [allData]);
@@ -386,7 +377,7 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
           </>}
           <div className="flex items-center gap-1">
             <span className="w-2.5 h-[2px] rounded-full" style={{ backgroundColor: "#f97316" }} />
-            <span className="text-[9px] text-muted-foreground">PERF ({perfIntervals.length})</span>
+            <span className="text-[9px] text-muted-foreground">PERF ({perfAssessment.perfsInLog.length}{perfIntervals.length !== perfAssessment.perfsInLog.length ? ` of ${perfIntervals.length}` : ""})</span>
           </div>
           {hasRealData ? (
             <Badge variant="outline" className="text-[9px] h-4 border-success/40 bg-success/10 text-success gap-1">
@@ -738,6 +729,22 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
               )}
 
               {/* ═══ PERF TRACK ═══ — perforation intervals */}
+              {perfAssessment.status !== "ok" && (
+                <text
+                  x={PERF_X + PERF_W / 2}
+                  y={HEADER_H + plotH / 2}
+                  textAnchor="middle"
+                  fill="#f97316"
+                  fontSize="6"
+                  fontFamily="monospace"
+                  opacity={0.8}
+                  transform={`rotate(-90 ${PERF_X + PERF_W / 2} ${HEADER_H + plotH / 2})`}
+                >
+                  {perfAssessment.status === "no_records"
+                    ? "NO PERFORATION RECORDS"
+                    : `PERFS OUTSIDE LOG: ${perfIntervals.map(p => `${Math.round(p.depth_from)}–${Math.round(p.depth_to)}'`).join(", ")}`}
+                </text>
+              )}
               {perfIntervals.map((perf, pi) => {
                 const y1 = yForDepth(perf.depth_from);
                 const y2 = yForDepth(perf.depth_to);

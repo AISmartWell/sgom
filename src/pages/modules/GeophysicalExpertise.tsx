@@ -21,6 +21,8 @@ import BatchLithologyAnalysis from "@/components/geophysical/BatchLithologyAnaly
 import { WellLogAnalysisDemo } from "@/components/geophysical/WellLogAnalysisDemo";
 import { supabase } from "@/integrations/supabase/client";
 import { useWellLogs } from "@/hooks/useWellLogs";
+import { useWellPerforations } from "@/hooks/useWellPerforations";
+import { assessBypassedPay, bypassedPayMessage } from "@/lib/bypassed-pay";
 import {
   interpretWellLog,
   calcVshale,
@@ -2859,6 +2861,16 @@ const GeophysicalExpertise = () => {
     return interpretWellLog(petroData);
   }, [petroData]);
 
+  // Same bypassed-pay logic as the composite log's MISSED labels
+  const { data: wellPerfs } = useWellPerforations(selectedWell?.id);
+  const bypassedMsg = useMemo(() => {
+    if (!interpretation || petroData.length === 0) return "";
+    const top = petroData[0].depth;
+    const bottom = petroData[petroData.length - 1].depth;
+    const zones = interpretation.intervals.filter(i => i.isReservoir).map(i => ({ top: i.top, bottom: i.bottom }));
+    return bypassedPayMessage(assessBypassedPay(zones, wellPerfs, top, bottom), top, bottom);
+  }, [interpretation, petroData, wellPerfs]);
+
   return (
     <div className="p-8">
       {/* Add Well Dialog */}
@@ -3441,9 +3453,7 @@ const GeophysicalExpertise = () => {
                             interpretation.netToGross >= 60
                               ? "High net-to-gross — reservoir quality supports a staged completion."
                               : "Moderate net-to-gross — restrict treatment to the best-quality intervals.",
-                            interpretation.totalMissedPay > 0
-                              ? `${interpretation.totalMissedPay} ft of bypassed pay identified outside existing perforations.`
-                              : "No bypassed pay detected against existing perforations.",
+                            bypassedMsg,
                             interpretation.dominantFluid === "oil"
                               ? "Dominant fluid: oil — promote to SPT / EOR screening."
                               : `Dominant fluid: ${interpretation.dominantFluid} — verify saturation before treatment.`,
