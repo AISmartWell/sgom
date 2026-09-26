@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import EnhancedWellLog from "@/components/well-log/EnhancedWellLog";
-import IllustrativeCompositeLog from "@/components/geophysical/IllustrativeCompositeLog";
 import {
   Satellite, FolderOpen, Microscope, TrendingUp, Waves, Rocket,
   DollarSign, BarChart3, Brain, Play, Pause, RotateCcw, CheckCircle2, ScanText, Lock, FileBarChart, ChevronLeft, ChevronRight, SkipForward,
@@ -395,10 +394,8 @@ export default function BrawnerExpertiseDemo({ standalone = false }: { standalon
         </CardContent>
       </Card>
 
-      {standalone && <IllustrativeCompositeLog scanProgress={active === 7 && playing ? stageProgress : undefined} />}
-
-      {/* Real digitised log with bypassed-pay interpretation */}
-      {!standalone && <Card className="border-rose-500/40">
+      {/* Composite log with bypassed-pay interpretation (platform design; illustrative curves in standalone) */}
+      <Card className="border-rose-500/40">
         <CardHeader className="pb-3">
           <div className="flex flex-wrap items-center gap-2 mb-1">
             <Badge className="bg-orange-500/15 text-orange-400 border-orange-500/30">Stage 8 · Raw Curves</Badge>
@@ -416,14 +413,14 @@ export default function BrawnerExpertiseDemo({ standalone = false }: { standalon
         </CardHeader>
         <CardContent>
           <EnhancedWellLog
-              wellId={BRAWNER_WELL_ID}
+              wellId={standalone ? "" : BRAWNER_WELL_ID}
               wellName="BRAWNER 10-15"
               formation="ARBUCKLE"
               totalDepth={5225}
               defaultExpanded
             />
         </CardContent>
-      </Card>}
+      </Card>
 
       {/* Final report */}
       <Card className="border-emerald-500/40">
