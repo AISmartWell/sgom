@@ -19,7 +19,7 @@ const buildLog = (): PetroPoint[] => {
     if (sand) {
       gr = 30 + n() * 10; por = 16 + n() * 4;
       if (sand[2] === "oil") { res = 45 + n() * 15; sw = 32 + n() * 6; }
-      else if (sand[2] === "missed") { res = 22 + n() * 5; sw = 64 + n() * 4; }
+      else if (sand[2] === "missed") { res = 9 + n() * 2; sw = 68 + n() * 4; por = 12 + n() * 2; }
       else { res = 2.5 + n(); sw = 92; }
     }
     pts.push({ depth: d, gr: +gr.toFixed(1), sp: sand ? -70 : -15, res: +Math.max(0.5, res).toFixed(1),
@@ -77,8 +77,10 @@ export default function GeophysicsLiveDemo() {
   const reservoirs = result.intervals.filter((i) => i.isReservoir);
   const shownPay = reservoirs.filter((i) => yOf(i.top) / H <= pay);
   const netPayLive = shownPay.filter((i) => i.isNetPay).reduce((s, i) => s + i.thickness, 0);
-  const missedLive = shownPay.filter((i) => !i.isNetPay).reduce((s, i) => s + i.thickness, 0);
+  const isWater = (i: IntervalResult) => !i.isNetPay && i.avgRes < 5;
+  const missedLive = shownPay.filter((i) => !i.isNetPay && !isWater(i)).reduce((s, i) => s + i.thickness, 0);
   // Volumetric estimate, 40-acre spacing, Bo 1.2, RF 15%
+  const missedTotal = Math.round(reservoirs.filter((i) => !i.isNetPay && !isWater(i)).reduce((s, i) => s + i.thickness, 0));
   const ooip = 7758 * 40 * result.netPay * (result.avgPorosity / 100) * (1 - result.avgSw / 100) / 1.2;
   const recoverable = ooip * 0.15;
 
@@ -139,7 +141,7 @@ export default function GeophysicsLiveDemo() {
               <path d={path("res", 0.5, 200, true)} fill="none" stroke="hsl(var(--primary))" strokeWidth={1.4} />
               {fluid > 0 && reservoirs.filter((iv) => yOf(iv.top) / H <= fluid).map((iv, i) => (
                 <rect key={i} x={0} width={W} y={yOf(iv.top)} height={yOf(iv.bottom) - yOf(iv.top)}
-                  fill={iv.avgRes > 15 ? "hsl(var(--success) / 0.18)" : "hsl(var(--primary) / 0.15)"} />
+                  fill={iv.avgRes > 15 ? "hsl(var(--success) / 0.2)" : "hsl(var(--muted-foreground) / 0.2)"} />
               ))}
             </Track>
             <Track title="POROSITY" unit="%">
@@ -149,9 +151,9 @@ export default function GeophysicsLiveDemo() {
               {shownPay.map((iv, i) => (
                 <g key={i}>
                   <rect x={4} width={W - 8} y={yOf(iv.top)} height={yOf(iv.bottom) - yOf(iv.top)} rx={3}
-                    fill={iv.isNetPay ? "hsl(var(--success) / 0.7)" : "hsl(var(--warning) / 0.7)"} />
+                    fill={iv.isNetPay ? "hsl(var(--success) / 0.7)" : isWater(iv) ? "hsl(var(--muted-foreground) / 0.4)" : "hsl(var(--warning) / 0.7)"} />
                   <text x={W / 2} y={(yOf(iv.top) + yOf(iv.bottom)) / 2 + 4} textAnchor="middle" fontSize={10} className="fill-foreground font-mono">
-                    {iv.isNetPay ? "PAY" : "MISSED"} {Math.round(iv.thickness)}ft
+                    {iv.isNetPay ? "PAY" : isWater(iv) ? "WATER" : "MISSED"} {Math.round(iv.thickness)}ft
                   </text>
                 </g>
               ))}
@@ -160,7 +162,7 @@ export default function GeophysicsLiveDemo() {
           <div className="flex flex-wrap gap-4 mt-3 text-xs text-muted-foreground">
             <span className="flex items-center gap-1"><i className="w-3 h-3 rounded-sm bg-success/70" />Pay (oil)</span>
             <span className="flex items-center gap-1"><i className="w-3 h-3 rounded-sm bg-warning/70" />Missed opportunity</span>
-            <span className="flex items-center gap-1"><i className="w-3 h-3 rounded-sm bg-muted-foreground/40" />Shale</span>
+            <span className="flex items-center gap-1"><i className="w-3 h-3 rounded-sm bg-muted-foreground/40" />Shale / water</span>
           </div>
         </section>
 
@@ -201,9 +203,9 @@ export default function GeophysicsLiveDemo() {
               <div className="text-sm text-muted-foreground">
                 Estimated recoverable oil ≈ <b className="text-foreground">{Math.round(recoverable / 1000)}K bbl</b> (40-acre estimate).
               </div>
-              {result.totalMissedPay > 0 && (
+              {missedTotal > 0 && (
                 <div className="flex gap-2 text-sm text-warning"><AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
-                  {result.totalMissedPay} ft bypassed interval — candidate for SPT treatment.</div>
+                  {missedTotal} ft bypassed interval — candidate for SPT treatment.</div>
               )}
               <div className="text-sm">Analysis time: <b>{DURATION} s</b> vs ~2 days by manual interpretation.</div>
             </div>
