@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import EnhancedWellLog from "@/components/well-log/EnhancedWellLog";
-import IllustrativeCompositeLog from "@/components/geophysical/IllustrativeCompositeLog";
 import {
   Satellite, FolderOpen, Microscope, TrendingUp, Waves, Rocket,
   DollarSign, BarChart3, Brain, Play, Pause, RotateCcw, CheckCircle2, ScanText, Lock, FileBarChart, ChevronLeft, ChevronRight, SkipForward,
