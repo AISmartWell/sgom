@@ -174,14 +174,16 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
     for (let i = 0; i <= segments; i++) {
       const d = topDepth + ((depth - topDepth) / segments) * i;
       const frac = i / segments;
+      // Deterministic pseudo-noise (no Math.random — demos must be reproducible)
+      const noise = (k: number) => { const x = Math.sin(i * 127.1 + k * 311.7) * 43758.5453; return x - Math.floor(x); };
       // Realistic-ish curves
       const baseGR = 50 + Math.sin(frac * Math.PI * 4) * 35 + Math.sin(frac * Math.PI * 9) * 15;
-      const gr = Math.max(5, Math.min(145, baseGR + (Math.random() - 0.5) * 12));
-      const sp = -10 + Math.sin(frac * Math.PI * 3 + 0.5) * 25 + (Math.random() - 0.5) * 5;
-      const res = Math.max(0.3, 8 + Math.cos(frac * Math.PI * 5) * 20 + Math.sin(frac * Math.PI * 11) * 10 + (Math.random() - 0.5) * 4);
-      const por = Math.max(1, Math.min(40, 12 + Math.sin(frac * Math.PI * 6 + 1) * 10 + (Math.random() - 0.5) * 3));
-      const sw = Math.max(5, Math.min(95, 45 + Math.cos(frac * Math.PI * 4) * 25 + (Math.random() - 0.5) * 8));
-      const rhob = 2.3 + Math.sin(frac * Math.PI * 5) * 0.25 + (Math.random() - 0.5) * 0.05;
+      const gr = Math.max(5, Math.min(145, baseGR + (noise(1) - 0.5) * 12));
+      const sp = -10 + Math.sin(frac * Math.PI * 3 + 0.5) * 25 + (noise(2) - 0.5) * 5;
+      const res = Math.max(0.3, 8 + Math.cos(frac * Math.PI * 5) * 20 + Math.sin(frac * Math.PI * 11) * 10 + (noise(3) - 0.5) * 4);
+      const por = Math.max(1, Math.min(40, 12 + Math.sin(frac * Math.PI * 6 + 1) * 10 + (noise(4) - 0.5) * 3));
+      const sw = Math.max(5, Math.min(95, 45 + Math.cos(frac * Math.PI * 4) * 25 + (noise(5) - 0.5) * 8));
+      const rhob = 2.3 + Math.sin(frac * Math.PI * 5) * 0.25 + (noise(6) - 0.5) * 0.05;
       const nphi = Math.max(0.01, 0.18 - por * 0.002 + Math.sin(frac * Math.PI * 7) * 0.08);
       pts.push({ depth: Math.round(d), gr: +gr.toFixed(1), sp: +sp.toFixed(1), res: +res.toFixed(2), por: +por.toFixed(1), sw: +sw.toFixed(1), rhob: +rhob.toFixed(3), nphi: +nphi.toFixed(3) });
     }

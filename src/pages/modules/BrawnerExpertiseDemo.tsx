@@ -395,10 +395,8 @@ export default function BrawnerExpertiseDemo({ standalone = false }: { standalon
         </CardContent>
       </Card>
 
-      {standalone && <IllustrativeCompositeLog scanProgress={active === 7 && playing ? stageProgress : undefined} />}
-
-      {/* Real digitised log with bypassed-pay interpretation */}
-      {!standalone && <Card className="border-rose-500/40">
+      {/* Composite log with bypassed-pay interpretation (platform design; illustrative curves in standalone) */}
+      <Card className="border-rose-500/40">
         <CardHeader className="pb-3">
           <div className="flex flex-wrap items-center gap-2 mb-1">
             <Badge className="bg-orange-500/15 text-orange-400 border-orange-500/30">Stage 8 · Raw Curves</Badge>
