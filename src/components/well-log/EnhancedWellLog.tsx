@@ -6,6 +6,7 @@ import html2canvas from "html2canvas";
 import { useWellLogs, WellLogPoint } from "@/hooks/useWellLogs";
 import { useWellPerforations, PerforationInterval } from "@/hooks/useWellPerforations";
 import { interpretWellLog, fluidColor, fluidEmoji, type PetroPoint, type InterpretationSummary } from "@/lib/petrophysics";
+import { assessBypassedPay } from "@/lib/bypassed-pay";
 import WellLogInterpretation from "./WellLogInterpretation";
 
 /* ── Interpolation ── */
@@ -145,18 +146,9 @@ interface EnhancedWellLogProps {
 
 const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, totalDepth, showInterpretationByDefault = false }: EnhancedWellLogProps) => {
   const { data: rawLogs, isLoading, hasRealData } = useWellLogs(wellId);
-  const { data: perforations, hasData: hasPerfs } = useWellPerforations(wellId);
-  // Generate synthetic perforations when no real data exists
-  const perfIntervals = useMemo<PerforationInterval[]>(() => {
-    if (hasPerfs) return perforations;
-    // Synthetic: create 2-3 perforation intervals near pay zones
-    const depth = totalDepth ?? 3500;
-    const synth: PerforationInterval[] = [
-      { id: "s1", depth_from: Math.round(depth * 0.48), depth_to: Math.round(depth * 0.52), shots_per_foot: 4, hole_diameter: 0.42, phasing: 120, date_perforated: null, status: "open", notes: null },
-      { id: "s2", depth_from: Math.round(depth * 0.58), depth_to: Math.round(depth * 0.61), shots_per_foot: 6, hole_diameter: 0.38, phasing: 60, date_perforated: null, status: "open", notes: null },
-    ];
-    return synth;
-  }, [hasPerfs, perforations, totalDepth]);
+  const { data: perforations } = useWellPerforations(wellId);
+  // Only real perforation records — never synthetic (they caused false MISSED flags).
+  const perfIntervals = perforations;
   const [expanded, setExpanded] = useState(defaultExpanded);
   const [zoomFactor, setZoomFactor] = useState(2);
   const [scrollOffset, setScrollOffset] = useState(0);
@@ -261,15 +253,14 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
     }));
   }, [formation, allData, totalDepth]);
 
-  // Missed/bypassed zones — pay zones with no perforation overlap
-  const missedZones = useMemo(() => {
-    return payZones.filter(pz => {
-      const hasPerf = perfIntervals.some(p =>
-        p.depth_from < pz.bottom && p.depth_to > pz.top
-      );
-      return !hasPerf;
-    });
-  }, [payZones, perfIntervals]);
+  // Missed/bypassed zones — shared logic with recommendations (no contradiction possible)
+  const logTop = allData.length ? allData[0].depth : 0;
+  const logBottom = allData.length ? allData[allData.length - 1].depth : 0;
+  const perfAssessment = useMemo(
+    () => assessBypassedPay(payZones, perfIntervals, logTop, logBottom),
+    [payZones, perfIntervals, logTop, logBottom]
+  );
+  const missedZones = perfAssessment.missed;
 
   // Has NPHI/RHOB
   const hasDenNphi = useMemo(() => allData.some(p => p.rhob !== null || p.nphi !== null), [allData]);
