@@ -1,6 +1,7 @@
 # Roadmap
 
 ## Done
+- [x] Brawner Expertise interactive nine-stage walkthrough with visible per-stage analysis, playback, direct stage selection and illustrative data labels.
 - [x] Visual redesign of SGOM platform — direction "Cinematic Tech Workspace" applied
       (near-black base, emerald→cyan accent, JetBrains Mono technical captions,
       hairline borders, bracket corners, ambient glow) via design tokens in
