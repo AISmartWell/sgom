@@ -126,6 +126,8 @@ const REPORT_RECOMMENDATIONS = [
 
 const STEP_MS = 6500;
 const BRAWNER_WELL_ID = "e688229c-cb05-4ee8-be8b-d4953e55060b";
+const DEMO_ACCESS_HASH = "ffd51ce638836a998b8b514a4ee47c339a607b347c97bd7ce86f397c5695dceb";
+const DEMO_ACCESS_KEY = "sgom-brawner-expertise-unlocked";
 
 const Signal = ({ points, progress, tone = "primary" }: { points: number[]; progress: number; tone?: "primary" | "warning" }) => (
   <svg viewBox="0 0 320 104" className="w-full h-28" role="img" aria-label="Illustrative curve revealed during this stage">
@@ -191,17 +193,20 @@ function StageVisual({ stage, progress }: { stage: number; progress: number }) {
   );
 }
 
-export default function BrawnerExpertiseDemo() {
+export default function BrawnerExpertiseDemo({ standalone = false }: { standalone?: boolean }) {
+  const [unlocked, setUnlocked] = useState(() => !standalone || sessionStorage.getItem(DEMO_ACCESS_KEY) === "1");
+  const [accessCode, setAccessCode] = useState("");
+  const [accessError, setAccessError] = useState(false);
   const [active, setActive] = useState(0);
-  const [playing, setPlaying] = useState(() => !window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  const [playing, setPlaying] = useState(() => !standalone && !window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   const [elapsed, setElapsed] = useState(0);
   const stage = STAGES[active];
 
   useEffect(() => {
-    if (!playing) return;
+    if (!playing || !unlocked) return;
     const timer = window.setInterval(() => setElapsed((ms) => Math.min(STEP_MS, ms + 80)), 80);
     return () => window.clearInterval(timer);
-  }, [playing]);
+  }, [playing, unlocked]);
   useEffect(() => {
     if (!playing || elapsed < STEP_MS) return;
     if (active === STAGES.length - 1) { setPlaying(false); return; }
@@ -214,8 +219,40 @@ export default function BrawnerExpertiseDemo() {
   const progress = ((active + stageProgress) / STAGES.length) * 100;
   const Icon = stage.icon;
 
+  const unlockDemo = async () => {
+    const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(accessCode));
+    const hash = Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+    if (hash === DEMO_ACCESS_HASH) {
+      sessionStorage.setItem(DEMO_ACCESS_KEY, "1");
+      setUnlocked(true);
+    } else {
+      setAccessError(true);
+      setAccessCode("");
+    }
+  };
+
+  if (!unlocked) return <main className="flex min-h-screen items-center justify-center bg-background px-4 text-foreground">
+    <div className="w-full max-w-sm space-y-4 border border-border bg-card p-7 text-center">
+      <Lock className="mx-auto h-6 w-6 text-primary" />
+      <h1 className="text-xl font-semibold">Brawner 10-15 · Private demo</h1>
+      <p className="text-sm text-muted-foreground">Enter your access code to view the nine-stage demonstration.</p>
+      <form onSubmit={(event) => { event.preventDefault(); void unlockDemo(); }} className="space-y-3">
+        <label className="block text-left text-xs text-muted-foreground" htmlFor="demo-access-code">Access code</label>
+        <input id="demo-access-code" type="password" autoComplete="off" autoFocus maxLength={100} value={accessCode} onChange={(event) => { setAccessCode(event.target.value); setAccessError(false); }} className="w-full rounded border border-border bg-background px-3 py-2 text-foreground" />
+        {accessError && <p role="alert" className="text-sm text-destructive">Wrong code — please try again.</p>}
+        <Button type="submit" className="w-full">Unlock demo</Button>
+      </form>
+      <p className="text-xs text-muted-foreground">SGOM · AI Smart Well Inc.</p>
+    </div>
+  </main>;
+
   return (
-    <div className="space-y-6">
+    <main className={standalone ? "min-h-screen bg-background text-foreground" : undefined}>
+    <div className={standalone ? "mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8" : "space-y-6"}>
+      {standalone && <div className="flex items-center justify-between border-b border-border pb-5">
+        <span className="text-xl font-bold text-primary">SGOM</span>
+        <span className="text-xs font-mono uppercase text-muted-foreground">Brawner 10-15 · Demonstration</span>
+      </div>}
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
@@ -252,7 +289,7 @@ export default function BrawnerExpertiseDemo() {
              <CardDescription>Illustrative lease surface and access infrastructure</CardDescription>
           </CardHeader>
           <CardContent>
-            <img src={satelliteView} alt="Satellite view of the Brawner 10-15 lease area" loading="lazy"
+             <img src={satelliteView} alt="Illustrative satellite-style view of a lease area" loading="lazy"
               className="rounded-md border border-border w-full h-52 object-cover" />
           </CardContent>
         </Card>
@@ -264,7 +301,7 @@ export default function BrawnerExpertiseDemo() {
              <CardDescription>Illustrative legacy paper well log</CardDescription>
           </CardHeader>
           <CardContent>
-            <img src={paperLog} alt="Scanned paper well log for Brawner 10-15" loading="lazy"
+             <img src={paperLog} alt="Illustrative legacy paper well log" loading="lazy"
               className="rounded-md border border-border w-full h-52 object-cover object-top" />
           </CardContent>
         </Card>
@@ -317,6 +354,10 @@ export default function BrawnerExpertiseDemo() {
               loading="lazy"
               width={1344}
               height={768}
+              onError={(event) => {
+                const fallback = i === 1 ? paperLog : satelliteView;
+                if (!event.currentTarget.src.endsWith(fallback)) event.currentTarget.src = fallback;
+              }}
               className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
                 i === active ? "opacity-100" : "opacity-0"
               }`}
@@ -356,24 +397,37 @@ export default function BrawnerExpertiseDemo() {
         <CardHeader className="pb-3">
           <div className="flex flex-wrap items-center gap-2 mb-1">
             <Badge className="bg-orange-500/15 text-orange-400 border-orange-500/30">Stage 8 · Raw Curves</Badge>
-            <Badge variant="outline" className="text-[10px]">Data source shown in log</Badge>
+            <Badge variant="outline" className="text-[10px]">{standalone ? "Illustrative curves" : "Data source shown in log"}</Badge>
             <Badge className="bg-rose-500/15 text-rose-400 border-rose-500/30">Bypassed Pay Screening</Badge>
           </div>
           <CardTitle className="text-lg flex items-center gap-2">
             <BarChart3 className="w-5 h-5 text-orange-400" /> BRAWNER 10-15 — Composite Well Log
           </CardTitle>
           <CardDescription>
-            Digitised paper-log curves with fluid, perforation and correlation tracks. Check the data-source badge in the log: fallback curves and perforations may be synthetic.
+            {standalone
+              ? "Illustrative curve responses and interval flags show the interpretation workflow. This public demonstration does not access measured well data."
+              : "Digitised paper-log curves with fluid, perforation and correlation tracks. Check the data-source badge in the log: fallback curves and perforations may be synthetic."}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <EnhancedWellLog
-            wellId={BRAWNER_WELL_ID}
-            wellName="BRAWNER 10-15"
-            formation="ARBUCKLE"
-            totalDepth={5225}
-            defaultExpanded
-          />
+          {standalone ? <div className="space-y-3">
+            <p className="text-xs font-mono uppercase text-muted-foreground">Illustrative log · schematic only · not measured Brawner data</p>
+            <div className="grid grid-cols-[64px_repeat(3,minmax(0,1fr))] gap-2 text-center text-xs font-mono text-muted-foreground">
+              <span>Depth</span><span>GR</span><span>Resistivity</span><span>Pay flag</span>
+            </div>
+            <div className="grid grid-cols-[64px_repeat(3,minmax(0,1fr))] gap-2">
+              <div className="flex flex-col justify-between py-2 text-xs font-mono text-muted-foreground"><span>4,900 ft</span><span>5,000 ft</span><span>5,100 ft</span><span>5,225 ft</span></div>
+              <div className="border border-border bg-muted/20 p-2"><Signal points={[68, 49, 71, 61, 38, 32, 57, 84, 70, 40, 27, 54, 72]} progress={1} /></div>
+              <div className="border border-border bg-muted/20 p-2"><Signal points={[78, 69, 62, 42, 26, 35, 60, 78, 74, 47, 31, 57, 80]} progress={1} tone="warning" /></div>
+              <div className="flex flex-col justify-around border border-border bg-muted/20 px-2 text-center text-xs font-mono"><span className="text-muted-foreground">REVIEW</span><span className="text-primary">PAY</span><span className="text-warning">BYPASSED?</span><span className="text-muted-foreground">WATER</span></div>
+            </div>
+          </div> : <EnhancedWellLog
+              wellId={BRAWNER_WELL_ID}
+              wellName="BRAWNER 10-15"
+              formation="ARBUCKLE"
+              totalDepth={5225}
+              defaultExpanded
+            />}
         </CardContent>
       </Card>
 
@@ -388,7 +442,7 @@ export default function BrawnerExpertiseDemo() {
             <FileBarChart className="w-5 h-5 text-emerald-400" /> Final Report — BRAWNER 10-15
           </CardTitle>
           <CardDescription>
-            Illustrative summary for the walkthrough. Check the composite log above for its current data source and interpretation.
+            {standalone ? "Illustrative scenario only. The figures below are not calculated from the schematic curves above or measured Brawner records." : "Illustrative summary for the walkthrough. Check the composite log above for its current data source and interpretation."}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
@@ -422,7 +476,13 @@ export default function BrawnerExpertiseDemo() {
             <div className="rounded-lg border border-border p-3">
               <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2">Recommendations</p>
               <ul className="space-y-1.5">
-                {REPORT_RECOMMENDATIONS.map((r) => (
+                {(standalone ? [
+                  "Example: review potential net pay after validating the original log and completions.",
+                  "Example: a 42 ft bypassed interval would require verification against measured perforation records.",
+                  "Confirm shale continuity before planning any staged treatment.",
+                  "Screen SPT only after measured reservoir and production data are available.",
+                  "The operator must validate any candidate before an EOR decision.",
+                ] : REPORT_RECOMMENDATIONS).map((r) => (
                   <li key={r} className="flex items-start gap-2 text-sm">
                     <CheckCircle2 className="w-4 h-4 mt-0.5 text-emerald-400 shrink-0" />
                     <span>{r}</span>
@@ -443,8 +503,9 @@ export default function BrawnerExpertiseDemo() {
       </Card>
 
       <p className="text-xs text-muted-foreground">
-        Demonstration view only. Stage animations and summary figures are illustrative, not the output of a live nine-stage run. The composite log indicates whether measured data is available. Calculation methods and client datasets are not disclosed.
+        Demonstration view only. Stage animations and summary figures are illustrative, not the output of a live nine-stage run. {standalone ? "The schematic log does not use measured well records." : "The composite log indicates whether measured data is available."} Calculation methods and client datasets are not disclosed.
       </p>
     </div>
+    </main>
   );
 }

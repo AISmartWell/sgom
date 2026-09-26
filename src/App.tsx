@@ -121,6 +121,7 @@ const App = () => (
           <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+           <Route path="/brawner-expertise-demo" element={<BrawnerExpertiseDemo standalone />} />
           <Route path="/dashboard" element={<DashboardLayout />}>
             <Route index element={<Dashboard />} />
           <Route path="sgom-task-map" element={<SGOMTaskMap />} />

@@ -1,1 +1,2 @@
 - Keep Brawner's nine-stage demonstration visuals inside its existing page and distinguish illustrative animation/summary from measured composite-log data, so presentations never imply a live analysis ran.
+- Keep the standalone Brawner route on the existing simple demo-code gate and use only illustrative, non-database curves there; the public route must not expose client well records.
