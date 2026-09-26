@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import EnhancedWellLog from "@/components/well-log/EnhancedWellLog";
+import IllustrativeCompositeLog from "@/components/geophysical/IllustrativeCompositeLog";
 import {
   Satellite, FolderOpen, Microscope, TrendingUp, Waves, Rocket,
   DollarSign, BarChart3, Brain, Play, Pause, RotateCcw, CheckCircle2, ScanText, Lock, FileBarChart, ChevronLeft, ChevronRight, SkipForward,
@@ -281,6 +282,8 @@ export default function BrawnerExpertiseDemo({ standalone = false }: { standalon
         </div>
       </header>
 
+      {standalone && <IllustrativeCompositeLog scanProgress={active === 7 && playing ? stageProgress : undefined} />}
+
       {/* Sources */}
       <div className="grid gap-4 md:grid-cols-2">
         <Card className={active === 0 ? "border-primary/60" : ""}>
@@ -395,7 +398,7 @@ export default function BrawnerExpertiseDemo({ standalone = false }: { standalon
       </Card>
 
       {/* Real digitised log with bypassed-pay interpretation */}
-      <Card className="border-rose-500/40">
+      {!standalone && <Card className="border-rose-500/40">
         <CardHeader className="pb-3">
           <div className="flex flex-wrap items-center gap-2 mb-1">
             <Badge className="bg-orange-500/15 text-orange-400 border-orange-500/30">Stage 8 · Raw Curves</Badge>
@@ -412,26 +415,15 @@ export default function BrawnerExpertiseDemo({ standalone = false }: { standalon
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {standalone ? <div className="space-y-3">
-            <p className="text-xs font-mono uppercase text-muted-foreground">Illustrative log · schematic only · not measured Brawner data</p>
-            <div className="grid grid-cols-[64px_repeat(3,minmax(0,1fr))] gap-2 text-center text-xs font-mono text-muted-foreground">
-              <span>Depth</span><span>GR</span><span>Resistivity</span><span>Pay flag</span>
-            </div>
-            <div className="grid grid-cols-[64px_repeat(3,minmax(0,1fr))] gap-2">
-              <div className="flex flex-col justify-between py-2 text-xs font-mono text-muted-foreground"><span>4,900 ft</span><span>5,000 ft</span><span>5,100 ft</span><span>5,225 ft</span></div>
-              <div className="border border-border bg-muted/20 p-2"><Signal points={[68, 49, 71, 61, 38, 32, 57, 84, 70, 40, 27, 54, 72]} progress={1} /></div>
-              <div className="border border-border bg-muted/20 p-2"><Signal points={[78, 69, 62, 42, 26, 35, 60, 78, 74, 47, 31, 57, 80]} progress={1} tone="warning" /></div>
-              <div className="flex flex-col justify-around border border-border bg-muted/20 px-2 text-center text-xs font-mono"><span className="text-muted-foreground">REVIEW</span><span className="text-primary">PAY</span><span className="text-warning">BYPASSED?</span><span className="text-muted-foreground">WATER</span></div>
-            </div>
-          </div> : <EnhancedWellLog
+          <EnhancedWellLog
               wellId={BRAWNER_WELL_ID}
               wellName="BRAWNER 10-15"
               formation="ARBUCKLE"
               totalDepth={5225}
               defaultExpanded
-            />}
+            />
         </CardContent>
-      </Card>
+      </Card>}
 
       {/* Final report */}
       <Card className="border-emerald-500/40">
