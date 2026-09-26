@@ -406,7 +406,7 @@ export default function BrawnerExpertiseDemo({ standalone = false }: { standalon
             <FileBarChart className="w-5 h-5 text-emerald-400" /> Final Report — BRAWNER 10-15
           </CardTitle>
           <CardDescription>
-            Illustrative summary for the walkthrough. Check the composite log above for its current data source and interpretation.
+            {standalone ? "Illustrative scenario only. The figures below are not calculated from the schematic curves above or measured Brawner records." : "Illustrative summary for the walkthrough. Check the composite log above for its current data source and interpretation."}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
@@ -440,7 +440,13 @@ export default function BrawnerExpertiseDemo({ standalone = false }: { standalon
             <div className="rounded-lg border border-border p-3">
               <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2">Recommendations</p>
               <ul className="space-y-1.5">
-                {REPORT_RECOMMENDATIONS.map((r) => (
+                {(standalone ? [
+                  "Example: review potential net pay after validating the original log and completions.",
+                  "Example: a 42 ft bypassed interval would require verification against measured perforation records.",
+                  "Confirm shale continuity before planning any staged treatment.",
+                  "Screen SPT only after measured reservoir and production data are available.",
+                  "The operator must validate any candidate before an EOR decision.",
+                ] : REPORT_RECOMMENDATIONS).map((r) => (
                   <li key={r} className="flex items-start gap-2 text-sm">
                     <CheckCircle2 className="w-4 h-4 mt-0.5 text-emerald-400 shrink-0" />
                     <span>{r}</span>
