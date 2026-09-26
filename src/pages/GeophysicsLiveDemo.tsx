@@ -76,11 +76,13 @@ export default function GeophysicsLiveDemo() {
 
   const reservoirs = result.intervals.filter((i) => i.isReservoir);
   const shownPay = reservoirs.filter((i) => yOf(i.top) / H <= pay);
-  const netPayLive = shownPay.filter((i) => i.isNetPay).reduce((s, i) => s + i.thickness, 0);
+  const netPayLive = shownPay.filter((i) => i.isNetPay && !isBypassed(i)).reduce((s, i) => s + i.thickness, 0);
   const isWater = (i: IntervalResult) => !i.isNetPay && i.avgRes < 5;
-  const missedLive = shownPay.filter((i) => !i.isNetPay && !isWater(i)).reduce((s, i) => s + i.thickness, 0);
+  // Thin, low-contrast pay: easy to overlook on a paper log → bypassed opportunity
+  const isBypassed = (i: IntervalResult) => !isWater(i) && (i.isNetPay ? i.avgRes < 15 : true);
+  const missedLive = shownPay.filter(isBypassed).reduce((s, i) => s + i.thickness, 0);
   // Volumetric estimate, 40-acre spacing, Bo 1.2, RF 15%
-  const missedTotal = Math.round(reservoirs.filter((i) => !i.isNetPay && !isWater(i)).reduce((s, i) => s + i.thickness, 0));
+  const missedTotal = Math.round(reservoirs.filter(isBypassed).reduce((s, i) => s + i.thickness, 0));
   const ooip = 7758 * 40 * result.netPay * (result.avgPorosity / 100) * (1 - result.avgSw / 100) / 1.2;
   const recoverable = ooip * 0.15;
 
@@ -151,9 +153,9 @@ export default function GeophysicsLiveDemo() {
               {shownPay.map((iv, i) => (
                 <g key={i}>
                   <rect x={4} width={W - 8} y={yOf(iv.top)} height={yOf(iv.bottom) - yOf(iv.top)} rx={3}
-                    fill={iv.isNetPay ? "hsl(var(--success) / 0.7)" : isWater(iv) ? "hsl(var(--muted-foreground) / 0.4)" : "hsl(var(--warning) / 0.7)"} />
+                    fill={isBypassed(iv) ? "hsl(var(--warning) / 0.7)" : iv.isNetPay ? "hsl(var(--success) / 0.7)" : isWater(iv) ? "hsl(var(--muted-foreground) / 0.4)" : "hsl(var(--warning) / 0.7)"} />
                   <text x={W / 2} y={(yOf(iv.top) + yOf(iv.bottom)) / 2 + 4} textAnchor="middle" fontSize={10} className="fill-foreground font-mono">
-                    {iv.isNetPay ? "PAY" : isWater(iv) ? "WATER" : "MISSED"} {Math.round(iv.thickness)}ft
+                    {isBypassed(iv) ? "BYPASSED" : iv.isNetPay ? "PAY" : "WATER"} {Math.round(iv.thickness)}ft
                   </text>
                 </g>
               ))}
@@ -179,7 +181,7 @@ export default function GeophysicsLiveDemo() {
               ["Depth read", `${Math.round(cursorDepth)} ft`],
               ["Data points", `${visible.length}`],
               ["Net pay", `${Math.round(netPayLive)} ft`],
-              ["Missed pay", `${Math.round(missedLive)} ft`],
+              ["Bypassed pay", `${Math.round(missedLive)} ft`],
             ].map(([k, v]) => (
               <div key={k} className="rounded-lg border border-border/60 bg-card/40 p-3">
                 <div className="text-[10px] uppercase text-muted-foreground">{k}</div>
@@ -199,13 +201,13 @@ export default function GeophysicsLiveDemo() {
           {done && (
             <div className="rounded-xl border border-success/50 bg-success/10 p-4 space-y-2 animate-fade-in">
               <div className="text-xs font-mono text-success">VERDICT</div>
-              <div className="text-lg">Productive well — {result.netPay} ft of oil pay found</div>
+              <div className="text-lg">Productive well — {result.netPay - missedTotal} ft of proven oil pay</div>
               <div className="text-sm text-muted-foreground">
                 Estimated recoverable oil ≈ <b className="text-foreground">{Math.round(recoverable / 1000)}K bbl</b> (40-acre estimate).
               </div>
               {missedTotal > 0 && (
                 <div className="flex gap-2 text-sm text-warning"><AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
-                  {missedTotal} ft bypassed interval — candidate for SPT treatment.</div>
+                  {missedTotal} ft thin oil zone was overlooked — candidate for SPT treatment (extra production without drilling).</div>
               )}
               <div className="text-sm">Analysis time: <b>{DURATION} s</b> vs ~2 days by manual interpretation.</div>
             </div>
