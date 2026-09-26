@@ -282,8 +282,6 @@ export default function BrawnerExpertiseDemo({ standalone = false }: { standalon
         </div>
       </header>
 
-      {standalone && <IllustrativeCompositeLog scanProgress={active === 7 && playing ? stageProgress : undefined} />}
-
       {/* Sources */}
       <div className="grid gap-4 md:grid-cols-2">
         <Card className={active === 0 ? "border-primary/60" : ""}>
@@ -396,6 +394,8 @@ export default function BrawnerExpertiseDemo({ standalone = false }: { standalon
           </div>
         </CardContent>
       </Card>
+
+      {standalone && <IllustrativeCompositeLog scanProgress={active === 7 && playing ? stageProgress : undefined} />}
 
       {/* Real digitised log with bypassed-pay interpretation */}
       {!standalone && <Card className="border-rose-500/40">
