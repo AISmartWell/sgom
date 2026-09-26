@@ -377,7 +377,7 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
           </>}
           <div className="flex items-center gap-1">
             <span className="w-2.5 h-[2px] rounded-full" style={{ backgroundColor: "#f97316" }} />
-            <span className="text-[9px] text-muted-foreground">PERF ({perfIntervals.length})</span>
+            <span className="text-[9px] text-muted-foreground">PERF ({perfAssessment.perfsInLog.length}{perfIntervals.length !== perfAssessment.perfsInLog.length ? ` of ${perfIntervals.length}` : ""})</span>
           </div>
           {hasRealData ? (
             <Badge variant="outline" className="text-[9px] h-4 border-success/40 bg-success/10 text-success gap-1">
@@ -729,6 +729,22 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
               )}
 
               {/* ═══ PERF TRACK ═══ — perforation intervals */}
+              {perfAssessment.status !== "ok" && (
+                <text
+                  x={PERF_X + PERF_W / 2}
+                  y={HEADER_H + plotH / 2}
+                  textAnchor="middle"
+                  fill="#f97316"
+                  fontSize="6"
+                  fontFamily="monospace"
+                  opacity={0.8}
+                  transform={`rotate(-90 ${PERF_X + PERF_W / 2} ${HEADER_H + plotH / 2})`}
+                >
+                  {perfAssessment.status === "no_records"
+                    ? "NO PERFORATION RECORDS"
+                    : `PERFS OUTSIDE LOG: ${perfIntervals.map(p => `${Math.round(p.depth_from)}–${Math.round(p.depth_to)}'`).join(", ")}`}
+                </text>
+              )}
               {perfIntervals.map((perf, pi) => {
                 const y1 = yForDepth(perf.depth_from);
                 const y2 = yForDepth(perf.depth_to);
