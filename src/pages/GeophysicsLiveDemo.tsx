@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Play, Pause, RotateCcw, ScanLine, Layers, Droplets, Target, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Play, Pause, RotateCcw, SkipForward, ScanLine, Layers, Droplets, Target, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { interpretWellLog, type PetroPoint, type IntervalResult } from "@/lib/petrophysics";
 
 /* ── Deterministic Brawner 10-15 demo log (no Math.random) ── */
@@ -113,6 +113,9 @@ export default function GeophysicsLiveDemo() {
             {playing ? <Pause className="h-4 w-4 mr-1" /> : <Play className="h-4 w-4 mr-1" />}{playing ? "Pause" : "Play"}
           </Button>
           <Button size="sm" variant="outline" onClick={() => { setT(0); setPlaying(true); }}><RotateCcw className="h-4 w-4 mr-1" />Restart</Button>
+          <Button size="sm" onClick={() => { setT(1); setPlaying(false); }} disabled={t >= 1}>
+            <SkipForward className="h-4 w-4 mr-1" />Skip to result
+          </Button>
         </div>
       </header>
 
