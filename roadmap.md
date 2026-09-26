@@ -16,5 +16,5 @@
       BRAWNER 10-15 (ARBUCKLE): conclusion, SPT candidacy, risks, confidence.
 
 
-- [ ] Product demo video: AI agent — data in → computes → results (in progress)
+- [x] Product demo video: AI agent — data in → computes → results
 - [ ] Case study: real field, agent prediction vs actual (waits on real post-treatment data)
