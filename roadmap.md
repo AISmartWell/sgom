@@ -1,6 +1,7 @@
 # Roadmap
 
 ## Done
+- [x] Make the depth-aligned illustrative composite well log the main visual on the standalone Brawner demonstration, visible before the nine stages.
 - [x] Share Geophysical Agent conclusions with teammates in the same company; show loading errors instead of an empty state.
 - [x] Standalone Brawner Expertise demonstration accessible by code without platform sign-in; public log is schematic and independent of private well data.
 - [x] Brawner Expertise interactive nine-stage walkthrough with visible per-stage analysis, playback, direct stage selection and illustrative data labels.
