@@ -63,6 +63,16 @@ export default function GeophysicsLiveDemo() {
   const [t, setT] = useState(() => (new URLSearchParams(window.location.search).get("end") ? 1 : 0));
   const [playing, setPlaying] = useState(true);
   const last = useRef<number | null>(null);
+  const [unlocked, setUnlocked] = useState(() => sessionStorage.getItem(GATE_KEY) === "1");
+  const [code, setCode] = useState("");
+  const [gateError, setGateError] = useState(false);
+
+  const tryUnlock = async () => {
+    const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(code));
+    const hex = Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+    if (hex === GATE_HASH) { sessionStorage.setItem(GATE_KEY, "1"); setUnlocked(true); }
+    else { setGateError(true); setCode(""); }
+  };
 
   useEffect(() => {
     if (!playing) { last.current = null; return; }
