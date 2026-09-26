@@ -30,11 +30,24 @@ const buildLog = (): PetroPoint[] => {
 
 const DURATION = 36; // seconds
 const PHASES = [
-  { at: 0.00, icon: ScanLine, title: "Digitizing paper log", text: "The 1982 paper log is scanned. AI reads the curves and converts them into numbers, foot by foot." },
-  { at: 0.30, icon: Layers, title: "Reading the rock", text: "Each depth is classified: clean sand (can hold oil) or shale (seal)." },
-  { at: 0.50, icon: Droplets, title: "Finding oil vs water", text: "High resistivity in porous sand means oil. Low resistivity means water." },
-  { at: 0.70, icon: Target, title: "Marking pay zones", text: "Intervals that pass all cutoffs become pay. Borderline intervals are flagged as missed opportunity." },
-  { at: 0.88, icon: CheckCircle2, title: "Verdict", text: "The platform summarises reserves and recommends next action." },
+  { at: 0.00, icon: ScanLine, stage: "Stage 2", title: "Digitizing paper log", text: "The 1982 paper log is scanned. AI reads the curves and converts them into numbers, foot by foot." },
+  { at: 0.30, icon: Layers, stage: "Stage 8", title: "Reading the rock", text: "Each depth is classified: clean sand (can hold oil) or shale (seal)." },
+  { at: 0.50, icon: Droplets, stage: "Stage 8", title: "Finding oil vs water", text: "High resistivity in porous sand means oil. Low resistivity means water." },
+  { at: 0.70, icon: Target, stage: "Stage 8", title: "Marking pay zones", text: "Intervals that pass all cutoffs become pay. Borderline intervals are flagged as missed opportunity." },
+  { at: 0.88, icon: CheckCircle2, stage: "Stage 6", title: "Verdict", text: "The platform summarises reserves and recommends next action." },
+];
+
+/* The full SGOM pipeline, shown below the demo */
+const STAGES: { n: number; name: string; text: string; inDemo?: boolean }[] = [
+  { n: 1, name: "Field Scan", text: "The platform screens the region and shortlists wells worth analyzing." },
+  { n: 2, name: "Data Ingestion", text: "Well files, paper logs and sales records are digitized and organized — OCR turns scans into numbers.", inDemo: true },
+  { n: 3, name: "Core Analysis", text: "Photos of rock samples are read by computer vision; porosity and permeability are estimated." },
+  { n: 4, name: "Cumulative Production", text: "How much oil the well has already produced, how fast it declines, and how much may be left." },
+  { n: 5, name: "Seismic", text: "2-D seismic lines show where the reservoir continues between wells." },
+  { n: 6, name: "SPT Recommendation", text: "Wells that can produce more without drilling are ranked, with a P10/P50/P90 production forecast.", inDemo: true },
+  { n: 7, name: "Economics", text: "Treatment cost, oil price and payback time are calculated for every candidate." },
+  { n: 8, name: "Geophysical Interpretation", text: "Well logs are interpreted foot by foot: rock type, porosity, oil vs water, net pay — the stage running in this demo.", inDemo: true },
+  { n: 9, name: "EOR Optimization", text: "If the reservoir needs more than SPT, enhanced-recovery methods are compared and the best is selected." },
 ];
 
 const W = 110, H = 560;
@@ -176,6 +189,7 @@ export default function GeophysicsLiveDemo() {
           <div className="rounded-xl border border-primary/40 bg-primary/5 p-4">
             <div className="flex items-center gap-2 text-primary text-xs font-mono">STEP {phaseIdx + 1} / {PHASES.length}</div>
             <div className="flex items-center gap-2 mt-1 text-lg"><Phase.icon className="h-5 w-5 text-primary" />{Phase.title}</div>
+            <div className="inline-flex mt-1 px-2 py-0.5 rounded-full border border-primary/50 bg-primary/10 text-[10px] font-mono text-primary tracking-widest">{Phase.stage.toUpperCase()}</div>
             <p className="text-sm text-muted-foreground mt-1">{Phase.text}</p>
           </div>
 
@@ -195,8 +209,10 @@ export default function GeophysicsLiveDemo() {
 
           <ol className="space-y-1 text-sm">
             {PHASES.map((p, i) => (
-              <li key={p.title} className={`flex items-center gap-2 ${i < phaseIdx || done ? "text-success" : i === phaseIdx ? "text-foreground" : "text-muted-foreground/50"}`}>
-                <CheckCircle2 className="h-4 w-4" />{p.title}
+              <li key={p.title} className={`flex items-center gap-2 text-sm ${i < phaseIdx || done ? "text-success" : i === phaseIdx ? "text-foreground" : "text-muted-foreground/50"}`}>
+                <CheckCircle2 className="h-4 w-4 shrink-0" />
+                <span className="font-mono text-[10px] uppercase tracking-wider shrink-0">{p.stage}</span>
+                {p.title}
               </li>
             ))}
           </ol>
@@ -245,6 +261,29 @@ export default function GeophysicsLiveDemo() {
           )}
         </aside>
       </main>
+
+      {/* Full 9-stage pipeline */}
+      <section className="max-w-7xl mx-auto px-6 pb-10">
+        <div className="rounded-xl border border-border/60 bg-card/30 p-5">
+          <div className="text-xs font-mono text-primary tracking-widest mb-1">SGOM · FULL ANALYSIS PIPELINE</div>
+          <h2 className="text-xl font-light mb-4">What happens at every stage</h2>
+          <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-3">
+            {STAGES.map((s) => (
+              <div key={s.n} className={`rounded-lg border p-3 ${s.inDemo ? "border-primary/50 bg-primary/5" : "border-border/60 bg-card/40"}`}>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className={`inline-flex items-center justify-center h-5 px-1.5 rounded font-mono text-[10px] tracking-widest ${s.inDemo ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"}`}>
+                    STAGE {s.n}
+                  </span>
+                  <span className="text-sm">{s.name}</span>
+                  {s.inDemo && <span className="ml-auto text-[10px] font-mono text-primary">IN THIS DEMO</span>}
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">{s.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <footer className="text-center text-xs text-muted-foreground pb-6">Demonstration based on illustrative log data · © AI Smart Well Inc.</footer>
     </div>
   );
