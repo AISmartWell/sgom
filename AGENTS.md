@@ -1,2 +1,3 @@
 - Keep Brawner's nine-stage demonstration visuals inside its existing page and distinguish illustrative animation/summary from measured composite-log data, so presentations never imply a live analysis ran.
 - Keep the standalone Brawner route on the existing simple demo-code gate and use only illustrative, non-database curves there; the public route must not expose client well records.
+- Scope shared Geophysical Agent verdict reads through the referenced well's company and current membership, while only the run author can write or delete, to prevent cross-company exposure.
