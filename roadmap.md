@@ -15,3 +15,6 @@
       with "Run AI Agent" button in Stage 8 header; verified end-to-end on
       BRAWNER 10-15 (ARBUCKLE): conclusion, SPT candidacy, risks, confidence.
 
+
+- [ ] Product demo video: AI agent — data in → computes → results (in progress)
+- [ ] Case study: real field, agent prediction vs actual (waits on real post-treatment data)
