@@ -202,7 +202,7 @@ export default function GeophysicsLiveDemo() {
           </ol>
 
           {done && (
-            <div className="rounded-xl border border-success/50 bg-success/10 p-4 space-y-2 animate-fade-in">
+            <div className="rounded-xl border border-success/50 bg-success/10 p-4 space-y-3 animate-fade-in">
               <div className="text-xs font-mono text-success">VERDICT</div>
               <div className="text-lg">Productive well — {result.netPay - missedTotal} ft of proven oil pay</div>
               <div className="text-sm text-muted-foreground">
@@ -213,6 +213,34 @@ export default function GeophysicsLiveDemo() {
                   {missedTotal} ft thin oil zone was overlooked — candidate for SPT treatment (extra production without drilling).</div>
               )}
               <div className="text-sm">Analysis time: <b>{DURATION} s</b> vs ~2 days by manual interpretation.</div>
+
+              <div className="pt-2 border-t border-success/20">
+                <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">All interpreted intervals</div>
+                <table className="w-full text-xs font-mono">
+                  <thead>
+                    <tr className="text-muted-foreground text-left">
+                      <th className="py-1 pr-2 font-normal">Interval, ft</th>
+                      <th className="py-1 pr-2 font-normal">Class</th>
+                      <th className="py-1 pr-2 font-normal text-right">φ, %</th>
+                      <th className="py-1 pr-2 font-normal text-right">Sw, %</th>
+                      <th className="py-1 font-normal text-right">R, Ω·m</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {result.intervals.map((iv, i) => (
+                      <tr key={i} className="border-t border-border/40">
+                        <td className="py-1 pr-2">{Math.round(iv.top)}–{Math.round(iv.bottom)}</td>
+                        <td className={`py-1 pr-2 ${isBypassed(iv) ? "text-warning" : iv.isNetPay ? "text-success" : "text-muted-foreground"}`}>
+                          {isBypassed(iv) ? "BYPASSED" : iv.isNetPay ? "PAY" : isWater(iv) ? "WATER" : "SHALE"}
+                        </td>
+                        <td className="py-1 pr-2 text-right">{iv.avgPorosity.toFixed(1)}</td>
+                        <td className="py-1 pr-2 text-right">{iv.avgSw.toFixed(0)}</td>
+                        <td className="py-1 text-right">{iv.avgRes.toFixed(1)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
         </aside>
