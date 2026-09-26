@@ -1,7 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Play, Pause, RotateCcw, SkipForward, ScanLine, Layers, Droplets, Target, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Play, Pause, RotateCcw, SkipForward, ScanLine, Layers, Droplets, Target, AlertTriangle, CheckCircle2, Lock } from "lucide-react";
 import { interpretWellLog, type PetroPoint, type IntervalResult } from "@/lib/petrophysics";
+
+/* ── Simple access gate: SHA-256 of the demo access code ── */
+const GATE_HASH = "ffd51ce638836a998b8b514a4ee47c339a607b347c97bd7ce86f397c5695dceb";
+const GATE_KEY = "sgom-geophysics-live-unlocked";
 
 /* ── Deterministic Brawner 10-15 demo log (no Math.random) ── */
 const TOP = 3400, BOT = 3700, STEP = 2;
