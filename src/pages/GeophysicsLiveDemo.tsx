@@ -209,8 +209,10 @@ export default function GeophysicsLiveDemo() {
 
           <ol className="space-y-1 text-sm">
             {PHASES.map((p, i) => (
-              <li key={p.title} className={`flex items-center gap-2 ${i < phaseIdx || done ? "text-success" : i === phaseIdx ? "text-foreground" : "text-muted-foreground/50"}`}>
-                <CheckCircle2 className="h-4 w-4" />{p.title}
+              <li key={p.title} className={`flex items-center gap-2 text-sm ${i < phaseIdx || done ? "text-success" : i === phaseIdx ? "text-foreground" : "text-muted-foreground/50"}`}>
+                <CheckCircle2 className="h-4 w-4 shrink-0" />
+                <span className="font-mono text-[10px] uppercase tracking-wider shrink-0">{p.stage}</span>
+                {p.title}
               </li>
             ))}
           </ol>
@@ -259,6 +261,29 @@ export default function GeophysicsLiveDemo() {
           )}
         </aside>
       </main>
+
+      {/* Full 9-stage pipeline */}
+      <section className="max-w-7xl mx-auto px-6 pb-10">
+        <div className="rounded-xl border border-border/60 bg-card/30 p-5">
+          <div className="text-xs font-mono text-primary tracking-widest mb-1">SGOM · FULL ANALYSIS PIPELINE</div>
+          <h2 className="text-xl font-light mb-4">What happens at every stage</h2>
+          <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-3">
+            {STAGES.map((s) => (
+              <div key={s.n} className={`rounded-lg border p-3 ${s.inDemo ? "border-primary/50 bg-primary/5" : "border-border/60 bg-card/40"}`}>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className={`inline-flex items-center justify-center h-5 px-1.5 rounded font-mono text-[10px] tracking-widest ${s.inDemo ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"}`}>
+                    STAGE {s.n}
+                  </span>
+                  <span className="text-sm">{s.name}</span>
+                  {s.inDemo && <span className="ml-auto text-[10px] font-mono text-primary">IN THIS DEMO</span>}
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">{s.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <footer className="text-center text-xs text-muted-foreground pb-6">Demonstration based on illustrative log data · © AI Smart Well Inc.</footer>
     </div>
   );
