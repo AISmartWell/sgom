@@ -126,6 +126,8 @@ const REPORT_RECOMMENDATIONS = [
 
 const STEP_MS = 6500;
 const BRAWNER_WELL_ID = "e688229c-cb05-4ee8-be8b-d4953e55060b";
+const DEMO_ACCESS_HASH = "ffd51ce638836a998b8b514a4ee47c339a607b347c97bd7ce86f397c5695dceb";
+const DEMO_ACCESS_KEY = "sgom-brawner-expertise-unlocked";
 
 const Signal = ({ points, progress, tone = "primary" }: { points: number[]; progress: number; tone?: "primary" | "warning" }) => (
   <svg viewBox="0 0 320 104" className="w-full h-28" role="img" aria-label="Illustrative curve revealed during this stage">
@@ -192,16 +194,19 @@ function StageVisual({ stage, progress }: { stage: number; progress: number }) {
 }
 
 export default function BrawnerExpertiseDemo({ standalone = false }: { standalone?: boolean }) {
+  const [unlocked, setUnlocked] = useState(() => !standalone || sessionStorage.getItem(DEMO_ACCESS_KEY) === "1");
+  const [accessCode, setAccessCode] = useState("");
+  const [accessError, setAccessError] = useState(false);
   const [active, setActive] = useState(0);
-  const [playing, setPlaying] = useState(() => !window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  const [playing, setPlaying] = useState(() => !standalone && !window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   const [elapsed, setElapsed] = useState(0);
   const stage = STAGES[active];
 
   useEffect(() => {
-    if (!playing) return;
+    if (!playing || !unlocked) return;
     const timer = window.setInterval(() => setElapsed((ms) => Math.min(STEP_MS, ms + 80)), 80);
     return () => window.clearInterval(timer);
-  }, [playing]);
+  }, [playing, unlocked]);
   useEffect(() => {
     if (!playing || elapsed < STEP_MS) return;
     if (active === STAGES.length - 1) { setPlaying(false); return; }
@@ -213,6 +218,33 @@ export default function BrawnerExpertiseDemo({ standalone = false }: { standalon
   const stageProgress = elapsed / STEP_MS;
   const progress = ((active + stageProgress) / STAGES.length) * 100;
   const Icon = stage.icon;
+
+  const unlockDemo = async () => {
+    const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(accessCode));
+    const hash = Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+    if (hash === DEMO_ACCESS_HASH) {
+      sessionStorage.setItem(DEMO_ACCESS_KEY, "1");
+      setUnlocked(true);
+    } else {
+      setAccessError(true);
+      setAccessCode("");
+    }
+  };
+
+  if (!unlocked) return <main className="flex min-h-screen items-center justify-center bg-background px-4 text-foreground">
+    <div className="w-full max-w-sm space-y-4 border border-border bg-card p-7 text-center">
+      <Lock className="mx-auto h-6 w-6 text-primary" />
+      <h1 className="text-xl font-semibold">Brawner 10-15 · Private demo</h1>
+      <p className="text-sm text-muted-foreground">Enter your access code to view the nine-stage demonstration.</p>
+      <form onSubmit={(event) => { event.preventDefault(); void unlockDemo(); }} className="space-y-3">
+        <label className="block text-left text-xs text-muted-foreground" htmlFor="demo-access-code">Access code</label>
+        <input id="demo-access-code" type="password" autoComplete="off" autoFocus maxLength={100} value={accessCode} onChange={(event) => { setAccessCode(event.target.value); setAccessError(false); }} className="w-full rounded border border-border bg-background px-3 py-2 text-foreground" />
+        {accessError && <p role="alert" className="text-sm text-destructive">Wrong code — please try again.</p>}
+        <Button type="submit" className="w-full">Unlock demo</Button>
+      </form>
+      <p className="text-xs text-muted-foreground">SGOM · AI Smart Well Inc.</p>
+    </div>
+  </main>;
 
   return (
     <main className={standalone ? "min-h-screen bg-background text-foreground" : undefined}>
