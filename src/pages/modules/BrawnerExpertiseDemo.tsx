@@ -414,14 +414,14 @@ export default function BrawnerExpertiseDemo({ standalone = false }: { standalon
         </CardHeader>
         <CardContent>
           <EnhancedWellLog
-              wellId={BRAWNER_WELL_ID}
+              wellId={standalone ? "" : BRAWNER_WELL_ID}
               wellName="BRAWNER 10-15"
               formation="ARBUCKLE"
               totalDepth={5225}
               defaultExpanded
             />
         </CardContent>
-      </Card>}
+      </Card>
 
       {/* Final report */}
       <Card className="border-emerald-500/40">
