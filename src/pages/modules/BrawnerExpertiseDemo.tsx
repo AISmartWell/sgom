@@ -127,6 +127,7 @@ const REPORT_RECOMMENDATIONS = [
 const STEP_MS = 6500;
 const BRAWNER_WELL_ID = "e688229c-cb05-4ee8-be8b-d4953e55060b";
 const DEMO_ACCESS_HASH = "ffd51ce638836a998b8b514a4ee47c339a607b347c97bd7ce86f397c5695dceb";
+const DEMO_ACCESS_HASH_SIMPLE = "e61a740707f6f3420e12f2913c6ef15c508f465cf4f245aeffe571d6e5f3e9c4";
 const DEMO_ACCESS_KEY = "sgom-brawner-expertise-unlocked";
 
 const Signal = ({ points, progress, tone = "primary" }: { points: number[]; progress: number; tone?: "primary" | "warning" }) => (
@@ -220,9 +221,10 @@ export default function BrawnerExpertiseDemo({ standalone = false }: { standalon
   const Icon = stage.icon;
 
   const unlockDemo = async () => {
-    const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(accessCode));
+    const normalizedCode = accessCode.trim().normalize("NFKC");
+    const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(normalizedCode));
     const hash = Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
-    if (hash === DEMO_ACCESS_HASH) {
+    if (hash === DEMO_ACCESS_HASH || hash === DEMO_ACCESS_HASH_SIMPLE) {
       sessionStorage.setItem(DEMO_ACCESS_KEY, "1");
       setUnlocked(true);
     } else {
