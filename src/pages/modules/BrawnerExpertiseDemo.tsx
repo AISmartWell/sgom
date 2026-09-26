@@ -191,7 +191,7 @@ function StageVisual({ stage, progress }: { stage: number; progress: number }) {
   );
 }
 
-export default function BrawnerExpertiseDemo() {
+export default function BrawnerExpertiseDemo({ standalone = false }: { standalone?: boolean }) {
   const [active, setActive] = useState(0);
   const [playing, setPlaying] = useState(() => !window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   const [elapsed, setElapsed] = useState(0);
@@ -215,7 +215,12 @@ export default function BrawnerExpertiseDemo() {
   const Icon = stage.icon;
 
   return (
-    <div className="space-y-6">
+    <main className={standalone ? "min-h-screen bg-background text-foreground" : undefined}>
+    <div className={standalone ? "mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8" : "space-y-6"}>
+      {standalone && <div className="flex items-center justify-between border-b border-border pb-5">
+        <span className="text-xl font-bold text-primary">SGOM</span>
+        <span className="text-xs font-mono uppercase text-muted-foreground">Brawner 10-15 · Demonstration</span>
+      </div>}
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
@@ -252,7 +257,7 @@ export default function BrawnerExpertiseDemo() {
              <CardDescription>Illustrative lease surface and access infrastructure</CardDescription>
           </CardHeader>
           <CardContent>
-            <img src={satelliteView} alt="Satellite view of the Brawner 10-15 lease area" loading="lazy"
+             <img src={satelliteView} alt="Illustrative satellite-style view of a lease area" loading="lazy"
               className="rounded-md border border-border w-full h-52 object-cover" />
           </CardContent>
         </Card>
@@ -264,7 +269,7 @@ export default function BrawnerExpertiseDemo() {
              <CardDescription>Illustrative legacy paper well log</CardDescription>
           </CardHeader>
           <CardContent>
-            <img src={paperLog} alt="Scanned paper well log for Brawner 10-15" loading="lazy"
+             <img src={paperLog} alt="Illustrative legacy paper well log" loading="lazy"
               className="rounded-md border border-border w-full h-52 object-cover object-top" />
           </CardContent>
         </Card>
@@ -356,24 +361,37 @@ export default function BrawnerExpertiseDemo() {
         <CardHeader className="pb-3">
           <div className="flex flex-wrap items-center gap-2 mb-1">
             <Badge className="bg-orange-500/15 text-orange-400 border-orange-500/30">Stage 8 · Raw Curves</Badge>
-            <Badge variant="outline" className="text-[10px]">Data source shown in log</Badge>
+            <Badge variant="outline" className="text-[10px]">{standalone ? "Illustrative curves" : "Data source shown in log"}</Badge>
             <Badge className="bg-rose-500/15 text-rose-400 border-rose-500/30">Bypassed Pay Screening</Badge>
           </div>
           <CardTitle className="text-lg flex items-center gap-2">
             <BarChart3 className="w-5 h-5 text-orange-400" /> BRAWNER 10-15 — Composite Well Log
           </CardTitle>
           <CardDescription>
-            Digitised paper-log curves with fluid, perforation and correlation tracks. Check the data-source badge in the log: fallback curves and perforations may be synthetic.
+            {standalone
+              ? "Illustrative curve responses and interval flags show the interpretation workflow. This public demonstration does not access measured well data."
+              : "Digitised paper-log curves with fluid, perforation and correlation tracks. Check the data-source badge in the log: fallback curves and perforations may be synthetic."}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <EnhancedWellLog
-            wellId={BRAWNER_WELL_ID}
-            wellName="BRAWNER 10-15"
-            formation="ARBUCKLE"
-            totalDepth={5225}
-            defaultExpanded
-          />
+          {standalone ? <div className="space-y-3">
+            <p className="text-xs font-mono uppercase text-muted-foreground">Illustrative log · schematic only · not measured Brawner data</p>
+            <div className="grid grid-cols-[64px_repeat(3,minmax(0,1fr))] gap-2 text-center text-xs font-mono text-muted-foreground">
+              <span>Depth</span><span>GR</span><span>Resistivity</span><span>Pay flag</span>
+            </div>
+            <div className="grid grid-cols-[64px_repeat(3,minmax(0,1fr))] gap-2">
+              <div className="flex flex-col justify-between py-2 text-xs font-mono text-muted-foreground"><span>4,900 ft</span><span>5,000 ft</span><span>5,100 ft</span><span>5,225 ft</span></div>
+              <div className="border border-border bg-muted/20 p-2"><Signal points={[68, 49, 71, 61, 38, 32, 57, 84, 70, 40, 27, 54, 72]} progress={1} /></div>
+              <div className="border border-border bg-muted/20 p-2"><Signal points={[78, 69, 62, 42, 26, 35, 60, 78, 74, 47, 31, 57, 80]} progress={1} tone="warning" /></div>
+              <div className="flex flex-col justify-around border border-border bg-muted/20 px-2 text-center text-xs font-mono"><span className="text-muted-foreground">REVIEW</span><span className="text-primary">PAY</span><span className="text-warning">BYPASSED?</span><span className="text-muted-foreground">WATER</span></div>
+            </div>
+          </div> : <EnhancedWellLog
+              wellId={BRAWNER_WELL_ID}
+              wellName="BRAWNER 10-15"
+              formation="ARBUCKLE"
+              totalDepth={5225}
+              defaultExpanded
+            />}
         </CardContent>
       </Card>
 
@@ -443,8 +461,9 @@ export default function BrawnerExpertiseDemo() {
       </Card>
 
       <p className="text-xs text-muted-foreground">
-        Demonstration view only. Stage animations and summary figures are illustrative, not the output of a live nine-stage run. The composite log indicates whether measured data is available. Calculation methods and client datasets are not disclosed.
+        Demonstration view only. Stage animations and summary figures are illustrative, not the output of a live nine-stage run. {standalone ? "The schematic log does not use measured well records." : "The composite log indicates whether measured data is available."} Calculation methods and client datasets are not disclosed.
       </p>
     </div>
+    </main>
   );
 }
