@@ -76,10 +76,10 @@ export default function GeophysicsLiveDemo() {
 
   const reservoirs = result.intervals.filter((i) => i.isReservoir);
   const shownPay = reservoirs.filter((i) => yOf(i.top) / H <= pay);
-  const netPayLive = shownPay.filter((i) => i.isNetPay && !isBypassed(i)).reduce((s, i) => s + i.thickness, 0);
   const isWater = (i: IntervalResult) => !i.isNetPay && i.avgRes < 5;
   // Thin, low-contrast pay: easy to overlook on a paper log → bypassed opportunity
   const isBypassed = (i: IntervalResult) => !isWater(i) && (i.isNetPay ? i.avgRes < 15 : true);
+  const netPayLive = shownPay.filter((i) => i.isNetPay && !isBypassed(i)).reduce((s, i) => s + i.thickness, 0);
   const missedLive = shownPay.filter(isBypassed).reduce((s, i) => s + i.thickness, 0);
   // Volumetric estimate, 40-acre spacing, Bo 1.2, RF 15%
   const missedTotal = Math.round(reservoirs.filter(isBypassed).reduce((s, i) => s + i.thickness, 0));
