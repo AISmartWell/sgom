@@ -502,9 +502,9 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
               {renderGrid(POR_X, POR_W)}
 
               {/* ═══ PAY ZONES ═══ */}
-              {payZones.map((pz, i) => {
+              {[...payZones.map(z => ({ ...z, isMissed: false })), ...missedZones.map(z => ({ ...z, isMissed: true }))].map((pz, i) => {
                 const y1 = yForDepth(pz.top), y2 = yForDepth(pz.bottom);
-                const isMissed = missedZones.some(mz => mz.top === pz.top && mz.bottom === pz.bottom);
+                const isMissed = pz.isMissed;
                 return (
                   <g key={`pz${i}`}>
                     {[GR_X, RES_X, POR_X].map((tx, ti) => (
@@ -515,8 +515,7 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
                       stroke={isMissed ? "#ef4444" : C.payZone} strokeWidth={isMissed ? 1.5 : 0.8} strokeDasharray={isMissed ? "3,2" : "6,4"} opacity={0.8} />
                     <line x1={LITH_X} y1={y2} x2={COR_X + COR_W} y2={y2}
                       stroke={isMissed ? "#ef4444" : C.payZone} strokeWidth={isMissed ? 1.5 : 0.8} strokeDasharray={isMissed ? "3,2" : "6,4"} opacity={0.8} />
-                    {/* Missed zone label */}
-                    {isMissed && y2 - y1 > 15 && (
+                    {isMissed && y2 - y1 > 12 && (
                       <g>
                         <rect x={DEPTH_X + 1} y={(y1 + y2) / 2 - 6} width={DEPTH_W - 2} height={12} rx="2" fill="#ef4444" opacity={0.85} />
                         <text x={DEPTH_X + DEPTH_W / 2} y={(y1 + y2) / 2 + 2} textAnchor="middle"
