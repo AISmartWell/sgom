@@ -23,9 +23,20 @@ export function assessBypassedPay(
   if (!perforations.length) return { status: "no_records", perfsInLog: [], missed: [], missedFt: 0 };
   const perfsInLog = perforations.filter((p) => p.depth_from < logBottom && p.depth_to > logTop);
   if (!perfsInLog.length) return { status: "outside_log", perfsInLog, missed: [], missedFt: 0 };
-  const missed = payZones.filter(
-    (z) => !perfsInLog.some((p) => p.depth_from < z.bottom && p.depth_to > z.top),
-  );
+  // Subtract perforated footage from each pay zone; leftover pieces >= 2 ft are bypassed pay
+  // (e.g. pay 5024–5046 with perf 5024–5032 → missed 5032–5046).
+  const sorted = [...perfsInLog].sort((a, b) => a.depth_from - b.depth_from);
+  const missed: DepthInterval[] = [];
+  for (const z of payZones) {
+    let cur = z.top;
+    for (const p of sorted) {
+      if (p.depth_to <= cur || p.depth_from >= z.bottom) continue;
+      if (p.depth_from > cur) missed.push({ top: cur, bottom: p.depth_from });
+      cur = Math.max(cur, p.depth_to);
+    }
+    if (cur < z.bottom) missed.push({ top: cur, bottom: z.bottom });
+  }
+  for (let i = missed.length - 1; i >= 0; i--) if (missed[i].bottom - missed[i].top < 2) missed.splice(i, 1);
   const missedFt = Math.round(missed.reduce((s, z) => s + (z.bottom - z.top), 0));
   return { status: "ok", perfsInLog, missed, missedFt };
 }
