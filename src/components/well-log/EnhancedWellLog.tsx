@@ -150,7 +150,8 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
   // Only real perforation records — never synthetic (they caused false MISSED flags).
   const perfIntervals = perforations;
   const [expanded, setExpanded] = useState(defaultExpanded);
-  const [zoomFactor, setZoomFactor] = useState(2);
+  // Show the full logged interval by default (zoom 2 cut Brawner off at 4960 ft).
+  const [zoomFactor, setZoomFactor] = useState(1);
   const [scrollOffset, setScrollOffset] = useState(0);
   const [showInterpretation, setShowInterpretation] = useState(showInterpretationByDefault);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -843,10 +844,14 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
               {(() => {
                 const labels: JSX.Element[] = [];
                 let lastLabel = "";
+                let lastY = -Infinity;
                 for (let i = 0; i < visibleData.length; i++) {
                   const lith = getLithology(visibleData[i].gr);
                   if (lith.label !== lastLabel) {
                     const y = yForDepth(visibleData[i].depth);
+                    lastLabel = lith.label;
+                    if (y - lastY < 30) continue; // avoid overlapping COR labels
+                    lastY = y;
                     labels.push(
                       <g key={`cor-${i}`}>
                         <rect x={COR_X + 2} y={y - 1} width={COR_W - 4} height={28}
@@ -854,10 +859,9 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
                         <text x={COR_X + COR_W / 2} y={y + 10} textAnchor="middle"
                           fill={C.text} fontSize="6.5" fontWeight="600">{lith.label}</text>
                         <text x={COR_X + COR_W / 2} y={y + 20} textAnchor="middle"
-                          fill={`${C.text}88`} fontSize="6">{visibleData[i].depth.toFixed(2)}'</text>
+                          fill={`${C.text}88`} fontSize="6">{visibleData[i].depth.toFixed(0)}'</text>
                       </g>
                     );
-                    lastLabel = lith.label;
                   }
                 }
                 return labels;
