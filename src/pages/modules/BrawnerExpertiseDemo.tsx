@@ -356,7 +356,7 @@ export default function BrawnerExpertiseDemo() {
         <CardHeader className="pb-3">
           <div className="flex flex-wrap items-center gap-2 mb-1">
             <Badge className="bg-orange-500/15 text-orange-400 border-orange-500/30">Stage 8 · Raw Curves</Badge>
-            <Badge variant="outline" className="text-[10px]">72 Real Log Points</Badge>
+            <Badge variant="outline" className="text-[10px]">Data source shown in log</Badge>
             <Badge className="bg-rose-500/15 text-rose-400 border-rose-500/30">Bypassed Pay Screening</Badge>
           </div>
           <CardTitle className="text-lg flex items-center gap-2">
@@ -382,7 +382,7 @@ export default function BrawnerExpertiseDemo() {
         <CardHeader className="pb-3">
           <div className="flex items-center gap-2 mb-1">
             <Badge className="bg-emerald-500/15 text-emerald-400 border-emerald-500/30">Stage 8 · Step 10</Badge>
-            <Badge variant="outline" className="text-[10px]">Real Data</Badge>
+            <Badge variant="outline" className="text-[10px]">Illustrative Summary</Badge>
           </div>
           <CardTitle className="text-lg flex items-center gap-2">
             <FileBarChart className="w-5 h-5 text-emerald-400" /> Final Report — BRAWNER 10-15
