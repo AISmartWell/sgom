@@ -1,5 +1,8 @@
 # Roadmap
 
+## In progress
+- [ ] Standalone Brawner Expertise demonstration accessible without platform sign-in; keep public content illustrative and independent of private well data.
+
 ## Done
 - [x] Brawner Expertise interactive nine-stage walkthrough with visible per-stage analysis, playback, direct stage selection and illustrative data labels.
 - [x] Visual redesign of SGOM platform — direction "Cinematic Tech Workspace" applied
