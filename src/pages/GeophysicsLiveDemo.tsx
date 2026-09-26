@@ -43,7 +43,7 @@ const yOf = (d: number) => ((d - TOP) / (BOT - TOP)) * H;
 export default function GeophysicsLiveDemo() {
   const data = useMemo(buildLog, []);
   const result = useMemo(() => interpretWellLog(data), [data]);
-  const [t, setT] = useState(0);
+  const [t, setT] = useState(() => (new URLSearchParams(window.location.search).get("end") ? 1 : 0));
   const [playing, setPlaying] = useState(true);
   const last = useRef<number | null>(null);
 
@@ -121,14 +121,14 @@ export default function GeophysicsLiveDemo() {
             {/* depth */}
             <div className="flex flex-col items-end">
               <div className="text-[10px] font-mono text-muted-foreground mb-1">DEPTH ft</div>
-              <svg width={44} height={H}>
+              <svg width={44} height={H} style={{ overflow: "visible" }}>
                 {Array.from({ length: 7 }, (_, i) => TOP + i * 50).map((d) => (
-                  <text key={d} x={40} y={yOf(d) + 4} textAnchor="end" className="fill-muted-foreground" fontSize={10} fontFamily="monospace">{d}</text>
+                  <text key={d} x={40} y={Math.min(H - 2, Math.max(10, yOf(d) + 4))} textAnchor="end" className="fill-muted-foreground" fontSize={10} fontFamily="monospace">{d}</text>
                 ))}
               </svg>
             </div>
             <Track title="GR" unit="API">
-              <path d={path("gr", 0, 150)} fill="none" stroke="hsl(var(--success))" strokeWidth={1.4} />
+              <path d={path("gr", 0, 150)} fill="none" stroke="hsl(var(--foreground) / 0.85)" strokeWidth={1.4} />
             </Track>
             <Track title="LITHOLOGY" unit="">
               {result.intervals.filter((iv) => yOf(iv.top) / H <= lith).map((iv, i) => (
