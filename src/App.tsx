@@ -70,6 +70,7 @@ import CosmosDemo from "./pages/CosmosDemo";
 import CosmosSimulatorPage from "./pages/CosmosSimulator";
 import CosmosSimulatorEmbed from "./pages/CosmosSimulatorEmbed";
 import CosmosRealTest from "./pages/CosmosRealTest";
+import GeophysicsLiveDemo from "./pages/GeophysicsLiveDemo";
 import SPTPipelineDemo from "./pages/SPTPipelineDemo";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
@@ -217,6 +218,7 @@ const App = () => (
                <Route path="/cosmos-real-test" element={<CosmosRealTest />} />
                <Route path="/fluid-simulation" element={<FluidPhysicsSimulation />} />
                <Route path="/spt-pipeline-demo" element={<SPTPipelineDemo />} />
+               <Route path="/geophysics-live" element={<GeophysicsLiveDemo />} />
                 <Route path="/innovation" element={<Innovation />} />
                 <Route path="/ai4e2026" element={<AI4E2026 />} />
                 <Route path="/dashboard/ai4e2026" element={<AI4E2026 />} />
