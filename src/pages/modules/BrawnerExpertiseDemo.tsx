@@ -322,7 +322,10 @@ export default function BrawnerExpertiseDemo({ standalone = false }: { standalon
               loading="lazy"
               width={1344}
               height={768}
-              onError={(event) => event.currentTarget.classList.add("hidden")}
+              onError={(event) => {
+                const fallback = i === 1 ? paperLog : satelliteView;
+                if (!event.currentTarget.src.endsWith(fallback)) event.currentTarget.src = fallback;
+              }}
               className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
                 i === active ? "opacity-100" : "opacity-0"
               }`}
