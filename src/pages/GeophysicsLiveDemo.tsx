@@ -1,7 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Play, Pause, RotateCcw, SkipForward, ScanLine, Layers, Droplets, Target, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Play, Pause, RotateCcw, SkipForward, ScanLine, Layers, Droplets, Target, AlertTriangle, CheckCircle2, Lock } from "lucide-react";
 import { interpretWellLog, type PetroPoint, type IntervalResult } from "@/lib/petrophysics";
+
+/* ── Simple access gate: SHA-256 of the demo access code ── */
+const GATE_HASH = "ffd51ce638836a998b8b514a4ee47c339a607b347c97bd7ce86f397c5695dceb";
+const GATE_KEY = "sgom-geophysics-live-unlocked";
 
 /* ── Deterministic Brawner 10-15 demo log (no Math.random) ── */
 const TOP = 3400, BOT = 3700, STEP = 2;
@@ -59,6 +63,16 @@ export default function GeophysicsLiveDemo() {
   const [t, setT] = useState(() => (new URLSearchParams(window.location.search).get("end") ? 1 : 0));
   const [playing, setPlaying] = useState(true);
   const last = useRef<number | null>(null);
+  const [unlocked, setUnlocked] = useState(() => sessionStorage.getItem(GATE_KEY) === "1");
+  const [code, setCode] = useState("");
+  const [gateError, setGateError] = useState(false);
+
+  const tryUnlock = async () => {
+    const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(code));
+    const hex = Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+    if (hex === GATE_HASH) { sessionStorage.setItem(GATE_KEY, "1"); setUnlocked(true); }
+    else { setGateError(true); setCode(""); }
+  };
 
   useEffect(() => {
     if (!playing) { last.current = null; return; }
@@ -113,6 +127,32 @@ export default function GeophysicsLiveDemo() {
   );
 
   const Phase = PHASES[phaseIdx];
+
+  if (!unlocked) {
+    return (
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center px-6">
+        <div className="w-full max-w-sm border border-border/60 rounded-xl bg-card/60 p-8 text-center">
+          <div className="mx-auto mb-4 w-12 h-12 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center">
+            <Lock className="w-5 h-5 text-primary" />
+          </div>
+          <h1 className="text-lg font-semibold tracking-tight">Private demo</h1>
+          <p className="mt-2 text-sm text-muted-foreground">This Brawner 10-15 demonstration is shared by access code only. Enter the code you received.</p>
+          <input
+            type="password"
+            value={code}
+            autoFocus
+            placeholder="Access code"
+            onChange={(e) => { setCode(e.target.value); setGateError(false); }}
+            onKeyDown={(e) => e.key === "Enter" && tryUnlock()}
+            className="mt-5 w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-center tracking-widest outline-none focus:border-primary"
+          />
+          {gateError && <p className="mt-2 text-xs text-destructive">Wrong code — please try again.</p>}
+          <Button className="mt-4 w-full" onClick={tryUnlock}>Unlock demo</Button>
+          <p className="mt-4 text-[11px] text-muted-foreground">SGOM · AI Smart Well Inc.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground">
