@@ -193,7 +193,7 @@ function StageVisual({ stage, progress }: { stage: number; progress: number }) {
 
 export default function BrawnerExpertiseDemo() {
   const [active, setActive] = useState(0);
-  const [playing, setPlaying] = useState(false);
+  const [playing, setPlaying] = useState(() => !window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   const [elapsed, setElapsed] = useState(0);
   const stage = STAGES[active];
 
@@ -209,7 +209,7 @@ export default function BrawnerExpertiseDemo() {
     setElapsed(0);
   }, [elapsed, active, playing]);
 
-  const selectStage = (index: number) => { setActive(index); setElapsed(0); setPlaying(false); };
+  const selectStage = (index: number) => { setActive(index); setElapsed(STEP_MS); setPlaying(false); };
   const stageProgress = elapsed / STEP_MS;
   const progress = ((active + stageProgress) / STAGES.length) * 100;
   const Icon = stage.icon;

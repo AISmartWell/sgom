@@ -1,0 +1,1 @@
+- Keep Brawner's nine-stage demonstration visuals inside its existing page and distinguish illustrative animation/summary from measured composite-log data, so presentations never imply a live analysis ran.
