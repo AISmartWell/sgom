@@ -3453,9 +3453,7 @@ const GeophysicalExpertise = () => {
                             interpretation.netToGross >= 60
                               ? "High net-to-gross — reservoir quality supports a staged completion."
                               : "Moderate net-to-gross — restrict treatment to the best-quality intervals.",
-                            interpretation.totalMissedPay > 0
-                              ? `${interpretation.totalMissedPay} ft of bypassed pay identified outside existing perforations.`
-                              : "No bypassed pay detected against existing perforations.",
+                            bypassedMsg,
                             interpretation.dominantFluid === "oil"
                               ? "Dominant fluid: oil — promote to SPT / EOR screening."
                               : `Dominant fluid: ${interpretation.dominantFluid} — verify saturation before treatment.`,
