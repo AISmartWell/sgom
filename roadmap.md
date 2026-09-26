@@ -1,6 +1,7 @@
 # Roadmap
 
 ## Done
+- [x] Share Geophysical Agent conclusions with teammates in the same company; show loading errors instead of an empty state.
 - [x] Standalone Brawner Expertise demonstration accessible by code without platform sign-in; public log is schematic and independent of private well data.
 - [x] Brawner Expertise interactive nine-stage walkthrough with visible per-stage analysis, playback, direct stage selection and illustrative data labels.
 - [x] Visual redesign of SGOM platform — direction "Cinematic Tech Workspace" applied

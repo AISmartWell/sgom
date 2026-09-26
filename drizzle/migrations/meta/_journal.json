@@ -15,6 +15,13 @@
       "when": 1789862180058,
       "tag": "0001_add_team_roles",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790433274798,
+      "tag": "0002_share_geophysics_runs_with_well_company",
+      "breakpoints": true
     }
   ]
 }

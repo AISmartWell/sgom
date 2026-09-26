@@ -45,9 +45,13 @@ const Conclusions = () => {
   const [loading, setLoading] = useState(true);
   const [runs, setRuns] = useState<AgentRun[]>([]);
   const [forecasts, setForecasts] = useState<ForecastRow[]>([]);
+  const [runsError, setRunsError] = useState<string | null>(null);
+  const [forecastsError, setForecastsError] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
+    setRunsError(null);
+    setForecastsError(null);
     const [r1, r2] = await Promise.all([
       supabase
         .from("geophysics_agent_runs")
@@ -62,8 +66,10 @@ const Conclusions = () => {
         .order("created_at", { ascending: false })
         .limit(50),
     ]);
-    setRuns((r1.data as AgentRun[]) ?? []);
-    setForecasts((r2.data as ForecastRow[]) ?? []);
+    setRunsError(r1.error ? "Could not load conclusions. Please try again." : null);
+    setForecastsError(r2.error ? "Could not load forecasts. Please try again." : null);
+    setRuns(r1.error ? [] : (r1.data as AgentRun[]) ?? []);
+    setForecasts(r2.error ? [] : (r2.data as ForecastRow[]) ?? []);
     setLoading(false);
   };
 
@@ -105,7 +111,8 @@ const Conclusions = () => {
           </TabsList>
 
           <TabsContent value="conclusions" className="mt-6 space-y-4">
-            {runs.length === 0 && (
+            {runsError && <p role="alert" className="text-sm text-destructive">{runsError}</p>}
+            {!runsError && runs.length === 0 && (
               <Card className="glass-card">
                 <CardContent className="py-10 text-center text-muted-foreground text-sm">
                   No agent conclusions yet. Run the Geophysical AI Agent on a well.
@@ -171,7 +178,8 @@ const Conclusions = () => {
           </TabsContent>
 
           <TabsContent value="forecasts" className="mt-6 space-y-4">
-            {forecasts.length === 0 && (
+            {forecastsError && <p role="alert" className="text-sm text-destructive">{forecastsError}</p>}
+            {!forecastsError && forecasts.length === 0 && (
               <Card className="glass-card">
                 <CardContent className="py-10 text-center text-muted-foreground text-sm">
                   No forecasts yet. Run SPT Advisor to create a forecast and work order.
