@@ -322,6 +322,7 @@ export default function BrawnerExpertiseDemo({ standalone = false }: { standalon
               loading="lazy"
               width={1344}
               height={768}
+              onError={(event) => event.currentTarget.classList.add("hidden")}
               className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
                 i === active ? "opacity-100" : "opacity-0"
               }`}
