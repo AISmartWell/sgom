@@ -901,7 +901,7 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
                     fill="#0a0f1c" fontSize="8" fontWeight="800" fontFamily="monospace">{hoverData.point.depth.toFixed(2)}'</text>
                   {/* Tooltip */}
                   {(() => {
-                    const tx = RES_X + 8;
+                    const tx = RES_X + 68;
                     const ty = hoverData.y < totalH / 2 ? hoverData.y + 12 : hoverData.y - 110;
                     const rows = [
                       { c: C.gr, l: "GR", v: `${hoverData.point.gr.toFixed(1)} API` },
