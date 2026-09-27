@@ -415,7 +415,7 @@ export default function BrawnerExpertiseDemo({ standalone = false }: { standalon
           <EnhancedWellLog
               wellId={standalone ? "" : BRAWNER_WELL_ID}
               wellName="BRAWNER 10-15"
-              formation="ARBUCKLE"
+               formation="Rodessa"
               totalDepth={5225}
               defaultExpanded
             />

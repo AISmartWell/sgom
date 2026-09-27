@@ -233,26 +233,17 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
       .map(i => ({ top: i.top, bottom: i.bottom, label: `${fluidEmoji(i.fluidType)} ${i.fluidType}` }));
   }, [interpretation]);
 
-  // Parse formation intervals from formation string (e.g. "Rodessa / Upper Carlisle / James Lime")
+  // A well-level formation name does not contain depth boundaries. Only display
+  // depth-labelled formation intervals when their boundaries are documented.
   const formationIntervals = useMemo(() => {
-    if (!formation) return [];
-    const names = formation.split(/\s*[\/,]\s*/).map(s => s.trim()).filter(Boolean);
-    if (names.length === 0) return [];
-    const dMin = allData.length > 0 ? allData[0].depth : 0;
-    const dMax = allData.length > 0 ? allData[allData.length - 1].depth : totalDepth ?? 3500;
-    const range = dMax - dMin;
-    // Distribute formation intervals across the depth range
-    // Focus intervals in the lower 60% of the well (where productive zones typically are)
-    const startFrac = 0.4;
-    const intervalStart = dMin + range * startFrac;
-    const intervalRange = range * (1 - startFrac);
-    return names.map((name, i) => ({
-      name,
-      top: Math.round(intervalStart + (i / names.length) * intervalRange),
-      bottom: Math.round(intervalStart + ((i + 1) / names.length) * intervalRange),
-      color: ["#f59e0b", "#3b82f6", "#10b981", "#8b5cf6", "#ef4444"][i % 5],
-    }));
-  }, [formation, allData, totalDepth]);
+    if (wellId !== "e688229c-cb05-4ee8-be8b-d4953e55060b" || !hasRealData) return [];
+    // Brawner 10-15: Carlisle sandstones at 4850–4916 ft are within Rodessa;
+    // James Lime begins at 5024 ft, not at an arbitrary percentage of the log.
+    return [
+      { name: "Rodessa", top: 4850, bottom: 5024, color: C.sandFill },
+      { name: "James Lime", top: 5024, bottom: 5070, color: C.limeFill },
+    ];
+  }, [wellId, hasRealData]);
 
   // Missed/bypassed zones — shared logic with recommendations (no contradiction possible)
   const logTop = allData.length ? allData[0].depth : 0;
@@ -554,41 +545,6 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
                 );
               })}
 
-              {/* ═══ FORMATION INTERVAL LABELS ═══ */}
-              {formationIntervals.map((fi, i) => {
-                const y1 = yForDepth(fi.top), y2 = yForDepth(fi.bottom);
-                if (y2 < HEADER_H || y1 > HEADER_H + plotH) return null;
-                const clampY1 = Math.max(HEADER_H + 2, y1);
-                const clampY2 = Math.min(HEADER_H + plotH - 2, y2);
-                const h = clampY2 - clampY1;
-                if (h < 10) return null;
-                return (
-                  <g key={`fi-${i}`}>
-                    {/* Side bracket on LITH track */}
-                    <line x1={LITH_X + 2} y1={clampY1} x2={LITH_X + 2} y2={clampY2}
-                      stroke={fi.color} strokeWidth="2.5" opacity={0.7} />
-                    <line x1={LITH_X + 2} y1={clampY1} x2={LITH_X + 8} y2={clampY1}
-                      stroke={fi.color} strokeWidth="1.5" opacity={0.7} />
-                    <line x1={LITH_X + 2} y1={clampY2} x2={LITH_X + 8} y2={clampY2}
-                      stroke={fi.color} strokeWidth="1.5" opacity={0.7} />
-                    {/* Formation name label */}
-                    {h > 20 && (
-                      <g transform={`translate(${LITH_X + LITH_W / 2}, ${(clampY1 + clampY2) / 2})`}>
-                        <rect x={-35} y={-7} width={70} height={14} rx="3" fill={`${fi.color}30`} stroke={fi.color} strokeWidth="0.5" />
-                        <text x={0} y={3.5} textAnchor="middle" fill={fi.color} fontSize="6.5" fontWeight="700">
-                          {fi.name.length > 12 ? fi.name.substring(0, 11) + "…" : fi.name}
-                        </text>
-                      </g>
-                    )}
-                    {/* Depth range */}
-                    {h > 35 && (
-                      <text x={LITH_X + LITH_W / 2} y={(clampY1 + clampY2) / 2 + 14} textAnchor="middle"
-                        fill={`${fi.color}88`} fontSize="5.5">{fi.top}–{fi.bottom} ft</text>
-                    )}
-                  </g>
-                );
-              })}
-
               {/* ═══ LITHOLOGY TRACK ═══ */}
               {(() => {
                 if (visibleData.length < 2) return null;
@@ -612,6 +568,36 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
                 }
                 return segments;
               })()}
+
+              {/* ═══ DOCUMENTED FORMATION INTERVALS ═══ */}
+              {formationIntervals.map((fi, i) => {
+                const y1 = yForDepth(fi.top), y2 = yForDepth(fi.bottom);
+                if (y2 < HEADER_H || y1 > HEADER_H + plotH) return null;
+                const clampY1 = Math.max(HEADER_H + 2, y1);
+                const clampY2 = Math.min(HEADER_H + plotH - 2, y2);
+                const h = clampY2 - clampY1;
+                if (h < 10) return null;
+                return (
+                  <g key={`fi-${i}`}>
+                    <line x1={LITH_X + 2} y1={clampY1} x2={LITH_X + 2} y2={clampY2}
+                      stroke={fi.color} strokeWidth="2.5" opacity={0.7} />
+                    <line x1={LITH_X + 2} y1={clampY1} x2={LITH_X + 8} y2={clampY1}
+                      stroke={fi.color} strokeWidth="1.5" opacity={0.7} />
+                    <line x1={LITH_X + 2} y1={clampY2} x2={LITH_X + 8} y2={clampY2}
+                      stroke={fi.color} strokeWidth="1.5" opacity={0.7} />
+                    {h > 20 && (
+                      <g transform={`translate(${LITH_X + LITH_W / 2}, ${(clampY1 + clampY2) / 2})`}>
+                        <rect x={-35} y={-7} width={70} height={14} rx="3" fill={`${fi.color}30`} stroke={fi.color} strokeWidth="0.5" />
+                        <text x={0} y={3.5} textAnchor="middle" fill={fi.color} fontSize="6.5" fontWeight="700">{fi.name}</text>
+                      </g>
+                    )}
+                    {h > 35 && (
+                      <text x={LITH_X + LITH_W / 2} y={(clampY1 + clampY2) / 2 + 14} textAnchor="middle"
+                        fill={fi.color} fontSize="5.5">{fi.top}–{fi.bottom} ft</text>
+                    )}
+                  </g>
+                );
+              })}
 
               {/* ═══ DEPTH LABELS ═══ */}
               {depthTicks.map(d => (
