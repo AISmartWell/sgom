@@ -896,8 +896,8 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
                     </g>
                   ))}
                   {/* Depth badge */}
-                  <rect x={DEPTH_X + 2} y={hoverData.y - 8} width={DEPTH_W - 4} height={16} rx="3" fill={C.crosshair} opacity={0.45} />
-                  <text x={DEPTH_X + DEPTH_W / 2} y={hoverData.y + 3.5} textAnchor="middle"
+                  <rect x={DEPTH_X + DEPTH_W + 3} y={hoverData.y - 8} width={DEPTH_W - 6} height={16} rx="3" fill={C.crosshair} opacity={0.45} />
+                  <text x={DEPTH_X + DEPTH_W + 3 + (DEPTH_W - 6) / 2} y={hoverData.y + 3.5} textAnchor="middle"
                     fill="#0a0f1c" fontSize="8" fontWeight="800" fontFamily="monospace">{hoverData.point.depth.toFixed(2)}'</text>
                   {/* Tooltip */}
                   {(() => {
