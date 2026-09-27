@@ -262,6 +262,19 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
     [payZones, perfIntervals, logTop, logBottom]
   );
   const missedZones = perfAssessment.missed;
+  // Perforated portions of pay zones (pay ∩ perfs) — shown green, vs red MISSED remainders.
+  const perfedZones = useMemo(() => {
+    if (perfAssessment.status !== "ok") return [] as { top: number; bottom: number }[];
+    const out: { top: number; bottom: number }[] = [];
+    for (const z of payZones) {
+      for (const p of perfAssessment.perfsInLog) {
+        const top = Math.max(z.top, p.depth_from);
+        const bottom = Math.min(z.bottom, p.depth_to);
+        if (bottom - top >= 0.5) out.push({ top, bottom });
+      }
+    }
+    return out;
+  }, [payZones, perfAssessment]);
 
   // Has NPHI/RHOB
   const hasDenNphi = useMemo(() => allData.some(p => p.rhob !== null || p.nphi !== null), [allData]);
@@ -502,24 +515,39 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
               {renderGrid(POR_X, POR_W)}
 
               {/* ═══ PAY ZONES ═══ */}
-              {[...payZones.map(z => ({ ...z, isMissed: false })), ...missedZones.map(z => ({ ...z, isMissed: true }))].map((pz, i) => {
+              {/* When perforations are known, split pay into perforated (green) vs missed (red);
+                  otherwise show the whole pay zone in amber. */}
+              {(perfAssessment.status === "ok"
+                ? [...perfedZones.map(z => ({ ...z, kind: "perfed" as const })), ...missedZones.map(z => ({ ...z, kind: "missed" as const }))]
+                : payZones.map(z => ({ ...z, kind: "pay" as const }))
+              ).map((pz, i) => {
                 const y1 = yForDepth(pz.top), y2 = yForDepth(pz.bottom);
-                const isMissed = pz.isMissed;
+                const isMissed = pz.kind === "missed";
+                const isPerfed = pz.kind === "perfed";
+                const stroke = isMissed ? "#ef4444" : isPerfed ? "#22c55e" : C.payZone;
+                const fill = isMissed ? "#ef444425" : isPerfed ? "#22c55e20" : `${C.payZone}15`;
                 return (
                   <g key={`pz${i}`}>
                     {[GR_X, RES_X, POR_X].map((tx, ti) => (
                       <rect key={ti} x={tx} y={y1} width={ti === 0 ? GR_W : ti === 1 ? RES_W : POR_W}
-                        height={y2 - y1} fill={isMissed ? "#ef444425" : `${C.payZone}15`} />
+                        height={y2 - y1} fill={fill} />
                     ))}
                     <line x1={LITH_X} y1={y1} x2={COR_X + COR_W} y2={y1}
-                      stroke={isMissed ? "#ef4444" : C.payZone} strokeWidth={isMissed ? 1.5 : 0.8} strokeDasharray={isMissed ? "3,2" : "6,4"} opacity={0.8} />
+                      stroke={stroke} strokeWidth={isMissed || isPerfed ? 1.5 : 0.8} strokeDasharray={isMissed ? "3,2" : "6,4"} opacity={0.8} />
                     <line x1={LITH_X} y1={y2} x2={COR_X + COR_W} y2={y2}
-                      stroke={isMissed ? "#ef4444" : C.payZone} strokeWidth={isMissed ? 1.5 : 0.8} strokeDasharray={isMissed ? "3,2" : "6,4"} opacity={0.8} />
+                      stroke={stroke} strokeWidth={isMissed || isPerfed ? 1.5 : 0.8} strokeDasharray={isMissed ? "3,2" : "6,4"} opacity={0.8} />
                     {isMissed && y2 - y1 > 12 && (
                       <g>
                         <rect x={DEPTH_X + 1} y={(y1 + y2) / 2 - 6} width={DEPTH_W - 2} height={12} rx="2" fill="#ef4444" opacity={0.85} />
                         <text x={DEPTH_X + DEPTH_W / 2} y={(y1 + y2) / 2 + 2} textAnchor="middle"
                           fill="#fff" fontSize="5.5" fontWeight="800" letterSpacing="0.5">MISSED</text>
+                      </g>
+                    )}
+                    {isPerfed && y2 - y1 > 12 && (
+                      <g>
+                        <rect x={DEPTH_X + 1} y={(y1 + y2) / 2 - 6} width={DEPTH_W - 2} height={12} rx="2" fill="#22c55e" opacity={0.85} />
+                        <text x={DEPTH_X + DEPTH_W / 2} y={(y1 + y2) / 2 + 2} textAnchor="middle"
+                          fill="#052e12" fontSize="5.5" fontWeight="800" letterSpacing="0.5">PERFED</text>
                       </g>
                     )}
                   </g>
