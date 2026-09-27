@@ -262,6 +262,19 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
     [payZones, perfIntervals, logTop, logBottom]
   );
   const missedZones = perfAssessment.missed;
+  // Perforated portions of pay zones (pay ∩ perfs) — shown green, vs red MISSED remainders.
+  const perfedZones = useMemo(() => {
+    if (perfAssessment.status !== "ok") return [] as { top: number; bottom: number }[];
+    const out: { top: number; bottom: number }[] = [];
+    for (const z of payZones) {
+      for (const p of perfAssessment.perfsInLog) {
+        const top = Math.max(z.top, p.depth_from);
+        const bottom = Math.min(z.bottom, p.depth_to);
+        if (bottom - top >= 0.5) out.push({ top, bottom });
+      }
+    }
+    return out;
+  }, [payZones, perfAssessment]);
 
   // Has NPHI/RHOB
   const hasDenNphi = useMemo(() => allData.some(p => p.rhob !== null || p.nphi !== null), [allData]);
