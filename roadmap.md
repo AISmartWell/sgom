@@ -1,5 +1,8 @@
 # Roadmap
 
+## Current
+- [ ] Verify whether Brawner 10-15 has measured pre-/post-SPT oil rates or only a baseline and forecast; report the distinction before showing a 2015 → SPT → 2026 comparison.
+
 ## Done
 - [x] Align Brawner LITH formation labels with documented Rodessa and James Lime depths; do not infer boundaries from the well formation name.
 - [x] Make the depth-aligned illustrative composite well log the main visual on the standalone Brawner demonstration, visible before the nine stages.
