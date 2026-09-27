@@ -1,6 +1,10 @@
 # Roadmap
 
+## Current
+- [ ] 2015 → SPT → 2026 Brawner comparison: awaits documented 2015 Brawner rate and measured post-SPT result, or confirmation to show a forecast instead. Current records contain neither a 2015 Brawner rate nor a post-treatment measurement.
+
 ## Done
+- [x] Verify Brawner 10-15 rates: production history covers 2023–2024; the 2026 SPT work order is planned with 46.23 BOPD forecast baseline and 60.1 BOPD P50 forecast, with no measured post-SPT rate.
 - [x] Align Brawner LITH formation labels with documented Rodessa and James Lime depths; do not infer boundaries from the well formation name.
 - [x] Make the depth-aligned illustrative composite well log the main visual on the standalone Brawner demonstration, visible before the nine stages.
 - [x] Share Geophysical Agent conclusions with teammates in the same company; show loading errors instead of an empty state.
