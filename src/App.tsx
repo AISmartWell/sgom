@@ -220,15 +220,7 @@ const App = () => (
                <Route path="/cosmos-real-test" element={<CosmosRealTest />} />
                <Route path="/fluid-simulation" element={<FluidPhysicsSimulation />} />
                <Route path="/spt-pipeline-demo" element={<SPTPipelineDemo />} />
-               <Route path="/geophysics-live" element={<>
-                 <Helmet>
-                   <title>SGOM Geophysics Live — Illustrative Well Log Interpretation</title>
-                   <meta name="description" content="Explore SGOM's illustrative geophysical demonstration: digitized well logs, petrophysical interpretation, pay zones and a guided analysis of Brawner 10-15." />
-                   <meta property="og:title" content="SGOM Geophysics Live — Illustrative Well Log Interpretation" />
-                   <meta property="og:description" content="An illustrative SGOM geophysical demonstration of well-log interpretation and pay-zone analysis. Access code required." />
-                 </Helmet>
-                 <GeophysicsLiveDemo />
-               </>} />
+               <Route path="/geophysics-live" element={<GeophysicsLiveDemo />} />
                 <Route path="/innovation" element={<Innovation />} />
                 <Route path="/ai4e2026" element={<AI4E2026 />} />
                 <Route path="/dashboard/ai4e2026" element={<AI4E2026 />} />
