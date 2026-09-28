@@ -58,6 +58,25 @@ const W = 110, H = 560;
 const yOf = (d: number) => ((d - TOP) / (BOT - TOP)) * H;
 
 export default function GeophysicsLiveDemo() {
+  useEffect(() => {
+    const title = document.title;
+    const updates: [string, string][] = [
+      ['meta[name="description"]', "Explore SGOM's illustrative geophysical demonstration: digitized well logs, petrophysical interpretation, pay zones and a guided analysis of Brawner 10-15."],
+      ['meta[property="og:title"]', "SGOM Geophysics Live — Illustrative Well Log Interpretation"],
+      ['meta[property="og:description"]', "An illustrative SGOM geophysical demonstration of well-log interpretation and pay-zone analysis. Access code required."],
+    ];
+    const previous = updates.map(([selector, content]) => {
+      const tag = document.querySelector<HTMLMetaElement>(selector);
+      const original = tag?.content;
+      if (tag) tag.content = content;
+      return [tag, original] as const;
+    });
+    document.title = "SGOM Geophysics Live — Illustrative Well Log Interpretation";
+    return () => {
+      document.title = title;
+      previous.forEach(([tag, original]) => { if (tag && original !== undefined) tag.content = original; });
+    };
+  }, []);
   const data = useMemo(buildLog, []);
   const result = useMemo(() => interpretWellLog(data), [data]);
   const [t, setT] = useState(() => (new URLSearchParams(window.location.search).get("end") ? 1 : 0));
