@@ -161,7 +161,7 @@ const Index = () => {
             </h1>
 
             <p className="text-lg md:text-xl font-light text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed animate-fade-up-delay-2">
-              SGOM detects bypassed pay and ranks low-producing and shut-in wells for production restoration,
+              SGOM detects bypassed pay and ranks low-producing and abandoned wells for potential restoration,
               connecting well-log interpretation with actionable SPT treatment planning.
             </p>
 
