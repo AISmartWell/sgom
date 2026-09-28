@@ -178,7 +178,7 @@ export default function GeophysicsLiveDemo() {
       <header className="border-b border-border/60 px-6 py-4 flex flex-wrap items-center justify-between gap-3">
         <div>
           <div className="text-xs font-mono text-primary tracking-widest">SGOM · STAGE 8 · LIVE GEOPHYSICAL ANALYSIS</div>
-          <h1 className="text-2xl md:text-3xl font-light">Brawner 10-15 — watch the platform read a well</h1>
+          <h1 className="text-2xl md:text-3xl font-light">Watch the platform read a well</h1>
         </div>
         <div className="flex gap-2">
           <Button size="sm" variant="outline" onClick={() => setPlaying((p) => !p)} disabled={t >= 1}>
