@@ -2856,10 +2856,18 @@ const GeophysicalExpertise = () => {
     }));
   }, [rawLogs]);
 
+  const [rwFormation, setRwFormation] = useState("0.04");
+  const [rwInjection, setRwInjection] = useState("");
+  const [injShare, setInjShare] = useState("0");
+
   const interpretation = useMemo<InterpretationSummary | null>(() => {
     if (petroData.length < 3) return null;
-    return interpretWellLog(petroData);
-  }, [petroData]);
+    return interpretWellLog(petroData, {
+      rwFormation: parseFloat(rwFormation) || undefined,
+      rwInjection: parseFloat(rwInjection) || undefined,
+      injectionFraction: (parseFloat(injShare) || 0) / 100,
+    });
+  }, [petroData, rwFormation, rwInjection, injShare]);
 
   // Same bypassed-pay logic as the composite log's MISSED labels
   const { data: wellPerfs } = useWellPerforations(selectedWell?.id);
@@ -3407,6 +3415,31 @@ const GeophysicalExpertise = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-5">
+                    <div className="rounded-lg border border-border bg-muted/10 p-3 space-y-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-xs font-semibold">Waterflood correction (mixed Rw)</p>
+                        <Badge variant="outline" className="text-[10px]">
+                          {interpretation.waterfloodCorrected ? "Corrected" : "Virgin brine"} · Rw {interpretation.rwUsed} Ω·m
+                        </Badge>
+                      </div>
+                      <div className="grid grid-cols-3 gap-2">
+                        <div>
+                          <Label className="text-[10px]">Formation Rw (Ω·m)</Label>
+                          <Input type="number" step="0.01" value={rwFormation} onChange={(e) => setRwFormation(e.target.value)} />
+                        </div>
+                        <div>
+                          <Label className="text-[10px]">Injection Rw (Ω·m)</Label>
+                          <Input type="number" step="0.01" placeholder="e.g. 0.25" value={rwInjection} onChange={(e) => setRwInjection(e.target.value)} />
+                        </div>
+                        <div>
+                          <Label className="text-[10px]">Injection water share (%)</Label>
+                          <Input type="number" min={0} max={100} value={injShare} onChange={(e) => setInjShare(e.target.value)} />
+                        </div>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground">
+                        For watered-out wells: fresher injection water raises Rw, so virgin-brine Rw overstates Sw and can hide remaining oil. Mixing: 1/Rw = f/Rw_inj + (1−f)/Rw_f.
+                      </p>
+                    </div>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
                       {[
                         { label: "Gross Pay", value: `${interpretation.grossPay}`, unit: "ft" },

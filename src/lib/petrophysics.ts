@@ -47,7 +47,45 @@ export interface InterpretationSummary {
   avgPorosity: number;
   avgSw: number;
   dominantFluid: FluidType;
+  /** Effective Rw used in Archie (Ω·m) */
+  rwUsed: number;
+  /** True when a waterflood / injection-water correction was applied */
+  waterfloodCorrected: boolean;
 }
+
+/**
+ * Waterflood correction for watered-out wells.
+ * When fresher injection water mixes with formation brine, true Rw rises;
+ * using the virgin-brine Rw overestimates Sw and hides remaining oil.
+ */
+export interface WaterfloodOptions {
+  /** Formation (connate) water resistivity at reservoir temperature, Ω·m */
+  rwFormation?: number;
+  /** Injection water resistivity at reservoir temperature, Ω·m */
+  rwInjection?: number;
+  /** Fraction of injection water in pore water, 0–1 */
+  injectionFraction?: number;
+}
+
+/** Mixed-water Rw via parallel conductivity mixing: 1/Rw = f/Rw_inj + (1−f)/Rw_f */
+export const calcMixedRw = (
+  rwFormation: number,
+  rwInjection: number,
+  injectionFraction: number,
+): number => {
+  const f = Math.max(0, Math.min(1, injectionFraction));
+  if (rwFormation <= 0 || rwInjection <= 0) return rwFormation;
+  return 1 / (f / rwInjection + (1 - f) / rwFormation);
+};
+
+export const resolveRw = (opts?: WaterfloodOptions): { rw: number; corrected: boolean } => {
+  const rwF = opts?.rwFormation && opts.rwFormation > 0 ? opts.rwFormation : RW_DEFAULT;
+  const f = opts?.injectionFraction ?? 0;
+  if (opts?.rwInjection && opts.rwInjection > 0 && f > 0) {
+    return { rw: calcMixedRw(rwF, opts.rwInjection, f), corrected: true };
+  }
+  return { rw: rwF, corrected: false };
+};
 
 /* ── Constants (American well logging standards) ── */
 // GR cutoffs — API standard classification
@@ -216,7 +254,7 @@ export const applyKoKoRules = (
  * Segment well log data into lithological intervals by GR changes
  * Uses sliding window to detect significant GR shifts
  */
-export const segmentIntervals = (data: PetroPoint[], minThickness = 5): IntervalResult[] => {
+export const segmentIntervals = (data: PetroPoint[], minThickness = 5, rw: number = RW_DEFAULT): IntervalResult[] => {
   if (data.length < 3) return [];
 
   // Step 1: assign each point a lithology class based on GR (API cutoffs)
@@ -286,7 +324,7 @@ export const segmentIntervals = (data: PetroPoint[], minThickness = 5): Interval
 
     // Archie Sw
     const porFrac = avgPor / 100;
-    const archieSwCalc = porFrac > 0.01 ? calcArchieSwFromInputs(porFrac, avgRes) * 100 : null;
+    const archieSwCalc = porFrac > 0.01 ? calcArchieSwFromInputs(porFrac, avgRes, rw) * 100 : null;
 
     // Ko Ko Rules
     const { fluidType, pattern } = applyKoKoRules(avgGR, avgRes, avgRhob, avgNphi, avgPor);
@@ -329,8 +367,9 @@ export const segmentIntervals = (data: PetroPoint[], minThickness = 5): Interval
 };
 
 /** Generate full interpretation summary */
-export const interpretWellLog = (data: PetroPoint[]): InterpretationSummary => {
-  const intervals = segmentIntervals(data);
+export const interpretWellLog = (data: PetroPoint[], waterflood?: WaterfloodOptions): InterpretationSummary => {
+  const { rw, corrected } = resolveRw(waterflood);
+  const intervals = segmentIntervals(data, 5, rw);
 
   const payIntervals = intervals.filter(i => i.isReservoir);
   const netPayIntervals = intervals.filter(i => i.isNetPay);
@@ -362,6 +401,8 @@ export const interpretWellLog = (data: PetroPoint[]): InterpretationSummary => {
     avgPorosity: Math.round(avgPorosity * 10) / 10,
     avgSw: Math.round(avgSw * 10) / 10,
     dominantFluid,
+    rwUsed: Math.round(rw * 10000) / 10000,
+    waterfloodCorrected: corrected,
   };
 };
 
