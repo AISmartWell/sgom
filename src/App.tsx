@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -219,7 +220,17 @@ const App = () => (
                <Route path="/cosmos-real-test" element={<CosmosRealTest />} />
                <Route path="/fluid-simulation" element={<FluidPhysicsSimulation />} />
                <Route path="/spt-pipeline-demo" element={<SPTPipelineDemo />} />
-               <Route path="/geophysics-live" element={<GeophysicsLiveDemo />} />
+               <Route path="/geophysics-live" element={<>
+                 <Helmet>
+                   <title>SGOM Geophysics Live — Illustrative Well Log Interpretation</title>
+                   <meta name="description" content="Explore SGOM's illustrative geophysical demonstration: digitized well logs, petrophysical interpretation, pay zones and a guided analysis of Brawner 10-15." />
+                   <meta property="og:title" content="SGOM Geophysics Live — Illustrative Well Log Interpretation" />
+                   <meta property="og:description" content="An illustrative SGOM geophysical demonstration of well-log interpretation and pay-zone analysis. Access code required." />
+                   <meta property="og:url" content="https://www.aismartwellsgom.com/geophysics-live" />
+                   <link rel="canonical" href="https://www.aismartwellsgom.com/geophysics-live" />
+                 </Helmet>
+                 <GeophysicsLiveDemo />
+               </>} />
                 <Route path="/innovation" element={<Innovation />} />
                 <Route path="/ai4e2026" element={<AI4E2026 />} />
                 <Route path="/dashboard/ai4e2026" element={<AI4E2026 />} />
