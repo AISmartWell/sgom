@@ -254,7 +254,7 @@ export const applyKoKoRules = (
  * Segment well log data into lithological intervals by GR changes
  * Uses sliding window to detect significant GR shifts
  */
-export const segmentIntervals = (data: PetroPoint[], minThickness = 5): IntervalResult[] => {
+export const segmentIntervals = (data: PetroPoint[], minThickness = 5, rw: number = RW_DEFAULT): IntervalResult[] => {
   if (data.length < 3) return [];
 
   // Step 1: assign each point a lithology class based on GR (API cutoffs)
@@ -324,7 +324,7 @@ export const segmentIntervals = (data: PetroPoint[], minThickness = 5): Interval
 
     // Archie Sw
     const porFrac = avgPor / 100;
-    const archieSwCalc = porFrac > 0.01 ? calcArchieSwFromInputs(porFrac, avgRes) * 100 : null;
+    const archieSwCalc = porFrac > 0.01 ? calcArchieSwFromInputs(porFrac, avgRes, rw) * 100 : null;
 
     // Ko Ko Rules
     const { fluidType, pattern } = applyKoKoRules(avgGR, avgRes, avgRhob, avgNphi, avgPor);
@@ -367,8 +367,9 @@ export const segmentIntervals = (data: PetroPoint[], minThickness = 5): Interval
 };
 
 /** Generate full interpretation summary */
-export const interpretWellLog = (data: PetroPoint[]): InterpretationSummary => {
-  const intervals = segmentIntervals(data);
+export const interpretWellLog = (data: PetroPoint[], waterflood?: WaterfloodOptions): InterpretationSummary => {
+  const { rw, corrected } = resolveRw(waterflood);
+  const intervals = segmentIntervals(data, 5, rw);
 
   const payIntervals = intervals.filter(i => i.isReservoir);
   const netPayIntervals = intervals.filter(i => i.isNetPay);
@@ -400,6 +401,8 @@ export const interpretWellLog = (data: PetroPoint[]): InterpretationSummary => {
     avgPorosity: Math.round(avgPorosity * 10) / 10,
     avgSw: Math.round(avgSw * 10) / 10,
     dominantFluid,
+    rwUsed: Math.round(rw * 10000) / 10000,
+    waterfloodCorrected: corrected,
   };
 };
 
