@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { FileSpreadsheet, PenLine, Cloud, Database } from "lucide-react";
+import { FileSpreadsheet, PenLine, Cloud, Database, Download, FileText } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { CSVUpload } from "@/components/data-import/CSVUpload";
 import { ManualWellEntry } from "@/components/data-import/ManualWellEntry";
 import { APIIntegrationPanel } from "@/components/data-import/APIIntegrationPanel";
@@ -48,6 +49,29 @@ const DataImport = () => {
           Import well data from CSV files, manual entry, or connect to commercial data providers.
         </p>
       </div>
+
+      <section className="border-y border-border py-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between" aria-labelledby="waterflood-checklist-title">
+        <div className="flex items-start gap-3">
+          <FileText className="h-5 w-5 mt-0.5 shrink-0 text-primary" aria-hidden="true" />
+          <div>
+            <h2 id="waterflood-checklist-title" className="font-semibold">Watered-out well data checklist</h2>
+            <p className="text-sm text-muted-foreground">Well logs, production, injection volumes, water salinity and reservoir temperature.</p>
+            <p className="text-xs text-muted-foreground mt-1">Data request only. Automatic salinity conversion and injection-share estimation are not yet available in the platform.</p>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-2 sm:shrink-0">
+          <Button variant="outline" size="sm" asChild>
+            <a href="/checklists/sgom-data-checklist-en.pdf" download="sgom-data-checklist-en.pdf" type="application/pdf">
+              <Download className="mr-2 h-4 w-4" aria-hidden="true" /> English PDF
+            </a>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <a href="/checklists/sgom-data-checklist-ru.pdf" download="sgom-data-checklist-ru.pdf" type="application/pdf">
+              <Download className="mr-2 h-4 w-4" aria-hidden="true" /> Русский PDF
+            </a>
+          </Button>
+        </div>
+      </section>
 
       <FormationAssistCard />
 
