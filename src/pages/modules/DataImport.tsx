@@ -56,6 +56,7 @@ const DataImport = () => {
           <div>
             <h2 id="waterflood-checklist-title" className="font-semibold">Watered-out well data checklist</h2>
             <p className="text-sm text-muted-foreground">Well logs, production, injection volumes, water salinity and reservoir temperature.</p>
+            <p className="text-xs text-muted-foreground mt-1">Data request only. Automatic salinity conversion and injection-share estimation are not yet available in the platform.</p>
           </div>
         </div>
         <div className="flex flex-wrap gap-2 sm:shrink-0">
