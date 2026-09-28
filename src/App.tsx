@@ -226,8 +226,6 @@ const App = () => (
                    <meta name="description" content="Explore SGOM's illustrative geophysical demonstration: digitized well logs, petrophysical interpretation, pay zones and a guided analysis of Brawner 10-15." />
                    <meta property="og:title" content="SGOM Geophysics Live — Illustrative Well Log Interpretation" />
                    <meta property="og:description" content="An illustrative SGOM geophysical demonstration of well-log interpretation and pay-zone analysis. Access code required." />
-                   <meta property="og:url" content="https://www.aismartwellsgom.com/geophysics-live" />
-                   <link rel="canonical" href="https://www.aismartwellsgom.com/geophysics-live" />
                  </Helmet>
                  <GeophysicsLiveDemo />
                </>} />
