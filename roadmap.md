@@ -1,6 +1,7 @@
 # Roadmap
 
 ## Done
+- [x] Add bilingual waterflood data checklist PDFs to Data Import as downloads.
 - [x] Replace the Lovable social card with a 1200×630 SGOM image and give /geophysics-live its own accurate metadata.
 - [x] Align Brawner LITH formation labels with documented Rodessa and James Lime depths; do not infer boundaries from the well formation name.
 - [x] Make the depth-aligned illustrative composite well log the main visual on the standalone Brawner demonstration, visible before the nine stages.
