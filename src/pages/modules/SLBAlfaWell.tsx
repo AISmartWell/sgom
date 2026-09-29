@@ -11,6 +11,7 @@ import {
   LineChart, Line, CartesianGrid, ReferenceLine, Legend,
 } from "recharts";
 import { Flame, FileText, Database, AlertTriangle, Download, Loader2 } from "lucide-react";
+import AlfaCosmosPanel from "@/components/cosmos/AlfaCosmosPanel";
 
 const WELL_NAME = "SLB Slotted Liner Case (Alfa)";
 const M2FT = 3.28084;
