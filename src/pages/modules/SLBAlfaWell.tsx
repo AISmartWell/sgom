@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { rankFromLogs, SW_HIGH, K_LOW } from "@/lib/spt-log-ranking";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,7 +10,7 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell,
   LineChart, Line, CartesianGrid, ReferenceLine, Legend,
 } from "recharts";
-import { Flame, FileText, Database, AlertTriangle } from "lucide-react";
+import { Flame, FileText, Database, AlertTriangle, Download, Loader2 } from "lucide-react";
 
 const WELL_NAME = "SLB Slotted Liner Case (Alfa)";
 const M2FT = 3.28084;
@@ -113,10 +115,33 @@ export default function SLBAlfaWell() {
   ];
   const rc = (r: string) => r === "pass" ? "text-success" : r === "warn" ? "text-warning" : r === "fail" ? "text-destructive" : "text-muted-foreground";
 
+  const rank = useMemo(() => (logs?.length ? rankFromLogs(logs as any, water) : null), [logs, water]);
+  const ivChart = (rank?.intervals ?? []).map((i) => {
+    const sw = i.archieSwCalc ?? i.avgSw;
+    const risk = sw >= SW_HIGH || (i.timurPermMd != null && i.timurPermMd < K_LOW);
+    return { name: `${Math.round(i.top)}–${Math.round(i.bottom)}`, sw: +sw.toFixed(1), k: i.timurPermMd != null ? +i.timurPermMd.toFixed(3) : null, risk };
+  });
+  const pageRef = useRef<HTMLDivElement>(null);
+  const [pdfBusy, setPdfBusy] = useState(false);
+  const downloadPdf = async () => {
+    if (!pageRef.current) return;
+    setPdfBusy(true);
+    try {
+      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([import("html2canvas"), import("jspdf")]);
+      const canvas = await html2canvas(pageRef.current, { scale: 1.5, backgroundColor: getComputedStyle(document.body).backgroundColor, ignoreElements: (el) => el.hasAttribute("data-pdf-skip") });
+      const pdf = new jsPDF({ unit: "pt", format: "a4" });
+      const w = pdf.internal.pageSize.getWidth(), h = pdf.internal.pageSize.getHeight();
+      const imgH = (canvas.height * w) / canvas.width;
+      const img = canvas.toDataURL("image/jpeg", 0.9);
+      for (let y = 0; y < imgH; y += h) { if (y) pdf.addPage(); pdf.addImage(img, "JPEG", 0, -y, w, imgH); }
+      pdf.save("SGOM_SLB_Alfa_SPT_Review.pdf");
+    } finally { setPdfBusy(false); }
+  };
+
   const logChart = (logs ?? []).map((p) => ({ md: p.measured_depth, gr: p.gamma_ray, rt: p.resistivity, phi: p.porosity != null ? p.porosity * (p.porosity < 1 ? 100 : 1) : null, sw: p.water_saturation }));
 
   return (
-    <div className="p-8 space-y-6">
+    <div ref={pageRef} className="p-8 space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
@@ -129,6 +154,7 @@ export default function SLBAlfaWell() {
             Slotted liner under-performing · 7" casing to {ft(DOC.casing)} ft · all data available as of today
           </p>
         </div>
+        <Button data-pdf-skip onClick={downloadPdf} disabled={pdfBusy}>{pdfBusy ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Download className="h-4 w-4 mr-2" />}Download PDF</Button>
         <div className="glass-card rounded-lg p-4 max-w-sm">
           <div className="text-xs text-muted-foreground mb-1">SGOM verdict</div>
           <div className="text-lg font-semibold text-warning">Conditional SPT candidate</div>
@@ -283,6 +309,31 @@ export default function SLBAlfaWell() {
           </CardContent>
         </Card>
       </div>
+
+      <div className="grid lg:grid-cols-2 gap-6">
+        {[{ key: "sw", title: "Water saturation by interval (Archie), %", ref: SW_HIGH, scale: "linear" as const }, { key: "k", title: "Permeability by interval (Timur), mD", ref: K_LOW, scale: "log" as const }].map((c) => (
+          <Card key={c.key} className="glass-card">
+            <CardHeader><CardTitle className="text-base flex justify-between">{c.title} <SrcBadge kind={ivChart.length ? "calc" : "none"} /></CardTitle></CardHeader>
+            <CardContent>
+              {ivChart.length ? (
+                <div style={{ minHeight: 260 }}>
+                  <ResponsiveContainer width="100%" height={260}>
+                    <BarChart data={ivChart}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                      <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={10} unit=" ft" />
+                      <YAxis scale={c.scale} domain={c.scale === "log" ? [0.01, "auto"] : [0, 100]} allowDataOverflow stroke="hsl(var(--muted-foreground))" fontSize={11} />
+                      <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} />
+                      <ReferenceLine y={c.ref} stroke="hsl(var(--destructive))" strokeDasharray="4 3" label={{ value: "risk cutoff", fontSize: 10, fill: "hsl(var(--destructive))" }} />
+                      <Bar dataKey={c.key}>{ivChart.map((i) => <Cell key={i.name} fill={i.risk ? "hsl(var(--destructive))" : "hsl(var(--primary))"} />)}</Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              ) : <div className="text-sm text-muted-foreground py-10 text-center">Appears after LAS curves are uploaded for this well.</div>}
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+      <p className="text-xs text-muted-foreground">Red bars = risk intervals (Sw ≥ {SW_HIGH}% or k &lt; {K_LOW} mD). Same solver as Stage 6 and Stage 8{rank?.waterfloodCorrected ? ", corrected for injection water using saved well inputs" : ""}.</p>
 
       <Card className="glass-card">
         <CardHeader><CardTitle className="text-base flex items-center gap-2"><FileText className="h-4 w-4" />Data still required</CardTitle></CardHeader>
