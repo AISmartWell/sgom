@@ -167,6 +167,47 @@ export default function SLBAlfaWell() {
         Values tagged SLB DOCUMENT are transcribed from the client PDF; CALCULATED are derived from them; REAL DATA comes from records stored on the platform. Nothing here is a live simulation.
       </div>
 
+      <Card className="glass-card">
+        <CardHeader>
+          <CardTitle className="text-base flex flex-wrap items-center justify-between gap-2">
+            AI agent verdict — factor breakdown
+            <span className="flex gap-2"><Badge variant="outline" className="text-warning border-warning/40">Conditional SPT candidate</Badge><Badge variant="outline">Confidence: medium-low</Badge></span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="grid md:grid-cols-3 gap-4 text-sm">
+          <div className="space-y-2">
+            <div className="font-semibold text-success">Supporting factors</div>
+            <ul className="list-disc pl-4 space-y-1 text-muted-foreground">
+              <li>Gas well with slotted liner; {DOC.channelShare}% of inflow via behind-casing channel (poor cement) — bypassed pay signature</li>
+              <li>{payAboveLiner} m of pay not covered by the liner</li>
+              <li>High reservoir energy: ~{Math.round(pressurePsi).toLocaleString()} psi at {ft(DOC.casing)} ft</li>
+              <li>Pay-interval porosity {(DOC.phi * 100).toFixed(0)}%, Sw {(DOC.sw * 100).toFixed(0)}%</li>
+            </ul>
+          </div>
+          <div className="space-y-2">
+            <div className="font-semibold text-destructive">Risks / limitations</div>
+            <ul className="list-disc pl-4 space-y-1 text-muted-foreground">
+              <li>Channel isolation required before SPT to avoid crossflow</li>
+              <li>HPHT execution risk; bottom-hole temperature unconfirmed</li>
+              <li>H₂S / CO₂ content unknown — affects materials and program</li>
+              <li>No LAS curves: ranking based on document averages only</li>
+            </ul>
+          </div>
+          <div className="space-y-2">
+            <div className="font-semibold text-primary">To raise confidence</div>
+            <ul className="list-disc pl-4 space-y-1 text-muted-foreground">
+              <li>LAS for the productive interval (Stage 6 re-ranks automatically)</li>
+              <li>Cement bond log / cementing records</li>
+              <li>Production rate history</li>
+              <li>Gas composition analysis</li>
+            </ul>
+          </div>
+          <p className="md:col-span-3 text-xs text-muted-foreground border-t border-border/40 pt-2">
+            Summary of the agent interpretation of transcribed document values — not a live analysis run. Verdict may move to priority candidate or be withdrawn once LAS data is loaded.
+          </p>
+        </CardContent>
+      </Card>
+
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Metric label="Total depth" value={`${ft(DOC.casing)} ft`} sub={`${DOC.casing} m`} kind="doc" />
         <Metric label="Reservoir pressure" value={`${Math.round(pressurePsi).toLocaleString()} psi`} sub={`~${DOC.pressureMpa} MPa (to confirm)`} kind="doc" />
