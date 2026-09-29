@@ -21,6 +21,7 @@ import BatchLithologyAnalysis from "@/components/geophysical/BatchLithologyAnaly
 import { WellLogAnalysisDemo } from "@/components/geophysical/WellLogAnalysisDemo";
 import { supabase } from "@/integrations/supabase/client";
 import { useWellLogs } from "@/hooks/useWellLogs";
+import { useWellWaterInputs } from "@/hooks/useWellWaterInputs";
 import { useWellPerforations } from "@/hooks/useWellPerforations";
 import { assessBypassedPay, bypassedPayMessage } from "@/lib/bypassed-pay";
 import {
