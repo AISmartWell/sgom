@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 import { ListOrdered, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { WellLogPoint } from "@/hooks/useWellLogs";
-import { rankFromLogs, SW_HIGH, K_LOW, type LogRankResult } from "@/lib/spt-log-ranking";
+import { rankFromLogs, SW_HIGH, fluidOf, type LogRankResult } from "@/lib/spt-log-ranking";
 
-interface Row { id: string; name: string; r: LogRankResult }
+interface Row { id: string; name: string; fluid: "oil" | "gas"; r: LogRankResult }
 
 export default function SPTLogRanking() {
   const [rows, setRows] = useState<Row[]>([]);
@@ -20,7 +20,7 @@ export default function SPTLogRanking() {
       const wellIds = [...new Set((ids ?? []).map((x) => x.well_id))].slice(0, 50);
       if (!wellIds.length) { setLoading(false); return; }
       const [{ data: wells }, { data: water }] = await Promise.all([
-        supabase.from("wells").select("id, well_name, api_number").in("id", wellIds),
+        supabase.from("wells").select("id, well_name, api_number, well_type").in("id", wellIds),
         supabase.from("well_water_inputs").select("well_id, rw_formation, rw_injection, injection_share_pct").in("well_id", wellIds),
       ]);
       const out: Row[] = [];
@@ -28,9 +28,10 @@ export default function SPTLogRanking() {
         const { data: logs } = await supabase.from("well_logs")
           .select("measured_depth, gamma_ray, resistivity, porosity, water_saturation, sp, density, neutron_porosity, source")
           .eq("well_id", id).order("measured_depth").limit(10000);
-        const r = rankFromLogs((logs ?? []) as WellLogPoint[], water?.find((x) => x.well_id === id));
+        const fluid = fluidOf(wells?.find((x) => x.id === id)?.well_type);
+        const r = rankFromLogs((logs ?? []) as WellLogPoint[], water?.find((x) => x.well_id === id), fluid);
         const w = wells?.find((x) => x.id === id);
-        if (r) out.push({ id, name: w?.well_name ?? w?.api_number ?? id.slice(0, 8), r });
+        if (r) out.push({ id, name: w?.well_name ?? w?.api_number ?? id.slice(0, 8), fluid, r });
       }
       setRows(out.sort((a, b) => b.r.score - a.r.score));
       setLoading(false);
@@ -73,13 +74,13 @@ export default function SPTLogRanking() {
                   </tr>
                   {open === x.id && (
                     <tr><td colSpan={9} className="p-2 bg-muted/30">
-                      <div className="text-xs text-muted-foreground mb-1">Reservoir intervals with Sw ≥ {SW_HIGH}% or k &lt; {K_LOW} mD — avoid or isolate when placing slots:</div>
+                      <div className="text-xs text-muted-foreground mb-1">Reservoir intervals with Sw ≥ {SW_HIGH}% or k &lt; {x.r.kCutoff} mD ({x.fluid} cutoff) — avoid or isolate when placing slots:</div>
                       <div className="flex flex-wrap gap-2">
                         {x.r.riskIntervals.map((iv) => {
                           const sw = iv.archieSwCalc ?? iv.avgSw;
                           return <Badge key={iv.top} variant="outline" className="font-mono text-[11px]">
                             {Math.round(iv.top)}–{Math.round(iv.bottom)} ft · Sw {sw.toFixed(0)}% · k {iv.timurPermMd != null ? iv.timurPermMd.toFixed(2) : "—"} mD
-                            {sw >= SW_HIGH ? " · wet" : ""}{iv.timurPermMd != null && iv.timurPermMd < K_LOW ? " · tight" : ""}
+                            {sw >= SW_HIGH ? " · wet" : ""}{iv.timurPermMd != null && iv.timurPermMd < x.r.kCutoff ? " · tight" : ""}
                           </Badge>;
                         })}
                       </div>

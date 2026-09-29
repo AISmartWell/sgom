@@ -5,13 +5,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ShieldCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useWellLogs } from "@/hooks/useWellLogs";
-import { rankFromLogs } from "@/lib/spt-log-ranking";
+import { rankFromLogs, fluidOf, kCutoffFor } from "@/lib/spt-log-ranking";
 import { useWellWaterInputs } from "@/hooks/useWellWaterInputs";
 
 type Status = "pass" | "caution" | "fail" | "missing";
 interface Criterion { key: string; label: string; value: string; source: string; status: Status; note: string }
 
-interface WellRow { id: string; well_name: string | null; total_depth: number | null; water_cut: number | null }
+interface WellRow { id: string; well_name: string | null; total_depth: number | null; water_cut: number | null; well_type: string | null }
 
 // Screening thresholds (SPT case library: treated wells 2,650–5,400 ft).
 const judgeDepth = (d: number): [Status, string] =>
@@ -24,8 +24,12 @@ const judgePressure = (p: number): [Status, string] =>
   : ["fail", "High-pressure well — well control and equipment rating review"];
 const judgePor = (φ: number): [Status, string] =>
   φ >= 10 ? ["pass", "Good storage capacity"] : φ >= 6 ? ["caution", "Marginal porosity"] : ["fail", "Very low porosity"];
-const judgePerm = (k: number): [Status, string] =>
-  k >= 1 ? ["pass", "Slots can deliver meaningful inflow"] : k >= 0.1 ? ["caution", "Tight rock — limited uplift"] : ["fail", "Too tight for slot inflow gain"];
+const judgePerm = (k: number, fluid: "oil" | "gas"): [Status, string] => {
+  const kLow = kCutoffFor(fluid);
+  return k >= kLow ? ["pass", fluid === "gas" ? `Above ${kLow} mD gas cutoff — slots can deliver meaningful inflow` : "Slots can deliver meaningful inflow"]
+    : k >= kLow / 10 ? ["caution", "Tight rock — limited uplift"]
+    : ["fail", "Too tight for slot inflow gain"];
+};
 const judgeInj = (f: number): [Status, string] =>
   f <= 60 ? ["pass", "Water share acceptable"] : f <= 85 ? ["caution", "High water share — isolate watered intervals"] : ["fail", "Dominated by injected water"];
 
@@ -44,7 +48,7 @@ export default function SPTApplicabilityCard() {
   const { data: water } = useWellWaterInputs(wellId || undefined);
 
   useEffect(() => {
-    supabase.from("wells").select("id, well_name, total_depth, water_cut").order("well_name").limit(1000)
+    supabase.from("wells").select("id, well_name, total_depth, water_cut, well_type").order("well_name").limit(1000)
       .then(({ data }) => setWells((data ?? []) as WellRow[]));
   }, []);
 
@@ -60,6 +64,7 @@ export default function SPTApplicabilityCard() {
   }, [wellId]);
 
   const well = wells.find((w) => w.id === wellId);
+  const fluid = fluidOf(well?.well_type);
 
   const criteria = useMemo<Criterion[]>(() => {
     if (!well) return [];
@@ -72,12 +77,12 @@ export default function SPTApplicabilityCard() {
     out.push(pressure ? { key: "p", label: "Reservoir pressure", value: `${Math.round(pressure.psi).toLocaleString()} psi`, source: `Reservoir Pressure (${pressure.method})`, status: judgePressure(pressure.psi)[0], note: judgePressure(pressure.psi)[1] }
       : { key: "p", label: "Reservoir pressure", value: "—", source: "No estimate", status: "missing", note: "Run Reservoir Pressure for this well" });
 
-    const lr = logs && logs.length ? rankFromLogs(logs, water) : null;
+    const lr = logs && logs.length ? rankFromLogs(logs, water, fluid) : null;
     const por = lr?.avgPor ?? null, perm = lr?.avgK ?? null;
     const logSrc = "Measured log curves (Stage 8 solver)";
     out.push(por != null ? { key: "por", label: "Porosity (pay)", value: `${por.toFixed(1)} %`, source: logSrc, status: judgePor(por)[0], note: judgePor(por)[1] }
       : { key: "por", label: "Porosity (pay)", value: "—", source: "No usable log curves", status: "missing", note: "Upload LAS in Data Import (GR, RT, porosity)" });
-    out.push(perm != null ? { key: "k", label: "Permeability (Timur)", value: `${perm < 1 ? perm.toFixed(2) : perm.toFixed(1)} mD`, source: logSrc, status: judgePerm(perm)[0], note: judgePerm(perm)[1] }
+    out.push(perm != null ? { key: "k", label: "Permeability (Timur)", value: `${perm < 1 ? perm.toFixed(2) : perm.toFixed(1)} mD`, source: logSrc, status: judgePerm(perm, fluid)[0], note: judgePerm(perm, fluid)[1] }
       : { key: "k", label: "Permeability (Timur)", value: "—", source: "No usable log curves", status: "missing", note: "Upload LAS in Data Import" });
 
     const inj = water?.injection_share_pct != null && water.injection_share_pct > 0 ? Number(water.injection_share_pct) : null;
