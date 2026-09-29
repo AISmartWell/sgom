@@ -39,17 +39,19 @@ const intervals = [
   { name: "Slotted liner", from: DOC.liner[0], to: DOC.liner[1], color: "hsl(var(--primary))" },
 ].map((i) => ({ ...i, offset: i.from - 4200, len: i.to - i.from }));
 
-const SrcBadge = ({ kind }: { kind: "doc" | "db" | "calc" | "none" }) => {
+type Kind = "doc" | "db" | "calc" | "none" | "confirm";
+const SrcBadge = ({ kind }: { kind: Kind }) => {
   const map = {
     doc: { t: "SLB DOCUMENT", c: "border-primary/40 text-primary" },
     db: { t: "REAL DATA", c: "border-success/40 text-success" },
     calc: { t: "CALCULATED", c: "border-warning/40 text-warning" },
     none: { t: "NO DATA", c: "border-muted text-muted-foreground" },
+    confirm: { t: "TO CONFIRM", c: "border-destructive/40 text-destructive" },
   }[kind];
   return <Badge variant="outline" className={`text-[10px] ${map.c}`}>{map.t}</Badge>;
 };
 
-const Metric = ({ label, value, sub, kind }: { label: string; value: string; sub?: string; kind: "doc" | "db" | "calc" | "none" }) => (
+const Metric = ({ label, value, sub, kind }: { label: string; value: string; sub?: string; kind: Kind }) => (
   <div className="glass-card rounded-lg p-4 space-y-1">
     <div className="flex items-center justify-between gap-2">
       <span className="text-xs text-muted-foreground">{label}</span>
@@ -85,33 +87,34 @@ export default function SLBAlfaWell() {
   const hcPoreFt = DOC.netM * M2FT * DOC.phi * (1 - DOC.sw); // ft of HC pore column
   const linerOverlapPay = Math.max(0, Math.min(DOC.liner[1], DOC.pay[1]) - Math.max(DOC.liner[0], DOC.pay[0]));
   const payAboveLiner = DOC.liner[0] - DOC.pay[0];
-  const pressurePsi = DOC.pressureMpa * 145.038;
+  const pressurePsi = Math.round((DOC.pressureMpa * 145.038) / 100) * 100; // ~10,300 psi, rounded consistently
 
   const inflow = [
     { name: "Channel behind casing (above liner)", value: DOC.channelShare },
     { name: "Through slotted liner", value: 100 - DOC.channelShare },
   ];
 
-  const gradientLine = [0, 1000, 2000, 3000, 4000, 4500].map((d) => ({
+  const gradientLine = [0, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500].map((d) => ({
     depth: d,
     hydrostatic: +(d * 9.80665 * 1.0 / 1000).toFixed(1),
     reservoir: +(d * gradKpaM / 1000).toFixed(1),
   }));
 
   const petro = [
-    { name: "Gross", m: DOC.grossM },
-    { name: "Net pay", m: DOC.netM },
-    { name: "Liner ∩ pay", m: linerOverlapPay },
-    { name: "Pay above liner", m: payAboveLiner },
+    { name: "Gross pay (total)", m: DOC.grossM },
+    { name: "Net pay (effective)", m: DOC.netM },
+    { name: "Liner ∩ pay (gross)", m: linerOverlapPay },
+    { name: "Pay above liner (gross)", m: payAboveLiner },
   ];
 
   const screening = [
-    { k: "Depth", v: `${ft(DOC.casing)} ft`, s: "Beyond field experience (>~10,000 ft)", r: "fail" },
-    { k: "Reservoir pressure", v: `~${Math.round(pressurePsi).toLocaleString()} psi`, s: "Abnormally high, needs confirmation", r: "fail" },
+    { k: "Depth", v: `${ft(DOC.casing)} ft`, s: "Beyond SPT case library (up to ≈ 5,400 ft)", r: "fail" },
+    { k: "BH pressure (PLT track)", v: `~${pressurePsi.toLocaleString()} psi`, s: "Abnormally high; reservoir pressure to be confirmed", r: "fail" },
+    { k: "Wellhead pressure", v: "may exceed ≈ 6,000 psi", s: "Main risk: friction over ~4,400 m, equipment rating", r: "fail" },
     { k: "Porosity", v: logs ? "from LAS" : `${(DOC.phi * 100).toFixed(0)}%`, s: "Low but productive (tight gas sand)", r: "warn" },
+    { k: "Permeability", v: "0.4 mD", s: "Tight reservoir (SLB petrophysics table)", r: "warn" },
     { k: "Water saturation", v: `${(DOC.sw * 100).toFixed(0)}%`, s: "Acceptable (< 50%)", r: "pass" },
-    { k: "Completion damage", v: "Barite + channel", s: "Mechanical, SPT bypasses it", r: "pass" },
-    { k: "Permeability", v: "not provided", s: "Needed for inflow forecast", r: "none" },
+    { k: "Completion damage", v: "Barite + channel", s: "Barite: SPT bypasses; channel: separate decision", r: "warn" },
   ];
   const rc = (r: string) => r === "pass" ? "text-success" : r === "warn" ? "text-warning" : r === "fail" ? "text-destructive" : "text-muted-foreground";
 
@@ -128,12 +131,24 @@ export default function SLBAlfaWell() {
     setPdfBusy(true);
     try {
       const [{ default: html2canvas }, { jsPDF }] = await Promise.all([import("html2canvas"), import("jspdf")]);
-      const canvas = await html2canvas(pageRef.current, { scale: 1.5, backgroundColor: getComputedStyle(document.body).backgroundColor, ignoreElements: (el) => el.hasAttribute("data-pdf-skip") });
+      const bg = getComputedStyle(document.body).backgroundColor;
       const pdf = new jsPDF({ unit: "pt", format: "a4" });
-      const w = pdf.internal.pageSize.getWidth(), h = pdf.internal.pageSize.getHeight();
-      const imgH = (canvas.height * w) / canvas.width;
-      const img = canvas.toDataURL("image/jpeg", 0.9);
-      for (let y = 0; y < imgH; y += h) { if (y) pdf.addPage(); pdf.addImage(img, "JPEG", 0, -y, w, imgH); }
+      const W = pdf.internal.pageSize.getWidth(), H = pdf.internal.pageSize.getHeight();
+      const M = 24, footer = 22, usable = H - M - footer;
+      const paint = () => { pdf.setFillColor(bg); pdf.rect(0, 0, W, H, "F"); };
+      const foot = () => { pdf.setFontSize(7); pdf.setTextColor(150); pdf.text("CONFIDENTIAL — prepared by SGOM for Maxxwell Production. Not for distribution.", M, H - 10); };
+      paint(); foot();
+      let y = M;
+      // Paginate by section so blocks are never cut between pages
+      const blocks = Array.from(pageRef.current.children).filter((el) => !(el as HTMLElement).hasAttribute("data-pdf-skip")) as HTMLElement[];
+      for (const el of blocks) {
+        const c = await html2canvas(el, { scale: 1.5, backgroundColor: bg, ignoreElements: (e) => e.hasAttribute("data-pdf-skip") });
+        let w = W - 2 * M, h = (c.height * w) / c.width;
+        if (h > usable) { w *= usable / h; h = usable; }
+        if (y + h > M + usable && y > M) { pdf.addPage(); paint(); foot(); y = M; }
+        pdf.addImage(c.toDataURL("image/jpeg", 0.9), "JPEG", M, y, w, h);
+        y += h + 10;
+      }
       pdf.save("SGOM_SLB_Alfa_SPT_Review.pdf");
     } finally { setPdfBusy(false); }
   };
@@ -142,6 +157,10 @@ export default function SLBAlfaWell() {
 
   return (
     <div ref={pageRef} className="p-8 space-y-6">
+      <div className="flex items-center justify-between gap-2 text-xs border border-destructive/40 text-destructive rounded-lg px-3 py-2">
+        <span className="font-semibold">CONFIDENTIAL — client case, not for distribution</span>
+        <span className="text-muted-foreground">Prepared by SGOM for Maxxwell Production</span>
+      </div>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
@@ -164,7 +183,7 @@ export default function SLBAlfaWell() {
 
       <div className="flex items-start gap-2 text-xs text-muted-foreground border border-border/40 rounded-lg p-3">
         <AlertTriangle className="h-4 w-4 text-warning shrink-0" />
-        Values tagged SLB DOCUMENT are transcribed from the client PDF; CALCULATED are derived from them; REAL DATA comes from records stored on the platform. Nothing here is a live simulation.
+        Values tagged SLB DOCUMENT are transcribed from the client PDF; CALCULATED are derived from them; TO CONFIRM need operator confirmation; REAL DATA comes from records stored on the platform. Nothing here is a live simulation.
       </div>
 
       <Card className="glass-card">
@@ -180,15 +199,16 @@ export default function SLBAlfaWell() {
             <ul className="list-disc pl-4 space-y-1 text-muted-foreground">
               <li>Gas well with slotted liner; {DOC.channelShare}% of inflow via behind-casing channel (poor cement) — bypassed pay signature</li>
               <li>{payAboveLiner} m of pay not covered by the liner</li>
-              <li>High reservoir energy: ~{Math.round(pressurePsi).toLocaleString()} psi at {ft(DOC.casing)} ft</li>
-              <li>Pay-interval porosity {(DOC.phi * 100).toFixed(0)}%, Sw {(DOC.sw * 100).toFixed(0)}%</li>
+              <li>High energy: ~{pressurePsi.toLocaleString()} psi BH pressure on PLT track (reservoir pressure to confirm)</li>
+              <li>Pay-interval porosity {(DOC.phi * 100).toFixed(0)}%, Sw {(DOC.sw * 100).toFixed(0)}%, k 0.4 mD</li>
             </ul>
           </div>
           <div className="space-y-2">
             <div className="font-semibold text-destructive">Risks / limitations</div>
             <ul className="list-disc pl-4 space-y-1 text-muted-foreground">
-              <li>Channel isolation required before SPT to avoid crossflow</li>
-              <li>HPHT execution risk; bottom-hole temperature unconfirmed</li>
+              <li><b>Main risk:</b> wellhead pressure — friction over ~4,400 m may push it beyond ≈ 6,000 psi</li>
+              <li>Channel carries {DOC.channelShare}% of gas: isolate only if water is produced through it</li>
+              <li>Depth beyond SPT case library (up to ≈ 5,400 ft); HPHT, BHT unconfirmed</li>
               <li>H₂S / CO₂ content unknown — affects materials and program</li>
               <li>No LAS curves: ranking based on document averages only</li>
             </ul>
@@ -210,7 +230,7 @@ export default function SLBAlfaWell() {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Metric label="Total depth" value={`${ft(DOC.casing)} ft`} sub={`${DOC.casing} m`} kind="doc" />
-        <Metric label="Reservoir pressure" value={`${Math.round(pressurePsi).toLocaleString()} psi`} sub={`~${DOC.pressureMpa} MPa (to confirm)`} kind="doc" />
+        <Metric label="BH pressure (PLT track)" value={`~${pressurePsi.toLocaleString()} psi`} sub={`~${DOC.pressureMpa} MPa · reservoir pressure to confirm`} kind="confirm" />
         <Metric label="Pressure gradient" value={`${gradPsiFt.toFixed(2)} psi/ft`} sub={`${gradKpaM.toFixed(1)} kPa/m · ≈${eqDensity.toFixed(2)} g/cm³`} kind="calc" />
         <Metric label="Gas via channel" value={`${DOC.channelShare}%`} sub="PLT: inflow above the liner" kind="doc" />
         <Metric label="Net / gross" value={`${(ntg * 100).toFixed(0)}%`} sub={`${DOC.netM} m of ${DOC.grossM} m`} kind="calc" />
@@ -263,7 +283,7 @@ export default function SLBAlfaWell() {
               <ResponsiveContainer width="100%" height={260}>
                 <LineChart data={gradientLine} margin={{ right: 20 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis dataKey="depth" stroke="hsl(var(--muted-foreground))" fontSize={11} unit=" m" />
+                  <XAxis dataKey="depth" type="number" domain={[0, 4500]} ticks={[0, 1000, 2000, 3000, 4000, 4500]} stroke="hsl(var(--muted-foreground))" fontSize={11} unit=" m" />
                   <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} unit=" MPa" />
                   <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} />
                   <Legend wrapperStyle={{ fontSize: 11 }} />
@@ -379,7 +399,7 @@ export default function SLBAlfaWell() {
       <Card className="glass-card">
         <CardHeader><CardTitle className="text-base flex items-center gap-2"><FileText className="h-4 w-4" />Data still required</CardTitle></CardHeader>
         <CardContent className="grid md:grid-cols-2 gap-2 text-sm text-muted-foreground">
-          {["LAS curves 4,340–4,500 m (GR, RT, NPHI, RHOB)", "Confirmed reservoir pressure & bottom-hole temperature", "Gas / water production history", "Gas composition (H₂S, CO₂)", "Liner design: slot width, wall thickness, inner string", "Water & scale analyses"].map((t) => (
+          {["LAS curves 4,300–4,520 m (GR, RT, NPHI, RHOB, PEF, caliper)", "Confirmed reservoir pressure & bottom-hole temperature", "Gas / water production history", "Gas composition (H₂S, CO₂)", "Liner design: slot width, wall thickness, inner string", "Water & scale analyses"].map((t) => (
             <div key={t} className="flex gap-2"><span className="text-warning">•</span>{t}</div>
           ))}
         </CardContent>
