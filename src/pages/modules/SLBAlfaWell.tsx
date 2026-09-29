@@ -279,7 +279,7 @@ export default function SLBAlfaWell() {
         </Card>
 
         <Card className="glass-card">
-          <CardHeader><CardTitle className="text-base flex justify-between">Pressure vs. depth <SrcBadge kind="calc" /></CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-base flex justify-between items-center gap-2">Pressure vs. depth <span className="flex gap-1"><SrcBadge kind="calc" /><SrcBadge kind="confirm" /></span></CardTitle></CardHeader>
           <CardContent>
             <div style={{ minHeight: 260 }}>
               <ResponsiveContainer width="100%" height={260}>
