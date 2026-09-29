@@ -21,3 +21,8 @@
 
 - [x] Product demo video: AI agent — data in → computes → results
 - [ ] Case study: real field, agent prediction vs actual (waits on real post-treatment data)
+
+## Open
+- [x] Stage 6 log-based SPT ranking (Stage 8 solver) with high-Sw / low-k risk intervals.
+- [x] Injection & Water Salinity saved per well in the database, shared within the company; Stage 6/8 read it.
+- [ ] Recalculate SLB slotted-liner SPT review on real curves + RU/EN client PDF (waits on the LAS file for that well).

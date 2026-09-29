@@ -1391,6 +1391,72 @@ export type Database = {
           },
         ]
       }
+      well_water_inputs: {
+        Row: {
+          company_id: string
+          created_at: string
+          cum_injected_bbl: number | null
+          cum_produced_bbl: number | null
+          formation_tds_ppm: number | null
+          history_period: string | null
+          injection_share_pct: number | null
+          injection_tds_ppm: number | null
+          reservoir_temp_f: number | null
+          rw_formation: number | null
+          rw_injection: number | null
+          updated_at: string
+          updated_by: string | null
+          well_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          cum_injected_bbl?: number | null
+          cum_produced_bbl?: number | null
+          formation_tds_ppm?: number | null
+          history_period?: string | null
+          injection_share_pct?: number | null
+          injection_tds_ppm?: number | null
+          reservoir_temp_f?: number | null
+          rw_formation?: number | null
+          rw_injection?: number | null
+          updated_at?: string
+          updated_by?: string | null
+          well_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          cum_injected_bbl?: number | null
+          cum_produced_bbl?: number | null
+          formation_tds_ppm?: number | null
+          history_period?: string | null
+          injection_share_pct?: number | null
+          injection_tds_ppm?: number | null
+          reservoir_temp_f?: number | null
+          rw_formation?: number | null
+          rw_injection?: number | null
+          updated_at?: string
+          updated_by?: string | null
+          well_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "well_water_inputs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "well_water_inputs_well_id_fkey"
+            columns: ["well_id"]
+            isOneToOne: true
+            referencedRelation: "wells"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       wells: {
         Row: {
           api_number: string | null
