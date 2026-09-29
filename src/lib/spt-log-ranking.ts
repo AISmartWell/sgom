@@ -13,13 +13,23 @@ export interface LogRankResult {
   riskIntervals: IntervalResult[]; // high Sw and/or low k reservoir intervals
   score: number;           // 0–100
   waterfloodCorrected: boolean;
+  kCutoff: number;         // mD — permeability risk cutoff actually used
+  fluid: Fluid;
 }
 
-export const SW_HIGH = 60;  // %
-export const K_LOW = 1;     // mD
+export const SW_HIGH = 60;    // % — fluid-independent
+export const K_LOW_OIL = 1;   // mD
+export const K_LOW_GAS = 0.1; // mD — gas delivers from tighter rock
+export const K_LOW = K_LOW_OIL; // legacy alias (oil cutoff)
+
+export type Fluid = "oil" | "gas";
+export const kCutoffFor = (fluid?: Fluid | null): number => (fluid === "gas" ? K_LOW_GAS : K_LOW_OIL);
+/** Maps well_type strings from the wells table ("gas well", "OIL", …) to a fluid. */
+export const fluidOf = (wellType?: string | null): Fluid =>
+  (wellType ?? "").toLowerCase().includes("gas") ? "gas" : "oil";
 
 /** Same solver as Stage 8, reduced to SPT ranking metrics. Weights are screening defaults. */
-export function rankFromLogs(logs: WellLogPoint[], water?: WaterInputsLite | null): LogRankResult | null {
+export function rankFromLogs(logs: WellLogPoint[], water?: WaterInputsLite | null, fluid?: Fluid | null): LogRankResult | null {
   const pts: PetroPoint[] = logs
     .filter((r) => r.gamma_ray != null && r.resistivity != null && r.porosity != null)
     .map((r) => ({ depth: r.measured_depth, gr: r.gamma_ray!, sp: r.sp ?? -20, res: r.resistivity!, por: r.porosity!, sw: r.water_saturation ?? 50, rhob: r.density, nphi: r.neutron_porosity }));
