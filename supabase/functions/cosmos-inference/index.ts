@@ -49,11 +49,12 @@ serve(async (req) => {
   const startTime = Date.now();
 
   try {
-    const { mode, well, prompt, modelOverride } = await req.json() as {
+    const { mode, well, prompt, modelOverride, context } = await req.json() as {
       mode: 'reason' | 'predict' | 'transfer' | 'ping';
       well?: WellPayload;
       prompt?: string;
       modelOverride?: string;
+      context?: string;
     };
 
     const NVIDIA_API_KEY = Deno.env.get('NVIDIA_API_KEY');
@@ -165,6 +166,10 @@ Given a target formation, generate a plausible synthetic well log profile summar
       default:
         throw new Error(`Unknown mode: ${mode}`);
     }
+
+    // Optional operator-supplied context (well-specific notes, unconfirmed values) —
+    // appended to the user prompt so modes like 'reason' can score beyond the fixed payload fields.
+    if (context) userPrompt += `\n\nAdditional context (operator-supplied, some values unconfirmed): ${context}`;
 
     const response = await fetch(NVIDIA_URL, {
       method: 'POST',
