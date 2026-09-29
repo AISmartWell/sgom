@@ -2856,10 +2856,15 @@ const GeophysicalExpertise = () => {
     }));
   }, [rawLogs]);
 
-  const savedWf = (() => { try { return JSON.parse(localStorage.getItem("sgom.waterflood.inputs") || "{}"); } catch { return {}; } })();
-  const [rwFormation, setRwFormation] = useState<string>(savedWf.rwFormation ?? "0.04");
-  const [rwInjection, setRwInjection] = useState<string>(savedWf.rwInjection ?? "");
-  const [injShare, setInjShare] = useState<string>(savedWf.injShare ?? "0");
+  const { data: savedWf } = useWellWaterInputs(selectedWell?.id);
+  const [rwFormation, setRwFormation] = useState<string>("0.04");
+  const [rwInjection, setRwInjection] = useState<string>("");
+  const [injShare, setInjShare] = useState<string>("0");
+  useEffect(() => {
+    setRwFormation(savedWf?.rw_formation != null ? String(savedWf.rw_formation) : "0.04");
+    setRwInjection(savedWf?.rw_injection != null ? String(savedWf.rw_injection) : "");
+    setInjShare(savedWf?.injection_share_pct != null ? String(savedWf.injection_share_pct) : "0");
+  }, [savedWf]);
 
   const interpretation = useMemo<InterpretationSummary | null>(() => {
     if (petroData.length < 3) return null;

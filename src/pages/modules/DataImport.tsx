@@ -77,7 +77,7 @@ const DataImport = () => {
 
       <LASIntervalImport companyId={companyId} onImportComplete={handleImportComplete} />
 
-      <InjectionSalinityForm />
+      <InjectionSalinityForm companyId={companyId} />
 
       <FormationAssistCard />
 
