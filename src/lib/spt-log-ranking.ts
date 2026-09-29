@@ -9,6 +9,7 @@ export interface LogRankResult {
   avgPor: number | null;   // % (pay-weighted)
   avgK: number | null;     // mD (pay-weighted, Timur)
   avgSw: number | null;    // % (pay-weighted, Archie)
+  intervals: IntervalResult[];      // reservoir intervals
   riskIntervals: IntervalResult[]; // high Sw and/or low k reservoir intervals
   score: number;           // 0–100
   waterfloodCorrected: boolean;
@@ -43,5 +44,5 @@ export function rankFromLogs(logs: WellLogPoint[], water?: WaterInputsLite | nul
   const por = avgPor != null ? Math.min(1, avgPor / 15) * 20 : 0;
   const k = avgK != null ? Math.min(1, Math.log10(avgK + 1) / 2) * 20 : 0;
   const sw = avgSw != null ? Math.max(0, 1 - avgSw / 100) * 25 : 0;
-  return { netPay: s.netPay, missedPay: s.totalMissedPay, avgPor, avgK, avgSw, riskIntervals, score: Math.round(pay + por + k + sw), waterfloodCorrected: s.waterfloodCorrected };
+  return { intervals: res, netPay: s.netPay, missedPay: s.totalMissedPay, avgPor, avgK, avgSw, riskIntervals, score: Math.round(pay + por + k + sw), waterfloodCorrected: s.waterfloodCorrected };
 }
