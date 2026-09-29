@@ -48,11 +48,12 @@ export function rankFromLogs(logs: WellLogPoint[], water?: WaterInputsLite | nul
   const avgPor = h ? w((i) => i.avgPor) : null;
   const avgK = h ? w((i) => i.timurPermMd) : null;
   const avgSw = h ? w((i) => i.archieSwCalc ?? i.avgSw) : null;
-  const riskIntervals = res.filter((i) => (i.archieSwCalc ?? i.avgSw) >= SW_HIGH || (i.timurPermMd != null && i.timurPermMd < K_LOW));
+  const kLow = kCutoffFor(fluid);
+  const riskIntervals = res.filter((i) => (i.archieSwCalc ?? i.avgSw) >= SW_HIGH || (i.timurPermMd != null && i.timurPermMd < kLow));
 
   const pay = Math.min(1, (s.netPay + s.totalMissedPay) / 50) * 35;
   const por = avgPor != null ? Math.min(1, avgPor / 15) * 20 : 0;
   const k = avgK != null ? Math.min(1, Math.log10(avgK + 1) / 2) * 20 : 0;
   const sw = avgSw != null ? Math.max(0, 1 - avgSw / 100) * 25 : 0;
-  return { intervals: res, netPay: s.netPay, missedPay: s.totalMissedPay, avgPor, avgK, avgSw, riskIntervals, score: Math.round(pay + por + k + sw), waterfloodCorrected: s.waterfloodCorrected };
+  return { intervals: res, netPay: s.netPay, missedPay: s.totalMissedPay, avgPor, avgK, avgSw, riskIntervals, score: Math.round(pay + por + k + sw), waterfloodCorrected: s.waterfloodCorrected, kCutoff: kLow, fluid: fluid ?? "oil" };
 }
