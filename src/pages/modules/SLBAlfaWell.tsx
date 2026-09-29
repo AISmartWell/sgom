@@ -231,6 +231,8 @@ export default function SLBAlfaWell() {
         </CardContent>
       </Card>
 
+      <AlfaCosmosPanel />
+
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Metric label="Total depth" value={`${ft(DOC.casing)} ft`} sub={`${DOC.casing} m`} kind="doc" />
         <Metric label="BH pressure (PLT track)" value={`~${pressurePsi.toLocaleString()} psi`} sub={`~${DOC.pressureMpa} MPa · reservoir pressure to confirm`} kind="confirm" />
