@@ -144,9 +144,10 @@ export const calcTimurPermeability = (
   swirr: number        // fraction (0–1)
 ): number => {
   if (porosity <= 0.01 || swirr <= 0.01) return 0;
-  const swirrSafe = Math.max(0.05, Math.min(1, swirr));
-  const phi44 = Math.pow(porosity, 4.4);
-  return (0.136 * phi44) / (swirrSafe * swirrSafe);
+  // Timur constant 0.136 is defined for φ and Swirr in PERCENT (k in mD).
+  const swirrPct = Math.max(5, Math.min(100, swirr * 100));
+  const phi44 = Math.pow(porosity * 100, 4.4);
+  return (0.136 * phi44) / (swirrPct * swirrPct);
 };
 
 /** Permeability quality classification (mD) */
