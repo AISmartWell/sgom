@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -57,8 +57,8 @@ export default function SPTLogRanking() {
                 <th className="text-right p-2">k mD</th><th className="text-right p-2">Sw %</th><th className="text-right p-2">Risk zones</th>
               </tr></thead>
               <tbody>
-                {rows.map((x, i) => (<>
-                  <tr key={x.id} className="border-b border-border/50">
+                {rows.map((x, i) => (<Fragment key={x.id}>
+                  <tr className="border-b border-border/50">
                     <td className="p-2">{i + 1}</td>
                     <td className="p-2">{x.name}{x.r.waterfloodCorrected && <Badge variant="outline" className="ml-2 text-[10px]">Rw corrected</Badge>}</td>
                     <td className="p-2 text-right font-mono font-semibold text-primary">{x.r.score}</td>
@@ -72,7 +72,7 @@ export default function SPTLogRanking() {
                     </td>
                   </tr>
                   {open === x.id && (
-                    <tr key={`${x.id}-d`}><td colSpan={9} className="p-2 bg-muted/30">
+                    <tr><td colSpan={9} className="p-2 bg-muted/30">
                       <div className="text-xs text-muted-foreground mb-1">Reservoir intervals with Sw ≥ {SW_HIGH}% or k &lt; {K_LOW} mD — avoid or isolate when placing slots:</div>
                       <div className="flex flex-wrap gap-2">
                         {x.r.riskIntervals.map((iv) => {
@@ -85,7 +85,7 @@ export default function SPTLogRanking() {
                       </div>
                     </td></tr>
                   )}
-                </>))}
+                </Fragment>))}
               </tbody>
             </table>
           </div>

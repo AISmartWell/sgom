@@ -5,8 +5,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ShieldCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useWellLogs } from "@/hooks/useWellLogs";
-import { interpretWellLog, type PetroPoint } from "@/lib/petrophysics";
-import { WATERFLOOD_STORAGE_KEY } from "@/components/data-import/InjectionSalinityForm";
+import { rankFromLogs } from "@/lib/spt-log-ranking";
+import { useWellWaterInputs } from "@/hooks/useWellWaterInputs";
 
 type Status = "pass" | "caution" | "fail" | "missing";
 interface Criterion { key: string; label: string; value: string; source: string; status: Status; note: string }
@@ -41,6 +41,7 @@ export default function SPTApplicabilityCard() {
   const [wellId, setWellId] = useState<string>("");
   const [pressure, setPressure] = useState<{ psi: number; method: string } | null>(null);
   const { data: logs, isLoading } = useWellLogs(wellId || undefined);
+  const { data: water } = useWellWaterInputs(wellId || undefined);
 
   useEffect(() => {
     supabase.from("wells").select("id, well_name, total_depth, water_cut").order("well_name").limit(1000)
@@ -71,38 +72,21 @@ export default function SPTApplicabilityCard() {
     out.push(pressure ? { key: "p", label: "Reservoir pressure", value: `${Math.round(pressure.psi).toLocaleString()} psi`, source: `Reservoir Pressure (${pressure.method})`, status: judgePressure(pressure.psi)[0], note: judgePressure(pressure.psi)[1] }
       : { key: "p", label: "Reservoir pressure", value: "—", source: "No estimate", status: "missing", note: "Run Reservoir Pressure for this well" });
 
-    let por: number | null = null, perm: number | null = null;
-    if (logs && logs.length > 0) {
-      const pts: PetroPoint[] = logs
-        .filter((r) => r.gamma_ray != null && r.resistivity != null && r.porosity != null)
-        .map((r) => ({ depth: r.measured_depth, gr: r.gamma_ray!, sp: r.sp ?? 0, res: r.resistivity!, por: r.porosity!, sw: r.water_saturation ?? 50, rhob: r.density, nphi: r.neutron_porosity }));
-      if (pts.length > 10) {
-        const s = interpretWellLog(pts);
-        const net = s.intervals.filter((i) => i.isNetPay);
-        const res = net.length ? net : s.intervals.filter((i) => i.isReservoir);
-        const h = res.reduce((a, i) => a + i.thickness, 0);
-        if (h > 0) {
-          por = res.reduce((a, i) => a + i.avgPor * i.thickness, 0) / h;
-          const kv = res.filter((i) => i.timurPermMd != null);
-          const hk = kv.reduce((a, i) => a + i.thickness, 0);
-          if (hk > 0) perm = kv.reduce((a, i) => a + (i.timurPermMd as number) * i.thickness, 0) / hk;
-        }
-      }
-    }
+    const lr = logs && logs.length ? rankFromLogs(logs, water) : null;
+    const por = lr?.avgPor ?? null, perm = lr?.avgK ?? null;
     const logSrc = "Measured log curves (Stage 8 solver)";
     out.push(por != null ? { key: "por", label: "Porosity (pay)", value: `${por.toFixed(1)} %`, source: logSrc, status: judgePor(por)[0], note: judgePor(por)[1] }
       : { key: "por", label: "Porosity (pay)", value: "—", source: "No usable log curves", status: "missing", note: "Upload LAS in Data Import (GR, RT, porosity)" });
     out.push(perm != null ? { key: "k", label: "Permeability (Timur)", value: `${perm < 1 ? perm.toFixed(2) : perm.toFixed(1)} mD`, source: logSrc, status: judgePerm(perm)[0], note: judgePerm(perm)[1] }
       : { key: "k", label: "Permeability (Timur)", value: "—", source: "No usable log curves", status: "missing", note: "Upload LAS in Data Import" });
 
-    let inj: number | null = null;
-    try { const v = JSON.parse(localStorage.getItem(WATERFLOOD_STORAGE_KEY) || "null"); if (v?.injShare && parseFloat(v.injShare) > 0) inj = parseFloat(v.injShare); } catch { /* ignore */ }
+    const inj = water?.injection_share_pct != null && water.injection_share_pct > 0 ? Number(water.injection_share_pct) : null;
     if (inj != null) out.push({ key: "inj", label: "Injection water share", value: `${inj.toFixed(1)} %`, source: "Injection & Water Salinity form", status: judgeInj(inj)[0], note: judgeInj(inj)[1] });
     else if (well.water_cut != null) { const wc = well.water_cut <= 1 ? well.water_cut * 100 : well.water_cut; out.push({ key: "inj", label: "Water cut (proxy)", value: `${wc.toFixed(0)} %`, source: "Well record", status: judgeInj(wc)[0], note: judgeInj(wc)[1] }); }
     else out.push({ key: "inj", label: "Injection water share", value: "—", source: "No data", status: "missing", note: "Fill Injection & Water Salinity in Data Import" });
 
     return out;
-  }, [well, pressure, logs]);
+  }, [well, pressure, logs, water]);
 
   const known = criteria.filter((c) => c.status !== "missing");
   const verdict = !well ? null
