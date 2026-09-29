@@ -15,6 +15,7 @@ import Simulation from "./pages/modules/Simulation";
 import Financial from "./pages/modules/Financial";
 import SPTTreatment from "./pages/modules/SPTTreatment";
 import SPTProjection from "./pages/modules/SPTProjection";
+import SLBAlfaWell from "./pages/modules/SLBAlfaWell";
 import EconomicAnalysis from "./pages/modules/EconomicAnalysis";
 
 import Reports from "./pages/modules/Reports";
@@ -137,6 +138,7 @@ const App = () => (
             <Route path="profitability-model" element={<ProfitabilityModel />} />
             <Route path="spt-treatment" element={<SPTTreatment />} />
             <Route path="spt-projection" element={<SPTProjection />} />
+            <Route path="slb-alfa-well" element={<SLBAlfaWell />} />
             <Route path="economic-analysis" element={<EconomicAnalysis />} />
             
             <Route path="reports" element={<Reports />} />

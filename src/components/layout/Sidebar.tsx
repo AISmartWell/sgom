@@ -173,6 +173,12 @@ const menuItems = [
     badge: "Stage 4",
   },
   {
+    title: "SLB Alfa Gas Well",
+    icon: Flame,
+    href: "/dashboard/slb-alfa-well",
+    badge: "Well",
+  },
+  {
     title: "SPT Projection",
     icon: TrendingUp,
     href: "/dashboard/spt-projection",
