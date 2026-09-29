@@ -11,6 +11,7 @@ import {
   LineChart, Line, CartesianGrid, ReferenceLine, Legend,
 } from "recharts";
 import { Flame, FileText, Database, AlertTriangle, Download, Loader2 } from "lucide-react";
+import AlfaCosmosPanel from "@/components/cosmos/AlfaCosmosPanel";
 
 const WELL_NAME = "SLB Slotted Liner Case (Alfa)";
 const M2FT = 3.28084;
@@ -229,6 +230,8 @@ export default function SLBAlfaWell() {
           </p>
         </CardContent>
       </Card>
+
+      <AlfaCosmosPanel />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Metric label="Total depth" value={`${ft(DOC.casing)} ft`} sub={`${DOC.casing} m`} kind="doc" />
