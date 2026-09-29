@@ -9,6 +9,7 @@ import { ManualWellEntry } from "@/components/data-import/ManualWellEntry";
 import { APIIntegrationPanel } from "@/components/data-import/APIIntegrationPanel";
 import { ImportedWellsTable } from "@/components/data-import/ImportedWellsTable";
 import { FormationAssistCard } from "@/components/data-import/FormationAssistCard";
+import { InjectionSalinityForm } from "@/components/data-import/InjectionSalinityForm";
 
 const DataImport = () => {
   const [companyId, setCompanyId] = useState<string | null>(null);
@@ -72,6 +73,8 @@ const DataImport = () => {
           </Button>
         </div>
       </section>
+
+      <InjectionSalinityForm />
 
       <FormationAssistCard />
 
