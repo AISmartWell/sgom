@@ -9,6 +9,7 @@ import { ManualWellEntry } from "@/components/data-import/ManualWellEntry";
 import { APIIntegrationPanel } from "@/components/data-import/APIIntegrationPanel";
 import { ImportedWellsTable } from "@/components/data-import/ImportedWellsTable";
 import { FormationAssistCard } from "@/components/data-import/FormationAssistCard";
+import { InjectionSalinityForm } from "@/components/data-import/InjectionSalinityForm";
 
 const DataImport = () => {
   const [companyId, setCompanyId] = useState<string | null>(null);
@@ -56,7 +57,7 @@ const DataImport = () => {
           <div>
             <h2 id="waterflood-checklist-title" className="font-semibold">Watered-out well data checklist</h2>
             <p className="text-sm text-muted-foreground">Well logs, production, injection volumes, water salinity and reservoir temperature.</p>
-            <p className="text-xs text-muted-foreground mt-1">Data request only. Automatic salinity conversion and injection-share estimation are not yet available in the platform.</p>
+            <p className="text-xs text-muted-foreground mt-1">Data request only. Enter salinity and injection volumes in the Injection &amp; Water Salinity form below to feed Stage 8.</p>
           </div>
         </div>
         <div className="flex flex-wrap gap-2 sm:shrink-0">
@@ -72,6 +73,8 @@ const DataImport = () => {
           </Button>
         </div>
       </section>
+
+      <InjectionSalinityForm />
 
       <FormationAssistCard />
 
