@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { rankFromLogs, SW_HIGH, K_LOW } from "@/lib/spt-log-ranking";
+import { rankFromLogs, SW_HIGH, K_LOW_GAS } from "@/lib/spt-log-ranking";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -111,6 +111,8 @@ export default function SLBAlfaWell() {
     { k: "Depth", v: `${ft(DOC.casing)} ft`, s: "Beyond SPT case library (up to ≈ 5,400 ft)", r: "fail" },
     { k: "BH pressure (PLT track)", v: `~${pressurePsi.toLocaleString()} psi`, s: "Abnormally high; reservoir pressure to be confirmed", r: "fail" },
     { k: "Wellhead pressure", v: "may exceed ≈ 6,000 psi", s: "Main risk: friction over ~4,400 m, equipment rating", r: "fail" },
+    { k: "BHT", v: "est. 130–160 °C (266–320 °F)", s: "Not confirmed → high-temperature gel required", r: "warn" },
+    { k: "H₂S / CO₂", v: "unknown", s: "Gas composition analysis required — materials & program selection", r: "warn" },
     { k: "Porosity", v: logs ? "from LAS" : `${(DOC.phi * 100).toFixed(0)}%`, s: "Low but productive (tight gas sand)", r: "warn" },
     { k: "Permeability", v: "0.4 mD", s: "Tight reservoir (SLB petrophysics table)", r: "warn" },
     { k: "Water saturation", v: `${(DOC.sw * 100).toFixed(0)}%`, s: "Acceptable (< 50%)", r: "pass" },
@@ -118,10 +120,10 @@ export default function SLBAlfaWell() {
   ];
   const rc = (r: string) => r === "pass" ? "text-success" : r === "warn" ? "text-warning" : r === "fail" ? "text-destructive" : "text-muted-foreground";
 
-  const rank = useMemo(() => (logs?.length ? rankFromLogs(logs as any, water) : null), [logs, water]);
+  const rank = useMemo(() => (logs?.length ? rankFromLogs(logs as any, water, "gas") : null), [logs, water]);
   const ivChart = (rank?.intervals ?? []).map((i) => {
     const sw = i.archieSwCalc ?? i.avgSw;
-    const risk = sw >= SW_HIGH || (i.timurPermMd != null && i.timurPermMd < K_LOW);
+    const risk = sw >= SW_HIGH || (i.timurPermMd != null && i.timurPermMd < K_LOW_GAS);
     return { name: `${Math.round(i.top)}–${Math.round(i.bottom)}`, sw: +sw.toFixed(1), k: i.timurPermMd != null ? +i.timurPermMd.toFixed(3) : null, risk };
   });
   const pageRef = useRef<HTMLDivElement>(null);
@@ -136,7 +138,7 @@ export default function SLBAlfaWell() {
       const W = pdf.internal.pageSize.getWidth(), H = pdf.internal.pageSize.getHeight();
       const M = 24, footer = 22, usable = H - M - footer;
       const paint = () => { pdf.setFillColor(bg); pdf.rect(0, 0, W, H, "F"); };
-      const foot = () => { pdf.setFontSize(7); pdf.setTextColor(150); pdf.text("CONFIDENTIAL — prepared by SGOM for Maxxwell Production. Not for distribution.", M, H - 10); };
+      const foot = () => { pdf.setFontSize(7); pdf.setTextColor(150); pdf.text("CONFIDENTIAL — AI Smart Well Inc. · Maxxwell Production. Not for distribution.", M, H - 10); };
       paint(); foot();
       let y = M;
       // Paginate by section so blocks are never cut between pages
@@ -159,7 +161,7 @@ export default function SLBAlfaWell() {
     <div ref={pageRef} className="p-8 space-y-6">
       <div className="flex items-center justify-between gap-2 text-xs border border-destructive/40 text-destructive rounded-lg px-3 py-2">
         <span className="font-semibold">CONFIDENTIAL — client case, not for distribution</span>
-        <span className="text-muted-foreground">Prepared by SGOM for Maxxwell Production</span>
+        <span className="text-muted-foreground">AI Smart Well Inc. · Maxxwell Production</span>
       </div>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
@@ -231,7 +233,7 @@ export default function SLBAlfaWell() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Metric label="Total depth" value={`${ft(DOC.casing)} ft`} sub={`${DOC.casing} m`} kind="doc" />
         <Metric label="BH pressure (PLT track)" value={`~${pressurePsi.toLocaleString()} psi`} sub={`~${DOC.pressureMpa} MPa · reservoir pressure to confirm`} kind="confirm" />
-        <Metric label="Pressure gradient" value={`${gradPsiFt.toFixed(2)} psi/ft`} sub={`${gradKpaM.toFixed(1)} kPa/m · ≈${eqDensity.toFixed(2)} g/cm³`} kind="calc" />
+        <Metric label="Pressure gradient" value={`${gradPsiFt.toFixed(2)} psi/ft`} sub={`${gradKpaM.toFixed(1)} kPa/m · ≈${eqDensity.toFixed(2)} g/cm³ · calculated from unconfirmed pressure`} kind="confirm" />
         <Metric label="Gas via channel" value={`${DOC.channelShare}%`} sub="PLT: inflow above the liner" kind="doc" />
         <Metric label="Net / gross" value={`${(ntg * 100).toFixed(0)}%`} sub={`${DOC.netM} m of ${DOC.grossM} m`} kind="calc" />
         <Metric label="Porosity / Sw" value={`${(DOC.phi * 100).toFixed(0)}% / ${(DOC.sw * 100).toFixed(0)}%`} sub="Log average, pay interval" kind="doc" />
@@ -372,7 +374,7 @@ export default function SLBAlfaWell() {
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">
-        {[{ key: "sw", title: "Water saturation by interval (Archie), %", ref: SW_HIGH, scale: "linear" as const }, { key: "k", title: "Permeability by interval (Timur), mD", ref: K_LOW, scale: "log" as const }].map((c) => (
+        {[{ key: "sw", title: "Water saturation by interval (Archie), %", ref: SW_HIGH, scale: "linear" as const }, { key: "k", title: "Permeability by interval (Timur), mD", ref: K_LOW_GAS, scale: "log" as const }].map((c) => (
           <Card key={c.key} className="glass-card">
             <CardHeader><CardTitle className="text-base flex justify-between">{c.title} <SrcBadge kind={ivChart.length ? "calc" : "none"} /></CardTitle></CardHeader>
             <CardContent>
@@ -394,7 +396,7 @@ export default function SLBAlfaWell() {
           </Card>
         ))}
       </div>
-      <p className="text-xs text-muted-foreground">Red bars = risk intervals (Sw ≥ {SW_HIGH}% or k &lt; {K_LOW} mD). Same solver as Stage 6 and Stage 8{rank?.waterfloodCorrected ? ", corrected for injection water using saved well inputs" : ""}.</p>
+      <p className="text-xs text-muted-foreground">Red bars = risk intervals (Sw ≥ {SW_HIGH}% or k &lt; {K_LOW_GAS} mD — gas cutoff; oil wells use 1 mD). Same solver as Stage 6 and Stage 8{rank?.waterfloodCorrected ? ", corrected for injection water using saved well inputs" : ""}.</p>
 
       <Card className="glass-card">
         <CardHeader><CardTitle className="text-base flex items-center gap-2"><FileText className="h-4 w-4" />Data still required</CardTitle></CardHeader>
