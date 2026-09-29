@@ -1,10 +1,10 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Droplets } from "lucide-react";
+import { Droplets, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 export const WATERFLOOD_STORAGE_KEY = "sgom.waterflood.inputs";
@@ -22,6 +22,49 @@ export function InjectionSalinityForm() {
   const [temp, setTemp] = useState("");
   const [injected, setInjected] = useState("");
   const [produced, setProduced] = useState("");
+  const [csvInfo, setCsvInfo] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const parseCsv = (text: string) => {
+    const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+    if (lines.length < 2) { toast.error("CSV must have a header row and at least one data row"); return; }
+    const header = lines[0].toLowerCase().split(/[,;\t]/).map((h) => h.trim());
+    const findCol = (...keys: string[]) =>
+      header.findIndex((h) => keys.some((k) => h.includes(k)));
+    const dateIdx = findCol("date", "month", "period", "year");
+    const injIdx = findCol("inject", "inj");
+    const prodIdx = findCol("produced", "prod", "liquid");
+    if (injIdx < 0 && prodIdx < 0) {
+      toast.error("No injection/production columns found. Expected headers like: month, injected_bbl, produced_bbl");
+      return;
+    }
+    let sumInj = 0, sumProd = 0, rows = 0;
+    const dates: string[] = [];
+    for (const line of lines.slice(1)) {
+      const cells = line.split(/[,;\t]/).map((c) => c.trim());
+      const inj = injIdx >= 0 ? parseFloat(cells[injIdx]) : NaN;
+      const prod = prodIdx >= 0 ? parseFloat(cells[prodIdx]) : NaN;
+      if (inj > 0) sumInj += inj;
+      if (prod > 0) sumProd += prod;
+      if (dateIdx >= 0 && cells[dateIdx]) dates.push(cells[dateIdx]);
+      if (inj > 0 || prod > 0) rows++;
+    }
+    if (!rows) { toast.error("No numeric data rows found in CSV"); return; }
+    if (injIdx >= 0 && sumInj > 0) setInjected(String(Math.round(sumInj)));
+    if (prodIdx >= 0 && sumProd > 0) setProduced(String(Math.round(sumProd)));
+    const period = dates.length >= 2 ? ` · period ${dates[0]} — ${dates[dates.length - 1]}` : "";
+    setCsvInfo(`${rows} monthly rows loaded${period}`);
+    toast.success("CSV loaded — cumulative volumes calculated");
+  };
+
+  const onFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    const reader = new FileReader();
+    reader.onload = () => parseCsv(String(reader.result ?? ""));
+    reader.readAsText(f);
+    e.target.value = "";
+  };
 
   const rwF = tdsToRw(parseFloat(fTds), parseFloat(temp));
   const rwI = tdsToRw(parseFloat(iTds), parseFloat(temp));
@@ -63,6 +106,19 @@ export function InjectionSalinityForm() {
         <div className="grid gap-3 sm:grid-cols-2">
           {field("inj", "Cumulative water injected (bbl)", injected, setInjected, "offset injectors")}
           {field("prod", "Cumulative liquid produced (bbl)", produced, setProduced, "oil + water")}
+        </div>
+        <div className="rounded-md border border-dashed border-border p-3 space-y-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <Button size="sm" variant="outline" onClick={() => fileRef.current?.click()}>
+              <Upload className="h-3.5 w-3.5 mr-1.5" />Upload monthly history CSV
+            </Button>
+            <input ref={fileRef} type="file" accept=".csv,text/csv" className="hidden" onChange={onFile} />
+            {csvInfo && <Badge variant="secondary">{csvInfo}</Badge>}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Expected columns: <code>month, injected_bbl, produced_bbl</code> (one row per month, full injection period).
+            The platform sums the volumes and fills the cumulative fields above; the injection period is taken from the first and last rows.
+          </p>
         </div>
         <div className="flex flex-wrap items-center gap-2 text-xs">
           <Badge variant="outline">Rw formation: {rwF != null ? `${rwF.toFixed(3)} Ω·m` : "—"}</Badge>
