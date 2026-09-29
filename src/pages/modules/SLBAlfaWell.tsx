@@ -352,7 +352,7 @@ export default function SLBAlfaWell() {
               </div>
             ) : (
               <div className="text-sm text-muted-foreground py-10 text-center">
-                No LAS uploaded yet. Upload the 4,340–4,500 m interval in Data Import → it will appear here automatically.
+                No LAS uploaded yet. Upload the 4,300–4,520 m interval (incl. PEF and caliper) in Data Import → it will appear here automatically.
               </div>
             )}
           </CardContent>
