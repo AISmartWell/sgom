@@ -20,6 +20,8 @@ type Call = {
 
 const fmt = (d: string | null) => (d ? new Date(d).toLocaleString() : "—");
 
+const SANDBOX_BASE_URL = "https://rmfhcushsxkbgjnbawbs.supabase.co/functions/v1/upstrima-sandbox";
+
 const tokenStatus = (t: Token) => {
   if (t.revoked_at) return { label: "Revoked", variant: "destructive" as const };
   if (new Date(t.expires_at).getTime() < Date.now()) return { label: "Expired", variant: "secondary" as const };
@@ -86,6 +88,24 @@ const UpstrimaSandbox = () => {
           <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} /> Refresh
         </Button>
       </div>
+
+      <Card className="glass-card">
+        <CardContent className="pt-6 flex flex-wrap items-center gap-3">
+          <div className="min-w-0">
+            <p className="text-sm text-muted-foreground">Sandbox endpoint (for Upstrima servers, not a browser page)</p>
+            <code className="text-sm font-mono break-all">{SANDBOX_BASE_URL}/&lt;method&gt;</code>
+            <p className="text-xs text-muted-foreground mt-1">Methods: spt_screening · well_verdict · log_ranking · knowledge_search · audit_log — POST with Bearer token</p>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="ml-auto shrink-0"
+            onClick={() => { navigator.clipboard.writeText(SANDBOX_BASE_URL); toast.success("Endpoint copied"); }}
+          >
+            Copy endpoint
+          </Button>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="glass-card"><CardContent className="pt-6">
