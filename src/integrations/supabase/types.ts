@@ -14,6 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
+      api_call_log: {
+        Row: {
+          action: string
+          company_id: string | null
+          created_at: string
+          error_code: string | null
+          id: string
+          latency_ms: number | null
+          request_summary: Json
+          status_code: number
+          token_id: string | null
+          token_label: string | null
+          verdict: string | null
+          well_ref: string | null
+        }
+        Insert: {
+          action: string
+          company_id?: string | null
+          created_at?: string
+          error_code?: string | null
+          id?: string
+          latency_ms?: number | null
+          request_summary?: Json
+          status_code: number
+          token_id?: string | null
+          token_label?: string | null
+          verdict?: string | null
+          well_ref?: string | null
+        }
+        Update: {
+          action?: string
+          company_id?: string | null
+          created_at?: string
+          error_code?: string | null
+          id?: string
+          latency_ms?: number | null
+          request_summary?: Json
+          status_code?: number
+          token_id?: string | null
+          token_label?: string | null
+          verdict?: string | null
+          well_ref?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "api_call_log_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "api_call_log_token_id_fkey"
+            columns: ["token_id"]
+            isOneToOne: false
+            referencedRelation: "api_tokens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       api_tokens: {
         Row: {
           company_id: string

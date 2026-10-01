@@ -36,6 +36,13 @@
       "when": 1790877969147,
       "tag": "0004_upstrima_sandbox",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790883552912,
+      "tag": "0005_sandbox_audit_log",
+      "breakpoints": true
     }
   ]
 }
