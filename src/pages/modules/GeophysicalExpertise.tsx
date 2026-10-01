@@ -26,6 +26,7 @@ import { useWellPerforations } from "@/hooks/useWellPerforations";
 import { assessBypassedPay, bypassedPayMessage } from "@/lib/bypassed-pay";
 import {
   interpretWellLog,
+  resolveRw,
   calcVshale,
   calcArchieSwFromInputs,
   calcTimurPermeability,
@@ -1380,18 +1381,18 @@ const StepDenNphi = ({ data }: { data: PetroPoint[] }) => {
   );
 };
 
-const StepArchie = ({ data }: { data: PetroPoint[] }) => {
+const StepArchie = ({ data, rw = 0.04 }: { data: PetroPoint[]; rw?: number }) => {
   const chartData = useMemo(() => {
     const step = Math.max(1, Math.floor(data.length / 120));
     return data
       .filter((_, i) => i % step === 0)
       .map(p => {
         const porFrac = p.por / 100;
-        const sw = calcArchieSwFromInputs(porFrac, p.res) * 100;
+        const sw = calcArchieSwFromInputs(porFrac, p.res, rw) * 100;
         const sh = 100 - sw;
         return { depth: p.depth, sw: Math.round(sw * 10) / 10, sh: Math.round(sh * 10) / 10, por: p.por, res: p.res };
       });
-  }, [data]);
+  }, [data, rw]);
 
   const examples = useMemo(() => {
     return data
@@ -1399,10 +1400,10 @@ const StepArchie = ({ data }: { data: PetroPoint[] }) => {
       .slice(0, 8)
       .map(p => {
         const porFrac = p.por / 100;
-        const swArchie = calcArchieSwFromInputs(porFrac, p.res) * 100;
+        const swArchie = calcArchieSwFromInputs(porFrac, p.res, rw) * 100;
         return { depth: p.depth, por: p.por, res: p.res, swLog: p.sw, swArchie, hydroSat: 100 - swArchie };
       });
-  }, [data]);
+  }, [data, rw]);
 
   // Summary stats
   const stats = useMemo(() => {
@@ -1438,7 +1439,7 @@ const StepArchie = ({ data }: { data: PetroPoint[] }) => {
               <div className="font-semibold text-foreground">n</div><div>2.0</div>
             </div>
             <div className="p-2 bg-muted/30 rounded text-center">
-              <div className="font-semibold text-foreground">Rw</div><div>0.04 Ω·m</div>
+              <div className="font-semibold text-foreground">Rw</div><div>{rw} Ω·m</div>
             </div>
           </div>
         </CardContent>
@@ -1547,7 +1548,7 @@ const StepArchie = ({ data }: { data: PetroPoint[] }) => {
   );
 };
 
-const StepTimur = ({ data, wellName }: { data: PetroPoint[]; wellName?: string | null }) => {
+const StepTimur = ({ data, wellName, rw = 0.04 }: { data: PetroPoint[]; wellName?: string | null; rw?: number }) => {
   const chartRef = useRef<HTMLDivElement>(null);
   const [exporting, setExporting] = useState<null | "png" | "svg" | "csv">(null);
   const chartData = useMemo(() => {
@@ -1556,7 +1557,7 @@ const StepTimur = ({ data, wellName }: { data: PetroPoint[]; wellName?: string |
       .filter((_, i) => i % step === 0)
       .map(p => {
         const porFrac = p.por / 100;
-        const swirr = calcArchieSwFromInputs(porFrac, p.res); // Sw as Swirr proxy
+        const swirr = calcArchieSwFromInputs(porFrac, p.res, rw); // Sw as Swirr proxy
         const k = calcTimurPermeability(porFrac, swirr);
         // log scale-friendly value (avoid log(0))
         const kLog = k > 0 ? Math.log10(Math.max(0.001, k)) : -3;
@@ -1568,7 +1569,7 @@ const StepTimur = ({ data, wellName }: { data: PetroPoint[]; wellName?: string |
           swirr: Math.round(swirr * 1000) / 10, // %
         };
       });
-  }, [data]);
+  }, [data, rw]);
 
   const examples = useMemo(() => {
     return data
@@ -1576,7 +1577,7 @@ const StepTimur = ({ data, wellName }: { data: PetroPoint[]; wellName?: string |
       .slice(0, 10)
       .map(p => {
         const porFrac = p.por / 100;
-        const swirr = calcArchieSwFromInputs(porFrac, p.res);
+        const swirr = calcArchieSwFromInputs(porFrac, p.res, rw);
         const k = calcTimurPermeability(porFrac, swirr);
         return {
           depth: p.depth,
@@ -1586,7 +1587,7 @@ const StepTimur = ({ data, wellName }: { data: PetroPoint[]; wellName?: string |
           cls: classifyPermeability(k),
         };
       });
-  }, [data]);
+  }, [data, rw]);
 
   // Pearson correlation between log10(k) and Archie Sw
   const correlation = useMemo(() => {
@@ -1642,7 +1643,7 @@ const StepTimur = ({ data, wellName }: { data: PetroPoint[]; wellName?: string |
     const ress = data.map(p => p.res).filter(v => Number.isFinite(v) && v > 0);
     const swirrs = data.map(p => {
       const f = p.por / 100;
-      return calcArchieSwFromInputs(f, p.res);
+      return calcArchieSwFromInputs(f, p.res, rw);
     });
 
     const minPor = Math.min(...pors), maxPor = Math.max(...pors);
@@ -1667,7 +1668,7 @@ const StepTimur = ({ data, wellName }: { data: PetroPoint[]; wellName?: string |
     if (maxRes > 2000) warnings.push({ level: "warn", msg: `Rt max = ${maxRes.toFixed(0)} Ω·m — extremely high; may indicate tight/cemented zone or tool spike.` });
 
     // Constants sanity (informational)
-    warnings.push({ level: "info", msg: "Constants: a=1.0, m=2.0, n=2.0, Rw=0.04 Ω·m (typical Gulf Coast brine). Adjust if formation water salinity differs." });
+    warnings.push({ level: "info", msg: `Constants: a=1.0, m=2.0, n=2.0, Rw=${rw} Ω·m (from Stage 8 water inputs; default 0.04 typical Gulf Coast brine).` });
 
     return {
       warnings,
@@ -1677,7 +1678,7 @@ const StepTimur = ({ data, wellName }: { data: PetroPoint[]; wellName?: string |
         minRes: minRes.toFixed(2), maxRes: maxRes.toFixed(1),
       },
     };
-  }, [data]);
+  }, [data, rw]);
 
   // ── Exports ──
   const downloadBlob = (blob: Blob, filename: string) => {
@@ -1750,7 +1751,7 @@ const StepTimur = ({ data, wellName }: { data: PetroPoint[]; wellName?: string |
   const brawnerStats = useMemo(() => {
     const pors = data.map(p => p.por).filter(v => Number.isFinite(v) && v > 0);
     const swirrs = data
-      .map(p => calcArchieSwFromInputs(p.por / 100, p.res) * 100)
+      .map(p => calcArchieSwFromInputs(p.por / 100, p.res, rw) * 100)
       .filter(v => Number.isFinite(v) && v > 0);
     if (pors.length === 0 || swirrs.length === 0) {
       return { avgPor: 12.0, avgSwirr: 35.0, source: "reference" as const };
@@ -1760,7 +1761,7 @@ const StepTimur = ({ data, wellName }: { data: PetroPoint[]; wellName?: string |
       avgSwirr: swirrs.reduce((a, b) => a + b, 0) / swirrs.length,
       source: "log" as const,
     };
-  }, [data]);
+  }, [data, rw]);
 
   const [bPor, setBPor] = useState<number>(brawnerStats.avgPor);
   const [bSwirr, setBSwirr] = useState<number>(brawnerStats.avgSwirr);
@@ -1882,7 +1883,7 @@ const StepTimur = ({ data, wellName }: { data: PetroPoint[]; wellName?: string |
               <div className="font-semibold text-foreground">a / m / n</div><div>Archie: <b>1.0 / 2.0 / 2.0</b> [dimensionless]</div>
             </div>
             <div className="p-2 bg-muted/30 rounded text-center">
-              <div className="font-semibold text-foreground">R<sub>w</sub></div><div>formation water resistivity — <b>0.04 Ω·m</b></div>
+              <div className="font-semibold text-foreground">R<sub>w</sub></div><div>formation water resistivity — <b>{rw} Ω·m</b></div>
             </div>
             <div className="p-2 bg-muted/30 rounded text-center">
               <div className="font-semibold text-foreground">R<sub>t</sub></div><div>true resistivity (deep) — <b>Ω·m</b></div>
@@ -2867,14 +2868,17 @@ const GeophysicalExpertise = () => {
     setInjShare(savedWf?.injection_share_pct != null ? String(savedWf.injection_share_pct) : "0");
   }, [savedWf]);
 
+  const waterflood = useMemo(() => ({
+    rwFormation: parseFloat(rwFormation) || undefined,
+    rwInjection: parseFloat(rwInjection) || undefined,
+    injectionFraction: (parseFloat(injShare) || 0) / 100,
+  }), [rwFormation, rwInjection, injShare]);
+  const rwActive = useMemo(() => resolveRw(waterflood).rw, [waterflood]);
+
   const interpretation = useMemo<InterpretationSummary | null>(() => {
     if (petroData.length < 3) return null;
-    return interpretWellLog(petroData, {
-      rwFormation: parseFloat(rwFormation) || undefined,
-      rwInjection: parseFloat(rwInjection) || undefined,
-      injectionFraction: (parseFloat(injShare) || 0) / 100,
-    });
-  }, [petroData, rwFormation, rwInjection, injShare]);
+    return interpretWellLog(petroData, waterflood);
+  }, [petroData, waterflood]);
 
   // Same bypassed-pay logic as the composite log's MISSED labels
   const { data: wellPerfs } = useWellPerforations(selectedWell?.id);
@@ -3332,6 +3336,7 @@ const GeophysicalExpertise = () => {
               formation={selectedWell.formation}
               defaultExpanded={true}
               totalDepth={selectedWell.total_depth ?? undefined}
+              waterflood={waterflood}
             />
           ) : (
             <div className="text-center py-16 text-muted-foreground">
@@ -3370,7 +3375,7 @@ const GeophysicalExpertise = () => {
         {/* Step 6: Archie Sw */}
         <TabsContent value="archie-sw" className="mt-0">
           {petroData.length > 0 ? (
-            <StepArchie data={petroData} />
+            <StepArchie data={petroData} rw={rwActive} />
           ) : (
             logsLoading ? <div className="text-center py-16 text-muted-foreground">Loading well data...</div> : <div className="text-center py-16 text-muted-foreground">No log curves for this well. Upload a LAS file or run OCR on a paper log to see interpretation.</div>
           )}
@@ -3379,7 +3384,7 @@ const GeophysicalExpertise = () => {
         {/* Step 7: Timur Permeability */}
         <TabsContent value="timur-k" className="mt-0">
           {petroData.length > 0 ? (
-            <StepTimur data={petroData} wellName={selectedWell?.well_name ?? null} />
+            <StepTimur data={petroData} wellName={selectedWell?.well_name ?? null} rw={rwActive} />
           ) : (
             logsLoading ? <div className="text-center py-16 text-muted-foreground">Loading well data...</div> : <div className="text-center py-16 text-muted-foreground">No log curves for this well. Upload a LAS file or run OCR on a paper log to see interpretation.</div>
           )}

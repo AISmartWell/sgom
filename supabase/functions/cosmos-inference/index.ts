@@ -33,9 +33,10 @@ interface WellPayload {
   api?: string;
   formation: string;
   depth: number;
-  oil: number;
-  waterCut: number;
-  gor: number;
+  oil?: number | null;
+  waterCut?: number | null;
+  gor?: number | null;
+  fluid?: string;
   porosity?: number;
   permeability?: number;
   status?: string;
@@ -110,7 +111,7 @@ serve(async (req) => {
       case 'reason':
         if (!well) throw new Error('well payload required for reason mode');
         systemPrompt = `You are NVIDIA Cosmos Reason, an explainable AI for oil & gas SPT (Slot Perforation Technology, US Patent 8,863,823) candidate selection.
-Analyze the given well against six MCDA criteria: production rate, water cut, depth, formation, status, GOR.
+Analyze the given well against six MCDA criteria: production rate, water cut, depth, formation, status, GOR. Values marked 'not reported' are unknown, NOT zero — do not penalize or reward them; for gas wells judge on gas-relevant evidence in the additional context.
 Return ONLY valid JSON:
 {
   "score": number (0-100),
@@ -123,9 +124,10 @@ Return ONLY valid JSON:
         userPrompt = `Well: ${well.name} (${well.api ?? 'unknown API'})
 Formation: ${well.formation}
 Depth: ${well.depth} ft
-Oil: ${well.oil} bbl/d
-Water Cut: ${well.waterCut}%
-GOR: ${well.gor} scf/bbl
+Fluid: ${well.fluid ?? 'oil'}
+Oil: ${well.oil ?? 'not reported'}${well.oil != null ? ' bbl/d' : ''}
+Water Cut: ${well.waterCut ?? 'not reported'}${well.waterCut != null ? '%' : ''}
+GOR: ${well.gor ?? 'not reported'}${well.gor != null ? ' scf/bbl' : ''}
 Porosity: ${well.porosity ?? 'n/a'}%
 Permeability: ${well.permeability ?? 'n/a'} mD
 Status: ${well.status ?? 'Active'}

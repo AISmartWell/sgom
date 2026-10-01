@@ -16,7 +16,7 @@ export interface CosmosResponse<T = any> {
  */
 export async function callCosmos<T = any>(
   mode: CosmosMode,
-  payload: { well?: any; prompt?: string; modelOverride?: string }
+  payload: { well?: any; prompt?: string; context?: string; modelOverride?: string }
 ): Promise<CosmosResponse<T> | null> {
   try {
     const { data, error } = await supabase.functions.invoke("cosmos-inference", {
