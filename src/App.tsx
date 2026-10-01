@@ -105,6 +105,7 @@ import UpstrimaSandbox from "./pages/modules/UpstrimaSandbox";
 import AuditLog from "./pages/modules/AuditLog";
 import WellVerdicts from "./pages/modules/WellVerdicts";
 import PreliminaryVerdicts from "./pages/modules/PreliminaryVerdicts";
+import SPTSlotPlan from "./pages/modules/SPTSlotPlan";
 import NotFound from "./pages/NotFound";
 import OAuthConsent from "./pages/OAuthConsent";
 
@@ -203,6 +204,7 @@ const App = () => (
               <Route path="audit-log" element={<AuditLog />} />
               <Route path="well-verdicts" element={<WellVerdicts />} />
               <Route path="preliminary-verdicts" element={<PreliminaryVerdicts />} />
+              <Route path="spt-slot-plan" element={<SPTSlotPlan />} />
 
            </Route>
            <Route path="/nvidia-inception" element={<NvidiaInception />} />
