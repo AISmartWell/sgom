@@ -113,4 +113,4 @@ export const INVESTOR_ALLOWED_ROUTES = [
 export const INVESTOR_SIDEBAR_ITEMS = new Set(INVESTOR_ALLOWED_ROUTES);
 
 // Routes only an administrator may open
-export const ADMIN_ONLY_ROUTES = ["/dashboard/user-roles", "/dashboard/upstrima-sandbox"];
+export const ADMIN_ONLY_ROUTES = ["/dashboard/user-roles", "/dashboard/upstrima-sandbox", "/dashboard/audit-log"];

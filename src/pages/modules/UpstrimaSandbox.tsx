@@ -4,7 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { RefreshCw, KeyRound, Activity, ShieldCheck } from "lucide-react";
+import { RefreshCw, KeyRound, Activity, ShieldCheck, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
 type Token = {
@@ -144,6 +145,8 @@ const UpstrimaSandbox = () => {
         </CardContent>
       </Card>
 
+      <KnowledgeSearch />
+
       <Card className="glass-card">
         <CardHeader><CardTitle className="flex items-center gap-2"><Activity className="h-5 w-5 text-primary" /> Request history (audit log)</CardTitle></CardHeader>
         <CardContent>
@@ -174,6 +177,46 @@ const UpstrimaSandbox = () => {
         </CardContent>
       </Card>
     </div>
+  );
+};
+
+type KbHit = { id: string; title: string; category: string; stage: number | null; summary: string | null; tags: string[]; rank: number };
+
+const KnowledgeSearch = () => {
+  const [q, setQ] = useState("");
+  const [hits, setHits] = useState<KbHit[] | null>(null);
+  const [busy, setBusy] = useState(false);
+  const run = async () => {
+    if (!q.trim()) return;
+    setBusy(true);
+    const { data, error } = await supabase.rpc("search_sgom_knowledge", { q: q.trim(), match_count: 5 });
+    if (error) toast.error("Search failed");
+    setHits((data as KbHit[]) ?? []);
+    setBusy(false);
+  };
+  return (
+    <Card className="glass-card">
+      <CardHeader><CardTitle className="flex items-center gap-2"><Search className="h-5 w-5 text-primary" /> Knowledge base search (knowledge_search)</CardTitle></CardHeader>
+      <CardContent className="space-y-3">
+        <p className="text-sm text-muted-foreground">Same articles and ranking Upstrima receives from the knowledge_search method.</p>
+        <form className="flex gap-2" onSubmit={(e) => { e.preventDefault(); run(); }}>
+          <Input placeholder="e.g. permeability gas" value={q} onChange={(e) => setQ(e.target.value)} className="max-w-md" />
+          <Button type="submit" disabled={busy}>Search</Button>
+        </form>
+        {hits && !hits.length && <p className="text-sm text-muted-foreground">No results</p>}
+        {hits?.map((h) => (
+          <div key={h.id} className="border border-border rounded-md p-3">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-medium">{h.title}</span>
+              <Badge variant="outline">{h.category}</Badge>
+              {h.stage != null && <Badge variant="secondary">Stage {h.stage}</Badge>}
+              <span className="text-xs text-muted-foreground">rank {Number(h.rank).toFixed(3)}</span>
+            </div>
+            {h.summary && <p className="text-sm text-muted-foreground mt-1">{h.summary}</p>}
+          </div>
+        ))}
+      </CardContent>
+    </Card>
   );
 };
 
