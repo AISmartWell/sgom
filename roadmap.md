@@ -25,4 +25,8 @@
 ## Open
 - [x] Stage 6 log-based SPT ranking (Stage 8 solver) with high-Sw / low-k risk intervals.
 - [x] Injection & Water Salinity saved per well in the database, shared within the company; Stage 6/8 read it.
+- [x] Upstrima integration docs: OpenAPI 3.0 spec for the sandbox API + Section 2 data/security response (Upstrima_Sandbox_OpenAPI.yaml, Upstrima_Section2_Data_Security_Response.md in Files).
 - [ ] Recalculate SLB slotted-liner SPT review on real curves + RU/EN client PDF (waits on the LAS file for that well).
+- [ ] Selective-review mechanism: risk-flag filter → geophysicist review queue → correction statistics → mode switch (full review first 1-3 months).
+- [ ] Send Upstrima the selective-review letter only after the review mechanism is demonstrated (user decision, no deadline).
+- [ ] Decide who performs geophysicist review (Maxxwell Production consultant vs. external hire) — user decision.
