@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import html2canvas from "html2canvas";
 import { useWellLogs, WellLogPoint } from "@/hooks/useWellLogs";
 import { useWellPerforations, PerforationInterval } from "@/hooks/useWellPerforations";
-import { interpretWellLog, fluidColor, fluidEmoji, type PetroPoint, type InterpretationSummary } from "@/lib/petrophysics";
+import { interpretWellLog, fluidColor, fluidEmoji, type PetroPoint, type InterpretationSummary, type WaterfloodOptions } from "@/lib/petrophysics";
 import { assessBypassedPay } from "@/lib/bypassed-pay";
 import WellLogInterpretation from "./WellLogInterpretation";
 
@@ -142,9 +142,11 @@ interface EnhancedWellLogProps {
   defaultExpanded?: boolean;
   totalDepth?: number;
   showInterpretationByDefault?: boolean;
+  /** Same waterflood (mixed Rw) options as the Stage 8 summary, so plot and report agree. */
+  waterflood?: WaterfloodOptions;
 }
 
-const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, totalDepth, showInterpretationByDefault = false }: EnhancedWellLogProps) => {
+const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, totalDepth, showInterpretationByDefault = false, waterflood }: EnhancedWellLogProps) => {
   const { data: rawLogs, isLoading, hasRealData } = useWellLogs(wellId);
   const { data: perforations } = useWellPerforations(wellId);
   // Only real perforation records — never synthetic (they caused false MISSED flags).
@@ -223,8 +225,8 @@ const EnhancedWellLog = ({ wellId, wellName, formation, defaultExpanded = true, 
       depth: p.depth, gr: p.gr, sp: p.sp, res: p.res,
       por: p.por, sw: p.sw, rhob: p.rhob, nphi: p.nphi,
     }));
-    return interpretWellLog(petroData);
-  }, [allData]);
+    return interpretWellLog(petroData, waterflood);
+  }, [allData, waterflood?.rwFormation, waterflood?.rwInjection, waterflood?.injectionFraction]);
 
   // Pay zones from interpretation engine (replaces simple heuristic)
   const payZones = useMemo<PayZone[]>(() => {
