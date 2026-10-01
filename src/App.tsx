@@ -101,6 +101,7 @@ import DocumentVault from "./pages/modules/DocumentVault";
 import ReservoirPressure from "./pages/modules/ReservoirPressure";
 import GasReserves from "./pages/modules/GasReserves";
 import PVTGuide from "./pages/modules/PVTGuide";
+import UpstrimaSandbox from "./pages/modules/UpstrimaSandbox";
 import NotFound from "./pages/NotFound";
 import OAuthConsent from "./pages/OAuthConsent";
 
@@ -195,6 +196,7 @@ const App = () => (
               <Route path="reservoir-pressure" element={<ReservoirPressure />} />
               <Route path="gas-reserves" element={<GasReserves />} />
               <Route path="pvt-guide" element={<PVTGuide />} />
+              <Route path="upstrima-sandbox" element={<UpstrimaSandbox />} />
 
            </Route>
            <Route path="/nvidia-inception" element={<NvidiaInception />} />
