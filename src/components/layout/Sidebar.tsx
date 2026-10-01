@@ -500,6 +500,12 @@ const menuItems = [
     href: "/dashboard/preliminary-verdicts",
     badge: "Review",
   },
+  {
+    title: "SPT Slot Plan",
+    icon: Settings,
+    href: "/dashboard/spt-slot-plan",
+    badge: "Stage 6",
+  },
 
 ];
 
