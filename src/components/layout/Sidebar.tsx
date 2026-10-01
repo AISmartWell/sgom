@@ -494,6 +494,12 @@ const menuItems = [
     href: "/dashboard/well-verdicts",
     badge: "Stage 6",
   },
+  {
+    title: "Preliminary Verdicts",
+    icon: Settings,
+    href: "/dashboard/preliminary-verdicts",
+    badge: "Review",
+  },
 
 ];
 
