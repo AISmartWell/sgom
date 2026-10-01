@@ -1049,6 +1049,57 @@ export type Database = {
         }
         Relationships: []
       }
+      verdict_reviews: {
+        Row: {
+          company_id: string
+          decision: string
+          final_verdict: string
+          id: string
+          notes: string | null
+          original_verdict: string
+          reviewed_at: string
+          reviewer_id: string
+          well_id: string
+        }
+        Insert: {
+          company_id: string
+          decision: string
+          final_verdict: string
+          id?: string
+          notes?: string | null
+          original_verdict: string
+          reviewed_at?: string
+          reviewer_id: string
+          well_id: string
+        }
+        Update: {
+          company_id?: string
+          decision?: string
+          final_verdict?: string
+          id?: string
+          notes?: string | null
+          original_verdict?: string
+          reviewed_at?: string
+          reviewer_id?: string
+          well_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "verdict_reviews_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "verdict_reviews_well_id_fkey"
+            columns: ["well_id"]
+            isOneToOne: true
+            referencedRelation: "wells"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       well_alerts: {
         Row: {
           alert_type: string
