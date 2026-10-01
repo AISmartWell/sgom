@@ -474,6 +474,13 @@ const menuItems = [
     badge: "Admin",
     adminOnly: true,
   },
+  {
+    title: "Upstrima Sandbox",
+    icon: Settings,
+    href: "/dashboard/upstrima-sandbox",
+    badge: "Admin",
+    adminOnly: true,
+  },
 
 ];
 
