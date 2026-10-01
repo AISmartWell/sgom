@@ -1392,7 +1392,7 @@ const StepArchie = ({ data, rw = 0.04 }: { data: PetroPoint[]; rw?: number }) =>
         const sh = 100 - sw;
         return { depth: p.depth, sw: Math.round(sw * 10) / 10, sh: Math.round(sh * 10) / 10, por: p.por, res: p.res };
       });
-  }, [data]);
+  }, [data, rw]);
 
   const examples = useMemo(() => {
     return data
@@ -1403,7 +1403,7 @@ const StepArchie = ({ data, rw = 0.04 }: { data: PetroPoint[]; rw?: number }) =>
         const swArchie = calcArchieSwFromInputs(porFrac, p.res, rw) * 100;
         return { depth: p.depth, por: p.por, res: p.res, swLog: p.sw, swArchie, hydroSat: 100 - swArchie };
       });
-  }, [data]);
+  }, [data, rw]);
 
   // Summary stats
   const stats = useMemo(() => {
@@ -1569,7 +1569,7 @@ const StepTimur = ({ data, wellName, rw = 0.04 }: { data: PetroPoint[]; wellName
           swirr: Math.round(swirr * 1000) / 10, // %
         };
       });
-  }, [data]);
+  }, [data, rw]);
 
   const examples = useMemo(() => {
     return data
@@ -1587,7 +1587,7 @@ const StepTimur = ({ data, wellName, rw = 0.04 }: { data: PetroPoint[]; wellName
           cls: classifyPermeability(k),
         };
       });
-  }, [data]);
+  }, [data, rw]);
 
   // Pearson correlation between log10(k) and Archie Sw
   const correlation = useMemo(() => {
@@ -1678,7 +1678,7 @@ const StepTimur = ({ data, wellName, rw = 0.04 }: { data: PetroPoint[]; wellName
         minRes: minRes.toFixed(2), maxRes: maxRes.toFixed(1),
       },
     };
-  }, [data]);
+  }, [data, rw]);
 
   // ── Exports ──
   const downloadBlob = (blob: Blob, filename: string) => {
@@ -1761,7 +1761,7 @@ const StepTimur = ({ data, wellName, rw = 0.04 }: { data: PetroPoint[]; wellName
       avgSwirr: swirrs.reduce((a, b) => a + b, 0) / swirrs.length,
       source: "log" as const,
     };
-  }, [data]);
+  }, [data, rw]);
 
   const [bPor, setBPor] = useState<number>(brawnerStats.avgPor);
   const [bSwirr, setBSwirr] = useState<number>(brawnerStats.avgSwirr);

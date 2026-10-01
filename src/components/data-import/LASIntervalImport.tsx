@@ -76,7 +76,7 @@ export function LASIntervalImport({ companyId, onImportComplete }: Props) {
     try {
       const { error: delErr } = await supabase.from("well_logs").delete()
         .eq("well_id", wellId).eq("company_id", companyId)
-        .gte("measured_depth", rowsFt[0].measured_depth).lte("measured_depth", rowsFt[rowsFt.length - 1].measured_depth);
+        .gte("measured_depth", Math.min(...rowsFt.map((r) => r.measured_depth))).lte("measured_depth", Math.max(...rowsFt.map((r) => r.measured_depth)));
       if (delErr) throw delErr;
       for (let i = 0; i < rowsFt.length; i += 500) {
         const { error } = await supabase.from("well_logs").insert(
