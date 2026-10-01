@@ -14,6 +14,50 @@ export type Database = {
   }
   public: {
     Tables: {
+      api_tokens: {
+        Row: {
+          company_id: string
+          created_at: string
+          expires_at: string
+          id: string
+          label: string
+          last_used_at: string | null
+          revoked_at: string | null
+          scopes: string[]
+          token_hash: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          label: string
+          last_used_at?: string | null
+          revoked_at?: string | null
+          scopes?: string[]
+          token_hash: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          label?: string
+          last_used_at?: string | null
+          revoked_at?: string | null
+          scopes?: string[]
+          token_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "api_tokens_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       calibration_audit: {
         Row: {
           after_state: Json
