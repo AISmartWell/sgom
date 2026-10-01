@@ -481,6 +481,19 @@ const menuItems = [
     badge: "Admin",
     adminOnly: true,
   },
+  {
+    title: "Audit Log",
+    icon: Settings,
+    href: "/dashboard/audit-log",
+    badge: "Admin",
+    adminOnly: true,
+  },
+  {
+    title: "Well Verdicts",
+    icon: Settings,
+    href: "/dashboard/well-verdicts",
+    badge: "Stage 6",
+  },
 
 ];
 

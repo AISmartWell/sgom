@@ -5,3 +5,4 @@
 - Keep the public SGOM social card as a share-sized static image and route-specific geophysics metadata in the route lifecycle; static social crawlers cannot read SPA route-specific tags.
 - Serve the bilingual client intake checklists as static PDFs linked from Data Import, so prospects can download them without reading private well records.- Store injection/salinity inputs per well in `well_water_inputs` (company-scoped RLS), never in localStorage, so Stage 6 and Stage 8 read the same shared values.
 - Stage 6 log ranking reuses `interpretWellLog` via `src/lib/spt-log-ranking.ts`, so SPT scores and Stage 8 interpretation never diverge.
+- The SGOM Well Verdicts page mirrors sptScreening from the upstrima-sandbox function via src/lib/spt-sandbox-verdict.ts; change both together so UI and API verdicts never diverge.

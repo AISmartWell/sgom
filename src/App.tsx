@@ -102,6 +102,8 @@ import ReservoirPressure from "./pages/modules/ReservoirPressure";
 import GasReserves from "./pages/modules/GasReserves";
 import PVTGuide from "./pages/modules/PVTGuide";
 import UpstrimaSandbox from "./pages/modules/UpstrimaSandbox";
+import AuditLog from "./pages/modules/AuditLog";
+import WellVerdicts from "./pages/modules/WellVerdicts";
 import NotFound from "./pages/NotFound";
 import OAuthConsent from "./pages/OAuthConsent";
 
@@ -197,6 +199,8 @@ const App = () => (
               <Route path="gas-reserves" element={<GasReserves />} />
               <Route path="pvt-guide" element={<PVTGuide />} />
               <Route path="upstrima-sandbox" element={<UpstrimaSandbox />} />
+              <Route path="audit-log" element={<AuditLog />} />
+              <Route path="well-verdicts" element={<WellVerdicts />} />
 
            </Route>
            <Route path="/nvidia-inception" element={<NvidiaInception />} />
