@@ -41,9 +41,11 @@ const ALFA_WELL = {
   name: "SLB Slotted Liner Case (Alfa)",
   formation: "Alfa tight gas sand (slotted liner completion)",
   depth: 14777,
-  oil: 0,
-  waterCut: 0,
-  gor: 0,
+  // Gas well: oil rate, water cut and GOR are not reported in the SLB document — sent as unknown, not zero.
+  oil: null,
+  waterCut: null,
+  gor: null,
+  fluid: "gas",
   porosity: 7,
   permeability: 0.4,
   status: "Active",
@@ -56,7 +58,11 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 /** Retry AI requests 3x with exponential backoff (project reliability rule). */
 async function callWithRetry<T>(mode: "reason" | "predict" | "transfer", retries = 3): Promise<CosmosResponse<T> | null> {
   for (let attempt = 0; attempt < retries; attempt++) {
-    const res = await callCosmos<T>(mode, { well: ALFA_WELL, prompt: ALFA_CONTEXT });
+    const res = await callCosmos<T>(
+      mode,
+      // reason mode scores only the well payload + `context`; predict/transfer use `prompt`.
+      mode === "reason" ? { well: ALFA_WELL, context: ALFA_CONTEXT } : { well: ALFA_WELL, prompt: ALFA_CONTEXT },
+    );
     if (res) return res;
     if (attempt < retries - 1) await sleep(1000 * 2 ** attempt);
   }
