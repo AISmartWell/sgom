@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -140,7 +140,7 @@ const PreliminaryVerdicts = () => {
               {rows.map(({ w, r, flags }) => {
                 const rev = reviews[w.id];
                 return (
-                  <>
+                  <Fragment key={w.id}>
                     <TableRow key={w.id}>
                       <TableCell><div className="font-medium">{w.well_name ?? "—"}</div><div className="text-xs text-muted-foreground">{w.api_number}</div></TableCell>
                       <TableCell>{w.state}</TableCell>
@@ -181,7 +181,7 @@ const PreliminaryVerdicts = () => {
                         </TableCell>
                       </TableRow>
                     )}
-                  </>
+                  </Fragment>
                 );
               })}
               {rows.length === 0 && <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground">Nothing in this view.</TableCell></TableRow>}
