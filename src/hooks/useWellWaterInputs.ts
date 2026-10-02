@@ -13,6 +13,9 @@ export interface WellWaterInputs {
   rw_injection: number | null;
   injection_share_pct: number | null;
   history_period: string | null;
+  h2s_ppm: number | null;
+  co2_pct: number | null;
+  gas_note: string | null;
   updated_at: string;
 }
 

@@ -30,6 +30,9 @@ export function InjectionSalinityForm({ companyId }: { companyId: string | null 
   const [temp, setTemp] = useState("");
   const [injected, setInjected] = useState("");
   const [produced, setProduced] = useState("");
+  const [h2s, setH2s] = useState("");
+  const [co2, setCo2] = useState("");
+  const [gasNote, setGasNote] = useState("");
   const [period, setPeriod] = useState<string | null>(null);
   const [csvInfo, setCsvInfo] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -43,6 +46,7 @@ export function InjectionSalinityForm({ companyId }: { companyId: string | null 
   useEffect(() => {
     setFTds(str(saved?.formation_tds_ppm)); setITds(str(saved?.injection_tds_ppm)); setTemp(str(saved?.reservoir_temp_f));
     setInjected(str(saved?.cum_injected_bbl)); setProduced(str(saved?.cum_produced_bbl));
+    setH2s(str(saved?.h2s_ppm)); setCo2(str(saved?.co2_pct)); setGasNote(saved?.gas_note ?? "");
     setPeriod(saved?.history_period ?? null); setCsvInfo(null);
   }, [saved]);
 
@@ -102,6 +106,7 @@ export function InjectionSalinityForm({ companyId }: { companyId: string | null 
       well_id: wellId, company_id: companyId,
       formation_tds_ppm: num(fTds), injection_tds_ppm: num(iTds), reservoir_temp_f: num(temp),
       cum_injected_bbl: num(injected), cum_produced_bbl: num(produced),
+      h2s_ppm: num(h2s), co2_pct: num(co2), gas_note: gasNote.trim() || null,
       rw_formation: Number(rwF.toFixed(4)), rw_injection: rwI != null ? Number(rwI.toFixed(4)) : null,
       injection_share_pct: share != null ? Number(share.toFixed(1)) : 0,
       history_period: period, updated_by: u.user?.id ?? null,
@@ -142,6 +147,15 @@ export function InjectionSalinityForm({ companyId }: { companyId: string | null 
           {field("inj", "Cumulative water injected (bbl)", injected, setInjected, "offset injectors")}
           {field("prod", "Cumulative liquid produced (bbl)", produced, setProduced, "oil + water")}
         </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {field("h2s", "H₂S content (ppm)", h2s, setH2s, "e.g. 500")}
+          {field("co2", "CO₂ content (%)", co2, setCo2, "e.g. 2.5")}
+        </div>
+        <div className="space-y-1">
+          <Label htmlFor="gas-note" className="text-xs">Gas composition note (optional)</Label>
+          <Input id="gas-note" placeholder="e.g. C1 78%, C2 9%, N2 4% — from client gas analysis" value={gasNote} onChange={(e) => setGasNote(e.target.value)} />
+        </div>
+        <p className="text-xs text-muted-foreground">Gas composition is stored for the reviewing geophysicist (material selection, corrosion risk); it does not change the numeric verdict.</p>
         <div className="rounded-md border border-dashed border-border p-3 space-y-2">
           <div className="flex flex-wrap items-center gap-2">
             <Button size="sm" variant="outline" onClick={() => fileRef.current?.click()}>
