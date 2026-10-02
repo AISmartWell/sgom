@@ -173,6 +173,53 @@ const SPTSlotPlan = () => {
 
       <Card className="glass-card">
         <CardHeader>
+          <CardTitle className="text-base">How SPT slotting works (illustrative)</CardTitle>
+        </CardHeader>
+        <CardContent className="grid md:grid-cols-3 gap-4">
+          <figure className="space-y-2">
+            <img
+              src={blueprintLiner}
+              alt="Blueprint drawing of a slotted liner with vertical slots and 360° phasing cross-section"
+              loading="lazy"
+              width={1536}
+              height={1024}
+              className="rounded-lg border border-border/40 w-full"
+            />
+            <figcaption className="text-xs text-muted-foreground">
+              Slotted liner — vertical slots cut through the pipe wall, 360° phasing.
+            </figcaption>
+          </figure>
+          <figure className="space-y-2">
+            <img
+              src={blueprintInflow}
+              alt="Blueprint cross-section showing reservoir fluid flowing through slots into the wellbore"
+              loading="lazy"
+              width={1536}
+              height={1024}
+              className="rounded-lg border border-border/40 w-full"
+            />
+            <figcaption className="text-xs text-muted-foreground">
+              Inflow through slots — reservoir fluid enters the wellbore through the cut slots.
+            </figcaption>
+          </figure>
+          <figure className="space-y-2">
+            <img
+              src={blueprintBeforeAfter}
+              alt="Blueprint comparison of blocked perforations before SPT and open slot inflow after SPT"
+              loading="lazy"
+              width={1536}
+              height={1024}
+              className="rounded-lg border border-border/40 w-full"
+            />
+            <figcaption className="text-xs text-muted-foreground">
+              Before / after — blocked perforations vs. open slot inflow after SPT.
+            </figcaption>
+          </figure>
+        </CardContent>
+      </Card>
+
+      <Card className="glass-card">
+        <CardHeader>
           <CardTitle className="text-base">SPT applicability screening</CardTitle>
         </CardHeader>
         <CardContent>
