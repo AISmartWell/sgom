@@ -4,6 +4,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Download, Loader2, Scissors, AlertTriangle } from "lucide-react";
 import { SAMPLE_WELL } from "@/lib/spt-demo-pipeline";
+import blueprintLiner from "@/assets/spt-blueprint-liner.jpg";
+import blueprintInflow from "@/assets/spt-blueprint-inflow.jpg";
+import blueprintBeforeAfter from "@/assets/spt-blueprint-before-after.jpg";
 
 /**
  * SPT Slot Cutting Plan — Brawner 10-15 (demo well).
