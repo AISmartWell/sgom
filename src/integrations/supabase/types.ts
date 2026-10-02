@@ -1548,11 +1548,14 @@ export type Database = {
       }
       well_water_inputs: {
         Row: {
+          co2_pct: number | null
           company_id: string
           created_at: string
           cum_injected_bbl: number | null
           cum_produced_bbl: number | null
           formation_tds_ppm: number | null
+          gas_note: string | null
+          h2s_ppm: number | null
           history_period: string | null
           injection_share_pct: number | null
           injection_tds_ppm: number | null
@@ -1564,11 +1567,14 @@ export type Database = {
           well_id: string
         }
         Insert: {
+          co2_pct?: number | null
           company_id: string
           created_at?: string
           cum_injected_bbl?: number | null
           cum_produced_bbl?: number | null
           formation_tds_ppm?: number | null
+          gas_note?: string | null
+          h2s_ppm?: number | null
           history_period?: string | null
           injection_share_pct?: number | null
           injection_tds_ppm?: number | null
@@ -1580,11 +1586,14 @@ export type Database = {
           well_id: string
         }
         Update: {
+          co2_pct?: number | null
           company_id?: string
           created_at?: string
           cum_injected_bbl?: number | null
           cum_produced_bbl?: number | null
           formation_tds_ppm?: number | null
+          gas_note?: string | null
+          h2s_ppm?: number | null
           history_period?: string | null
           injection_share_pct?: number | null
           injection_tds_ppm?: number | null
