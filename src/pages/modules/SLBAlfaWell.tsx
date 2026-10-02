@@ -402,10 +402,27 @@ export default function SLBAlfaWell() {
       <p className="text-xs text-muted-foreground">Red bars = risk intervals (Sw ≥ {SW_HIGH}% or k &lt; {K_LOW_GAS} mD — gas cutoff; oil wells use 1 mD). Same solver as Stage 6 and Stage 8{rank?.waterfloodCorrected ? ", corrected for injection water using saved well inputs" : ""}.</p>
 
       <Card className="glass-card">
-        <CardHeader><CardTitle className="text-base flex items-center gap-2"><FileText className="h-4 w-4" />Data still required</CardTitle></CardHeader>
-        <CardContent className="grid md:grid-cols-2 gap-2 text-sm text-muted-foreground">
-          {["LAS curves 4,300–4,520 m (GR, RT, NPHI, RHOB, PEF, caliper)", "Confirmed reservoir pressure & bottom-hole temperature", "Gas / water production history", "Gas composition (H₂S, CO₂)", "Liner design: slot width, wall thickness, inner string", "Water & scale analyses"].map((t) => (
-            <div key={t} className="flex gap-2"><span className="text-warning">•</span>{t}</div>
+        <CardHeader><CardTitle className="text-base flex items-center gap-2"><FileText className="h-4 w-4" />Data checklist — status</CardTitle></CardHeader>
+        <CardContent className="space-y-2 text-sm">
+          {([
+            ["SLB well review PDF (petrophysics table, PLT, completion)", "received", "Transcribed into this dashboard"],
+            ["LAS curves 4,300–4,520 m (GR, RT, NPHI, RHOB, PEF, caliper)", logs?.length ? "received" : "expected", "Feeds Stage 6 ranking and Stage 8 petrophysics"],
+            ["Confirmed reservoir pressure & bottom-hole temperature", "expected", "Drives wellhead-pressure risk and gel selection"],
+            ["Gas / water production history", "expected", "Decline analysis and SPT economics"],
+            ["Gas composition (H₂S, CO₂)", "expected", "Materials and program selection"],
+            ["Liner design: slot width, wall thickness, inner string", "expected", "Geophysicist / operator review"],
+            ["Cement bond log across pay", "expected", "Confirms annular channel extent"],
+            ["Water & scale analyses", "expected", "Rw for Archie, scale risk"],
+          ] as const).map(([t, st, use]) => (
+            <div key={t} className="flex flex-wrap items-center justify-between gap-2 border-b border-border/20 pb-2">
+              <div>
+                <div>{t}</div>
+                <div className="text-xs text-muted-foreground">{use}</div>
+              </div>
+              <Badge variant="outline" className={st === "received" ? "text-success border-success/40" : "text-warning border-warning/40"}>
+                {st === "received" ? "Received" : "Expected"}
+              </Badge>
+            </div>
           ))}
         </CardContent>
       </Card>
