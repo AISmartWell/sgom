@@ -506,6 +506,12 @@ const menuItems = [
     href: "/dashboard/spt-slot-plan",
     badge: "Stage 6",
   },
+  {
+    title: "SLB Pilot Plan",
+    icon: Settings,
+    href: "/dashboard/slb-pilot-plan",
+    badge: "Pilot",
+  },
 
 ];
 
