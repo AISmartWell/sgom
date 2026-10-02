@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -94,11 +94,16 @@ const SPTSlotPlan = () => {
 
   const pageRef = useRef<HTMLDivElement>(null);
   const [pdfBusy, setPdfBusy] = useState(false);
+  // Preload the PDF libraries while the page is idle so the first click is fast.
+  const libsRef = useRef<Promise<[typeof import("html2canvas"), typeof import("jspdf")]> | null>(null);
+  useEffect(() => {
+    libsRef.current = Promise.all([import("html2canvas"), import("jspdf")]);
+  }, []);
   const downloadPdf = async () => {
     if (!pageRef.current) return;
     setPdfBusy(true);
     try {
-      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([import("html2canvas"), import("jspdf")]);
+      const [{ default: html2canvas }, { jsPDF }] = await (libsRef.current ?? Promise.all([import("html2canvas"), import("jspdf")]));
       const bg = getComputedStyle(document.body).backgroundColor;
       const pdf = new jsPDF({ unit: "pt", format: "a4" });
       const W = pdf.internal.pageSize.getWidth();
@@ -112,12 +117,15 @@ const SPTSlotPlan = () => {
       paint(); foot();
       let y = M;
       const blocks = Array.from(pageRef.current.children).filter((el) => !(el as HTMLElement).hasAttribute("data-pdf-skip")) as HTMLElement[];
-      for (const el of blocks) {
-        const c = await html2canvas(el, { scale: 1.5, backgroundColor: bg, ignoreElements: (e) => e.hasAttribute("data-pdf-skip") });
+      // Capture all blocks in parallel — the slowest part of the export.
+      const canvases = await Promise.all(
+        blocks.map((el) => html2canvas(el, { scale: 1.2, backgroundColor: bg, ignoreElements: (e) => e.hasAttribute("data-pdf-skip") }))
+      );
+      for (const c of canvases) {
         let w2 = W - 2 * M, h = (c.height * w2) / c.width;
         if (h > usable) { w2 *= usable / h; h = usable; }
         if (y + h > M + usable && y > M) { pdf.addPage(); paint(); foot(); y = M; }
-        pdf.addImage(c.toDataURL("image/jpeg", 0.9), "JPEG", M, y, w2, h);
+        pdf.addImage(c.toDataURL("image/jpeg", 0.8), "JPEG", M, y, w2, h);
         y += h + 10;
       }
       pdf.save("SGOM_Brawner_10-15_SPT_Slot_Plan_DRAFT.pdf");
