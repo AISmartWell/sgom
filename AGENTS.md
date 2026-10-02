@@ -6,3 +6,5 @@
 - Serve the bilingual client intake checklists as static PDFs linked from Data Import, so prospects can download them without reading private well records.- Store injection/salinity inputs per well in `well_water_inputs` (company-scoped RLS), never in localStorage, so Stage 6 and Stage 8 read the same shared values.
 - Stage 6 log ranking reuses `interpretWellLog` via `src/lib/spt-log-ranking.ts`, so SPT scores and Stage 8 interpretation never diverge.
 - The SGOM Well Verdicts page mirrors sptScreening from the upstrima-sandbox function via src/lib/spt-sandbox-verdict.ts; change both together so UI and API verdicts never diverge.
+
+- The SPT Slot Plan page reads the company-scoped Brawner 10-15 log and perforations and is always labelled DRAFT; pay picks come from log cutoffs while slot geometry stays a design default pending review.

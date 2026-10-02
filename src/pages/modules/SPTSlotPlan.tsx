@@ -1,96 +1,96 @@
 import { useMemo, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Download, Loader2, Scissors, AlertTriangle } from "lucide-react";
-import { SAMPLE_WELL } from "@/lib/spt-demo-pipeline";
+import { supabase } from "@/integrations/supabase/client";
+import { SW_HIGH } from "@/lib/spt-log-ranking";
 import blueprintLiner from "@/assets/spt-blueprint-liner.jpg";
 import blueprintInflow from "@/assets/spt-blueprint-inflow.jpg";
 import blueprintBeforeAfter from "@/assets/spt-blueprint-before-after.jpg";
 
 /**
- * SPT Slot Cutting Plan — Brawner 10-15 (demo well).
- * ILLUSTRATIVE ONLY: built from the deterministic demo dataset, no database
- * reads, no live analysis. Never present as a real work order.
+ * SPT Slot Cutting Plan — Brawner 10-15, DRAFT built from the measured
+ * composite log and completion records stored for the user's company (RLS).
+ * Pay intervals are derived from log cutoffs; slot geometry stays a design
+ * default to be confirmed by a geophysicist and the operator.
  */
 
-interface CutInterval {
-  top: number;
-  bottom: number;
-  slotsPerFt: number;
-  slotWidthIn: number;
-  slotLengthIn: number;
-  phasingDeg: number;
-  priority: "Primary" | "Secondary" | "Caution";
-  rationale: string;
-}
-
+const PHI_MIN = 10; // %
+const GR_MAX = 50; // API — clean sand
 const SPT_LIBRARY_MAX_FT = 5400;
 
+interface LogPt { measured_depth: number; gamma_ray: number | null; resistivity: number | null; porosity: number | null; water_saturation: number | null }
+interface Perf { depth_from: number; depth_to: number; shots_per_foot: number | null; phasing: number | null; status: string | null; notes: string | null }
+
+type Priority = "Primary" | "Secondary" | "Caution";
+interface CutInterval {
+  top: number; bottom: number; n: number;
+  phi: number; sw: number; gr: number; rt: number;
+  perforated: "none" | "partial" | "full";
+  priority: Priority; slotsPerFt: number; slotWidthIn: number;
+}
+
+const avg = (a: number[]) => a.reduce((s, v) => s + v, 0) / (a.length || 1);
+
 const SPTSlotPlan = () => {
-  const w = SAMPLE_WELL;
-  const payTop = w.depthFt - w.netPayFt; // 3958 ft
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["spt-slot-plan-brawner"],
+    queryFn: async () => {
+      const { data: wells, error: we } = await supabase
+        .from("wells")
+        .select("id, well_name, api_number, formation, total_depth, well_type, status, county, state, operator")
+        .ilike("well_name", "brawner 10-15")
+        .limit(1);
+      if (we) throw we;
+      const well = wells?.[0];
+      if (!well) return null;
+      const [{ data: logs, error: le }, { data: perfs, error: pe }] = await Promise.all([
+        supabase.from("well_logs")
+          .select("measured_depth, gamma_ray, resistivity, porosity, water_saturation")
+          .eq("well_id", well.id).order("measured_depth"),
+        supabase.from("well_perforations")
+          .select("depth_from, depth_to, shots_per_foot, phasing, status, notes")
+          .eq("well_id", well.id).order("depth_from"),
+      ]);
+      if (le) throw le;
+      if (pe) throw pe;
+      return { well, logs: (logs ?? []) as LogPt[], perfs: (perfs ?? []) as Perf[] };
+    },
+  });
 
   const intervals: CutInterval[] = useMemo(() => {
-    const third = w.netPayFt / 3;
-    const t1 = payTop;
-    const t2 = payTop + third;
-    const t3 = payTop + 2 * third;
-    return [
-      {
-        top: t1,
-        bottom: t2,
-        slotsPerFt: 60,
-        slotWidthIn: 0.02,
-        slotLengthIn: 12,
-        phasingDeg: 360,
-        priority: "Primary",
-        rationale:
-          "Upper pay — highest expected porosity (φ ≈ 17%) and best oil saturation above the transition zone. Maximum slot density to open bypassed pay.",
-      },
-      {
-        top: t2,
-        bottom: t3,
-        slotsPerFt: 50,
-        slotWidthIn: 0.016,
-        slotLengthIn: 12,
-        phasingDeg: 360,
-        priority: "Secondary",
-        rationale:
-          "Mid pay — transition zone. Moderate density balances inflow gain against water risk.",
-      },
-      {
-        top: t3,
-        bottom: w.depthFt,
-        slotsPerFt: 40,
-        slotWidthIn: 0.012,
-        slotLengthIn: 12,
-        phasingDeg: 360,
-        priority: "Caution",
-        rationale:
-          "Lower pay — closest to the oil-water contact (Swirr 28%). Reduced density and narrower slots to limit water coning; monitor water cut after treatment.",
-      },
-    ];
-  }, [payTop, w.depthFt, w.netPayFt]);
+    if (!data) return [];
+    const isPay = (p: LogPt) =>
+      p.porosity != null && p.water_saturation != null && p.gamma_ray != null &&
+      p.porosity >= PHI_MIN && p.water_saturation <= SW_HIGH && p.gamma_ray <= GR_MAX;
+    const groups: LogPt[][] = [];
+    let cur: LogPt[] = [];
+    for (const p of data.logs) {
+      if (isPay(p)) cur.push(p);
+      else if (cur.length) { groups.push(cur); cur = []; }
+    }
+    if (cur.length) groups.push(cur);
+    return groups.map((g) => {
+      const top = g[0].measured_depth, bottom = g[g.length - 1].measured_depth;
+      const sw = avg(g.map((p) => p.water_saturation!));
+      const covered = g.filter((p) => data.perfs.some((f) => p.measured_depth >= f.depth_from && p.measured_depth <= f.depth_to)).length;
+      const perforated = covered === 0 ? "none" : covered === g.length ? "full" : "partial";
+      const priority: Priority = sw <= 30 ? "Primary" : sw <= 45 ? "Secondary" : "Caution";
+      return {
+        top, bottom, n: g.length,
+        phi: avg(g.map((p) => p.porosity!)), sw,
+        gr: avg(g.map((p) => p.gamma_ray!)), rt: avg(g.map((p) => p.resistivity ?? 0)),
+        perforated, priority,
+        slotsPerFt: priority === "Primary" ? 60 : priority === "Secondary" ? 50 : 40,
+        slotWidthIn: priority === "Primary" ? 0.02 : priority === "Secondary" ? 0.016 : 0.012,
+      };
+    });
+  }, [data]);
 
-  const totalSlots = useMemo(
-    () =>
-      Math.round(
-        intervals.reduce((s, i) => s + (i.bottom - i.top) * i.slotsPerFt, 0),
-      ),
-    [intervals],
-  );
-
-  const screening = [
-    { k: "Depth", v: `${w.depthFt.toLocaleString()} ft`, s: `Within SPT case library (up to ≈ ${SPT_LIBRARY_MAX_FT.toLocaleString()} ft)`, r: "pass" },
-    { k: "Reservoir pressure", v: `${w.reservoirPressurePsi.toLocaleString()} psi`, s: "Normal gradient — standard SPT equipment rating", r: "pass" },
-    { k: "Porosity", v: `${(w.porosity * 100).toFixed(0)}%`, s: "Productive sand (Mississippian Chat)", r: "pass" },
-    { k: "Irreducible water sat.", v: `${(w.swirr * 100).toFixed(0)}%`, s: "Acceptable (< 60% cutoff)", r: "pass" },
-    { k: "Fluid", v: "Oil", s: "Oil-risk permeability cutoff 1 mD applies", r: "pass" },
-    { k: "Net pay", v: `${w.netPayFt} ft`, s: "Sufficient interval for staged slotting", r: "pass" },
-  ];
-  const rc = (r: string) =>
-    r === "pass" ? "text-success" : r === "warn" ? "text-warning" : "text-destructive";
+  const netPay = intervals.reduce((s, i) => s + Math.max(i.bottom - i.top, 2), 0);
+  const totalSlots = Math.round(intervals.reduce((s, i) => s + Math.max(i.bottom - i.top, 2) * i.slotsPerFt, 0));
 
   const pageRef = useRef<HTMLDivElement>(null);
   const [pdfBusy, setPdfBusy] = useState(false);
@@ -98,10 +98,7 @@ const SPTSlotPlan = () => {
     if (!pageRef.current) return;
     setPdfBusy(true);
     try {
-      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
-        import("html2canvas"),
-        import("jspdf"),
-      ]);
+      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([import("html2canvas"), import("jspdf")]);
       const bg = getComputedStyle(document.body).backgroundColor;
       const pdf = new jsPDF({ unit: "pt", format: "a4" });
       const W = pdf.internal.pageSize.getWidth();
@@ -109,37 +106,47 @@ const SPTSlotPlan = () => {
       const M = 24, footer = 22, usable = H - M - footer;
       const paint = () => { pdf.setFillColor(bg); pdf.rect(0, 0, W, H, "F"); };
       const foot = () => {
-        pdf.setFontSize(7);
-        pdf.setTextColor(150);
-        pdf.text("ILLUSTRATIVE DEMO — AI Smart Well Inc. · Maxxwell Production. Not a work order.", M, H - 10);
+        pdf.setFontSize(7); pdf.setTextColor(150);
+        pdf.text("DRAFT — measured log data, pending geophysicist review. AI Smart Well Inc. · Maxxwell Production. Not a work order.", M, H - 10);
       };
       paint(); foot();
       let y = M;
-      const blocks = Array.from(pageRef.current.children).filter(
-        (el) => !(el as HTMLElement).hasAttribute("data-pdf-skip"),
-      ) as HTMLElement[];
+      const blocks = Array.from(pageRef.current.children).filter((el) => !(el as HTMLElement).hasAttribute("data-pdf-skip")) as HTMLElement[];
       for (const el of blocks) {
-        const c = await html2canvas(el, {
-          scale: 1.5,
-          backgroundColor: bg,
-          ignoreElements: (e) => e.hasAttribute("data-pdf-skip"),
-        });
+        const c = await html2canvas(el, { scale: 1.5, backgroundColor: bg, ignoreElements: (e) => e.hasAttribute("data-pdf-skip") });
         let w2 = W - 2 * M, h = (c.height * w2) / c.width;
         if (h > usable) { w2 *= usable / h; h = usable; }
         if (y + h > M + usable && y > M) { pdf.addPage(); paint(); foot(); y = M; }
         pdf.addImage(c.toDataURL("image/jpeg", 0.9), "JPEG", M, y, w2, h);
         y += h + 10;
       }
-      pdf.save("SGOM_Brawner_10-15_SPT_Slot_Plan.pdf");
-    } finally {
-      setPdfBusy(false);
-    }
+      pdf.save("SGOM_Brawner_10-15_SPT_Slot_Plan_DRAFT.pdf");
+    } finally { setPdfBusy(false); }
   };
+
+  if (isLoading) return <div className="p-8 flex items-center gap-2 text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" />Loading Brawner 10-15 records…</div>;
+  if (error) return <div className="p-8 text-destructive">Failed to load well data: {(error as Error).message}</div>;
+  if (!data) return <div className="p-8 text-muted-foreground">Brawner 10-15 is not available for your company.</div>;
+
+  const { well, logs, perfs } = data;
+  const depth = well.total_depth ?? 0;
+  const pc = (p: Priority) => p === "Primary" ? "text-success border-success/40" : p === "Secondary" ? "text-primary border-primary/40" : "text-warning border-warning/40";
+  const perfLabel = (p: CutInterval["perforated"]) => p === "none" ? "Not perforated — bypassed pay" : p === "partial" ? "Partly perforated" : "Already perforated";
+
+  const screening = [
+    { k: "Depth (TD)", v: `${depth.toLocaleString()} ft`, s: depth <= SPT_LIBRARY_MAX_FT ? `Within SPT case library (≈ ${SPT_LIBRARY_MAX_FT.toLocaleString()} ft)` : "Beyond SPT case library", r: depth <= SPT_LIBRARY_MAX_FT ? "pass" : "warn" },
+    { k: "Composite log", v: `${logs.length} points, ${logs[0]?.measured_depth ?? "–"}–${logs[logs.length - 1]?.measured_depth ?? "–"} ft`, s: "Measured data on record", r: logs.length ? "pass" : "fail" },
+    { k: "Pay intervals (log cutoffs)", v: `${intervals.length}`, s: `φ ≥ ${PHI_MIN}%, Sw ≤ ${SW_HIGH}%, GR ≤ ${GR_MAX} API`, r: intervals.length ? "pass" : "fail" },
+    { k: "Bypassed pay (not perforated)", v: `${intervals.filter((i) => i.perforated === "none").length} interval(s)`, s: "Main SPT target", r: intervals.some((i) => i.perforated === "none") ? "pass" : "warn" },
+    { k: "Fluid", v: well.well_type ?? "—", s: "Oil-risk permeability cutoff 1 mD applies", r: "pass" },
+    { k: "Reservoir pressure", v: "TO CONFIRM", s: "Not in well record", r: "warn" },
+  ];
+  const rc = (r: string) => r === "pass" ? "text-success" : r === "warn" ? "text-warning" : "text-destructive";
 
   return (
     <div ref={pageRef} className="p-8 space-y-6">
       <div className="flex items-center justify-between gap-2 text-xs border border-warning/40 text-warning rounded-lg px-3 py-2">
-        <span className="font-semibold">ILLUSTRATIVE DEMO PLAN — built from demo data, not a field work order</span>
+        <span className="font-semibold">DRAFT — built from measured Brawner 10-15 logs; pending geophysicist review, not a field work order</span>
         <span className="text-muted-foreground">AI Smart Well Inc. · Maxxwell Production</span>
       </div>
 
@@ -147,15 +154,16 @@ const SPTSlotPlan = () => {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Badge className="bg-primary/20 text-primary border-primary/30">Stage 6 · SPT</Badge>
-            <Badge variant="outline">OIL</Badge>
-            <Badge variant="outline" className="text-warning border-warning/40">ILLUSTRATIVE</Badge>
+            <Badge variant="outline">{well.well_type ?? "OIL"}</Badge>
+            <Badge variant="outline" className="text-success border-success/40">MEASURED DATA</Badge>
+            <Badge variant="outline" className="text-warning border-warning/40">DRAFT</Badge>
           </div>
           <h1 className="text-3xl font-bold flex items-center gap-2">
             <Scissors className="h-7 w-7 text-primary" />
-            SPT Slot Cutting Plan — {w.name}
+            SPT Slot Cutting Plan — {well.well_name}
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
-            API {w.api} · {w.formation} · TD {w.depthFt.toLocaleString()} ft · net pay {w.netPayFt} ft
+            {well.operator ?? "—"} · {well.county ?? "—"}, {well.state ?? "—"} · {well.formation ?? "—"} · TD {depth.toLocaleString()} ft · status {well.status ?? "—"}
           </p>
         </div>
         <Button data-pdf-skip onClick={downloadPdf} disabled={pdfBusy}>
@@ -166,71 +174,15 @@ const SPTSlotPlan = () => {
 
       <div className="flex items-start gap-2 text-xs text-muted-foreground border border-border/40 rounded-lg p-3">
         <AlertTriangle className="h-4 w-4 text-warning shrink-0" />
-        This plan is generated from the deterministic Brawner 10-15 demo dataset for presentation purposes.
-        Intervals, slot densities and pressures are illustrative defaults — a real plan requires measured
-        composite logs, completion records and operator confirmation.
+        Pay intervals, porosity, Sw and perforation status come from the well's measured composite log and 1997 completion records.
+        Slot density, width and phasing are SPT design defaults by priority — they must be confirmed by a geophysicist and the operator before field use.
       </div>
 
       <Card className="glass-card">
-        <CardHeader>
-          <CardTitle className="text-base">How SPT slotting works (illustrative)</CardTitle>
-        </CardHeader>
-        <CardContent className="grid md:grid-cols-3 gap-4">
-          <figure className="space-y-2">
-            <img
-              src={blueprintLiner}
-              alt="Blueprint drawing of a slotted liner with vertical slots and 360° phasing cross-section"
-              loading="lazy"
-              width={1536}
-              height={1024}
-              className="rounded-lg border border-border/40 w-full"
-            />
-            <figcaption className="text-xs text-muted-foreground">
-              Slotted liner — vertical slots cut through the pipe wall, 360° phasing.
-            </figcaption>
-          </figure>
-          <figure className="space-y-2">
-            <img
-              src={blueprintInflow}
-              alt="Blueprint cross-section showing reservoir fluid flowing through slots into the wellbore"
-              loading="lazy"
-              width={1536}
-              height={1024}
-              className="rounded-lg border border-border/40 w-full"
-            />
-            <figcaption className="text-xs text-muted-foreground">
-              Inflow through slots — reservoir fluid enters the wellbore through the cut slots.
-            </figcaption>
-          </figure>
-          <figure className="space-y-2">
-            <img
-              src={blueprintBeforeAfter}
-              alt="Blueprint comparison of blocked perforations before SPT and open slot inflow after SPT"
-              loading="lazy"
-              width={1536}
-              height={1024}
-              className="rounded-lg border border-border/40 w-full"
-            />
-            <figcaption className="text-xs text-muted-foreground">
-              Before / after — blocked perforations vs. open slot inflow after SPT.
-            </figcaption>
-          </figure>
-        </CardContent>
-      </Card>
-
-      <Card className="glass-card">
-        <CardHeader>
-          <CardTitle className="text-base">SPT applicability screening</CardTitle>
-        </CardHeader>
+        <CardHeader><CardTitle className="text-base">SPT applicability screening</CardTitle></CardHeader>
         <CardContent>
           <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-xs text-muted-foreground border-b border-border/40">
-                <th className="py-2 pr-4">Parameter</th>
-                <th className="py-2 pr-4">Value</th>
-                <th className="py-2">Assessment</th>
-              </tr>
-            </thead>
+            <thead><tr className="text-left text-xs text-muted-foreground border-b border-border/40"><th className="py-2 pr-4">Parameter</th><th className="py-2 pr-4">Value</th><th className="py-2">Assessment</th></tr></thead>
             <tbody>
               {screening.map((row) => (
                 <tr key={row.k} className="border-b border-border/20">
@@ -247,76 +199,93 @@ const SPTSlotPlan = () => {
       <Card className="glass-card">
         <CardHeader>
           <CardTitle className="text-base flex flex-wrap items-center justify-between gap-2">
-            Slot cutting intervals
-            <Badge variant="outline">Total ≈ {totalSlots.toLocaleString()} slots over {w.netPayFt} ft</Badge>
+            Slot cutting intervals (from measured log)
+            <Badge variant="outline">Total ≈ {totalSlots.toLocaleString()} slots over ≈ {netPay} ft</Badge>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-xs text-muted-foreground border-b border-border/40">
-                <th className="py-2 pr-3">Interval (ft)</th>
-                <th className="py-2 pr-3">Priority</th>
-                <th className="py-2 pr-3">Slots/ft</th>
-                <th className="py-2 pr-3">Slot width (in)</th>
-                <th className="py-2 pr-3">Slot length (in)</th>
-                <th className="py-2 pr-3">Phasing</th>
-                <th className="py-2">Slots</th>
-              </tr>
-            </thead>
-            <tbody>
-              {intervals.map((i) => (
-                <tr key={i.top} className="border-b border-border/20">
-                  <td className="py-2 pr-3 font-medium">{Math.round(i.top)}–{Math.round(i.bottom)}</td>
-                  <td className="py-2 pr-3">
-                    <Badge
-                      variant="outline"
-                      className={
-                        i.priority === "Primary"
-                          ? "text-success border-success/40"
-                          : i.priority === "Secondary"
-                            ? "text-primary border-primary/40"
-                            : "text-warning border-warning/40"
-                      }
-                    >
-                      {i.priority}
-                    </Badge>
-                  </td>
-                  <td className="py-2 pr-3">{i.slotsPerFt}</td>
-                  <td className="py-2 pr-3">{i.slotWidthIn}</td>
-                  <td className="py-2 pr-3">{i.slotLengthIn}</td>
-                  <td className="py-2 pr-3">{i.phasingDeg}°</td>
-                  <td className="py-2">{Math.round((i.bottom - i.top) * i.slotsPerFt)}</td>
+          {intervals.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No interval passes the log cutoffs.</p>
+          ) : (
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-xs text-muted-foreground border-b border-border/40">
+                  <th className="py-2 pr-3">Interval (ft)</th><th className="py-2 pr-3">Priority</th>
+                  <th className="py-2 pr-3">φ avg</th><th className="py-2 pr-3">Sw avg</th><th className="py-2 pr-3">GR avg</th><th className="py-2 pr-3">Rt avg</th>
+                  <th className="py-2 pr-3">Completion</th><th className="py-2 pr-3">Slots/ft*</th><th className="py-2 pr-3">Width (in)*</th><th className="py-2">Phasing*</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          <div className="space-y-3">
-            {intervals.map((i) => (
-              <div key={i.top} className="text-xs text-muted-foreground border-l-2 border-primary/40 pl-3">
-                <span className="font-medium text-foreground">{Math.round(i.top)}–{Math.round(i.bottom)} ft ({i.priority}): </span>
-                {i.rationale}
-              </div>
-            ))}
-          </div>
+              </thead>
+              <tbody>
+                {intervals.map((i) => (
+                  <tr key={i.top} className="border-b border-border/20">
+                    <td className="py-2 pr-3 font-medium">{i.top}–{i.bottom}</td>
+                    <td className="py-2 pr-3"><Badge variant="outline" className={pc(i.priority)}>{i.priority}</Badge></td>
+                    <td className="py-2 pr-3">{i.phi.toFixed(1)}%</td>
+                    <td className="py-2 pr-3">{i.sw.toFixed(0)}%</td>
+                    <td className="py-2 pr-3">{i.gr.toFixed(0)}</td>
+                    <td className="py-2 pr-3">{i.rt.toFixed(0)} Ω·m</td>
+                    <td className={`py-2 pr-3 ${i.perforated === "none" ? "text-success" : "text-muted-foreground"}`}>{perfLabel(i.perforated)}</td>
+                    <td className="py-2 pr-3">{i.slotsPerFt}</td>
+                    <td className="py-2 pr-3">{i.slotWidthIn}</td>
+                    <td className="py-2">360°</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+          <p className="text-xs text-muted-foreground">
+            * Design defaults by priority (Primary Sw ≤ 30%, Secondary ≤ 45%, Caution above). Slot length 12 in. To be confirmed.
+          </p>
         </CardContent>
       </Card>
 
       <Card className="glass-card">
-        <CardHeader>
-          <CardTitle className="text-base">Execution notes (illustrative)</CardTitle>
-        </CardHeader>
-        <CardContent className="grid md:grid-cols-2 gap-4 text-sm text-muted-foreground">
+        <CardHeader><CardTitle className="text-base">Existing perforations (completion record)</CardTitle></CardHeader>
+        <CardContent>
+          {perfs.length === 0 ? <p className="text-sm text-muted-foreground">No perforations on record.</p> : (
+            <table className="w-full text-sm">
+              <thead><tr className="text-left text-xs text-muted-foreground border-b border-border/40"><th className="py-2 pr-3">Interval (ft)</th><th className="py-2 pr-3">SPF</th><th className="py-2 pr-3">Phasing</th><th className="py-2 pr-3">Status</th><th className="py-2">Source</th></tr></thead>
+              <tbody>
+                {perfs.map((p) => (
+                  <tr key={p.depth_from} className="border-b border-border/20">
+                    <td className="py-2 pr-3 font-medium">{p.depth_from}–{p.depth_to}</td>
+                    <td className="py-2 pr-3">{p.shots_per_foot ?? "—"}</td>
+                    <td className="py-2 pr-3">{p.phasing != null ? `${p.phasing}°` : "—"}</td>
+                    <td className="py-2 pr-3">{p.status ?? "—"}</td>
+                    <td className="py-2 text-muted-foreground">{p.notes ?? "—"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card className="glass-card">
+        <CardHeader><CardTitle className="text-base">Open items before field use</CardTitle></CardHeader>
+        <CardContent className="text-sm text-muted-foreground">
           <ul className="list-disc pl-5 space-y-1">
-            <li>Cutting fluid: treated brine matched to formation salinity; avoid freshwater in water-sensitive Chat intervals.</li>
-            <li>Surface pressure stays within standard SPT equipment rating at {w.reservoirPressurePsi.toLocaleString()} psi reservoir pressure.</li>
-            <li>Cut bottom-up: start at the Caution interval, finish at the Primary interval.</li>
+            <li>Reservoir pressure, BHT and current water cut — not in the well record.</li>
+            <li>Casing size, weight and cement quality across the target intervals.</li>
+            <li>Geophysicist review of pay picks and Sw (Preliminary Verdicts workflow).</li>
+            <li>Operator confirmation of slot geometry and cutting order (bottom-up).</li>
           </ul>
-          <ul className="list-disc pl-5 space-y-1">
-            <li>Post-treatment: flowback surveillance, water-cut baseline vs. pre-treatment {(w.history[w.history.length - 1].water / (w.history[w.history.length - 1].water + w.history[w.history.length - 1].oil) * 100).toFixed(0)}%.</li>
-            <li>Success metric: sustained oil uplift vs. the Arps decline baseline from Stage 4.</li>
-            <li>All values illustrative — confirm with measured logs before field use.</li>
-          </ul>
+        </CardContent>
+      </Card>
+
+      <Card className="glass-card">
+        <CardHeader><CardTitle className="text-base">How SPT slotting works (illustrative drawings)</CardTitle></CardHeader>
+        <CardContent className="grid md:grid-cols-3 gap-4">
+          {[
+            [blueprintLiner, "Slotted liner — vertical slots cut through the pipe wall, 360° phasing."],
+            [blueprintInflow, "Inflow through slots — reservoir fluid enters the wellbore through the cut slots."],
+            [blueprintBeforeAfter, "Before / after — blocked perforations vs. open slot inflow after SPT."],
+          ].map(([src, cap]) => (
+            <figure key={cap} className="space-y-2">
+              <img src={src} alt={cap} loading="lazy" width={1536} height={1024} className="rounded-lg border border-border/40 w-full" />
+              <figcaption className="text-xs text-muted-foreground">{cap}</figcaption>
+            </figure>
+          ))}
         </CardContent>
       </Card>
     </div>
