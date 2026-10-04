@@ -9,7 +9,7 @@ import { rankFromLogs, SW_HIGH, fluidOf, type LogRankResult } from "@/lib/spt-lo
 
 interface Row { id: string; name: string; fluid: "oil" | "gas"; r: LogRankResult }
 
-export default function SPTLogRanking() {
+export default function SPTLogRanking({ selectedId }: { selectedId?: string | null } = {}) {
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState<string | null>(null);
@@ -18,6 +18,7 @@ export default function SPTLogRanking() {
     (async () => {
       const { data: ids } = await supabase.from("well_logs").select("well_id").limit(20000);
       const wellIds = [...new Set((ids ?? []).map((x) => x.well_id))].slice(0, 50);
+      if (selectedId && !wellIds.includes(selectedId) && (ids ?? []).some((x) => x.well_id === selectedId)) wellIds.push(selectedId);
       if (!wellIds.length) { setLoading(false); return; }
       const [{ data: wells }, { data: water }] = await Promise.all([
         supabase.from("wells").select("id, well_name, api_number, well_type").in("id", wellIds),
@@ -36,7 +37,7 @@ export default function SPTLogRanking() {
       setRows(out.sort((a, b) => b.r.score - a.r.score));
       setLoading(false);
     })();
-  }, []);
+  }, [selectedId]);
 
   const f = (v: number | null, d = 1) => (v == null ? "—" : v.toFixed(d));
 
