@@ -36,13 +36,44 @@ interface CutInterval {
 const avg = (a: number[]) => a.reduce((s, v) => s + v, 0) / (a.length || 1);
 
 const SPTSlotPlan = () => {
+  // Company wells (RLS scopes the list to the user's company).
+  const { data: wellList } = useQuery({
+    queryKey: ["spt-slot-plan-wells"],
+    queryFn: async () => {
+      const all: { id: string; well_name: string | null; api_number: string | null }[] = [];
+      for (let from = 0; from < 10000; from += 1000) {
+        const { data: page, error } = await supabase.from("wells").select("id, well_name, api_number")
+          .order("well_name").range(from, from + 999);
+        if (error) throw error;
+        all.push(...(page ?? []));
+        if (!page || page.length < 1000) break;
+      }
+      return all;
+    },
+  });
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [wellSearch, setWellSearch] = useState("");
+  useEffect(() => {
+    if (selectedId || !wellList?.length) return;
+    const brawner = wellList.find((w) => (w.well_name ?? "").toLowerCase() === "brawner 10-15");
+    setSelectedId((brawner ?? wellList[0]).id);
+  }, [wellList, selectedId]);
+  const filteredWells = useMemo(() => {
+    const q = wellSearch.trim().toLowerCase();
+    const list = wellList ?? [];
+    const res = q ? list.filter((w) => `${w.well_name ?? ""} ${w.api_number ?? ""}`.toLowerCase().includes(q)) : list;
+    const sel = list.find((w) => w.id === selectedId);
+    return sel && !res.includes(sel) ? [sel, ...res.slice(0, 499)] : res.slice(0, 500);
+  }, [wellList, wellSearch, selectedId]);
+
   const { data, isLoading, error } = useQuery({
-    queryKey: ["spt-slot-plan-brawner"],
+    queryKey: ["spt-slot-plan", selectedId],
+    enabled: !!selectedId,
     queryFn: async () => {
       const { data: wells, error: we } = await supabase
         .from("wells")
         .select("id, well_name, api_number, formation, total_depth, well_type, status, county, state, operator, latitude, longitude")
-        .ilike("well_name", "brawner 10-15")
+        .eq("id", selectedId!)
         .limit(1);
       if (we) throw we;
       const well = wells?.[0];
@@ -142,13 +173,35 @@ const SPTSlotPlan = () => {
         pdf.addImage(c.toDataURL("image/jpeg", 0.8), "JPEG", M, y, w2, h);
         y += h + 10;
       }
-      pdf.save("SGOM_Brawner_10-15_SPT_Slot_Plan_DRAFT.pdf");
+      const safe = (data?.well.well_name ?? "Well").replace(/[^A-Za-z0-9-]+/g, "_");
+      pdf.save(`SGOM_${safe}_SPT_Slot_Plan_DRAFT.pdf`);
     } finally { setPdfBusy(false); }
   };
 
-  if (isLoading) return <div className="p-8 flex items-center gap-2 text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" />Loading Brawner 10-15 records…</div>;
-  if (error) return <div className="p-8 text-destructive">Failed to load well data: {(error as Error).message}</div>;
-  if (!data) return <div className="p-8 text-muted-foreground">Brawner 10-15 is not available for your company.</div>;
+  const picker = (
+    <div data-pdf-skip className="flex flex-wrap items-center gap-2">
+      <span className="text-sm text-muted-foreground">Well:</span>
+      <input
+        value={wellSearch} onChange={(e) => setWellSearch(e.target.value)}
+        placeholder="Search name or API…"
+        className="h-9 w-56 rounded-md border border-input bg-background px-3 text-sm"
+      />
+      <select
+        value={selectedId ?? ""} onChange={(e) => setSelectedId(e.target.value)}
+        className="h-9 max-w-xs rounded-md border border-input bg-background px-2 text-sm"
+      >
+        {filteredWells.map((w) => (
+          <option key={w.id} value={w.id}>{w.well_name ?? "Unnamed"}{w.api_number ? ` · ${w.api_number}` : ""}</option>
+        ))}
+      </select>
+      <span className="text-xs text-muted-foreground">{wellList?.length ?? 0} wells in your company</span>
+    </div>
+  );
+
+  if (wellList && wellList.length === 0) return <div className="p-8 text-muted-foreground">No wells are available for your company.</div>;
+  if (!selectedId || isLoading) return <div className="p-8 space-y-4">{wellList && picker}<div className="flex items-center gap-2 text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" />Loading well records…</div></div>;
+  if (error) return <div className="p-8 space-y-4">{picker}<div className="text-destructive">Failed to load well data: {(error as Error).message}</div></div>;
+  if (!data) return <div className="p-8 space-y-4">{picker}<div className="text-muted-foreground">This well is not available for your company.</div></div>;
 
   const { well, logs, perfs, injectors, water } = data;
   const nearestInj = injectors[0];
