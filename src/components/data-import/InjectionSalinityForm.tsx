@@ -9,6 +9,7 @@ import { Droplets, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useWellWaterInputs } from "@/hooks/useWellWaterInputs";
+import { pressureAtDepth, temperatureAtDepth, DEFAULT_SURFACE_TEMP_F } from "@/lib/spt-interval-conditions";
 
 /** Arps/Bateman-Konen: NaCl-equivalent TDS (ppm) + temperature (°F) -> Rw (Ohm-m). */
 export function tdsToRw(ppm: number, tempF: number): number | null {
@@ -33,6 +34,13 @@ export function InjectionSalinityForm({ companyId }: { companyId: string | null 
   const [h2s, setH2s] = useState("");
   const [co2, setCo2] = useState("");
   const [gasNote, setGasNote] = useState("");
+  const [pres, setPres] = useState("");
+  const [datum, setDatum] = useState("");
+  const [bht, setBht] = useState("");
+  const [bhtDepth, setBhtDepth] = useState("");
+  const [surfT, setSurfT] = useState("");
+  const [sptTop, setSptTop] = useState("");
+  const [sptBottom, setSptBottom] = useState("");
   const [period, setPeriod] = useState<string | null>(null);
   const [csvInfo, setCsvInfo] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -47,6 +55,8 @@ export function InjectionSalinityForm({ companyId }: { companyId: string | null 
     setFTds(str(saved?.formation_tds_ppm)); setITds(str(saved?.injection_tds_ppm)); setTemp(str(saved?.reservoir_temp_f));
     setInjected(str(saved?.cum_injected_bbl)); setProduced(str(saved?.cum_produced_bbl));
     setH2s(str(saved?.h2s_ppm)); setCo2(str(saved?.co2_pct)); setGasNote(saved?.gas_note ?? "");
+    setPres(str(saved?.reservoir_pressure_psi)); setDatum(str(saved?.pressure_datum_ft));
+    setBht(str(saved?.bht_f)); setBhtDepth(str(saved?.bht_depth_ft)); setSurfT(str(saved?.surface_temp_f));
     setPeriod(saved?.history_period ?? null); setCsvInfo(null);
   }, [saved]);
 
@@ -96,7 +106,19 @@ export function InjectionSalinityForm({ companyId }: { companyId: string | null 
     return Math.min(100, (inj / prod) * 100);
   }, [injected, produced]);
 
+  const sptCalc = useMemo(() => {
+    const top = parseFloat(sptTop), bot = parseFloat(sptBottom);
+    if (!(top > 0)) return null;
+    const b = bot > top ? bot : top;
+    const st = num(surfT);
+    const at = (d: number) => ({ d, p: pressureAtDepth(num(pres), num(datum), d), t: temperatureAtDepth(num(bht), num(bhtDepth), d, st) });
+    return [at(top), at((top + b) / 2), at(b)];
+  }, [sptTop, sptBottom, pres, datum, bht, bhtDepth, surfT]);
+
   const save = async () => {
+    if ((num(pres) != null) !== (num(datum) != null)) { toast.error("Enter both reservoir pressure and its datum depth"); return; }
+    if ((num(bht) != null) !== (num(bhtDepth) != null)) { toast.error("Enter both bottom-hole temperature and its depth"); return; }
+    if (num(bht) != null && num(bht)! <= (num(surfT) ?? DEFAULT_SURFACE_TEMP_F)) { toast.error("Bottom-hole temperature must exceed surface temperature"); return; }
     if (!companyId) { toast.error("No company linked to your account"); return; }
     if (!wellId) { toast.error("Select a well"); return; }
     if (rwF == null) { toast.error("Enter formation TDS and reservoir temperature"); return; }
@@ -106,6 +128,8 @@ export function InjectionSalinityForm({ companyId }: { companyId: string | null 
       well_id: wellId, company_id: companyId,
       formation_tds_ppm: num(fTds), injection_tds_ppm: num(iTds), reservoir_temp_f: num(temp),
       cum_injected_bbl: num(injected), cum_produced_bbl: num(produced),
+      reservoir_pressure_psi: num(pres), pressure_datum_ft: num(datum),
+      bht_f: num(bht), bht_depth_ft: num(bhtDepth), surface_temp_f: num(surfT),
       h2s_ppm: num(h2s), co2_pct: num(co2), gas_note: gasNote.trim() || null,
       rw_formation: Number(rwF.toFixed(4)), rw_injection: rwI != null ? Number(rwI.toFixed(4)) : null,
       injection_share_pct: share != null ? Number(share.toFixed(1)) : 0,
@@ -146,6 +170,31 @@ export function InjectionSalinityForm({ companyId }: { companyId: string | null 
         <div className="grid gap-3 sm:grid-cols-2">
           {field("inj", "Cumulative water injected (bbl)", injected, setInjected, "offset injectors")}
           {field("prod", "Cumulative liquid produced (bbl)", produced, setProduced, "oil + water")}
+        </div>
+        <div className="rounded-md border border-border p-3 space-y-3">
+          <p className="text-sm font-medium">Reservoir pressure &amp; bottom-hole temperature</p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {field("p-res", "Reservoir pressure (psi)", pres, setPres, "e.g. 1850")}
+            {field("p-datum", "Pressure datum depth (ft)", datum, setDatum, "e.g. 4950")}
+          </div>
+          <div className="grid gap-3 sm:grid-cols-3">
+            {field("bht", "Bottom-hole temperature (°F)", bht, setBht, "e.g. 145")}
+            {field("bht-d", "BHT depth (ft)", bhtDepth, setBhtDepth, "e.g. 5070")}
+            {field("t-surf", "Surface temperature (°F)", surfT, setSurfT, `default ${DEFAULT_SURFACE_TEMP_F}`)}
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {field("spt-top", "SPT interval top (ft)", sptTop, setSptTop, "e.g. 4920")}
+            {field("spt-bot", "SPT interval bottom (ft)", sptBottom, setSptBottom, "e.g. 4960")}
+          </div>
+          {sptCalc && (
+            <table className="w-full text-xs">
+              <thead><tr className="text-muted-foreground text-left"><th className="py-1">Depth (ft)</th><th>Pressure (psi)</th><th>Temperature (°F)</th></tr></thead>
+              <tbody>{sptCalc.map((r, i) => (
+                <tr key={i} className="border-t border-border"><td className="py-1">{r.d.toFixed(0)}{i === 1 ? " (mid)" : ""}</td><td>{r.p != null ? r.p.toFixed(0) : "—"}</td><td>{r.t != null ? r.t.toFixed(1) : "—"}</td></tr>
+              ))}</tbody>
+            </table>
+          )}
+          <p className="text-xs text-muted-foreground">Screening estimate: pressure uses a linear gradient from surface (P ÷ datum depth); temperature uses a linear geothermal gradient from surface temperature to the measured BHT. SPT Slot Plan applies the same calculation to its pay intervals.</p>
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
           {field("h2s", "H₂S content (ppm)", h2s, setH2s, "e.g. 500")}

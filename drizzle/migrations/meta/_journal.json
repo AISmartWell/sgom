@@ -71,6 +71,13 @@
       "when": 1791077787062,
       "tag": "0009_casing_editor_permissions",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1791147216795,
+      "tag": "0010_water_inputs_pressure_temperature",
+      "breakpoints": true
     }
   ]
 }
