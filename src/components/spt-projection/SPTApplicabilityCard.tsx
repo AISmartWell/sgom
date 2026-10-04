@@ -40,9 +40,10 @@ const STATUS_STYLE: Record<Status, string> = {
   missing: "bg-muted text-muted-foreground border-border",
 };
 
-export default function SPTApplicabilityCard() {
+export default function SPTApplicabilityCard({ wellId: controlledId }: { wellId?: string } = {}) {
   const [wells, setWells] = useState<WellRow[]>([]);
-  const [wellId, setWellId] = useState<string>("");
+  const [ownId, setWellId] = useState<string>("");
+  const wellId = controlledId ?? ownId;
   const [pressure, setPressure] = useState<{ psi: number; method: string } | null>(null);
   const { data: logs, isLoading } = useWellLogs(wellId || undefined);
   const { data: water } = useWellWaterInputs(wellId || undefined);
@@ -111,10 +112,10 @@ export default function SPTApplicabilityCard() {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex flex-wrap items-center gap-3">
-          <Select value={wellId} onValueChange={setWellId}>
+          {controlledId === undefined && <Select value={wellId} onValueChange={setWellId}>
             <SelectTrigger className="w-72"><SelectValue placeholder="Select well" /></SelectTrigger>
             <SelectContent>{wells.map((w) => <SelectItem key={w.id} value={w.id}>{w.well_name ?? "Unnamed well"}</SelectItem>)}</SelectContent>
-          </Select>
+          </Select>}
           {isLoading && <span className="text-xs text-muted-foreground">Loading log curves…</span>}
           {verdict && <Badge variant="outline" className={verdict.cls}>{verdict.label}</Badge>}
         </div>
