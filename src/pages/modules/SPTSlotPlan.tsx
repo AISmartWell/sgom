@@ -283,6 +283,69 @@ const SPTSlotPlan = () => {
 
       <Card className="glass-card">
         <CardHeader>
+          <CardTitle className="text-base">Collect / purchase / sorting / processing of necessary information</CardTitle>
+          <p className="text-xs text-muted-foreground">Input data package for HSP re-completion. Status shows how SGOM handles each item: Analyzed (used in calculations), Stored (kept as a record or document for the specialist), Not yet (not supported).</p>
+        </CardHeader>
+        <CardContent className="space-y-5 text-sm">
+          {([
+            ["a", "Well operation / exploitation history (production data)", [
+              ["Monthly / daily inflow of oil, gas and water", "Analyzed", "Production history — Stage 4 decline analysis."],
+              ["Productive and non-productive days per month", "Analyzed", "Days-on field in production history."],
+              ["Start and end (maximum and minimum) rate", "Analyzed", "Derived from production history."],
+              ["Tubing / formation pressure", "Stored", "Reservoir Pressure module; not yet used in the slot plan."],
+              ["Extent of production decline", "Analyzed", "Stage 4 Arps decline."],
+              ["Stops and transitions to next productive intervals", "Stored", "Recorded in perforation status and notes."],
+            ]],
+            ["b", "All possible logging (logs)", [
+              ["Induction (electric) log", "Analyzed", "Resistivity — Stage 8 petrophysics."],
+              ["Neutron and gamma-ray", "Analyzed", "GR, neutron porosity — Stage 8."],
+              ["Acoustic (casing / cement) log", "Stored", "Document Vault; cement status entered in Casing Program."],
+              ["Mud-log, chat-log", "Stored", "Document Vault only."],
+            ]],
+            ["c", "Well information / documentation", [
+              ["Design / construction (depths, casing OD/ID)", "Stored", "Casing Program page."],
+              ["Opened productive intervals", "Analyzed", "Perforation records above."],
+              ["Techniques of opening productive formations", "Stored", "Perforation and casing notes."],
+              ["Hydraulic fracturing, chemical treatment, stimulation", "Stored", "Document Vault / notes."],
+              ["Previous closing and transitions to new intervals", "Stored", "Perforation status."],
+              ["Packers, retainers, cementation, insulation", "Stored", "Casing Program notes."],
+            ]],
+            ["d", "All possible test results", [
+              ["Oil", "Stored", "Document Vault."],
+              ["Gas (incl. H2S / CO2)", "Stored", "Injection & Water Salinity form; not in numeric verdict."],
+              ["Water (salinity)", "Analyzed", "Formation / injection TDS — Stage 6 and Stage 8."],
+              ["Pressure", "Stored", "Reservoir Pressure module."],
+            ]],
+            ["e", "Well position map (preferably with altitude)", [
+              ["Distance to neighboring oil wells", "Analyzed", "Nearby wells search and reserves map."],
+              ["Distance to nearest injection wells", "Not yet", "Injection wells are not identified separately."],
+            ]],
+            ["f", "Core analysis, lithology (core)", [
+              ["Core analysis", "Analyzed", "Stage 3 Core Analysis."],
+              ["Rock sample pictures", "Analyzed", "Stage 3 computer-vision analysis."],
+              ["Previous geology, lithology, core analysis", "Stored", "Document Vault."],
+            ]],
+          ] as [string, string, [string, string, string][]][]).map(([key, title, items]) => (
+            <div key={key} className="space-y-2">
+              <h3 className="font-semibold"><span className="text-primary mr-2">{key}</span>{title}</h3>
+              <table className="w-full">
+                <tbody>
+                  {items.map(([item, status, note]) => (
+                    <tr key={item} className="border-b border-border/20 align-top">
+                      <td className="py-2 pr-3 w-2/5">{item}</td>
+                      <td className="py-2 pr-3 w-24"><Badge variant="outline" className={status === "Analyzed" ? "text-primary border-primary/40" : status === "Not yet" ? "text-destructive border-destructive/40" : "text-muted-foreground"}>{status}</Badge></td>
+                      <td className="py-2 text-muted-foreground">{note}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+
+      <Card className="glass-card">
+        <CardHeader>
           <CardTitle className="text-base">Technical Project — Cut Program, specification, schedule</CardTitle>
           <p className="text-xs text-muted-foreground">Structure of the full HSP re-completion package. Status shows what this page provides today; remaining items are prepared by the SPT service engineer and operator.</p>
         </CardHeader>
