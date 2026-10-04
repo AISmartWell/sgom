@@ -60,7 +60,7 @@ export default function SPTLogRanking({ selectedId }: { selectedId?: string | nu
               </tr></thead>
               <tbody>
                 {rows.map((x, i) => (<Fragment key={x.id}>
-                  <tr className="border-b border-border/50">
+                  <tr className={`border-b border-border/50 ${x.id === selectedId ? "bg-primary/10" : ""}`}>
                     <td className="p-2">{i + 1}</td>
                     <td className="p-2">{x.name}{x.r.waterfloodCorrected && <Badge variant="outline" className="ml-2 text-[10px]">Rw corrected</Badge>}</td>
                     <td className="p-2 text-right font-mono font-semibold text-primary">{x.r.score}</td>
