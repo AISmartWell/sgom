@@ -12,7 +12,7 @@ import blueprintInflow from "@/assets/spt-blueprint-inflow.jpg";
 import blueprintBeforeAfter from "@/assets/spt-blueprint-before-after.jpg";
 
 /**
- * SPT Slot Cutting Plan — Brawner 10-15, DRAFT built from the measured
+ * SPT Slot Cutting Plan — any company well (defaults to Brawner 10-15), DRAFT built from the measured
  * composite log and completion records stored for the user's company (RLS).
  * Pay intervals are derived from log cutoffs; slot geometry stays a design
  * default to be confirmed by a geophysicist and the operator.
@@ -231,8 +231,9 @@ const SPTSlotPlan = () => {
 
   return (
     <div ref={pageRef} className="p-8 space-y-6">
+      {picker}
       <div className="flex items-center justify-between gap-2 text-xs border border-warning/40 text-warning rounded-lg px-3 py-2">
-        <span className="font-semibold">DRAFT — built from measured Brawner 10-15 logs; pending geophysicist review, not a field work order</span>
+        <span className="font-semibold">DRAFT — built from measured {well.well_name ?? "well"} logs; pending geophysicist review, not a field work order</span>
         <span className="text-muted-foreground">AI Smart Well Inc. · Maxxwell Production</span>
       </div>
 
