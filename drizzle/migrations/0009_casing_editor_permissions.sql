@@ -1,0 +1,3 @@
+CREATE POLICY "Only editors insert casing" ON public.well_casing_programs AS RESTRICTIVE FOR INSERT TO authenticated WITH CHECK (public.has_role(auth.uid(), 'admin') OR public.has_role(auth.uid(), 'engineer'));
+CREATE POLICY "Only editors update casing" ON public.well_casing_programs AS RESTRICTIVE FOR UPDATE TO authenticated USING (public.has_role(auth.uid(), 'admin') OR public.has_role(auth.uid(), 'engineer')) WITH CHECK (public.has_role(auth.uid(), 'admin') OR public.has_role(auth.uid(), 'engineer'));
+CREATE POLICY "Only editors delete casing" ON public.well_casing_programs AS RESTRICTIVE FOR DELETE TO authenticated USING (public.has_role(auth.uid(), 'admin') OR public.has_role(auth.uid(), 'engineer'));
