@@ -16,6 +16,11 @@ export interface WellWaterInputs {
   h2s_ppm: number | null;
   co2_pct: number | null;
   gas_note: string | null;
+  reservoir_pressure_psi: number | null;
+  pressure_datum_ft: number | null;
+  bht_f: number | null;
+  bht_depth_ft: number | null;
+  surface_temp_f: number | null;
   updated_at: string;
 }
 
