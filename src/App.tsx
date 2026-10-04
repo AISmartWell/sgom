@@ -108,6 +108,7 @@ import PreliminaryVerdicts from "./pages/modules/PreliminaryVerdicts";
 import SPTSlotPlan from "./pages/modules/SPTSlotPlan";
 import SLBPilotPlan from "./pages/modules/SLBPilotPlan";
 import CasingProgram from "./pages/modules/CasingProgram";
+import HSPPayback from "./pages/modules/HSPPayback";
 import NotFound from "./pages/NotFound";
 import OAuthConsent from "./pages/OAuthConsent";
 
@@ -209,6 +210,7 @@ const App = () => (
               <Route path="spt-slot-plan" element={<SPTSlotPlan />} />
               <Route path="slb-pilot-plan" element={<SLBPilotPlan />} />
                <Route path="casing-program" element={<CasingProgram />} />
+               <Route path="hsp-payback" element={<HSPPayback />} />
 
            </Route>
            <Route path="/nvidia-inception" element={<NvidiaInception />} />
