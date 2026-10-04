@@ -282,6 +282,60 @@ const SPTSlotPlan = () => {
       </Card>
 
       <Card className="glass-card">
+        <CardHeader>
+          <CardTitle className="text-base">Technical Project — Cut Program, specification, schedule</CardTitle>
+          <p className="text-xs text-muted-foreground">Structure of the full HSP re-completion package. Status shows what this page provides today; remaining items are prepared by the SPT service engineer and operator.</p>
+        </CardHeader>
+        <CardContent className="space-y-5 text-sm">
+          {([
+            ["a", "Calculation of technological parameters for HSP re-completion", [
+              ["Initial data", "Partial", "Log, perforations and TD from the well record; pressure, BHT and casing still required."],
+              ["Calculation of technological parameters", "Pending", "Performed by SPT service engineer."],
+              ["Results of calculation", "Pending", "Issued with the engineered program."],
+            ]],
+            ["b", "Technical parameters", [
+              ["Flow control valve", "Pending", "Service company specification."],
+              ["Pressure – temperature – cutting speed dependence", "Pending", "Requires measured BHP/BHT."],
+              ["Nozzles, erosion, rate, connections", "Pending", "Service company specification."],
+              ["Surface equipment scheme", "Pending", "Service company specification."],
+              ["Hydro-slotting perforation process graph", "Pending", "Issued with the engineered program."],
+            ]],
+            ["c", "Hydro-slotting perforation program", [
+              ["Preparation for slot perforation process", "Pending", "Operator / service company."],
+              ["HSP process", "Draft", "Candidate intervals and cutting order above (DRAFT)."],
+              ["Start – ending of HSP process", "Pending", "Field procedure."],
+              ["Possible violations of HSP process", "Pending", "Field procedure."],
+              ["HSP technical schedule", "Pending", "Field procedure."],
+            ]],
+            ["d", "Safety and operational requirements", [
+              ["Emergency medical response procedure", "Operator", "Operator HSE plan."],
+              ["Fire emergency procedure", "Operator", "Operator HSE plan."],
+              ["Spill or release procedure", "Operator", "Operator HSE plan."],
+              ["H2S emergency procedure", "Operator", "Operator HSE plan; H2S value can be recorded in Injection & Water Salinity."],
+              ["Emergency response for storm", "Operator", "Operator HSE plan."],
+              ["Response to a bomb threat", "Operator", "Operator HSE plan."],
+              ["Emergency medical information forms", "Operator", "Operator HSE plan."],
+            ]],
+          ] as [string, string, [string, string, string][]][]).map(([key, title, items]) => (
+            <div key={key} className="space-y-2">
+              <h3 className="font-semibold"><span className="text-primary mr-2">{key}</span>{title}</h3>
+              <table className="w-full">
+                <tbody>
+                  {items.map(([item, status, note]) => (
+                    <tr key={item} className="border-b border-border/20 align-top">
+                      <td className="py-2 pr-3 w-2/5">{item}</td>
+                      <td className="py-2 pr-3 w-24"><Badge variant="outline" className={status === "Draft" || status === "Partial" ? "text-warning border-warning/40" : "text-muted-foreground"}>{status}</Badge></td>
+                      <td className="py-2 text-muted-foreground">{note}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+
+      <Card className="glass-card">
         <CardHeader><CardTitle className="text-base">How SPT slotting works (illustrative drawings)</CardTitle></CardHeader>
         <CardContent className="grid md:grid-cols-3 gap-4">
           {[
