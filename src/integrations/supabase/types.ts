@@ -1596,6 +1596,8 @@ export type Database = {
       }
       well_water_inputs: {
         Row: {
+          bht_depth_ft: number | null
+          bht_f: number | null
           co2_pct: number | null
           company_id: string
           created_at: string
@@ -1607,14 +1609,19 @@ export type Database = {
           history_period: string | null
           injection_share_pct: number | null
           injection_tds_ppm: number | null
+          pressure_datum_ft: number | null
+          reservoir_pressure_psi: number | null
           reservoir_temp_f: number | null
           rw_formation: number | null
           rw_injection: number | null
+          surface_temp_f: number | null
           updated_at: string
           updated_by: string | null
           well_id: string
         }
         Insert: {
+          bht_depth_ft?: number | null
+          bht_f?: number | null
           co2_pct?: number | null
           company_id: string
           created_at?: string
@@ -1626,14 +1633,19 @@ export type Database = {
           history_period?: string | null
           injection_share_pct?: number | null
           injection_tds_ppm?: number | null
+          pressure_datum_ft?: number | null
+          reservoir_pressure_psi?: number | null
           reservoir_temp_f?: number | null
           rw_formation?: number | null
           rw_injection?: number | null
+          surface_temp_f?: number | null
           updated_at?: string
           updated_by?: string | null
           well_id: string
         }
         Update: {
+          bht_depth_ft?: number | null
+          bht_f?: number | null
           co2_pct?: number | null
           company_id?: string
           created_at?: string
@@ -1645,9 +1657,12 @@ export type Database = {
           history_period?: string | null
           injection_share_pct?: number | null
           injection_tds_ppm?: number | null
+          pressure_datum_ft?: number | null
+          reservoir_pressure_psi?: number | null
           reservoir_temp_f?: number | null
           rw_formation?: number | null
           rw_injection?: number | null
+          surface_temp_f?: number | null
           updated_at?: string
           updated_by?: string | null
           well_id?: string
