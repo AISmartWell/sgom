@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Download, Loader2, Scissors, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SW_HIGH } from "@/lib/spt-log-ranking";
+import { haversineMiles, isInjectionWell, pressureAtDepth, temperatureAtDepth } from "@/lib/spt-interval-conditions";
 import blueprintLiner from "@/assets/spt-blueprint-liner.jpg";
 import blueprintInflow from "@/assets/spt-blueprint-inflow.jpg";
 import blueprintBeforeAfter from "@/assets/spt-blueprint-before-after.jpg";
@@ -40,23 +41,36 @@ const SPTSlotPlan = () => {
     queryFn: async () => {
       const { data: wells, error: we } = await supabase
         .from("wells")
-        .select("id, well_name, api_number, formation, total_depth, well_type, status, county, state, operator")
+        .select("id, well_name, api_number, formation, total_depth, well_type, status, county, state, operator, latitude, longitude")
         .ilike("well_name", "brawner 10-15")
         .limit(1);
       if (we) throw we;
       const well = wells?.[0];
       if (!well) return null;
-      const [{ data: logs, error: le }, { data: perfs, error: pe }] = await Promise.all([
+      const R = 0.75; // deg box (~50 mi) for injector search
+      const nearbyQ = well.latitude != null && well.longitude != null
+        ? supabase.from("wells").select("id, well_name, api_number, well_type, status, latitude, longitude")
+            .gte("latitude", well.latitude - R).lte("latitude", well.latitude + R)
+            .gte("longitude", well.longitude - R).lte("longitude", well.longitude + R)
+            .neq("id", well.id).limit(1000)
+        : Promise.resolve({ data: [], error: null });
+      const [{ data: logs, error: le }, { data: perfs, error: pe }, { data: nearby }, { data: water }] = await Promise.all([
         supabase.from("well_logs")
           .select("measured_depth, gamma_ray, resistivity, porosity, water_saturation")
           .eq("well_id", well.id).order("measured_depth"),
         supabase.from("well_perforations")
           .select("depth_from, depth_to, shots_per_foot, phasing, status, notes")
           .eq("well_id", well.id).order("depth_from"),
+        nearbyQ,
+        supabase.from("well_water_inputs").select("reservoir_pressure_psi, pressure_datum_ft, bht_f, bht_depth_ft, surface_temp_f").eq("well_id", well.id).maybeSingle(),
       ]);
+      const injectors = ((nearby ?? []) as { id: string; well_name: string | null; api_number: string | null; well_type: string | null; status: string | null; latitude: number | null; longitude: number | null }[])
+        .filter((w) => isInjectionWell(w.well_type) && w.latitude != null && w.longitude != null)
+        .map((w) => ({ ...w, miles: haversineMiles(well.latitude!, well.longitude!, w.latitude!, w.longitude!) }))
+        .sort((a, b) => a.miles - b.miles);
       if (le) throw le;
       if (pe) throw pe;
-      return { well, logs: (logs ?? []) as LogPt[], perfs: (perfs ?? []) as Perf[] };
+      return { well, logs: (logs ?? []) as LogPt[], perfs: (perfs ?? []) as Perf[], injectors, water };
     },
   });
 
@@ -136,7 +150,13 @@ const SPTSlotPlan = () => {
   if (error) return <div className="p-8 text-destructive">Failed to load well data: {(error as Error).message}</div>;
   if (!data) return <div className="p-8 text-muted-foreground">Brawner 10-15 is not available for your company.</div>;
 
-  const { well, logs, perfs } = data;
+  const { well, logs, perfs, injectors, water } = data;
+  const nearestInj = injectors[0];
+  const hasPT = !!(water?.reservoir_pressure_psi && water?.pressure_datum_ft);
+  const ptAt = (d: number) => ({
+    p: pressureAtDepth(water?.reservoir_pressure_psi, water?.pressure_datum_ft, d),
+    t: temperatureAtDepth(water?.bht_f, water?.bht_depth_ft, d, water?.surface_temp_f),
+  });
   const depth = well.total_depth ?? 0;
   const pc = (p: Priority) => p === "Primary" ? "text-success border-success/40" : p === "Secondary" ? "text-primary border-primary/40" : "text-warning border-warning/40";
   const perfLabel = (p: CutInterval["perforated"]) => p === "none" ? "Not perforated — bypassed pay" : p === "partial" ? "Partly perforated" : "Already perforated";
@@ -147,7 +167,12 @@ const SPTSlotPlan = () => {
     { k: "Pay intervals (log cutoffs)", v: `${intervals.length}`, s: `φ ≥ ${PHI_MIN}%, Sw ≤ ${SW_HIGH}%, GR ≤ ${GR_MAX} API`, r: intervals.length ? "pass" : "fail" },
     { k: "Bypassed pay (not perforated)", v: `${intervals.filter((i) => i.perforated === "none").length} interval(s)`, s: "Main SPT target", r: intervals.some((i) => i.perforated === "none") ? "pass" : "warn" },
     { k: "Fluid", v: well.well_type ?? "—", s: "Oil-risk permeability cutoff 1 mD applies", r: "pass" },
-    { k: "Reservoir pressure", v: "TO CONFIRM", s: "Not in well record", r: "warn" },
+    hasPT
+      ? { k: "Reservoir pressure", v: `${water!.reservoir_pressure_psi} psi @ ${water!.pressure_datum_ft} ft`, s: "From Injection & Water Salinity", r: "pass" }
+      : { k: "Reservoir pressure", v: "TO CONFIRM", s: "Enter in Injection & Water Salinity", r: "warn" },
+    nearestInj
+      ? { k: "Nearest injection well", v: `${nearestInj.miles.toFixed(2)} mi (${Math.round(nearestInj.miles * 5280).toLocaleString()} ft)`, s: `${nearestInj.well_name ?? "Unnamed"} · ${nearestInj.well_type}`, r: nearestInj.miles < 0.25 ? "warn" : "pass" }
+      : { k: "Nearest injection well", v: "None found", s: well.latitude == null ? "Well has no coordinates" : "No injection wells within ~50 mi in your records", r: "warn" },
   ];
   const rc = (r: string) => r === "pass" ? "text-success" : r === "warn" ? "text-warning" : "text-destructive";
 
@@ -201,6 +226,45 @@ const SPTSlotPlan = () => {
               ))}
             </tbody>
           </table>
+        </CardContent>
+      </Card>
+
+      <Card className="glass-card">
+        <CardHeader>
+          <CardTitle className="text-base">Injection wells nearby</CardTitle>
+          <p className="text-xs text-muted-foreground">Classified from registry well type (INJ, SWD, Class II 2R/2D, EOR injectors). Straight-line distance from well coordinates; connectivity is not modelled.</p>
+        </CardHeader>
+        <CardContent>
+          {injectors.length === 0 ? <p className="text-sm text-muted-foreground">No injection wells found within ~50 mi in your company records.</p> : (
+            <table className="w-full text-sm">
+              <thead><tr className="text-left text-xs text-muted-foreground border-b border-border/40"><th className="py-2 pr-4">Well</th><th className="py-2 pr-4">API</th><th className="py-2 pr-4">Type</th><th className="py-2 pr-4">Status</th><th className="py-2">Distance</th></tr></thead>
+              <tbody>{injectors.slice(0, 5).map((w) => (
+                <tr key={w.id} className="border-b border-border/20">
+                  <td className="py-2 pr-4">{w.well_name ?? "Unnamed"}</td><td className="py-2 pr-4">{w.api_number ?? "—"}</td>
+                  <td className="py-2 pr-4">{w.well_type}</td><td className="py-2 pr-4">{w.status ?? "—"}</td>
+                  <td className="py-2">{w.miles.toFixed(2)} mi · {Math.round(w.miles * 5280).toLocaleString()} ft</td>
+                </tr>))}</tbody>
+            </table>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card className="glass-card">
+        <CardHeader>
+          <CardTitle className="text-base">Pressure &amp; temperature at SPT intervals</CardTitle>
+          <p className="text-xs text-muted-foreground">Screening estimate from Injection &amp; Water Salinity inputs: linear pressure gradient (P ÷ datum depth) and linear geothermal gradient to the measured BHT.</p>
+        </CardHeader>
+        <CardContent>
+          {!water || (!hasPT && !water.bht_f) ? <p className="text-sm text-muted-foreground">Enter reservoir pressure and bottom-hole temperature for this well in Injection &amp; Water Salinity.</p> : intervals.length === 0 ? <p className="text-sm text-muted-foreground">No pay intervals to evaluate.</p> : (
+            <table className="w-full text-sm">
+              <thead><tr className="text-left text-xs text-muted-foreground border-b border-border/40"><th className="py-2 pr-4">Interval (ft)</th><th className="py-2 pr-4">Mid depth</th><th className="py-2 pr-4">Pressure (psi)</th><th className="py-2">Temperature (°F)</th></tr></thead>
+              <tbody>{intervals.map((i) => { const mid = (i.top + i.bottom) / 2; const v = ptAt(mid); return (
+                <tr key={i.top} className="border-b border-border/20">
+                  <td className="py-2 pr-4">{i.top}–{i.bottom}</td><td className="py-2 pr-4">{mid.toFixed(0)}</td>
+                  <td className="py-2 pr-4">{v.p != null ? v.p.toFixed(0) : "—"}</td><td className="py-2">{v.t != null ? v.t.toFixed(1) : "—"}</td>
+                </tr>); })}</tbody>
+            </table>
+          )}
         </CardContent>
       </Card>
 
@@ -292,7 +356,7 @@ const SPTSlotPlan = () => {
               ["Monthly / daily inflow of oil, gas and water", "Analyzed", "Production history — Stage 4 decline analysis."],
               ["Productive and non-productive days per month", "Analyzed", "Days-on field in production history."],
               ["Start and end (maximum and minimum) rate", "Analyzed", "Derived from production history."],
-              ["Tubing / formation pressure", "Stored", "Reservoir Pressure module; not yet used in the slot plan."],
+              ["Tubing / formation pressure", hasPT ? "Analyzed" : "Stored", "Injection & Water Salinity — pressure and temperature at SPT intervals."],
               ["Extent of production decline", "Analyzed", "Stage 4 Arps decline."],
               ["Stops and transitions to next productive intervals", "Stored", "Recorded in perforation status and notes."],
             ]],
@@ -318,7 +382,7 @@ const SPTSlotPlan = () => {
             ]],
             ["e", "Well position map (preferably with altitude)", [
               ["Distance to neighboring oil wells", "Analyzed", "Nearby wells search and reserves map."],
-              ["Distance to nearest injection wells", "Not yet", "Injection wells are not identified separately."],
+              ["Distance to nearest injection wells", "Analyzed", nearestInj ? `Nearest: ${nearestInj.well_name ?? "Unnamed"} at ${nearestInj.miles.toFixed(2)} mi (registry well type).` : "Classified from registry well type; none found nearby in your records."],
             ]],
             ["f", "Core analysis, lithology (core)", [
               ["Core analysis", "Analyzed", "Stage 3 Core Analysis."],
