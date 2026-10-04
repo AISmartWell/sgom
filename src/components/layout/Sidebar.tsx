@@ -513,6 +513,12 @@ const menuItems = [
     badge: "Stage 6",
   },
   {
+    title: "HSP Payback",
+    icon: Settings,
+    href: "/dashboard/hsp-payback",
+    badge: "Stage 7",
+  },
+  {
     title: "SLB Pilot Plan",
     icon: Settings,
     href: "/dashboard/slb-pilot-plan",
