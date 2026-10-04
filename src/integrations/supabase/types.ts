@@ -1202,6 +1202,54 @@ export type Database = {
           },
         ]
       }
+      well_casing_programs: {
+        Row: {
+          company_id: string
+          created_at: string
+          notes: string
+          source: string
+          strings: Json
+          updated_at: string
+          updated_by: string | null
+          well_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          notes?: string
+          source?: string
+          strings?: Json
+          updated_at?: string
+          updated_by?: string | null
+          well_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          notes?: string
+          source?: string
+          strings?: Json
+          updated_at?: string
+          updated_by?: string | null
+          well_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "well_casing_programs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "well_casing_programs_well_id_fkey"
+            columns: ["well_id"]
+            isOneToOne: true
+            referencedRelation: "wells"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       well_documents: {
         Row: {
           company_id: string
@@ -1747,6 +1795,7 @@ export type Database = {
           title: string
         }[]
       }
+      valid_casing_strings: { Args: { items: Json }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "investor" | "engineer" | "geologist" | "production"

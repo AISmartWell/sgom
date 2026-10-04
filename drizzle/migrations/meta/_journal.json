@@ -57,6 +57,20 @@
       "when": 1790979084347,
       "tag": "0007_add_gas_composition_to_well_water_inputs",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1791077757915,
+      "tag": "0008_well_casing_programs",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1791077787062,
+      "tag": "0009_casing_editor_permissions",
+      "breakpoints": true
     }
   ]
 }
