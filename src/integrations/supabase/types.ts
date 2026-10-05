@@ -222,6 +222,44 @@ export type Database = {
         }
         Relationships: []
       }
+      company_knowledge_notes: {
+        Row: {
+          company_id: string
+          content: string
+          created_at: string
+          id: string
+          is_active: boolean
+          source: string | null
+          title: string
+        }
+        Insert: {
+          company_id: string
+          content: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          source?: string | null
+          title: string
+        }
+        Update: {
+          company_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          source?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_knowledge_notes_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       core_analyses: {
         Row: {
           analysis: string
