@@ -9,3 +9,4 @@
 
 - The SPT Slot Plan page reads the company-scoped Brawner 10-15 log and perforations and is always labelled DRAFT; pay picks come from log cutoffs while slot geometry stays a design default pending review.
 - Store complete casing programs atomically per well in well_casing_programs with company/well correspondence and server-enforced editor roles; export saved records only, so drafts cannot masquerade as engineered designs.
+- Well Correlation (src/lib/well-correlation.ts) auto-picks GR sand markers as unnamed candidate units matched by depth to a reference well; never assign formation names, geophysicist confirms faults/pinch-outs.
