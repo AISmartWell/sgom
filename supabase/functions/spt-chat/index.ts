@@ -130,9 +130,31 @@ serve(async (req) => {
       }
     }
 
+    // Company-private knowledge (RLS limits rows to the caller's company)
+    let knowledgeBlock = "";
+    const kbAuth = req.headers.get("Authorization");
+    if (kbAuth) {
+      try {
+        const kb = createClient(
+          Deno.env.get("SUPABASE_URL")!,
+          Deno.env.get("SUPABASE_ANON_KEY")!,
+          { global: { headers: { Authorization: kbAuth } } }
+        );
+        const { data: notes } = await kb
+          .from("company_knowledge_notes")
+          .select("title, content, source")
+          .eq("is_active", true)
+          .limit(20);
+        if (notes && notes.length > 0) {
+          knowledgeBlock = "\n\n## Company Private Knowledge (internal, cite the source, never share outside this company):\n" +
+            notes.map((n: any) => `### ${n.title}\nSource: ${n.source ?? "internal"}\n${n.content}`).join("\n\n");
+        }
+      } catch (_) { /* ignore */ }
+    }
+
     const systemMessage = {
       role: "system",
-      content: `${systemPrompt || SYSTEM_PROMPT}${contextBlock}`,
+      content: `${systemPrompt || SYSTEM_PROMPT}${contextBlock}${knowledgeBlock}`,
     };
 
     const response = await fetch(
