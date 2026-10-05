@@ -3516,6 +3516,7 @@ const GeophysicalExpertise = () => {
                   </CardContent>
                 </Card>
               )}
+              <PostHSPStimulationAdvisor wellId={selectedWell.id} interpretation={interpretation} />
               <EnhancedWellLog
                 wellId={selectedWell.id}
                 wellName={selectedWell.well_name || "Unknown Well"}
