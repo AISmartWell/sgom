@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import EnhancedWellLog from "@/components/well-log/EnhancedWellLog";
 import BatchLithologyAnalysis from "@/components/geophysical/BatchLithologyAnalysis";
+import PostHSPStimulationAdvisor from "@/components/geophysical/PostHSPStimulationAdvisor";
 import { WellLogAnalysisDemo } from "@/components/geophysical/WellLogAnalysisDemo";
 import { supabase } from "@/integrations/supabase/client";
 import { useWellLogs } from "@/hooks/useWellLogs";
@@ -3515,6 +3516,7 @@ const GeophysicalExpertise = () => {
                   </CardContent>
                 </Card>
               )}
+              <PostHSPStimulationAdvisor wellId={selectedWell.id} interpretation={interpretation} />
               <EnhancedWellLog
                 wellId={selectedWell.id}
                 wellName={selectedWell.well_name || "Unknown Well"}
