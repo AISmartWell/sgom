@@ -513,6 +513,12 @@ const menuItems = [
     badge: "Stage 6",
   },
   {
+    title: "Well Correlation",
+    icon: Layers,
+    href: "/dashboard/well-correlation",
+    badge: "Stage 8",
+  },
+  {
     title: "HSP Payback",
     icon: Settings,
     href: "/dashboard/hsp-payback",
