@@ -4,6 +4,7 @@ import StatCard from "@/components/dashboard/StatCard";
 import ModuleCard from "@/components/dashboard/ModuleCard";
 import {
   Database,
+  Layers,
   Map,
   Target,
   BarChart3,
