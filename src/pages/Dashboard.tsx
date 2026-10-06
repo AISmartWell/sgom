@@ -4,6 +4,7 @@ import StatCard from "@/components/dashboard/StatCard";
 import ModuleCard from "@/components/dashboard/ModuleCard";
 import {
   Database,
+  Layers,
   Map,
   Target,
   BarChart3,
@@ -122,6 +123,18 @@ const Dashboard = () => {
       stats: [
         { label: "Stage", value: "7" },
         { label: "ROI", value: "7-8mo" },
+      ],
+    },
+    {
+      title: "Well Correlation",
+      description: "Cross-well horizon correlation & thickness table",
+      icon: Layers,
+      href: "/dashboard/well-correlation",
+      status: "ready" as const,
+      emoji: "🧭",
+      stats: [
+        { label: "Stage", value: "8" },
+        { label: "Wells", value: "2-10" },
       ],
     },
     {
