@@ -108,6 +108,7 @@ import PreliminaryVerdicts from "./pages/modules/PreliminaryVerdicts";
 import SPTSlotPlan from "./pages/modules/SPTSlotPlan";
 import SLBPilotPlan from "./pages/modules/SLBPilotPlan";
 import CasingProgram from "./pages/modules/CasingProgram";
+import MaxxwellImport from "./pages/modules/MaxxwellImport";
 import WellCorrelation from "./pages/modules/WellCorrelation";
 import HSPPayback from "./pages/modules/HSPPayback";
 import NotFound from "./pages/NotFound";
@@ -211,6 +212,7 @@ const App = () => (
               <Route path="spt-slot-plan" element={<SPTSlotPlan />} />
               <Route path="slb-pilot-plan" element={<SLBPilotPlan />} />
                <Route path="casing-program" element={<CasingProgram />} />
+               <Route path="maxxwell-import" element={<MaxxwellImport />} />
                <Route path="well-correlation" element={<WellCorrelation />} />
                <Route path="hsp-payback" element={<HSPPayback />} />
 
