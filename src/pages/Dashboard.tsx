@@ -125,6 +125,18 @@ const Dashboard = () => {
       ],
     },
     {
+      title: "Well Correlation",
+      description: "Cross-well horizon correlation & thickness table",
+      icon: Layers,
+      href: "/dashboard/well-correlation",
+      status: "ready" as const,
+      emoji: "🧭",
+      stats: [
+        { label: "Stage", value: "8" },
+        { label: "Wells", value: "2-10" },
+      ],
+    },
+    {
       title: "Geophysical Expertise",
       description: "Well log analysis & formation evaluation",
       icon: Activity,
