@@ -13,3 +13,4 @@
 - CBL cement-bond screening on SPT Slot Plan (src/lib/cement-bond.ts) is session-only and labelled PRELIMINARY; no CBL file means an explicit isolation data gap, never an assumed pass.
 - Pilot Project (src/pages/modules/PilotProject.tsx) only orchestrates existing intake, audit (src/lib/log-qc-audit.ts), correlation and verdict libs for up to 10 company wells; it must not fork their logic, so pilot reports match single-well pages.
 - Correlation tie reliability uses well spacing to the reference well (src/lib/well-correlation.ts tieReliability) as a labelled screening heuristic; it never changes depth matching.
+- Batch imports (Pilot Project LAS, Maxxwell CSV) write only through the transactional DB functions replace_well_logs / import_maxxwell_batch, so a failure never leaves a well half-imported.

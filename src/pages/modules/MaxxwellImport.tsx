@@ -67,33 +67,19 @@ export default function MaxxwellImport() {
     setBusy(true);
     const ok: { name: string; id: string }[] = [];
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      for (const { b, w } of ready) {
-        if (!w) continue;
-        const c = b.conditions;
-        if (c) {
-          const { water_cut_pct, ...pt } = c;
-          const payload = Object.fromEntries(Object.entries(pt).filter(([, v]) => v != null));
-          if (Object.keys(payload).length) {
-            const { error } = await supabase.from("well_water_inputs").upsert({ well_id: w.id, company_id: w.company_id, ...payload, updated_by: user?.id }, { onConflict: "well_id" });
-            if (error) throw new Error(`${w.well_name}: ${error.message}`);
-          }
-          if (water_cut_pct != null) {
-            const { error } = await supabase.from("wells").update({ water_cut: water_cut_pct }).eq("id", w.id).eq("company_id", w.company_id);
-            if (error) throw new Error(`${w.well_name}: ${error.message}`);
-          }
-        }
-        if (b.casing.length) {
-          const strings = [...b.casing].sort((a, z) => a.top_ft - z.top_ft || z.od_in - a.od_in);
-          const { error } = await supabase.from("well_casing_programs").upsert({ well_id: w.id, company_id: w.company_id, strings: JSON.parse(JSON.stringify(strings)), source: `Maxxwell import ${new Date().toISOString().slice(0, 10)}`, notes: "Imported from Maxxwell CSV. Verify against well file before field use.", updated_by: user?.id }, { onConflict: "well_id" });
-          if (error) throw new Error(`${w.well_name}: ${error.message}`);
-        }
-        ok.push({ name: w.well_name ?? w.api_number ?? w.id, id: w.id });
-      }
+      const items = ready.filter(x => x.w).map(({ b, w }) => ({
+        well_id: w!.id,
+        conditions: b.conditions,
+        casing: b.casing.length ? JSON.parse(JSON.stringify([...b.casing].sort((a, z) => a.top_ft - z.top_ft || z.od_in - a.od_in))) : null,
+      }));
+      // One transaction: either every well is written or nothing is.
+      const { error } = await supabase.rpc("import_maxxwell_batch", { p_items: items as any });
+      if (error) throw new Error(`Nothing was imported: ${error.message}`);
+      ready.forEach(({ w }) => w && ok.push({ name: w.well_name ?? w.api_number ?? w.id, id: w.id }));
       toast.success(`Imported ${ok.length} well(s)`);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Import failed");
-    } finally { setDone(ok); setBusy(false); }
+    } finally { setDone(ok); setBusy(false); } // ok stays empty on failure
   };
 
   return (
