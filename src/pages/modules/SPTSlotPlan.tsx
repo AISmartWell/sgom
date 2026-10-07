@@ -10,6 +10,7 @@ import { haversineMiles, isInjectionWell, pressureAtDepth, temperatureAtDepth } 
 import blueprintLiner from "@/assets/spt-blueprint-liner.jpg";
 import blueprintInflow from "@/assets/spt-blueprint-inflow.jpg";
 import blueprintBeforeAfter from "@/assets/spt-blueprint-before-after.jpg";
+import CementBondCard from "@/components/spt-projection/CementBondCard";
 
 /**
  * SPT Slot Cutting Plan — any company well (defaults to Brawner 10-15), DRAFT built from the measured
@@ -364,6 +365,9 @@ const SPTSlotPlan = () => {
           </p>
         </CardContent>
       </Card>
+
+      <CementBondCard intervals={intervals} />
+
 
       <Card className="glass-card">
         <CardHeader><CardTitle className="text-base">Existing perforations (completion record)</CardTitle></CardHeader>
