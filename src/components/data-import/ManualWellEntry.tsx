@@ -44,6 +44,7 @@ export const ManualWellEntry = ({ companyId, onImportComplete }: ManualWellEntry
     state: "OK",
     latitude: "",
     longitude: "",
+    altitude_ft: "",
     formation: "",
     total_depth: "",
     production_oil: "",
@@ -118,6 +119,7 @@ export const ManualWellEntry = ({ companyId, onImportComplete }: ManualWellEntry
         state: form.state,
         latitude: form.latitude ? parseFloat(form.latitude) : null,
         longitude: form.longitude ? parseFloat(form.longitude) : null,
+        altitude_ft: form.altitude_ft ? parseFloat(form.altitude_ft) : null,
         formation: form.formation.trim() || null,
         total_depth: form.total_depth ? parseFloat(form.total_depth) : null,
         production_oil: form.production_oil ? parseFloat(form.production_oil) : null,
@@ -149,7 +151,7 @@ export const ManualWellEntry = ({ companyId, onImportComplete }: ManualWellEntry
       toast.success(`Well "${form.well_name}" saved successfully`);
       setForm({
         api_number: "", well_name: "", operator: "", well_type: "", status: "",
-        county: "", state: "OK", latitude: "", longitude: "", formation: "",
+        county: "", state: "OK", latitude: "", longitude: "", altitude_ft: "", formation: "",
         total_depth: "", production_oil: "", production_gas: "", water_cut: "",
         spud_date: "", completion_date: "",
       });
@@ -228,7 +230,7 @@ export const ManualWellEntry = ({ companyId, onImportComplete }: ManualWellEntry
           </div>
 
           {/* Location */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
               <Label htmlFor="latitude">Latitude</Label>
               <Input id="latitude" type="number" step="any" min="24" max="72" placeholder="35.467" value={form.latitude} onChange={(e) => updateField("latitude", e.target.value)} />
@@ -238,6 +240,11 @@ export const ManualWellEntry = ({ companyId, onImportComplete }: ManualWellEntry
               <Label htmlFor="longitude">Longitude</Label>
               <Input id="longitude" type="number" step="any" min="-180" max="-60" placeholder="-97.523" value={form.longitude} onChange={(e) => updateField("longitude", e.target.value)} />
               <p className="text-xs text-muted-foreground mt-1">-180 – -60</p>
+            </div>
+            <div>
+              <Label htmlFor="altitude_ft">Altitude (ft)</Label>
+              <Input id="altitude_ft" type="number" step="any" placeholder="1250" value={form.altitude_ft} onChange={(e) => updateField("altitude_ft", e.target.value)} />
+              <p className="text-xs text-muted-foreground mt-1">Wellhead elevation above sea level</p>
             </div>
             <div>
               <Label htmlFor="formation">Formation</Label>
