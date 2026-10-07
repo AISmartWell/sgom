@@ -110,6 +110,7 @@ import SLBPilotPlan from "./pages/modules/SLBPilotPlan";
 import CasingProgram from "./pages/modules/CasingProgram";
 import MaxxwellImport from "./pages/modules/MaxxwellImport";
 import WellCorrelation from "./pages/modules/WellCorrelation";
+import PilotProject from "./pages/modules/PilotProject";
 import HSPPayback from "./pages/modules/HSPPayback";
 import NotFound from "./pages/NotFound";
 import OAuthConsent from "./pages/OAuthConsent";
@@ -214,6 +215,7 @@ const App = () => (
                <Route path="casing-program" element={<CasingProgram />} />
                <Route path="maxxwell-import" element={<MaxxwellImport />} />
                <Route path="well-correlation" element={<WellCorrelation />} />
+               <Route path="pilot-project" element={<PilotProject />} />
                <Route path="hsp-payback" element={<HSPPayback />} />
 
            </Route>
