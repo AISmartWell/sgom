@@ -54,3 +54,20 @@ export function assessInterval(log: CblLog, top: number, bottom: number): Interv
     : (avgBi ?? 0) < BI_MODERATE || (!sealAbove && !sealBelow) ? "poor" : "questionable";
   return { top, bottom, avgBi, goodPct, sealAbove, sealBelow, verdict };
 }
+
+export type IsolationStatus = "confirmed" | "partial" | "poor" | "gap";
+export interface IsolationSummary { status: IsolationStatus; label: string; detail: string; rows: IntervalBond[] }
+
+/** Roll interval bond verdicts into one isolation conclusion. No log = explicit data gap, never a pass. */
+export function summarizeIsolation(log: CblLog | null, intervals: { top: number; bottom: number }[]): IsolationSummary {
+  if (!log) return { status: "gap", label: "Isolation unverified (no CBL)", detail: "No cement bond log loaded — run CBL/VDL before slot cutting.", rows: [] };
+  const rows = intervals.map((i) => assessInterval(log, i.top, i.bottom));
+  const logged = rows.filter((r) => r.verdict !== "no-data");
+  if (!logged.length) return { status: "gap", label: "Isolation unverified (CBL does not cover intervals)", detail: `CBL ${log.top.toFixed(0)}–${log.bottom.toFixed(0)} ft misses the SPT intervals.`, rows };
+  const n = (v: BondVerdict) => rows.filter((r) => r.verdict === v).length;
+  const iso = n("isolated"), poor = n("poor"), q = n("questionable"), nd = n("no-data");
+  const detail = `${iso} isolated, ${q} questionable, ${poor} poor${nd ? `, ${nd} not logged` : ""} of ${rows.length} interval(s).`;
+  if (poor) return { status: "poor", label: "Poor isolation — crossflow risk", detail, rows };
+  if (q || nd) return { status: "partial", label: "Partial isolation — review VDL", detail, rows };
+  return { status: "confirmed", label: "Isolation confirmed by CBL (preliminary)", detail, rows };
+}
