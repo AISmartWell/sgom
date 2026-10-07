@@ -252,6 +252,27 @@ export default function PilotProject() {
             )}
           </section>
 
+          <section className="glass-card rounded-xl p-6 space-y-2">
+            <h3 className="font-semibold">Well spacing (location map data)</h3>
+            <p className="text-xs text-muted-foreground">Distances from each pilot well to the nearest producing and nearest injection well of your company, computed from stored coordinates (WGS84).</p>
+            <table className="w-full text-xs">
+              <thead className="text-muted-foreground text-left"><tr><th className="py-1">Well</th><th>Nearest producer</th><th>Nearest injector</th></tr></thead>
+              <tbody>{rows.map(r => {
+                const w = r.w as any;
+                const others = (wellsQ.data ?? []).filter(o => o.id !== w.id && (o as any).latitude != null && (o as any).longitude != null);
+                const dist = (o: any) => w.latitude != null && w.longitude != null ? distanceKm(+w.latitude, +w.longitude, +o.latitude, +o.longitude) : null;
+                const isInj = (o: W) => /inject/i.test(o.well_type ?? "");
+                const nearest = (list: W[]) => list.map(o => ({ o, km: dist(o) })).filter(x => x.km != null).sort((a, b) => a.km! - b.km!)[0] ?? null;
+                const prod = nearest(others.filter(o => !isInj(o)));
+                const inj = nearest(others.filter(isInj));
+                const cell = (x: { o: W; km: number | null } | null) => x == null ? "—" : `${x.o.well_name ?? x.o.api_number ?? x.o.id} · ${x.km!.toFixed(2)} km (${Math.round(x.km! * 3280.84).toLocaleString()} ft)`;
+                return (
+                  <tr key={w.id} className="border-t border-border"><td className="py-1">{name(r.w)}</td><td>{w.latitude != null ? cell(prod) : "no coordinates"}</td><td>{w.latitude != null ? cell(inj) : "no coordinates"}</td></tr>);
+              })}</tbody>
+            </table>
+            <p className="text-xs text-muted-foreground">Injector wells are identified by the well type field; wells without coordinates are skipped. Elevation (altitude) is not stored yet — add it to the well record if the client provides a location map with altitudes.</p>
+          </section>
+
           {rows.map(r => (
             <section key={r.w.id} className="glass-card rounded-xl p-6 space-y-2">
               <h3 className="font-semibold">{name(r.w)} <span className="text-xs text-muted-foreground font-mono">{r.w.api_number}</span></h3>
