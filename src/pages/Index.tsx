@@ -56,7 +56,7 @@ const advantages = [
   {
     icon: Shield,
     title: "Patented SPT Technology",
-    desc: "US Patent 8,863,823 — Slot Perforating Technology with decades of verified field results. Proven to revive declining wells.",
+    desc: "US Patents 8,863,823 & 8,240,369 — Slot Perforation Technology with decades of verified field results. Proven to revive declining wells.",
     color: "success" as const,
   },
   {
@@ -387,9 +387,9 @@ const Index = () => {
               <div className="h-14 w-14 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
                 <Award className="h-7 w-7 text-primary" />
               </div>
-              <h3 className="font-display text-lg font-bold mb-2">US Patent 8,863,823</h3>
+              <h3 className="font-display text-lg font-bold mb-2">US Patents 8,863,823 · 8,240,369</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Slot Perforation Technology (SPT) — 5–10× inflow increase. No competing platform integrates patented completion technology
+                Slot Perforation Technology (SPT) — 5–10× inflow increase. Two granted patents protect the completion technology; no competing platform integrates it
               </p>
             </div>
             <div className="glass-card-hover rounded-2xl p-7 text-center group">

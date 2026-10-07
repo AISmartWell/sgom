@@ -7,7 +7,9 @@
 - Stage 6 log ranking reuses `interpretWellLog` via `src/lib/spt-log-ranking.ts`, so SPT scores and Stage 8 interpretation never diverge.
 - The SGOM Well Verdicts page mirrors sptScreening from the upstrima-sandbox function via src/lib/spt-sandbox-verdict.ts; change both together so UI and API verdicts never diverge.
 
-- The SPT Slot Plan page reads the company-scoped Brawner 10-15 log and perforations and is always labelled DRAFT; pay picks come from log cutoffs while slot geometry stays a design default pending review.
+- The SPT Slot Plan page reads the company-scoped Brawner 10-15 log and perforations and is always labelled DRAFT; pay picks come from log cutoffs while slot geometry follows the Maxxwell documented tool spec (continuous slots along the wellbore, 2 nozzles / 4 for Primary, slot length ≈ 1.64 ft per rod pass, cut depth up to 5 ft, width ≈ 1 in, opening 21.4/42.8 ft² per linear ft, ~60 min/ft cased) pending SPT-engineer confirmation.
+- Maxxwell well-suitability criteria (src/lib/spt-suitability.ts) are presentational screening guidance labelled PRELIMINARY; they never change sptScreening verdict logic, which stays mirrored with the upstrima-sandbox function.
+- Maxxwell vendor numbers (effect claims, opening areas) are always presented as vendor-reported data from the Maxxwell HSP presentation, never as SGOM-verified results.
 - Store complete casing programs atomically per well in well_casing_programs with company/well correspondence and server-enforced editor roles; export saved records only, so drafts cannot masquerade as engineered designs.
 - Well Correlation (src/lib/well-correlation.ts) auto-picks GR sand markers as unnamed candidate units matched by depth to a reference well; never assign formation names, geophysicist confirms faults/pinch-outs.
 - CBL cement-bond screening on SPT Slot Plan (src/lib/cement-bond.ts) is session-only and labelled PRELIMINARY; no CBL file means an explicit isolation data gap, never an assumed pass.

@@ -7,6 +7,7 @@ import { Download, Loader2, Scissors, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SW_HIGH } from "@/lib/spt-log-ranking";
 import { haversineMiles, isInjectionWell, pressureAtDepth, temperatureAtDepth } from "@/lib/spt-interval-conditions";
+import { sptSuitability, MAXXWELL_DECLINE_CAUSES, type SuitState } from "@/lib/spt-suitability";
 import blueprintLiner from "@/assets/spt-blueprint-liner.jpg";
 import blueprintInflow from "@/assets/spt-blueprint-inflow.jpg";
 import blueprintBeforeAfter from "@/assets/spt-blueprint-before-after.jpg";
@@ -26,13 +27,14 @@ const SPT_LIBRARY_MAX_FT = 5400;
 
 interface LogPt { measured_depth: number; gamma_ray: number | null; resistivity: number | null; porosity: number | null; water_saturation: number | null }
 interface Perf { depth_from: number; depth_to: number; shots_per_foot: number | null; phasing: number | null; status: string | null; notes: string | null }
+interface ProdRow { production_month: string; oil_bbl: number | null; gas_mcf: number | null; water_bbl: number | null; days_on: number | null }
 
 type Priority = "Primary" | "Secondary" | "Caution";
 interface CutInterval {
   top: number; bottom: number; n: number;
   phi: number; sw: number; gr: number; rt: number;
   perforated: "none" | "partial" | "full";
-  priority: Priority; slotsPerFt: number; slotWidthIn: number;
+  priority: Priority; nozzles: 2 | 4;
 }
 
 const avg = (a: number[]) => a.reduce((s, v) => s + v, 0) / (a.length || 1);
@@ -74,7 +76,7 @@ const SPTSlotPlan = () => {
     queryFn: async () => {
       const { data: wells, error: we } = await supabase
         .from("wells")
-        .select("id, well_name, api_number, formation, total_depth, well_type, status, county, state, operator, latitude, longitude")
+        .select("id, well_name, api_number, formation, total_depth, well_type, status, county, state, operator, latitude, longitude, spud_date, completion_date")
         .eq("id", selectedId!)
         .limit(1);
       if (we) throw we;
@@ -87,7 +89,7 @@ const SPTSlotPlan = () => {
             .gte("longitude", well.longitude - R).lte("longitude", well.longitude + R)
             .neq("id", well.id).limit(1000)
         : Promise.resolve({ data: [], error: null });
-      const [{ data: logs, error: le }, { data: perfs, error: pe }, { data: nearby }, { data: water }] = await Promise.all([
+      const [{ data: logs, error: le }, { data: perfs, error: pe }, { data: nearby }, { data: water }, { data: prodHist }] = await Promise.all([
         supabase.from("well_logs")
           .select("measured_depth, gamma_ray, resistivity, porosity, water_saturation")
           .eq("well_id", well.id).order("measured_depth"),
@@ -96,6 +98,9 @@ const SPTSlotPlan = () => {
           .eq("well_id", well.id).order("depth_from"),
         nearbyQ,
         supabase.from("well_water_inputs").select("reservoir_pressure_psi, pressure_datum_ft, bht_f, bht_depth_ft, surface_temp_f").eq("well_id", well.id).maybeSingle(),
+        supabase.from("production_history")
+          .select("production_month, oil_bbl, gas_mcf, water_bbl, days_on")
+          .eq("well_id", well.id).order("production_month", { ascending: false }).limit(3),
       ]);
       const injectors = ((nearby ?? []) as { id: string; well_name: string | null; api_number: string | null; well_type: string | null; status: string | null; latitude: number | null; longitude: number | null }[])
         .filter((w) => isInjectionWell(w.well_type) && w.latitude != null && w.longitude != null)
@@ -103,7 +108,7 @@ const SPTSlotPlan = () => {
         .sort((a, b) => a.miles - b.miles);
       if (le) throw le;
       if (pe) throw pe;
-      return { well, logs: (logs ?? []) as LogPt[], perfs: (perfs ?? []) as Perf[], injectors, water };
+      return { well, logs: (logs ?? []) as LogPt[], perfs: (perfs ?? []) as Perf[], injectors, water, prodHist: (prodHist ?? []) as ProdRow[] };
     },
   });
 
@@ -130,14 +135,17 @@ const SPTSlotPlan = () => {
         phi: avg(g.map((p) => p.porosity!)), sw,
         gr: avg(g.map((p) => p.gamma_ray!)), rt: avg(g.map((p) => p.resistivity ?? 0)),
         perforated, priority,
-        slotsPerFt: priority === "Primary" ? 60 : priority === "Secondary" ? 50 : 40,
-        slotWidthIn: priority === "Primary" ? 0.02 : priority === "Secondary" ? 0.016 : 0.012,
+        // Maxxwell tool geometry: 4 nozzles on Primary intervals for the largest
+        // opening area, 2 elsewhere. Continuous slots, not discrete shots.
+        nozzles: priority === "Primary" ? 4 : 2,
       };
     });
   }, [data]);
 
   const netPay = intervals.reduce((s, i) => s + Math.max(i.bottom - i.top, 2), 0);
-  const totalSlots = Math.round(intervals.reduce((s, i) => s + Math.max(i.bottom - i.top, 2) * i.slotsPerFt, 0));
+  // Maxxwell documented cutting speed: ~60 min/ft in cased holes, 30 min/ft open hole.
+  const totalCutHr = Math.round(netPay); // 60 min/ft → hours ≈ footage
+  const totalArea = Math.round(intervals.reduce((s, i) => s + Math.max(i.bottom - i.top, 2) * (i.nozzles === 4 ? 42.8 : 21.4), 0));
 
   const pageRef = useRef<HTMLDivElement>(null);
   const [pdfBusy, setPdfBusy] = useState(false);
@@ -205,7 +213,10 @@ const SPTSlotPlan = () => {
   if (error) return <div className="p-8 space-y-4">{picker}<div className="text-destructive">Failed to load well data: {(error as Error).message}</div></div>;
   if (!data) return <div className="p-8 space-y-4">{picker}<div className="text-muted-foreground">This well is not available for your company.</div></div>;
 
-  const { well, logs, perfs, injectors, water } = data;
+  const { well, logs, perfs, injectors, water, prodHist } = data;
+  const latestProd = prodHist?.[0];
+  const latestRate = latestProd?.days_on ? (latestProd.oil_bbl ?? 0) / latestProd.days_on : latestProd?.oil_bbl != null ? latestProd.oil_bbl / 30.4 : null;
+  const suit = sptSuitability(well, latestRate);
   const nearestInj = injectors[0];
   const hasPT = !!(water?.reservoir_pressure_psi && water?.pressure_datum_ft);
   const ptAt = (d: number) => ({
@@ -264,7 +275,7 @@ const SPTSlotPlan = () => {
       <div className="flex items-start gap-2 text-xs text-muted-foreground border border-border/40 rounded-lg p-3">
         <AlertTriangle className="h-4 w-4 text-warning shrink-0" />
         Pay intervals, porosity, Sw and perforation status come from the well's measured composite log and 1997 completion records.
-        Slot density, width and phasing are SPT design defaults by priority — they must be confirmed by a geophysicist and the operator before field use.
+        Slot geometry follows the Maxxwell tool specification (US 8,863,823 / US 8,240,369): continuous slots cut along the wellbore with 2 or 4 nozzles — nozzle count and cut program must be confirmed by a geophysicist and the SPT engineer before field use.
       </div>
 
       <Card className="glass-card">
@@ -282,6 +293,43 @@ const SPTSlotPlan = () => {
               ))}
             </tbody>
           </table>
+        </CardContent>
+      </Card>
+
+      <Card className="glass-card">
+        <CardHeader>
+          <CardTitle className="text-base flex flex-wrap items-center justify-between gap-2">
+            Well suitability for SPT — Maxxwell operational criteria
+            <Badge variant="outline" className={suit.labelTone === "success" ? "text-success border-success/40" : suit.labelTone === "warning" ? "text-warning border-warning/40" : suit.labelTone === "destructive" ? "text-destructive border-destructive/40" : ""}>{suit.label}</Badge>
+          </CardTitle>
+          <p className="text-xs text-muted-foreground">Screening guidance from Maxxwell Production's documented "preferred wells" criteria. PRELIMINARY — it does not change the SPT verdict; expert confirmation is a separate service.</p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <table className="w-full text-sm">
+            <thead><tr className="text-left text-xs text-muted-foreground border-b border-border/40"><th className="py-2 pr-4 w-8"></th><th className="py-2 pr-4">Criterion</th><th className="py-2">Assessment</th></tr></thead>
+            <tbody>
+              {suit.checks.map((c) => (
+                <tr key={c.id} className="border-b border-border/20">
+                  <td className={`py-2 pr-4 font-bold ${c.state === "met" ? "text-success" : c.state === "not_met" ? "text-destructive" : c.state === "caution" ? "text-warning" : "text-muted-foreground"}`}>
+                    {c.state === "met" ? "✓" : c.state === "not_met" ? "✕" : c.state === "caution" ? "!" : "—"}
+                  </td>
+                  <td className="py-2 pr-4 font-medium">{c.label}</td>
+                  <td className={`py-2 text-xs ${c.state === "unknown" ? "text-muted-foreground" : ""}`}>{c.detail}{c.state === "unknown" ? <span className="ml-2 italic">Data gap</span> : null}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="space-y-2">
+            <h3 className="font-semibold text-sm">Possible decline causes on record</h3>
+            {suit.declineCauses.length === 0 ? (
+              <p className="text-xs text-muted-foreground">No data-driven cause identified from well records. The full Maxxwell cause checklist:</p>
+            ) : (
+              <ul className="list-disc pl-5 text-sm space-y-1">
+                {suit.declineCauses.map((c) => <li key={c.cause}>{c.cause} <span className="text-muted-foreground">({c.evidence})</span></li>)}
+              </ul>
+            )}
+            <p className="text-xs text-muted-foreground">{MAXXWELL_DECLINE_CAUSES.join(" · ")}</p>
+          </div>
         </CardContent>
       </Card>
 
@@ -328,7 +376,7 @@ const SPTSlotPlan = () => {
         <CardHeader>
           <CardTitle className="text-base flex flex-wrap items-center justify-between gap-2">
             Slot cutting intervals (from measured log)
-            <Badge variant="outline">Total ≈ {totalSlots.toLocaleString()} slots over ≈ {netPay} ft</Badge>
+            <Badge variant="outline">≈ {netPay.toLocaleString()} ft of continuous slots · ≈ {totalCutHr.toLocaleString()} hr cutting · ≈ {totalArea.toLocaleString()} ft² opening</Badge>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -340,7 +388,7 @@ const SPTSlotPlan = () => {
                 <tr className="text-left text-xs text-muted-foreground border-b border-border/40">
                   <th className="py-2 pr-3">Interval (ft)</th><th className="py-2 pr-3">Priority</th>
                   <th className="py-2 pr-3">φ avg</th><th className="py-2 pr-3">Sw avg</th><th className="py-2 pr-3">GR avg</th><th className="py-2 pr-3">Rt avg</th>
-                  <th className="py-2 pr-3">Completion</th><th className="py-2 pr-3">Slots/ft*</th><th className="py-2 pr-3">Width (in)*</th><th className="py-2">Phasing*</th>
+                  <th className="py-2 pr-3">Completion</th><th className="py-2 pr-3">Nozzles*</th><th className="py-2 pr-3">Cut time (hr)*</th><th className="py-2">Opening (ft²)*</th>
                 </tr>
               </thead>
               <tbody>
@@ -353,16 +401,16 @@ const SPTSlotPlan = () => {
                     <td className="py-2 pr-3">{i.gr.toFixed(0)}</td>
                     <td className="py-2 pr-3">{i.rt.toFixed(0)} Ω·m</td>
                     <td className={`py-2 pr-3 ${i.perforated === "none" ? "text-success" : "text-muted-foreground"}`}>{perfLabel(i.perforated)}</td>
-                    <td className="py-2 pr-3">{i.slotsPerFt}</td>
-                    <td className="py-2 pr-3">{i.slotWidthIn}</td>
-                    <td className="py-2">360°</td>
+                    <td className="py-2 pr-3">{i.nozzles}</td>
+                    <td className="py-2 pr-3">{Math.max(i.bottom - i.top, 2).toLocaleString()}</td>
+                    <td className="py-2">{(Math.max(i.bottom - i.top, 2) * (i.nozzles === 4 ? 42.8 : 21.4)).toLocaleString(undefined, { maximumFractionDigits: 0 })}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           )}
           <p className="text-xs text-muted-foreground">
-            * Design defaults by priority (Primary Sw ≤ 30%, Secondary ≤ 45%, Caution above). Slot length 12 in. To be confirmed.
+            * Geometry from the Maxxwell tool specification (US 8,863,823 / US 8,240,369): continuous slots cut along the wellbore, slot length ≈ 1.64 ft per rod pass, cut depth up to 5 ft, slot width ≈ 1 in, opening 21.4 ft²/ft with 2 nozzles and 42.8 ft²/ft with 4 nozzles, cutting speed ≈ 60 min/ft (cased hole). Primary intervals get 4 nozzles for the largest opening area. Vendor-documented defaults — the final cut program is issued by the SPT service engineer.
           </p>
         </CardContent>
       </Card>
@@ -373,7 +421,7 @@ const SPTSlotPlan = () => {
             Wellbore schematic — how SPT is executed on this well
             <Badge variant="outline" className="text-warning border-warning/40">DRAFT</Badge>
           </CardTitle>
-          <p className="text-xs text-muted-foreground">Planned slot intervals (right, colored by priority) against existing perforations (left) and TD. Depths from the measured log; slot geometry is a design default.</p>
+          <p className="text-xs text-muted-foreground">Planned continuous slot intervals (right, colored by priority) against existing perforations (left) and TD. Depths from the measured log; slot geometry follows the Maxxwell tool specification (2 nozzles, 4 for Primary intervals).</p>
         </CardHeader>
         <CardContent>
           {intervals.length === 0 && perfs.length === 0 ? (
@@ -410,7 +458,7 @@ const SPTSlotPlan = () => {
                   <div>
                     <span className="font-medium">Cut interval {i.top}–{i.bottom} ft</span>
                     <Badge variant="outline" className={`ml-2 ${pc(i.priority)}`}>{i.priority}</Badge>
-                    <span className="text-muted-foreground"> — ≈ {Math.round(Math.max(i.bottom - i.top, 2) * i.slotsPerFt).toLocaleString()} slots ({i.slotsPerFt}/ft, {i.slotWidthIn} in wide, 12 in long, 360° phasing). Abrasive jet cutting at design pump pressure; monitor returns for sand and fluid. {i.perforated === "none" ? "Interval is not perforated — bypassed pay, main target." : "Interval already has perforations — slots restore inflow."}</span>
+                    <span className="text-muted-foreground"> — ≈ {Math.max(i.bottom - i.top, 2).toLocaleString()} ft of continuous slots cut with {i.nozzles} nozzles (Maxxwell geometry: slot length ≈ 1.64 ft per rod pass, slot width ≈ 1 in, cut depth up to 5 ft, opening ≈ {(i.nozzles === 4 ? 42.8 : 21.4).toFixed(1)} ft² per linear ft). Cutting ≈ {Math.max(i.bottom - i.top, 2).toLocaleString()} hr at ≈ 60 min/ft (cased hole) with abrasive quartz sand in produced water — no proppant, no detonation. {i.perforated === "none" ? "Interval is not perforated — bypassed pay, main target." : "Interval already has perforations — slots restore inflow."}</span>
                   </div>
                 </li>
               ))}
@@ -573,6 +621,41 @@ const SPTSlotPlan = () => {
               </table>
             </div>
           ))}
+        </CardContent>
+      </Card>
+
+      <Card className="glass-card">
+        <CardHeader>
+          <CardTitle className="text-base">Opening methods compared — why SPT</CardTitle>
+          <p className="text-xs text-muted-foreground">Vendor data from the Maxxwell Production HSP presentation (US 8,863,823 / US 8,240,369). Effect claims are vendor-reported, not independently verified by SGOM — PRELIMINARY.</p>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm min-w-[640px]">
+              <thead>
+                <tr className="text-left text-xs text-muted-foreground border-b border-border/40">
+                  <th className="py-2 pr-4">Method</th><th className="py-2 pr-4">Penetration depth</th><th className="py-2 pr-4">Opening area</th><th className="py-2">Drawbacks / advantages</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  ["Gun perforation", "5.9 in (0.3 ft)", "≈ 18 in² per hole", "Detonation impact, casing and cement cracks, border clog-up"],
+                  ["Jet perforation", "5.9 in (0.3 ft)", "≈ 18 in² per hole", "Same detonation drawbacks"],
+                  ["Shooting perforation", "4.72 in", "≈ 0.53 in² per hole", "Smallest opening of all methods"],
+                  ["Abrasive (point) jet perforation", "7.87 in", "≈ 15 in² per hole", "Does not unload near-wellbore stress; holes do not deepen with time"],
+                  ["SPT continuous slots (Maxxwell)", "up to 5 ft (1.5 m)", "up to 42.8 ft² per linear ft (4 nozzles)", "Controlled process — no detonation, no casing damage, no cement cracks; works near water reservoirs where fracturing is impossible"],
+                ].map(([m, d, a, n]) => (
+                  <tr key={m} className="border-b border-border/20 align-top">
+                    <td className={`py-2 pr-4 font-medium ${m.startsWith("SPT") ? "text-primary" : ""}`}>{m}</td>
+                    <td className="py-2 pr-4">{d}</td>
+                    <td className="py-2 pr-4">{a}</td>
+                    <td className="py-2 text-muted-foreground">{n}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="text-xs text-muted-foreground mt-3">Maxxwell-reported effect of SPT slotting: unloading of annular compressive stress in the near-wellbore zone up to 50–100%, permeability increase 30–50%, useful inflow increase up to 5–10×, effect duration 10–15+ years. Stress redistribution is driven by slot depth of ~1–3.3 ft.</p>
         </CardContent>
       </Card>
 
