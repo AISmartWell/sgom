@@ -24,13 +24,14 @@ export function CorrelationMap({ corr, wells }: { corr: Correlation; wells: Well
   }).filter(Boolean) as { w: Correlation["wells"][number]; lat: number; lng: number }[];
   const ref = pts.find(p => p.w.wellId === corr.referenceId);
 
-  if (!unit) return null;
+  if (!unit) return <p className="text-sm text-muted-foreground">Correlation map: no sand units were picked from the gamma-ray logs, so there is nothing to plot.</p>;
   if (pts.length < 2) return <p className="text-sm text-muted-foreground">Map view needs coordinates for at least two correlated wells.</p>;
 
   const bounds = pts.map(p => [p.lat, p.lng] as [number, number]);
 
   return (
     <div className="space-y-2">
+      <h4 className="text-sm font-semibold">Correlation map (plan view)</h4>
       <div className="flex flex-wrap items-center gap-3 text-sm">
         <label className="text-muted-foreground">Sand unit</label>
         <select value={unit.id} onChange={e => setUnitId(e.target.value)} className="bg-background border border-border rounded px-2 py-1">

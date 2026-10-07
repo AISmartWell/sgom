@@ -233,7 +233,7 @@ export default function PilotProject() {
 
           <section className="glass-card rounded-xl p-6 space-y-2">
             <h3 className="font-semibold">Horizon correlation panel</h3>
-            {!corr ? <p className="text-sm text-muted-foreground">Correlation needs gamma-ray logs in at least two pilot wells.</p> : (
+            {!corr ? <p className="text-sm text-muted-foreground">Correlation and the correlation map need gamma-ray logs in at least two pilot wells (with coordinates for the map).</p> : (
               <>
                 <CorrelationMap corr={corr} wells={rows.map(r => ({ id: r.w.id, latitude: (r.w as any).latitude ?? null, longitude: (r.w as any).longitude ?? null }))} />
 
