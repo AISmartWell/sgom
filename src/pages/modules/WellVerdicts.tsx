@@ -43,8 +43,9 @@ const WellVerdicts = () => {
       .slice(0, 300)
       .map((w) => {
         const r = sptScreening(w);
+        const suit = sptSuitability(w);
         const last = calls.find((c) => c.well_ref && (c.well_ref === w.well_name || c.well_ref === w.api_number));
-        return { w, r, last };
+        return { w, r, suit, last };
       });
   }, [wells, calls, q]);
 
@@ -73,6 +74,7 @@ const WellVerdicts = () => {
         <TabsList>
           <TabsTrigger value="verdict">Well verdict</TabsTrigger>
           <TabsTrigger value="screening">SPT screening</TabsTrigger>
+          <TabsTrigger value="suitability">Maxxwell criteria</TabsTrigger>
         </TabsList>
         <TabsContent value="verdict">
           <Card className="glass-card"><CardContent className="pt-6">
@@ -82,7 +84,7 @@ const WellVerdicts = () => {
                 <TableHead>Verdict</TableHead><TableHead>Maxxwell criteria</TableHead><TableHead>Confidence</TableHead><TableHead>Last returned via API</TableHead>
               </TableRow></TableHeader>
               <TableBody>
-                {rows.map(({ w, r, last }) => (
+                {rows.map(({ w, r, suit, last }) => (
                   <TableRow key={w.id}>
                     <TableCell className="font-medium">{w.well_name ?? "—"}</TableCell>
                     <TableCell className="text-xs">{w.api_number ?? "—"}</TableCell>
@@ -118,6 +120,46 @@ const WellVerdicts = () => {
               </TableBody>
             </Table>
           </CardContent></Card>
+        </TabsContent>
+        <TabsContent value="suitability">
+          <Card className="glass-card">
+            <CardHeader>
+              <CardTitle className="text-base">Well suitability — Maxxwell operational criteria</CardTitle>
+              <p className="text-xs text-muted-foreground">
+                Screening guidance from Maxxwell Production's documented "preferred wells" criteria. PRELIMINARY — it does not change the SPT verdict; expert confirmation is a separate service.
+              </p>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader><TableRow>
+                  <TableHead>Well</TableHead>
+                  <TableHead>Suitability</TableHead>
+                  <TableHead>Operation period</TableHead>
+                  <TableHead>Water problems</TableHead>
+                  <TableHead>Current inflow</TableHead>
+                  <TableHead>Opening method</TableHead>
+                  <TableHead>Reservoirs</TableHead>
+                </TableRow></TableHeader>
+                <TableBody>
+                  {rows.map(({ w, suit }) => (
+                    <TableRow key={w.id}>
+                      <TableCell className="font-medium">{w.well_name ?? w.api_number ?? "—"}</TableCell>
+                      <TableCell><Badge variant={suitVariant(suit.labelTone)}>{suit.label}</Badge></TableCell>
+                      {["operation_period", "no_water_problems", "current_inflow", "opening_method", "reservoirs"].map((id) => {
+                        const c = suit.checks.find((x) => x.id === id)!;
+                        return (
+                          <TableCell key={id} className={`text-xs ${c.state === "unknown" ? "text-muted-foreground" : ""}`} title={c.detail}>
+                            {c.state === "met" ? "✓ " : c.state === "not_met" ? "✕ " : c.state === "caution" ? "! " : ""}
+                            {c.detail}
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>
