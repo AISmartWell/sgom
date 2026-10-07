@@ -1826,12 +1826,18 @@ export type Database = {
         }
         Returns: undefined
       }
+      can_import_well: { Args: { _well_id: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      import_maxxwell_batch: { Args: { p_items: Json }; Returns: number }
+      replace_well_logs: {
+        Args: { p_base: number; p_rows: Json; p_top: number; p_well_id: string }
+        Returns: number
       }
       search_sgom_knowledge: {
         Args: { match_count?: number; q: string }
