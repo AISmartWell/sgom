@@ -11,6 +11,7 @@ import blueprintLiner from "@/assets/spt-blueprint-liner.jpg";
 import blueprintInflow from "@/assets/spt-blueprint-inflow.jpg";
 import blueprintBeforeAfter from "@/assets/spt-blueprint-before-after.jpg";
 import CementBondCard from "@/components/spt-projection/CementBondCard";
+import WellboreSchematic from "@/components/spt/WellboreSchematic";
 
 /**
  * SPT Slot Cutting Plan — any company well (defaults to Brawner 10-15), DRAFT built from the measured
@@ -363,6 +364,61 @@ const SPTSlotPlan = () => {
           <p className="text-xs text-muted-foreground">
             * Design defaults by priority (Primary Sw ≤ 30%, Secondary ≤ 45%, Caution above). Slot length 12 in. To be confirmed.
           </p>
+        </CardContent>
+      </Card>
+
+      <Card className="glass-card">
+        <CardHeader>
+          <CardTitle className="text-base flex flex-wrap items-center gap-2">
+            Wellbore schematic — how SPT is executed on this well
+            <Badge variant="outline" className="text-warning border-warning/40">DRAFT</Badge>
+          </CardTitle>
+          <p className="text-xs text-muted-foreground">Planned slot intervals (right, colored by priority) against existing perforations (left) and TD. Depths from the measured log; slot geometry is a design default.</p>
+        </CardHeader>
+        <CardContent>
+          {intervals.length === 0 && perfs.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No intervals or perforations to draw.</p>
+          ) : (
+            <WellboreSchematic
+              intervals={intervals}
+              perfs={perfs}
+              logTop={logs[0]?.measured_depth ?? 0}
+              totalDepth={depth}
+            />
+          )}
+        </CardContent>
+      </Card>
+
+      <Card className="glass-card">
+        <CardHeader>
+          <CardTitle className="text-base flex flex-wrap items-center gap-2">
+            Step-by-step SPT work sequence
+            <Badge variant="outline" className="text-warning border-warning/40">DRAFT</Badge>
+          </CardTitle>
+          <p className="text-xs text-muted-foreground">Standard hydro-slotting sequence applied to this well's intervals, cut bottom-up. Durations are planning estimates; the engineered program is issued by the SPT service engineer.</p>
+        </CardHeader>
+        <CardContent>
+          {intervals.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No pay intervals to plan.</p>
+          ) : (
+            <ol className="space-y-3 text-sm">
+              <li className="flex gap-3"><span className="shrink-0 h-6 w-6 rounded-full bg-primary/20 text-primary text-xs font-bold flex items-center justify-center">1</span><div><span className="font-medium">Well preparation.</span> Kill the well, pull tubing and rods, run gauge ring and scraper to TD {depth.toLocaleString()} ft, circulate clean fluid. Confirm casing ID and cement quality across target intervals (CBL — see cement bond section).</div></li>
+              <li className="flex gap-3"><span className="shrink-0 h-6 w-6 rounded-full bg-primary/20 text-primary text-xs font-bold flex items-center justify-center">2</span><div><span className="font-medium">Run in hole with the hydro-slotting tool.</span> RIH on tubing to the deepest interval, {intervals[intervals.length - 1].top}–{intervals[intervals.length - 1].bottom} ft. Depth tie-in with GR/CCL correlation log.</div></li>
+              {intervals.map((i, idx) => (
+                <li key={i.top} className="flex gap-3">
+                  <span className="shrink-0 h-6 w-6 rounded-full bg-primary/20 text-primary text-xs font-bold flex items-center justify-center">{idx + 3}</span>
+                  <div>
+                    <span className="font-medium">Cut interval {i.top}–{i.bottom} ft</span>
+                    <Badge variant="outline" className={`ml-2 ${pc(i.priority)}`}>{i.priority}</Badge>
+                    <span className="text-muted-foreground"> — ≈ {Math.round(Math.max(i.bottom - i.top, 2) * i.slotsPerFt).toLocaleString()} slots ({i.slotsPerFt}/ft, {i.slotWidthIn} in wide, 12 in long, 360° phasing). Abrasive jet cutting at design pump pressure; monitor returns for sand and fluid. {i.perforated === "none" ? "Interval is not perforated — bypassed pay, main target." : "Interval already has perforations — slots restore inflow."}</span>
+                  </div>
+                </li>
+              ))}
+              <li className="flex gap-3"><span className="shrink-0 h-6 w-6 rounded-full bg-primary/20 text-primary text-xs font-bold flex items-center justify-center">{intervals.length + 3}</span><div><span className="font-medium">Flush and pull out of hole.</span> Circulate cuttings out, POOH with the tool, run final gauge ring.</div></li>
+              <li className="flex gap-3"><span className="shrink-0 h-6 w-6 rounded-full bg-primary/20 text-primary text-xs font-bold flex items-center justify-center">{intervals.length + 4}</span><div><span className="font-medium">Completion and flow-back.</span> Run production tubing, swab/flow the well, measure initial rate — this is the actual q<sub>oil</sub> the platform compares against the SPT prediction (Stage 6 calibration loop).</div></li>
+            </ol>
+          )}
+          <p className="text-xs text-muted-foreground mt-4">Cutting order is bottom-up so debris never covers an uncut interval. Safety and emergency procedures follow the operator HSE plan (see Technical Project section below).</p>
         </CardContent>
       </Card>
 
