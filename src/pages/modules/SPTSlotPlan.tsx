@@ -7,6 +7,7 @@ import { Download, Loader2, Scissors, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SW_HIGH } from "@/lib/spt-log-ranking";
 import { haversineMiles, isInjectionWell, pressureAtDepth, temperatureAtDepth } from "@/lib/spt-interval-conditions";
+import { sptSuitability, MAXXWELL_DECLINE_CAUSES, type SuitState } from "@/lib/spt-suitability";
 import blueprintLiner from "@/assets/spt-blueprint-liner.jpg";
 import blueprintInflow from "@/assets/spt-blueprint-inflow.jpg";
 import blueprintBeforeAfter from "@/assets/spt-blueprint-before-after.jpg";
@@ -26,13 +27,14 @@ const SPT_LIBRARY_MAX_FT = 5400;
 
 interface LogPt { measured_depth: number; gamma_ray: number | null; resistivity: number | null; porosity: number | null; water_saturation: number | null }
 interface Perf { depth_from: number; depth_to: number; shots_per_foot: number | null; phasing: number | null; status: string | null; notes: string | null }
+interface ProdRow { production_month: string; oil_bbl: number | null; gas_mcf: number | null; water_bbl: number | null; days_on: number | null }
 
 type Priority = "Primary" | "Secondary" | "Caution";
 interface CutInterval {
   top: number; bottom: number; n: number;
   phi: number; sw: number; gr: number; rt: number;
   perforated: "none" | "partial" | "full";
-  priority: Priority; slotsPerFt: number; slotWidthIn: number;
+  priority: Priority; nozzles: 2 | 4;
 }
 
 const avg = (a: number[]) => a.reduce((s, v) => s + v, 0) / (a.length || 1);
@@ -74,7 +76,7 @@ const SPTSlotPlan = () => {
     queryFn: async () => {
       const { data: wells, error: we } = await supabase
         .from("wells")
-        .select("id, well_name, api_number, formation, total_depth, well_type, status, county, state, operator, latitude, longitude")
+        .select("id, well_name, api_number, formation, total_depth, well_type, status, county, state, operator, latitude, longitude, spud_date, completion_date")
         .eq("id", selectedId!)
         .limit(1);
       if (we) throw we;
@@ -87,7 +89,7 @@ const SPTSlotPlan = () => {
             .gte("longitude", well.longitude - R).lte("longitude", well.longitude + R)
             .neq("id", well.id).limit(1000)
         : Promise.resolve({ data: [], error: null });
-      const [{ data: logs, error: le }, { data: perfs, error: pe }, { data: nearby }, { data: water }] = await Promise.all([
+      const [{ data: logs, error: le }, { data: perfs, error: pe }, { data: nearby }, { data: water }, { data: prodHist }] = await Promise.all([
         supabase.from("well_logs")
           .select("measured_depth, gamma_ray, resistivity, porosity, water_saturation")
           .eq("well_id", well.id).order("measured_depth"),
@@ -96,6 +98,9 @@ const SPTSlotPlan = () => {
           .eq("well_id", well.id).order("depth_from"),
         nearbyQ,
         supabase.from("well_water_inputs").select("reservoir_pressure_psi, pressure_datum_ft, bht_f, bht_depth_ft, surface_temp_f").eq("well_id", well.id).maybeSingle(),
+        supabase.from("production_history")
+          .select("production_month, oil_bbl, gas_mcf, water_bbl, days_on")
+          .eq("well_id", well.id).order("production_month", { ascending: false }).limit(3),
       ]);
       const injectors = ((nearby ?? []) as { id: string; well_name: string | null; api_number: string | null; well_type: string | null; status: string | null; latitude: number | null; longitude: number | null }[])
         .filter((w) => isInjectionWell(w.well_type) && w.latitude != null && w.longitude != null)
@@ -103,7 +108,7 @@ const SPTSlotPlan = () => {
         .sort((a, b) => a.miles - b.miles);
       if (le) throw le;
       if (pe) throw pe;
-      return { well, logs: (logs ?? []) as LogPt[], perfs: (perfs ?? []) as Perf[], injectors, water };
+      return { well, logs: (logs ?? []) as LogPt[], perfs: (perfs ?? []) as Perf[], injectors, water, prodHist: (prodHist ?? []) as ProdRow[] };
     },
   });
 
@@ -130,14 +135,17 @@ const SPTSlotPlan = () => {
         phi: avg(g.map((p) => p.porosity!)), sw,
         gr: avg(g.map((p) => p.gamma_ray!)), rt: avg(g.map((p) => p.resistivity ?? 0)),
         perforated, priority,
-        slotsPerFt: priority === "Primary" ? 60 : priority === "Secondary" ? 50 : 40,
-        slotWidthIn: priority === "Primary" ? 0.02 : priority === "Secondary" ? 0.016 : 0.012,
+        // Maxxwell tool geometry: 4 nozzles on Primary intervals for the largest
+        // opening area, 2 elsewhere. Continuous slots, not discrete shots.
+        nozzles: priority === "Primary" ? 4 : 2,
       };
     });
   }, [data]);
 
   const netPay = intervals.reduce((s, i) => s + Math.max(i.bottom - i.top, 2), 0);
-  const totalSlots = Math.round(intervals.reduce((s, i) => s + Math.max(i.bottom - i.top, 2) * i.slotsPerFt, 0));
+  // Maxxwell documented cutting speed: ~60 min/ft in cased holes, 30 min/ft open hole.
+  const totalCutHr = Math.round(netPay); // 60 min/ft → hours ≈ footage
+  const totalArea = Math.round(intervals.reduce((s, i) => s + Math.max(i.bottom - i.top, 2) * (i.nozzles === 4 ? 42.8 : 21.4), 0));
 
   const pageRef = useRef<HTMLDivElement>(null);
   const [pdfBusy, setPdfBusy] = useState(false);
