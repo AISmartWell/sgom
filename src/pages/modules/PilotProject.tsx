@@ -32,7 +32,7 @@ async function loadWells(): Promise<W[]> {
   if (!ids.length) return [];
   const all: W[] = [];
   for (let o = 0; ; o += 1000) {
-    const { data, error: e } = await supabase.from("wells").select("id, company_id, well_name, api_number, total_depth, well_type, water_cut, production_oil, production_gas, latitude, longitude").in("company_id", ids).order("well_name").order("id").range(o, o + 999);
+    const { data, error: e } = await supabase.from("wells").select("id, company_id, well_name, api_number, total_depth, well_type, water_cut, production_oil, production_gas, latitude, longitude, altitude_ft").in("company_id", ids).order("well_name").order("id").range(o, o + 999);
     if (e) throw e;
     all.push(...(data ?? []));
     if ((data ?? []).length < 1000) break;
