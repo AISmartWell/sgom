@@ -458,7 +458,7 @@ const SPTSlotPlan = () => {
                   <div>
                     <span className="font-medium">Cut interval {i.top}–{i.bottom} ft</span>
                     <Badge variant="outline" className={`ml-2 ${pc(i.priority)}`}>{i.priority}</Badge>
-                    <span className="text-muted-foreground"> — ≈ {Math.round(Math.max(i.bottom - i.top, 2) * i.slotsPerFt).toLocaleString()} slots ({i.slotsPerFt}/ft, {i.slotWidthIn} in wide, 12 in long, 360° phasing). Abrasive jet cutting at design pump pressure; monitor returns for sand and fluid. {i.perforated === "none" ? "Interval is not perforated — bypassed pay, main target." : "Interval already has perforations — slots restore inflow."}</span>
+                    <span className="text-muted-foreground"> — ≈ {Math.max(i.bottom - i.top, 2).toLocaleString()} ft of continuous slots cut with {i.nozzles} nozzles (Maxxwell geometry: slot length ≈ 1.64 ft per rod pass, slot width ≈ 1 in, cut depth up to 5 ft, opening ≈ {(i.nozzles === 4 ? 42.8 : 21.4).toFixed(1)} ft² per linear ft). Cutting ≈ {Math.max(i.bottom - i.top, 2).toLocaleString()} hr at ≈ 60 min/ft (cased hole) with abrasive quartz sand in produced water — no proppant, no detonation. {i.perforated === "none" ? "Interval is not perforated — bypassed pay, main target." : "Interval already has perforations — slots restore inflow."}</span>
                   </div>
                 </li>
               ))}
@@ -621,6 +621,41 @@ const SPTSlotPlan = () => {
               </table>
             </div>
           ))}
+        </CardContent>
+      </Card>
+
+      <Card className="glass-card">
+        <CardHeader>
+          <CardTitle className="text-base">Opening methods compared — why SPT</CardTitle>
+          <p className="text-xs text-muted-foreground">Vendor data from the Maxxwell Production HSP presentation (US 8,863,823 / US 8,240,369). Effect claims are vendor-reported, not independently verified by SGOM — PRELIMINARY.</p>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm min-w-[640px]">
+              <thead>
+                <tr className="text-left text-xs text-muted-foreground border-b border-border/40">
+                  <th className="py-2 pr-4">Method</th><th className="py-2 pr-4">Penetration depth</th><th className="py-2 pr-4">Opening area</th><th className="py-2">Drawbacks / advantages</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  ["Gun perforation", "5.9 in (0.3 ft)", "≈ 18 in² per hole", "Detonation impact, casing and cement cracks, border clog-up"],
+                  ["Jet perforation", "5.9 in (0.3 ft)", "≈ 18 in² per hole", "Same detonation drawbacks"],
+                  ["Shooting perforation", "4.72 in", "≈ 0.53 in² per hole", "Smallest opening of all methods"],
+                  ["Abrasive (point) jet perforation", "7.87 in", "≈ 15 in² per hole", "Does not unload near-wellbore stress; holes do not deepen with time"],
+                  ["SPT continuous slots (Maxxwell)", "up to 5 ft (1.5 m)", "up to 42.8 ft² per linear ft (4 nozzles)", "Controlled process — no detonation, no casing damage, no cement cracks; works near water reservoirs where fracturing is impossible"],
+                ].map(([m, d, a, n]) => (
+                  <tr key={m} className="border-b border-border/20 align-top">
+                    <td className={`py-2 pr-4 font-medium ${m.startsWith("SPT") ? "text-primary" : ""}`}>{m}</td>
+                    <td className="py-2 pr-4">{d}</td>
+                    <td className="py-2 pr-4">{a}</td>
+                    <td className="py-2 text-muted-foreground">{n}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="text-xs text-muted-foreground mt-3">Maxxwell-reported effect of SPT slotting: unloading of annular compressive stress in the near-wellbore zone up to 50–100%, permeability increase 30–50%, useful inflow increase up to 5–10×, effect duration 10–15+ years. Stress redistribution is driven by slot depth of ~1–3.3 ft.</p>
         </CardContent>
       </Card>
 
