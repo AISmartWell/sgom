@@ -1,0 +1,1 @@
+ALTER TABLE public.wells ADD COLUMN altitude_ft numeric; COMMENT ON COLUMN public.wells.altitude_ft IS 'Wellhead elevation above sea level, feet (from client location map).';

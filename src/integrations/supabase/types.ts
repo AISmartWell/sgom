@@ -1724,6 +1724,7 @@ export type Database = {
       }
       wells: {
         Row: {
+          altitude_ft: number | null
           api_number: string | null
           company_id: string
           completion_date: string | null
@@ -1748,6 +1749,7 @@ export type Database = {
           well_type: string | null
         }
         Insert: {
+          altitude_ft?: number | null
           api_number?: string | null
           company_id: string
           completion_date?: string | null
@@ -1772,6 +1774,7 @@ export type Database = {
           well_type?: string | null
         }
         Update: {
+          altitude_ft?: number | null
           api_number?: string | null
           company_id?: string
           completion_date?: string | null
