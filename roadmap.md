@@ -25,6 +25,7 @@
 ## Open
 - [ ] Casing Program: menu page, per-well company-scoped storage, editable strings and cementing, schematic and PDF export.
 - [x] Stage 6 log-based SPT ranking (Stage 8 solver) with high-Sw / low-k risk intervals.
+- [x] Integrate Maxxwell HSP presentation: well-suitability criteria (SPT Slot Plan + Well Verdicts), documented slot geometry replacing the 40–60 slots/ft default, opening-methods comparison table, patent US 8,240,369 alongside US 8,863,823.
 - [x] Injection & Water Salinity saved per well in the database, shared within the company; Stage 6/8 read it.
 - [x] Upstrima integration docs: OpenAPI 3.0 spec for the sandbox API + Section 2 data/security response (Upstrima_Sandbox_OpenAPI.yaml, Upstrima_Section2_Data_Security_Response.md in Files).
 - [ ] Recalculate SLB slotted-liner SPT review on real curves + RU/EN client PDF (waits on the LAS file for that well).

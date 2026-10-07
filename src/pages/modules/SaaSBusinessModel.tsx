@@ -122,10 +122,10 @@ const revenueTiers = [
 const moatItems = [
   {
     title: "Patented SPT Technology",
-    description: "US Patent 8,863,823 for Slot Perforation Technology. Proprietary EOR method with proven 2-3x production uplift.",
+    description: "US Patents 8,863,823 & 8,240,369 for Slot Perforation Technology. Proprietary EOR method with proven 2-3x production uplift.",
     icon: Shield,
-    stat: "US 8,863,823",
-    statLabel: "granted patent",
+    stat: "8,863,823 + 8,240,369",
+    statLabel: "granted patents",
   },
   {
     title: "SGOM Physics AI Stack · NVIDIA NIM",
