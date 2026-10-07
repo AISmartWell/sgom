@@ -71,3 +71,22 @@ export const flagLabel: Record<CellFlag, string> = {
   ok: "Correlated", missing: "Missing (possible pinch-out / fault)", offset: "Depth offset > tolerance",
   thinning: "Thinning < 30% of median", no_coverage: "Outside logged interval",
 };
+
+/** Great-circle distance in km between two lat/long points. */
+export function distanceKm(aLat: number, aLon: number, bLat: number, bLon: number): number {
+  const r = (d: number) => (d * Math.PI) / 180;
+  const h = Math.sin(r(bLat - aLat) / 2) ** 2 + Math.cos(r(aLat)) * Math.cos(r(bLat)) * Math.sin(r(bLon - aLon) / 2) ** 2;
+  return 2 * 6371 * Math.asin(Math.sqrt(h));
+}
+export type TieReliability = "high" | "moderate" | "tentative" | "unknown";
+/** Spacing-based confidence of a sand tie to the reference well (screening heuristic, not a geological rule). */
+export function tieReliability(km: number | null): TieReliability {
+  if (km == null) return "unknown";
+  return km <= 0.5 ? "high" : km <= 3 ? "moderate" : "tentative";
+}
+export const tieLabel: Record<TieReliability, string> = {
+  high: "Close spacing: tie reliable",
+  moderate: "Moderate spacing: check for offsets",
+  tentative: "Wide spacing: tie tentative, geophysicist to confirm",
+  unknown: "No coordinates: spacing unknown",
+};

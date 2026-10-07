@@ -13,7 +13,7 @@ import { useUserRole } from "@/hooks/useUserRole";
 import type { WellLogPoint } from "@/hooks/useWellLogs";
 import { parseLAS, mapLasToWellLogs } from "@/lib/las-parser";
 import { auditLog, qcLabel, type LogQc } from "@/lib/log-qc-audit";
-import { correlate, pickSands, flagLabel, type Correlation } from "@/lib/well-correlation";
+import { correlate, pickSands, flagLabel, distanceKm, tieReliability, tieLabel, type Correlation } from "@/lib/well-correlation";
 import { sptScreening, wellVerdictLabel } from "@/lib/spt-sandbox-verdict";
 import { rankFromLogs, fluidOf, type LogRankResult } from "@/lib/spt-log-ranking";
 import { downloadReportPdf } from "@/lib/report-pdf";
@@ -32,7 +32,7 @@ async function loadWells(): Promise<W[]> {
   if (!ids.length) return [];
   const all: W[] = [];
   for (let o = 0; ; o += 1000) {
-    const { data, error: e } = await supabase.from("wells").select("id, company_id, well_name, api_number, total_depth, well_type, water_cut, production_oil, production_gas").in("company_id", ids).order("well_name").order("id").range(o, o + 999);
+    const { data, error: e } = await supabase.from("wells").select("id, company_id, well_name, api_number, total_depth, well_type, water_cut, production_oil, production_gas, latitude, longitude").in("company_id", ids).order("well_name").order("id").range(o, o + 999);
     if (e) throw e;
     all.push(...(data ?? []));
     if ((data ?? []).length < 1000) break;
@@ -243,6 +243,13 @@ export default function PilotProject() {
                     <tr key={u.id} className="border-t border-border"><td className="py-1">{u.id}</td><td>{fmt(u.refTop)}–{fmt(u.refBase)}</td>{corr.wells.map(w => { const c = u.cells[w.wellId]; return <td key={w.wellId} className={c?.flag === "ok" ? "" : "text-muted-foreground"}>{c?.sand ? `${fmt(c.sand.top)} (${c.sand.thickness} ft)` : "—"}{c && c.flag !== "ok" && <div className="text-[10px]">{flagLabel[c.flag]}</div>}</td>; })}</tr>
                   ))}</tbody>
                 </table>
+                {(() => { const ref = rows.find(r => r.w.id === corr.referenceId)?.w as any; return (
+                  <table className="w-full text-xs mt-2">
+                    <thead className="text-muted-foreground text-left"><tr><th className="py-1">Well</th><th>Distance to reference</th><th>Tie reliability</th></tr></thead>
+                    <tbody>{corr.wells.filter(w => w.wellId !== corr.referenceId).map(w => { const ww = rows.find(r => r.w.id === w.wellId)?.w as any; const km = ref?.latitude != null && ref?.longitude != null && ww?.latitude != null && ww?.longitude != null ? distanceKm(+ref.latitude, +ref.longitude, +ww.latitude, +ww.longitude) : null; return (
+                      <tr key={w.wellId} className="border-t border-border"><td className="py-1">{w.name}</td><td>{km == null ? "—" : `${km.toFixed(2)} km (${Math.round(km * 3280.84).toLocaleString()} ft)`}</td><td>{tieLabel[tieReliability(km)]}</td></tr>); })}</tbody>
+                  </table>); })()}
+                <p className="text-xs text-muted-foreground">Spacing thresholds (≤0.5 km reliable, ≤3 km check offsets, &gt;3 km tentative) are a screening heuristic from well coordinates.</p>
                 <p className="text-xs text-muted-foreground">Candidate sand units auto-picked from GR and matched by depth to the reference well. No formation names are assigned; faults and pinch-outs must be confirmed by a geophysicist.</p>
               </>
             )}
