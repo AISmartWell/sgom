@@ -73,7 +73,7 @@ export default function MaxxwellImport() {
         casing: b.casing.length ? JSON.parse(JSON.stringify([...b.casing].sort((a, z) => a.top_ft - z.top_ft || z.od_in - a.od_in))) : null,
       }));
       // One transaction: either every well is written or nothing is.
-      const { error } = await supabase.rpc("import_maxxwell_batch", { p_items: items });
+      const { error } = await supabase.rpc("import_maxxwell_batch", { p_items: items as any });
       if (error) throw new Error(`Nothing was imported: ${error.message}`);
       ready.forEach(({ w }) => w && ok.push({ name: w.well_name ?? w.api_number ?? w.id, id: w.id }));
       toast.success(`Imported ${ok.length} well(s)`);
