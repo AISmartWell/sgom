@@ -213,7 +213,10 @@ const SPTSlotPlan = () => {
   if (error) return <div className="p-8 space-y-4">{picker}<div className="text-destructive">Failed to load well data: {(error as Error).message}</div></div>;
   if (!data) return <div className="p-8 space-y-4">{picker}<div className="text-muted-foreground">This well is not available for your company.</div></div>;
 
-  const { well, logs, perfs, injectors, water } = data;
+  const { well, logs, perfs, injectors, water, prodHist } = data;
+  const latestProd = prodHist?.[0];
+  const latestRate = latestProd?.days_on ? (latestProd.oil_bbl ?? 0) / latestProd.days_on : latestProd?.oil_bbl != null ? latestProd.oil_bbl / 30.4 : null;
+  const suit = sptSuitability(well, latestRate);
   const nearestInj = injectors[0];
   const hasPT = !!(water?.reservoir_pressure_psi && water?.pressure_datum_ft);
   const ptAt = (d: number) => ({
@@ -272,7 +275,7 @@ const SPTSlotPlan = () => {
       <div className="flex items-start gap-2 text-xs text-muted-foreground border border-border/40 rounded-lg p-3">
         <AlertTriangle className="h-4 w-4 text-warning shrink-0" />
         Pay intervals, porosity, Sw and perforation status come from the well's measured composite log and 1997 completion records.
-        Slot density, width and phasing are SPT design defaults by priority — they must be confirmed by a geophysicist and the operator before field use.
+        Slot geometry follows the Maxxwell tool specification (US 8,863,823 / US 8,240,369): continuous slots cut along the wellbore with 2 or 4 nozzles — nozzle count and cut program must be confirmed by a geophysicist and the SPT engineer before field use.
       </div>
 
       <Card className="glass-card">
@@ -290,6 +293,43 @@ const SPTSlotPlan = () => {
               ))}
             </tbody>
           </table>
+        </CardContent>
+      </Card>
+
+      <Card className="glass-card">
+        <CardHeader>
+          <CardTitle className="text-base flex flex-wrap items-center justify-between gap-2">
+            Well suitability for SPT — Maxxwell operational criteria
+            <Badge variant="outline" className={suit.labelTone === "success" ? "text-success border-success/40" : suit.labelTone === "warning" ? "text-warning border-warning/40" : suit.labelTone === "destructive" ? "text-destructive border-destructive/40" : ""}>{suit.label}</Badge>
+          </CardTitle>
+          <p className="text-xs text-muted-foreground">Screening guidance from Maxxwell Production's documented "preferred wells" criteria. PRELIMINARY — it does not change the SPT verdict; expert confirmation is a separate service.</p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <table className="w-full text-sm">
+            <thead><tr className="text-left text-xs text-muted-foreground border-b border-border/40"><th className="py-2 pr-4 w-8"></th><th className="py-2 pr-4">Criterion</th><th className="py-2">Assessment</th></tr></thead>
+            <tbody>
+              {suit.checks.map((c) => (
+                <tr key={c.id} className="border-b border-border/20">
+                  <td className={`py-2 pr-4 font-bold ${c.state === "met" ? "text-success" : c.state === "not_met" ? "text-destructive" : c.state === "caution" ? "text-warning" : "text-muted-foreground"}`}>
+                    {c.state === "met" ? "✓" : c.state === "not_met" ? "✕" : c.state === "caution" ? "!" : "—"}
+                  </td>
+                  <td className="py-2 pr-4 font-medium">{c.label}</td>
+                  <td className={`py-2 text-xs ${c.state === "unknown" ? "text-muted-foreground" : ""}`}>{c.detail}{c.state === "unknown" ? <span className="ml-2 italic">Data gap</span> : null}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="space-y-2">
+            <h3 className="font-semibold text-sm">Possible decline causes on record</h3>
+            {suit.declineCauses.length === 0 ? (
+              <p className="text-xs text-muted-foreground">No data-driven cause identified from well records. The full Maxxwell cause checklist:</p>
+            ) : (
+              <ul className="list-disc pl-5 text-sm space-y-1">
+                {suit.declineCauses.map((c) => <li key={c.cause}>{c.cause} <span className="text-muted-foreground">({c.evidence})</span></li>)}
+              </ul>
+            )}
+            <p className="text-xs text-muted-foreground">{MAXXWELL_DECLINE_CAUSES.join(" · ")}</p>
+          </div>
         </CardContent>
       </Card>
 
