@@ -6,15 +6,19 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { sptScreening, wellVerdictLabel, type SptVerdict } from "@/lib/spt-sandbox-verdict";
+import { sptSuitability } from "@/lib/spt-suitability";
 
 type Well = {
   id: string; well_name: string | null; api_number: string | null; state: string; status: string | null;
   well_type: string | null; total_depth: number | null; water_cut: number | null;
   production_oil: number | null; production_gas: number | null;
+  spud_date: string | null; completion_date: string | null;
 };
 type ApiCall = { well_ref: string | null; action: string; verdict: string | null; created_at: string };
 
 const variant = (v: SptVerdict) => (v === "candidate" ? "default" : v === "conditional" ? "secondary" : "destructive") as "default" | "secondary" | "destructive";
+const suitVariant = (tone: string) => (tone === "success" ? "default" : tone === "warning" ? "secondary" : tone === "destructive" ? "destructive" : "outline") as "default" | "secondary" | "destructive" | "outline";
+const suitCell = (w: Well, id: string) => sptSuitability(w).checks.find((c) => c.id === id);
 
 const WellVerdicts = () => {
   const [wells, setWells] = useState<Well[]>([]);
@@ -24,7 +28,7 @@ const WellVerdicts = () => {
   useEffect(() => {
     (async () => {
       const [w, c] = await Promise.all([
-        supabase.from("wells").select("id, well_name, api_number, state, status, well_type, total_depth, water_cut, production_oil, production_gas").order("well_name").limit(2000),
+        supabase.from("wells").select("id, well_name, api_number, state, status, well_type, total_depth, water_cut, production_oil, production_gas, spud_date, completion_date").order("well_name").limit(2000),
         supabase.from("api_call_log").select("well_ref, action, verdict, created_at").in("action", ["spt_screening", "well_verdict"]).is("error_code", null).order("created_at", { ascending: false }).limit(500),
       ]);
       setWells((w.data as Well[]) ?? []);
@@ -75,7 +79,7 @@ const WellVerdicts = () => {
             <Table>
               <TableHeader><TableRow>
                 <TableHead>Well</TableHead><TableHead>API</TableHead><TableHead>Depth, ft</TableHead>
-                <TableHead>Verdict</TableHead><TableHead>Confidence</TableHead><TableHead>Last returned via API</TableHead>
+                <TableHead>Verdict</TableHead><TableHead>Maxxwell criteria</TableHead><TableHead>Confidence</TableHead><TableHead>Last returned via API</TableHead>
               </TableRow></TableHeader>
               <TableBody>
                 {rows.map(({ w, r, last }) => (
@@ -84,6 +88,7 @@ const WellVerdicts = () => {
                     <TableCell className="text-xs">{w.api_number ?? "—"}</TableCell>
                     <TableCell>{w.total_depth ?? "—"}</TableCell>
                     <TableCell><Badge variant={variant(r.verdict)}>{wellVerdictLabel(r.verdict)}</Badge></TableCell>
+                    <TableCell><Badge variant={suitVariant(suit.labelTone)}>{suit.label}</Badge></TableCell>
                     <TableCell className="text-sm">{r.confidence}</TableCell>
                     <TableCell className="text-xs text-muted-foreground">{last ? `${last.verdict} · ${new Date(last.created_at).toLocaleString()}` : "—"}</TableCell>
                   </TableRow>
