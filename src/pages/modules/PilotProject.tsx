@@ -113,12 +113,9 @@ export default function PilotProject() {
       const curves = ["gamma_ray", "resistivity", "porosity", "density", "neutron_porosity"].filter(c => mapped.some(r => (r as any)[c] != null));
       if (!confirm(`${file.name}\n${mapped.length} samples, ${mapped[0].measured_depth}–${mapped.at(-1)!.measured_depth} ft${k !== 1 ? " (converted from m)" : ""}\nCurves: ${curves.join(", ") || "none mapped"}\n\nReplace the log record of ${w.well_name ?? w.api_number} in this depth range?`)) return;
       const depths = mapped.map(r => r.measured_depth);
-      const { error: d } = await supabase.from("well_logs").delete().eq("well_id", w.id).eq("company_id", w.company_id).gte("measured_depth", Math.min(...depths)).lte("measured_depth", Math.max(...depths));
-      if (d) throw d;
-      for (let i = 0; i < mapped.length; i += 500) {
-        const { error } = await supabase.from("well_logs").insert(mapped.slice(i, i + 500).map(r => ({ ...r, well_id: w.id, company_id: w.company_id, source: "las_import" })));
-        if (error) throw error;
-      }
+      // One transaction: old samples in the range are replaced only if every new sample is written.
+      const { error } = await supabase.rpc("replace_well_logs", { p_well_id: w.id, p_top: Math.min(...depths), p_base: Math.max(...depths), p_rows: mapped as any });
+      if (error) throw new Error(`nothing was changed — ${error.message}`);
       toast.success(`Saved ${mapped.length} log samples for ${w.well_name ?? w.api_number}`);
       qc.invalidateQueries({ queryKey: ["pilot-data"] });
     } catch (e: any) {
