@@ -17,6 +17,7 @@ import { correlate, pickSands, flagLabel, distanceKm, tieReliability, tieLabel, 
 import { sptScreening, wellVerdictLabel } from "@/lib/spt-sandbox-verdict";
 import { rankFromLogs, fluidOf, type LogRankResult } from "@/lib/spt-log-ranking";
 import { downloadReportPdf } from "@/lib/report-pdf";
+import { CorrelationMap } from "@/components/pilot/CorrelationMap";
 
 const MAX = 10;
 const STORE = "sgom.pilotProject.wells";
@@ -234,6 +235,8 @@ export default function PilotProject() {
             <h3 className="font-semibold">Horizon correlation panel</h3>
             {!corr ? <p className="text-sm text-muted-foreground">Correlation needs gamma-ray logs in at least two pilot wells.</p> : (
               <>
+                <CorrelationMap corr={corr} wells={rows.map(r => ({ id: r.w.id, latitude: (r.w as any).latitude ?? null, longitude: (r.w as any).longitude ?? null }))} />
+
                 <table className="w-full text-xs">
                   <thead className="text-muted-foreground text-left"><tr><th className="py-1">Unit</th><th>Ref. top–base, ft</th>{corr.wells.map(w => <th key={w.wellId}>{w.name}{w.wellId === corr.referenceId ? " (ref)" : ""}</th>)}</tr></thead>
                   <tbody>{corr.units.map(u => (
