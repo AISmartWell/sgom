@@ -256,7 +256,7 @@ export default function PilotProject() {
             <h3 className="font-semibold">Well spacing (location map data)</h3>
             <p className="text-xs text-muted-foreground">Distances from each pilot well to the nearest producing and nearest injection well of your company, computed from stored coordinates (WGS84).</p>
             <table className="w-full text-xs">
-              <thead className="text-muted-foreground text-left"><tr><th className="py-1">Well</th><th>Nearest producer</th><th>Nearest injector</th></tr></thead>
+              <thead className="text-muted-foreground text-left"><tr><th className="py-1">Well</th><th>Altitude, ft</th><th>Nearest producer</th><th>Nearest injector</th></tr></thead>
               <tbody>{rows.map(r => {
                 const w = r.w as any;
                 const others = (wellsQ.data ?? []).filter(o => o.id !== w.id && (o as any).latitude != null && (o as any).longitude != null);
@@ -267,10 +267,10 @@ export default function PilotProject() {
                 const inj = nearest(others.filter(isInj));
                 const cell = (x: { o: W; km: number | null } | null) => x == null ? "—" : `${x.o.well_name ?? x.o.api_number ?? x.o.id} · ${x.km!.toFixed(2)} km (${Math.round(x.km! * 3280.84).toLocaleString()} ft)`;
                 return (
-                  <tr key={w.id} className="border-t border-border"><td className="py-1">{name(r.w)}</td><td>{w.latitude != null ? cell(prod) : "no coordinates"}</td><td>{w.latitude != null ? cell(inj) : "no coordinates"}</td></tr>);
+                  <tr key={w.id} className="border-t border-border"><td className="py-1">{name(r.w)}</td><td>{w.altitude_ft != null ? fmt(w.altitude_ft, 0) : "—"}</td><td>{w.latitude != null ? cell(prod) : "no coordinates"}</td><td>{w.latitude != null ? cell(inj) : "no coordinates"}</td></tr>);
               })}</tbody>
             </table>
-            <p className="text-xs text-muted-foreground">Injector wells are identified by the well type field; wells without coordinates are skipped. Elevation (altitude) is not stored yet — add it to the well record if the client provides a location map with altitudes.</p>
+            <p className="text-xs text-muted-foreground">Injector wells are identified by the well type field; wells without coordinates are skipped. Altitude is the wellhead elevation above sea level, entered manually in Data Import from the client location map.</p>
           </section>
 
           {rows.map(r => (
