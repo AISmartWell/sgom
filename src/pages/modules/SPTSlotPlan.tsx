@@ -376,7 +376,7 @@ const SPTSlotPlan = () => {
         <CardHeader>
           <CardTitle className="text-base flex flex-wrap items-center justify-between gap-2">
             Slot cutting intervals (from measured log)
-            <Badge variant="outline">Total ≈ {totalSlots.toLocaleString()} slots over ≈ {netPay} ft</Badge>
+            <Badge variant="outline">≈ {netPay.toLocaleString()} ft of continuous slots · ≈ {totalCutHr.toLocaleString()} hr cutting · ≈ {totalArea.toLocaleString()} ft² opening</Badge>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -388,7 +388,7 @@ const SPTSlotPlan = () => {
                 <tr className="text-left text-xs text-muted-foreground border-b border-border/40">
                   <th className="py-2 pr-3">Interval (ft)</th><th className="py-2 pr-3">Priority</th>
                   <th className="py-2 pr-3">φ avg</th><th className="py-2 pr-3">Sw avg</th><th className="py-2 pr-3">GR avg</th><th className="py-2 pr-3">Rt avg</th>
-                  <th className="py-2 pr-3">Completion</th><th className="py-2 pr-3">Slots/ft*</th><th className="py-2 pr-3">Width (in)*</th><th className="py-2">Phasing*</th>
+                  <th className="py-2 pr-3">Completion</th><th className="py-2 pr-3">Nozzles*</th><th className="py-2 pr-3">Cut time (hr)*</th><th className="py-2">Opening (ft²)*</th>
                 </tr>
               </thead>
               <tbody>
@@ -401,16 +401,16 @@ const SPTSlotPlan = () => {
                     <td className="py-2 pr-3">{i.gr.toFixed(0)}</td>
                     <td className="py-2 pr-3">{i.rt.toFixed(0)} Ω·m</td>
                     <td className={`py-2 pr-3 ${i.perforated === "none" ? "text-success" : "text-muted-foreground"}`}>{perfLabel(i.perforated)}</td>
-                    <td className="py-2 pr-3">{i.slotsPerFt}</td>
-                    <td className="py-2 pr-3">{i.slotWidthIn}</td>
-                    <td className="py-2">360°</td>
+                    <td className="py-2 pr-3">{i.nozzles}</td>
+                    <td className="py-2 pr-3">{Math.max(i.bottom - i.top, 2).toLocaleString()}</td>
+                    <td className="py-2">{(Math.max(i.bottom - i.top, 2) * (i.nozzles === 4 ? 42.8 : 21.4)).toLocaleString(undefined, { maximumFractionDigits: 0 })}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           )}
           <p className="text-xs text-muted-foreground">
-            * Design defaults by priority (Primary Sw ≤ 30%, Secondary ≤ 45%, Caution above). Slot length 12 in. To be confirmed.
+            * Geometry from the Maxxwell tool specification (US 8,863,823 / US 8,240,369): continuous slots cut along the wellbore, slot length ≈ 1.64 ft per rod pass, cut depth up to 5 ft, slot width ≈ 1 in, opening 21.4 ft²/ft with 2 nozzles and 42.8 ft²/ft with 4 nozzles, cutting speed ≈ 60 min/ft (cased hole). Primary intervals get 4 nozzles for the largest opening area. Vendor-documented defaults — the final cut program is issued by the SPT service engineer.
           </p>
         </CardContent>
       </Card>
@@ -421,7 +421,7 @@ const SPTSlotPlan = () => {
             Wellbore schematic — how SPT is executed on this well
             <Badge variant="outline" className="text-warning border-warning/40">DRAFT</Badge>
           </CardTitle>
-          <p className="text-xs text-muted-foreground">Planned slot intervals (right, colored by priority) against existing perforations (left) and TD. Depths from the measured log; slot geometry is a design default.</p>
+          <p className="text-xs text-muted-foreground">Planned continuous slot intervals (right, colored by priority) against existing perforations (left) and TD. Depths from the measured log; slot geometry follows the Maxxwell tool specification (2 nozzles, 4 for Primary intervals).</p>
         </CardHeader>
         <CardContent>
           {intervals.length === 0 && perfs.length === 0 ? (
