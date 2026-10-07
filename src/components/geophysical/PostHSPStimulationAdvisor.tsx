@@ -91,7 +91,7 @@ const PostHSPStimulationAdvisor = ({
   }
   if (!facts) return null;
 
-  const waterCut = facts.water_cut;
+  const waterCut = facts.water_cut == null ? null : facts.water_cut <= 1 ? facts.water_cut * 100 : facts.water_cut;
   const highWaterCut = waterCut != null && waterCut > 70;
   const oilDominant = interpretation?.dominantFluid === "oil";
   const hasPay = (interpretation?.netPay ?? 0) > 0;

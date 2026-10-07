@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import EnhancedWellLog from "@/components/well-log/EnhancedWellLog";
+import IllustrativeCompositeLog from "@/components/geophysical/IllustrativeCompositeLog";
 import {
   Satellite, FolderOpen, Microscope, TrendingUp, Waves, Rocket,
   DollarSign, BarChart3, Brain, Play, Pause, RotateCcw, CheckCircle2, ScanText, Lock, FileBarChart, ChevronLeft, ChevronRight, SkipForward,
@@ -103,14 +104,14 @@ const REPORT_STATS = [
   { label: "Net Pay",     value: "52",    unit: "ft", color: "text-emerald-400" },
   { label: "Gross Pay",   value: "52",    unit: "ft", color: "text-primary" },
   { label: "N/G Ratio",   value: "100",   unit: "%",  color: "text-emerald-400" },
-  { label: "Missed Pay",  value: "42",    unit: "ft", color: "text-rose-400" },
+  { label: "Candidate Missed Pay*",  value: "42",    unit: "ft", color: "text-rose-400" },
   { label: "Shale (cap)", value: "117",   unit: "ft", color: "text-rose-400" },
   { label: "Clean Sand",  value: "42",    unit: "ft", color: "text-amber-400" },
   { label: "Total Depth", value: "5,225", unit: "ft", color: "text-sky-400" },
 ];
 
 const REPORT_INTERVALS = [
-  { name: "Clean Sand (MISSED — never perforated)", thickness: "42 ft",  dot: "bg-rose-400" },
+  { name: "Clean Sand (candidate MISSED — verify perforation records)", thickness: "42 ft",  dot: "bg-rose-400" },
   { name: "Silty Sand",  thickness: "10 ft",  dot: "bg-yellow-600" },
   { name: "Shale (seal)",thickness: "117 ft", dot: "bg-rose-400" },
   { name: "Logged interval", thickness: "12 zones", dot: "bg-sky-400" },
@@ -118,10 +119,10 @@ const REPORT_INTERVALS = [
 
 const REPORT_RECOMMENDATIONS = [
   "Net pay confirmed across the upper sand package — no reservoir quality downgrade required.",
-  "42 ft of pay flagged as MISSED: the clean sand interval carries no perforations — bypassed oil confirmed.",
+  "42 ft clean sand is a bypassed-pay candidate only — it cannot be called MISSED until measured perforation records are loaded.",
   "Overlying shale provides an effective seal for a staged treatment.",
-  "Missed interval is the primary SPT target — slot perforation can access bypassed reserves without new drilling.",
-  "Candidate promoted to Stage 9 (EOR Optimization) with high confidence.",
+  "If perforation records confirm it was never opened, this interval becomes the primary SPT target.",
+  "Candidate passed to Stage 9 (EOR Optimization) pending operator review.",
 ];
 
 const STEP_MS = 6500;
@@ -412,6 +413,7 @@ export default function BrawnerExpertiseDemo({ standalone = false }: { standalon
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {standalone ? <IllustrativeCompositeLog /> : (
           <EnhancedWellLog
               wellId={standalone ? "" : BRAWNER_WELL_ID}
               wellName="BRAWNER 10-15"
@@ -419,6 +421,7 @@ export default function BrawnerExpertiseDemo({ standalone = false }: { standalon
               totalDepth={5225}
               defaultExpanded
             />
+          )}
         </CardContent>
       </Card>
 

@@ -28,6 +28,8 @@ export function sptScreening(well: WellLike) {
   let verdict: SptVerdict = "candidate";
   if (depth > libraryDepthFt) verdict = "conditional";
   if (risks.length >= 2) verdict = "conditional";
+  // Disqualifying: water cut at or above the cutoff (water already breaks through the pay).
+  if (wc != null && wc >= swCutoff) verdict = "not_recommended";
   const confidence = missing.length === 0 ? "medium" : "low";
   return { verdict, confidence, fluid, factors_for: factorsFor, risks, missing_data: missing };
 }

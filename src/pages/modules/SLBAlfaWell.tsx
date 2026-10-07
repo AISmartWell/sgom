@@ -113,7 +113,7 @@ export default function SLBAlfaWell() {
     { k: "BH pressure (PLT track)", v: `~${pressurePsi.toLocaleString()} psi`, s: "Abnormally high; reservoir pressure to be confirmed", r: "fail" },
     { k: "Wellhead pressure", v: "may exceed ≈ 6,000 psi", s: "Main risk: friction over ~4,400 m, equipment rating", r: "fail" },
     { k: "BHT", v: "est. 130–160 °C (266–320 °F)", s: "Not confirmed → high-temperature gel required", r: "warn" },
-    { k: "H₂S / CO₂", v: "unknown", s: "Gas composition analysis required — materials & program selection", r: "warn" },
+    { k: "H₂S / CO₂", v: (water?.h2s_ppm != null || water?.co2_pct != null) ? `${water?.h2s_ppm ?? "—"} ppm / ${water?.co2_pct ?? "—"}%` : "unknown", s: (water?.h2s_ppm != null || water?.co2_pct != null) ? "Saved well inputs — confirm against lab report" : "Gas composition analysis required — materials & program selection", r: "warn" },
     { k: "Porosity", v: logs ? "from LAS" : `${(DOC.phi * 100).toFixed(0)}%`, s: "Low but productive (tight gas sand)", r: "warn" },
     { k: "Permeability", v: "0.4 mD", s: "Tight reservoir (SLB petrophysics table)", r: "warn" },
     { k: "Water saturation", v: `${(DOC.sw * 100).toFixed(0)}%`, s: "Acceptable (< 50%)", r: "pass" },
@@ -212,7 +212,7 @@ export default function SLBAlfaWell() {
               <li><b>Main risk:</b> wellhead pressure — friction over ~4,400 m may push it beyond ≈ 6,000 psi</li>
               <li>Channel carries {DOC.channelShare}% of gas: isolate only if water is produced through it</li>
               <li>Depth beyond SPT case library (up to ≈ 5,400 ft); HPHT, BHT unconfirmed</li>
-              <li>H₂S / CO₂ content unknown — affects materials and program</li>
+              <li>{(water?.h2s_ppm != null || water?.co2_pct != null) ? `H₂S ${water?.h2s_ppm ?? "—"} ppm / CO₂ ${water?.co2_pct ?? "—"}% — confirm materials and program` : "H₂S / CO₂ content unknown — affects materials and program"}</li>
               <li>No LAS curves: ranking based on document averages only</li>
             </ul>
           </div>
@@ -370,6 +370,7 @@ export default function SLBAlfaWell() {
             <Row label="Production months" v={prod.length ? `${prod.length}` : null} />
             <Row label="Formation TDS" v={water?.formation_tds_ppm ? `${water.formation_tds_ppm.toLocaleString()} ppm` : null} />
             <Row label="Reservoir temp" v={water?.reservoir_temp_f ? `${water.reservoir_temp_f} °F` : null} />
+            <Row label="H₂S / CO₂" v={(water?.h2s_ppm != null || water?.co2_pct != null) ? `${water?.h2s_ppm ?? "—"} ppm / ${water?.co2_pct ?? "—"}%` : null} />
             <Row label="Injection share" v={water?.injection_share_pct != null ? `${water.injection_share_pct.toFixed(0)}%` : null} />
             <Row label="Well record" v={well ? "stored" : null} />
           </CardContent>
@@ -409,10 +410,10 @@ export default function SLBAlfaWell() {
             ["LAS curves 4,300–4,520 m (GR, RT, NPHI, RHOB, PEF, caliper)", logs?.length ? "received" : "expected", "Feeds Stage 6 ranking and Stage 8 petrophysics"],
             ["Confirmed reservoir pressure & bottom-hole temperature", "expected", "Drives wellhead-pressure risk and gel selection"],
             ["Gas / water production history", "expected", "Decline analysis and SPT economics"],
-            ["Gas composition (H₂S, CO₂)", "expected", "Materials and program selection"],
+            ["Gas composition (H₂S, CO₂)", (water?.h2s_ppm != null || water?.co2_pct != null) ? "received" : "expected", "Materials and program selection"],
             ["Liner design: slot width, wall thickness, inner string", "expected", "Geophysicist / operator review"],
             ["Cement bond log across pay", "expected", "Confirms annular channel extent"],
-            ["Water & scale analyses", "expected", "Rw for Archie, scale risk"],
+            ["Water & scale analyses", (water?.formation_tds_ppm != null || water?.rw_formation != null) ? "received" : "expected", "Rw for Archie, scale risk"],
           ] as const).map(([t, st, use]) => (
             <div key={t} className="flex flex-wrap items-center justify-between gap-2 border-b border-border/20 pb-2">
               <div>
