@@ -507,6 +507,12 @@ const menuItems = [
     badge: "Stage 6",
   },
   {
+    title: "Pilot Project",
+    icon: Layers,
+    href: "/dashboard/pilot-project",
+    badge: "Pilot",
+  },
+  {
     title: "Maxxwell Import",
     icon: Layers,
     href: "/dashboard/maxxwell-import",
