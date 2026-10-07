@@ -61,6 +61,7 @@ export function parseMaxxwellCsv(text: string): { bundles: WellBundle[]; errors:
       if (c.reservoir_pressure_psi != null && c.reservoir_pressure_psi <= 0) b.errors.push(`Row ${rowNo}: pressure must be > 0`);
       if (c.reservoir_pressure_psi != null && c.pressure_datum_ft == null) b.errors.push(`Row ${rowNo}: pressure_datum_ft required with pressure`);
       if (c.bht_f != null && c.bht_depth_ft == null) b.errors.push(`Row ${rowNo}: bht_depth_ft required with BHT`);
+      if (b.conditions) b.errors.push(`Row ${rowNo}: duplicate CONDITIONS row for API ${api} — keep one row per well`);
       b.conditions = c;
     } else if (kind === "CASING") {
       const type = casingTypes.find(t => t.toLowerCase() === (r.casing_type ?? "").toLowerCase());
