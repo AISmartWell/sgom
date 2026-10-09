@@ -90,6 +90,24 @@ export function CompositeLogPanel({ logs, rank, title, casing }: { logs: WellLog
           </g>
         ))}
 
+        {/* casing strings (saved records only, clipped to log range) */}
+        {(() => {
+          const cx = tx("csg") + tw("csg") / 2;
+          const shown = (casing ?? []).filter(s => Number.isFinite(s.top_ft) && Number.isFinite(s.bottom_ft) && s.bottom_ft > top && s.top_ft < base);
+          if (!shown.length) return <text x={cx} y={TOP + 14} fontSize={7} textAnchor="middle" fill={C.text}>No casing on record</text>;
+          return shown.map((s, k) => {
+            const y1 = y(Math.max(top, s.top_ft)), y2 = y(Math.min(base, s.bottom_ft));
+            const wpx = Math.min(tw("csg") - 20, Math.max(3, s.od_in * 0.9));
+            return (
+              <g key={k}>
+                {s.cement_top_ft != null && <rect x={cx - wpx / 2 - 3} y={y(Math.max(top, s.cement_top_ft))} width={wpx + 6} height={Math.max(1, y2 - y(Math.max(top, s.cement_top_ft)))} fill={C.text} fillOpacity={0.25} />}
+                <rect x={cx - wpx / 2} y={y1} width={wpx} height={Math.max(1, y2 - y1)} fill="none" stroke={C.fg} strokeWidth={1.1} />
+                <text x={cx} y={Math.min(y2 - 2, y1 + 9)} fontSize={6.5} textAnchor="middle" fill={C.text}>{s.od_in}″</text>
+              </g>
+            );
+          });
+        })()}
+
         {/* GR + sand shading */}
         {sandFill.map((p, k) => <line key={k} x1={lin("gr", p.gamma_ray!, 0, 150)} x2={lin("gr", grCut, 0, 150)} y1={y(p.measured_depth)} y2={y(p.measured_depth)} stroke={C.sand} strokeOpacity={0.35} strokeWidth={2} />)}
         <line x1={lin("gr", grCut, 0, 150)} x2={lin("gr", grCut, 0, 150)} y1={TOP} y2={H - BOT} stroke={C.text} strokeWidth={0.5} strokeDasharray="3 2" />
