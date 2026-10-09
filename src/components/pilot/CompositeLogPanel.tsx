@@ -1,15 +1,18 @@
 import type { WellLogPoint } from "@/hooks/useWellLogs";
 import type { LogRankResult } from "@/lib/spt-log-ranking";
+import type { CasingString } from "@/lib/casing-program";
 
 /**
- * Dense SLB-style composite log: depth | GR | RES (log) | POR/NPHI + RHOB | Sw | interpretation.
+ * Dense SLB-style composite log: depth | casing | GR | RES (log) | POR/NPHI + RHOB | Sw | interpretation.
  * Annotations are drawn from rankFromLogs output only (measured LAS data), never invented.
+ * Casing track renders only saved well_casing_programs records; depths outside the log range are clipped.
  */
 type Interval = LogRankResult["intervals"][number];
 
 const H = 520, TOP = 34, BOT = 10;
 const TRACKS = [
   { key: "depth", w: 46, title: "MD, ft" },
+  { key: "csg", w: 64, title: "Casing", scale: "OD, in" },
   { key: "gr", w: 110, title: "GR", scale: "0 — 150 API" },
   { key: "res", w: 110, title: "RES", scale: "0.2 — 2000 Ω·m" },
   { key: "por", w: 120, title: "PHI · NPHI · RHOB", scale: "45 — 0 % | 1.95–2.95" },
@@ -31,7 +34,7 @@ const C = {
   sand: "hsl(var(--chart-4, 45 90% 55%))",
 };
 
-export function CompositeLogPanel({ logs, rank, title }: { logs: WellLogPoint[]; rank: LogRankResult | null; title: string }) {
+export function CompositeLogPanel({ logs, rank, title, casing }: { logs: WellLogPoint[]; rank: LogRankResult | null; title: string; casing?: CasingString[] }) {
   const pts = logs.filter(l => Number.isFinite(l.measured_depth)).sort((a, b) => a.measured_depth - b.measured_depth);
   if (pts.length < 5) return <p className="text-xs text-muted-foreground">Composite log needs an imported LAS file (no measured curves for this well).</p>;
 
@@ -86,6 +89,24 @@ export function CompositeLogPanel({ logs, rank, title }: { logs: WellLogPoint[];
             <text x={tx("depth") + 42} y={y(d) + 3} fontSize={8} textAnchor="end" fill={C.text}>{d.toLocaleString()}</text>
           </g>
         ))}
+
+        {/* casing strings (saved records only, clipped to log range) */}
+        {(() => {
+          const cx = tx("csg") + tw("csg") / 2;
+          const shown = (casing ?? []).filter(s => Number.isFinite(s.top_ft) && Number.isFinite(s.bottom_ft) && s.bottom_ft > top && s.top_ft < base);
+          if (!shown.length) return <text x={cx} y={TOP + 14} fontSize={7} textAnchor="middle" fill={C.text}>No casing on record</text>;
+          return shown.map((s, k) => {
+            const y1 = y(Math.max(top, s.top_ft)), y2 = y(Math.min(base, s.bottom_ft));
+            const wpx = Math.min(tw("csg") - 20, Math.max(3, s.od_in * 0.9));
+            return (
+              <g key={k}>
+                {s.cement_top_ft != null && <rect x={cx - wpx / 2 - 3} y={y(Math.max(top, s.cement_top_ft))} width={wpx + 6} height={Math.max(1, y2 - y(Math.max(top, s.cement_top_ft)))} fill={C.text} fillOpacity={0.25} />}
+                <rect x={cx - wpx / 2} y={y1} width={wpx} height={Math.max(1, y2 - y1)} fill="none" stroke={C.fg} strokeWidth={1.1} />
+                <text x={cx} y={Math.min(y2 - 2, y1 + 9)} fontSize={6.5} textAnchor="middle" fill={C.text}>{s.od_in}″</text>
+              </g>
+            );
+          });
+        })()}
 
         {/* GR + sand shading */}
         {sandFill.map((p, k) => <line key={k} x1={lin("gr", p.gamma_ray!, 0, 150)} x2={lin("gr", grCut, 0, 150)} y1={y(p.measured_depth)} y2={y(p.measured_depth)} stroke={C.sand} strokeOpacity={0.35} strokeWidth={2} />)}
