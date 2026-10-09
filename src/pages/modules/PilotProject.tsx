@@ -56,7 +56,11 @@ async function loadPilotData(wells: W[]) {
   if (error) throw error;
   const waterBy: Record<string, Water> = {};
   (water ?? []).forEach(r => (waterBy[r.well_id] = r));
-  return { logs, water: waterBy };
+  const { data: casingRows, error: cErr } = await supabase.from("well_casing_programs").select("well_id, strings").in("well_id", ids);
+  if (cErr) throw cErr;
+  const casingBy: Record<string, CasingString[]> = {};
+  (casingRows ?? []).forEach(r => { const p = casingProgramSchema.safeParse({ strings: r.strings, source: "", notes: "" }); if (p.success) casingBy[r.well_id] = p.data.strings; });
+  return { logs, water: waterBy, casing: casingBy };
 }
 
 const Step = ({ ok, label }: { ok: boolean; label: string }) => (
