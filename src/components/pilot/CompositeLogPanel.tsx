@@ -1,15 +1,18 @@
 import type { WellLogPoint } from "@/hooks/useWellLogs";
 import type { LogRankResult } from "@/lib/spt-log-ranking";
+import type { CasingString } from "@/lib/casing-program";
 
 /**
- * Dense SLB-style composite log: depth | GR | RES (log) | POR/NPHI + RHOB | Sw | interpretation.
+ * Dense SLB-style composite log: depth | casing | GR | RES (log) | POR/NPHI + RHOB | Sw | interpretation.
  * Annotations are drawn from rankFromLogs output only (measured LAS data), never invented.
+ * Casing track renders only saved well_casing_programs records; depths outside the log range are clipped.
  */
 type Interval = LogRankResult["intervals"][number];
 
 const H = 520, TOP = 34, BOT = 10;
 const TRACKS = [
   { key: "depth", w: 46, title: "MD, ft" },
+  { key: "csg", w: 64, title: "Casing", scale: "OD, in" },
   { key: "gr", w: 110, title: "GR", scale: "0 — 150 API" },
   { key: "res", w: 110, title: "RES", scale: "0.2 — 2000 Ω·m" },
   { key: "por", w: 120, title: "PHI · NPHI · RHOB", scale: "45 — 0 % | 1.95–2.95" },
