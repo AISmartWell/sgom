@@ -16,6 +16,7 @@ import { auditLog, qcLabel, type LogQc } from "@/lib/log-qc-audit";
 import { correlate, pickSands, flagLabel, distanceKm, tieReliability, tieLabel, type Correlation } from "@/lib/well-correlation";
 import { sptScreening, wellVerdictLabel } from "@/lib/spt-sandbox-verdict";
 import { rankFromLogs, fluidOf, type LogRankResult } from "@/lib/spt-log-ranking";
+import { casingProgramSchema, type CasingString } from "@/lib/casing-program";
 import { downloadReportPdf } from "@/lib/report-pdf";
 import { CorrelationMap } from "@/components/pilot/CorrelationMap";
 import { CompositeLogPanel } from "@/components/pilot/CompositeLogPanel";
@@ -89,7 +90,7 @@ export default function PilotProject() {
     const conditions = water?.reservoir_pressure_psi != null && water?.bht_f != null && w.water_cut != null;
     const rank: LogRankResult | null = logs.length ? rankFromLogs(logs, water, fluidOf(w.well_type)) : null;
     const screen = sptScreening(w);
-    return { w, logs, water, audit, conditions, rank, screen, hasGr: logs.some(l => l.gamma_ray != null) };
+    return { w, logs, water, audit, conditions, rank, screen, casing: dataQ.data?.casing[w.id] ?? [], hasGr: logs.some(l => l.gamma_ray != null) };
   }), [pilotWells, dataQ.data]);
 
   const corr: Correlation | null = useMemo(() => {
@@ -290,7 +291,7 @@ export default function PilotProject() {
                 <div><div className="text-muted-foreground">Net pay / missed pay</div>{fmt(r.rank?.netPay, 1)} / {fmt(r.rank?.missedPay, 1)} ft</div>
                 <div><div className="text-muted-foreground">Data audit</div>{qcLabel[r.audit.grade]}</div>
               </div>
-              <CompositeLogPanel logs={r.logs} rank={r.rank} title={name(r.w)} />
+              <CompositeLogPanel logs={r.logs} rank={r.rank} title={name(r.w)} casing={r.casing} />
               {r.rank && r.rank.intervals.length > 0 && (
                 <table className="w-full text-xs">
                   <thead className="text-muted-foreground text-left"><tr><th className="py-1">Reservoir interval, ft</th><th>h, ft</th><th>φ, %</th><th>k, mD</th><th>Sw, %</th></tr></thead>
