@@ -34,7 +34,7 @@ const C = {
   sand: "hsl(var(--chart-4, 45 90% 55%))",
 };
 
-export function CompositeLogPanel({ logs, rank, title }: { logs: WellLogPoint[]; rank: LogRankResult | null; title: string }) {
+export function CompositeLogPanel({ logs, rank, title, casing }: { logs: WellLogPoint[]; rank: LogRankResult | null; title: string; casing?: CasingString[] }) {
   const pts = logs.filter(l => Number.isFinite(l.measured_depth)).sort((a, b) => a.measured_depth - b.measured_depth);
   if (pts.length < 5) return <p className="text-xs text-muted-foreground">Composite log needs an imported LAS file (no measured curves for this well).</p>;
 
